@@ -45,7 +45,6 @@ export default function Home() {
       if (error) {
         console.error("Error fetching recent memories:", error);
       } else {
-        console.log("Fetched recent memories:", data); // Debug fetched data
         setRecentMemories(data || []);
       }
     }
@@ -61,6 +60,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Header */}
       <header className="bg-white/90 backdrop-blur-md shadow-lg">
         <div className="max-w-4xl mx-auto px-6 py-6 text-center">
           <h1 className="text-4xl font-bold text-gray-900">If Only I Sent This</h1>
@@ -91,6 +91,8 @@ export default function Home() {
           </nav>
         </div>
       </header>
+
+      {/* Rotating Quote */}
       <section
         className="mb-10 p-4 bg-white/90 rounded-lg shadow-lg text-center flex items-center justify-center overflow-hidden"
         style={{ minHeight: "4rem" }}
@@ -99,10 +101,14 @@ export default function Home() {
           {quotes[quoteIndex]}
         </p>
       </section>
+
+      {/* Recent Memories */}
       <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
         <h2 className="text-3xl font-semibold mb-6 text-gray-900">Recent Memories</h2>
         {recentMemories.length > 0 ? (
-          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+          recentMemories.map((memory) => (
+            <MemoryCard key={memory.id} memory={memory} />
+          ))
         ) : (
           <p className="text-gray-700">No recent memories found.</p>
         )}
@@ -112,6 +118,8 @@ export default function Home() {
           </Link>
         </div>
       </main>
+
+      {/* Footer */}
       <footer className="bg-white/90 backdrop-blur-md shadow-lg">
         <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-gray-600">
           © {new Date().getFullYear()} If Only I Sent This
