@@ -8,11 +8,11 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
-  status?: string;
+  status: string;
   color: string;
   full_bg: boolean;
   letter_style: string;
-  animation?: string | boolean;
+  animation?: string;
 }
 
 interface MemoryCardProps {
@@ -20,6 +20,7 @@ interface MemoryCardProps {
   detail?: boolean;
 }
 
+// Color mappings for the light palette
 function getBorderColor(color: string) {
   const mapping: { [key: string]: string } = {
     default: "border-gray-300",
@@ -56,8 +57,25 @@ function getColorHex(color: string): string {
   return mapping[color] || "#A0AEC0";
 }
 
-function getBgColor(color: string, fullBg?: boolean) {
-  return fullBg ? `bg-${color}-100` : `bg-gradient-to-br from-${color}-50 to-white`;
+function getBgColor(color: string, full_bg: boolean) {
+  if (full_bg) {
+    const mapping: { [key: string]: string } = {
+      default: "bg-gray-50",
+      blue: "bg-blue-50",
+      gray: "bg-gray-50",
+      purple: "bg-purple-50",
+      navy: "bg-blue-50",
+      maroon: "bg-red-50",
+      pink: "bg-pink-50",
+      teal: "bg-teal-50",
+      olive: "bg-green-50",
+      mustard: "bg-yellow-50",
+      coral: "bg-orange-50",
+      lavender: "bg-purple-50",
+    };
+    return mapping[color] || "bg-gray-50";
+  }
+  return "bg-[var(--card-bg)]";
 }
 
 const TypewriterPrompt: React.FC = () => {
@@ -175,7 +193,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
   const borderColor = getBorderColor(memory.color);
   const bgColor = getBgColor(memory.color, memory.full_bg);
-  const accentColor = getColorHex(memory.color);
+  const arrowColor = getColorHex(memory.color);
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
   const timeStr = new Date(memory.created_at).toLocaleTimeString();
@@ -185,94 +203,63 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   if (detail) {
     return (
-      <div
-        className={`w-full max-w-lg mx-auto my-8 p-8 ${bgColor} ${borderColor} border-4 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105`}
-        style={{
-          background: `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
-        }}
-      >
-        <div className="relative">
-          <div className="absolute -top-6 -left-6 w-12 h-12 bg-red-400 rounded-full opacity-50" />
-          <div className="absolute -bottom-6 -right-6 w-12 h-12 bg-red-400 rounded-full opacity-50" />
-          <h3 className="text-3xl font-serif font-bold text-[var(--text)] mb-2">
-            <span style={{ color: accentColor }}>To:</span> {memory.recipient}
-          </h3>
-          {memory.sender && (
-            <p className="text-xl font-serif italic text-[var(--text)] mb-4">
-              <span style={{ color: accentColor }}>From:</span> {memory.sender}
-            </p>
+      <div className={`w-full max-w-md mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md`}>
+        <h3 className="text-2xl font-bold text-[var(--text)]">
+          {memory.animation && (
+            <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
           )}
-          <hr className="my-6 border-[var(--border)] border-dashed" />
-          <div className="text-[var(--text)] text-lg font-serif whitespace-pre-wrap leading-relaxed">
-            {renderMessage(memory)}
-          </div>
-          <hr className="my-6 border-[var(--border)] border-dashed" />
-          <div className="text-sm text-[var(--text)] flex flex-wrap justify-center gap-3 font-mono">
-            <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> |{" "}
-            <span style={{ color: accentColor }}>{memory.color}</span>
-          </div>
+          To: {memory.recipient}
+        </h3>
+        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-[var(--text)] whitespace-pre-wrap">{renderMessage(memory)}</div>
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
+          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative group my-8">
-      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px] z-10">
+    <div className="relative group my-6">
+      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
         <Link href={`/memories/${memory.id}`}>
-          <span className="arrow-icon text-3xl" style={{ color: accentColor }}>
-            ➜
-          </span>
+          <span className="arrow-icon" style={{ color: arrowColor }}>➜</span>
         </Link>
       </div>
       <div
-        className="flip-card w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto perspective-1000 aspect-[3/4] cursor-pointer"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 aspect-square cursor-pointer"
         onClick={handleCardClick}
       >
         <div
-          className={`flip-card-inner relative w-full h-full transition-transform duration-700 ease-in-out ${
-            flipped ? "rotate-y-180" : ""
-          }`}
+          className={`flip-card-inner relative w-full h-full transition-transform duration-500 ${flipped ? "rotate-y-180" : ""}`}
         >
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-4 rounded-xl shadow-lg p-6 flex flex-col justify-between`}
-            style={{
-              background: `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
-            }}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-between`}
           >
             <div>
-              <h3 className="text-2xl font-serif font-bold text-[var(--text)]">
-                <span style={{ color: accentColor }}>To:</span> {memory.recipient}
+              <h3 className="text-xl font-bold text-[var(--text)]">
+                {memory.animation && (
+                  <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
+                )}
+                To: {memory.recipient}
               </h3>
-              {memory.sender && (
-                <p className="mt-2 text-lg font-serif italic text-[var(--text)]">
-                  <span style={{ color: accentColor }}>From:</span> {memory.sender}
-                </p>
-              )}
-              <hr className="my-4 border-[var(--border)] border-dashed" />
-              <div className="text-sm text-[var(--text)] flex flex-wrap justify-center gap-2 font-mono">
-                <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> |{" "}
-                <span style={{ color: accentColor }}>{memory.color}</span>
-              </div>
+              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
+            </div>
+            <div className="text-xs text-[var(--text)] text-center">
+              {dateStr} | {dayStr}
             </div>
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-4 rounded-xl shadow-lg p-6 flex flex-col justify-start rotate-y-180`}
-            style={{
-              background: `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
-            }}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-start rotate-y-180`}
           >
-            <h3 className="text-xl font-serif italic text-[var(--text)] text-center">
-              if only i sent this
-            </h3>
-            <hr className="my-4 border-[var(--border)] border-dashed" />
+            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
+            <hr className="my-2 border-[var(--border)]" />
             <div
-              className="flex-1 overflow-y-auto card-scroll text-base font-serif text-[var(--text)] whitespace-pre-wrap"
-              style={{ "--scroll-thumb": accentColor } as React.CSSProperties}
+              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap"
+              style={{ "--scroll-thumb": arrowColor } as React.CSSProperties}
             >
               {renderMessage(memory)}
             </div>
