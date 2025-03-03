@@ -2,16 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
 
-/* Global styling with an emotional gradient background */
 body {
-  @apply bg-gradient-to-br from-purple-50 via-pink-50 to-red-50 text-gray-800;
-  font-family: 'Arial', sans-serif;
+  @apply bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 text-gray-200;
+  font-family: "Arial", sans-serif;
 }
 
-/* Flip Card Styles */
 .perspective-1000 {
   perspective: 1000px;
 }
@@ -25,134 +23,40 @@ body {
   transform: rotateY(180deg);
 }
 
-/* Cute Scrollbar for card message */
 .card-scroll {
   -webkit-overflow-scrolling: touch;
 }
 .card-scroll::-webkit-scrollbar {
   width: 10px;
-  background-color: var(--scroll-bg);
-  opacity: 0;
-  transition: opacity 2s ease-out;
-}
-.card-scroll:hover::-webkit-scrollbar {
-  opacity: 1;
-  transition: opacity 0s;
 }
 .card-scroll::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px #f06292;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
   background-color: var(--scroll-bg);
-  border-left: 3px solid white;
-  border-right: 3px solid white;
 }
 .card-scroll::-webkit-scrollbar-thumb {
-  border-radius: 20px;
+  border-radius: 10px;
   background-color: var(--scroll-thumb);
 }
 
-/* Bleeding Text Effect */
 .bleeding-text {
-  font-family: 'Architects Daughter', cursive;
-  text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
-    0 0 0.1em rgb(0%, 100%, 0%),
-    0 0 0.2em rgb(100%, 10%, 10%);
+  font-family: "Architects Daughter", cursive;
+  text-shadow: 0 0 0.05em rgb(0%, 0%, 100%), 0 0 0.1em rgb(0%, 100%, 0%), 0 0 0.2em rgb(100%, 10%, 10%);
 }
 
-/* Broken Words Effect */
-.broken-word {
-  position: relative;
-  display: inline-block;
-  color: transparent; /* Keep this to hide the base text */
-  margin-right: 0.2em; /* Spacing between words */
-}
-
-.broken-word::before,
-.broken-word::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  color: inherit; /* Inherit text color from the card */
-  transition: 0.2s;
-}
-
-.broken-word::before {
-  clip-path: polygon(0 0, 60% 0, 30% 100%, 0 100%);
-}
-
-.broken-word::after {
-  clip-path: polygon(60% 0, 100% 0, 100% 100%, 30% 100%);
-}
-
-.broken-word.active::before {
-  left: -0.15em;
-  transform: rotate(-5deg);
-  top: -0.05em;
-}
-
-.broken-word.active::after {
-  left: 0.15em;
-  transform: rotate(5deg);
-  top: 0.05em;
-}
-
-/* Neon Love Glow Effect */
-.neon-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.neon-heart {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-  filter: brightness(400%);
-}
-
-.neon-heart svg {
-  width: 100%;
-  height: 100%;
-  stroke-dasharray: 75px;
-  stroke-dashoffset: 0px;
-}
-
-.neon-heart .gradient {
-  width: 125%;
-  height: 125%;
-  transform: translate(-12.5%, -12.5%);
-  background: linear-gradient(180deg, var(--heart-color) 0%, var(--heart-color) 50%, var(--heart-color) 50%);
-  mix-blend-mode: multiply;
-}
-
-.background {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 50% 25%, var(--heart-color), transparent),
-              radial-gradient(circle at 50% 75%, var(--heart-color), transparent);
-  background-blend-mode: multiply;
-  opacity: 0.33;
-}
-
-.neon-text {
-  position: relative;
-  z-index: 1;
-  color: #000; /* Changed to black for better contrast */
-  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--heart-color); /* Subtle glow */
-}
-
-/* Handwritten Text Effect */
 .handwritten-text p {
-  font-family: 'Pacifico', cursive; /* Handwritten font */
-  font-size: 1.5rem; /* Matches card text size */
-  /* Removed animation for fixed positioning */
+  font-family: "Pacifico", cursive;
+  font-size: 1.5rem;
 }
+
+.arrow-icon {
+  font-size: 2rem;
+  transition: transform 0.3s ease;
+}
+.arrow-icon:hover {
+  transform: scale(1.2);
+}
+
 @keyframes slide-up {
   0% {
     opacity: 0;
@@ -181,9 +85,21 @@ body {
   animation: fade-in 0.5s ease-out;
 }
 
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
-.delay-300 { animation-delay: 0.3s; }
-.delay-400 { animation-delay: 0.4s; }
-.delay-500 { animation-delay: 0.5s; }
-.delay-600 { animation-delay: 0.6s; }
+.delay-100 {
+  animation-delay: 0.1s;
+}
+.delay-200 {
+  animation-delay: 0.2s;
+}
+.delay-300 {
+  animation-delay: 0.3s;
+}
+.delay-400 {
+  animation-delay: 0.4s;
+}
+.delay-500 {
+  animation-delay: 0.5s;
+}
+.delay-600 {
+  animation-delay: 0.6s;
+}
