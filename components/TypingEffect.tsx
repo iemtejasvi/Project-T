@@ -1,95 +1,108 @@
-// components/TypingEffect.tsx
 "use client";
 import { useState, useEffect } from "react";
 
-const sadMessages = [
+const messages = [
   "I wish I said no more often",
   "You inspire me to be nothing like you",
-  "The silence between us is deafening",
   "I miss the person I thought you were",
-  "Sometimes, I wonder if you ever cared",
-  "The hardest part is pretending to be okay",
-  "I keep replaying our last conversation",
-  "I never got to say goodbye",
-  "Your absence is a constant presence",
+  "Sometimes silence is the loudest scream",
+  "I’m tired of pretending everything is okay",
+  "The hardest part is waking up",
+  "I feel like I’m drowning in my own thoughts",
   "I wish I could turn back time",
-  "The memories haunt me every night",
-  "I feel lost without you",
-  "I never thought I'd have to live without you",
-  "The pain never really goes away",
+  "I’m sorry for all the things I didn’t say",
+  "I’m not okay, but I smile anyway",
+  "Every day feels heavier than the last",
+  "I keep replaying what went wrong",
+  "I thought time would heal, but it hasn’t",
+  "I’m haunted by what could have been",
+  "I never learned to say goodbye",
+  "My heart still aches for you",
+  "I’m lost without your light",
+  "I wish I could forget your name",
+  "I’m trapped in memories of us",
+  "I still look for you in crowds",
+  "I’m sorry I wasn’t enough",
+  "I wish I could undo the past",
+  "I’m drowning in my regrets",
+  "I miss the sound of your voice",
+  "I’m still waiting for closure",
+  "I wish I could erase the pain",
+  "I’m sorry for loving you too much",
+  "I’m haunted by your absence",
+  "I wish I could turn off my feelings",
+  "I’m tired of being strong",
   "I miss the way things used to be",
-  "I wish I could hear your voice again",
-  "I keep hoping you'll come back",
-  "The world feels empty without you",
-  "I never got to tell you how much I loved you",
-  "I wish I could have one more day with you",
-  "The regret is overwhelming",
+  "I’m sorry for holding on too long",
+  "I wish I could let go",
+  "I’m lost in the silence between us",
+  "I miss the warmth of your touch",
+  "I’m sorry for the words I never said",
+  "I wish I could rewrite our story",
+  "I’m drowning in what-ifs",
   "I miss the way you made me feel",
-  "I never thought I'd have to say goodbye",
-  "The silence is unbearable",
-  "I wish I could turn back time",
-  "I miss the person I used to be",
-  "I never got to say what I needed to say",
-  "The pain is a constant reminder",
-  "I wish I could have one more moment with you",
-  "The memories are all I have left",
+  "I’m sorry for the mistakes I made",
+  "I wish I could turn back the clock",
+  "I’m lost without your guidance",
+  "I miss the laughter we shared",
+  "I’m sorry for the pain I caused",
+  "I wish I could make things right",
+  "I’m drowning in my own sorrow",
+  "I miss the dreams we built together",
+  "I’m sorry for the times I failed you",
+  "I wish I could say goodbye properly",
+  "I’m lost in the void you left behind",
+  "The nights are colder without you",
+  "I’m sorry I couldn’t fix us",
+  "I wish I had one more chance",
 ];
 
-const TypingEffect: React.FC = () => {
+const TypingEffect = () => {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
-  const [charIndex, setCharIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
-  const [mistakeState, setMistakeState] = useState<"none" | "mistyping" | "correcting">("none");
-  const [mistakePosition, setMistakePosition] = useState<number>(0);
+  const [charIndex, setCharIndex] = useState(0);
 
   useEffect(() => {
-    const currentMessage = sadMessages[currentMessageIndex];
-    const typeSpeed = 100 + Math.random() * 50;
-    const eraseSpeed = 50;
-    const mistakeChance = 0.15;
-
-    const timeout = setTimeout(() => {
-      if (isTyping) {
-        if (charIndex < currentMessage.length) {
-          if (mistakeState === "none" && Math.random() < mistakeChance) {
-            setMistakeState("mistyping");
-            setMistakePosition(charIndex);
-            const wrongChar = String.fromCharCode(97 + Math.floor(Math.random() * 26));
-            setDisplayedText(displayedText + wrongChar);
-          } else if (mistakeState === "mistyping") {
-            setMistakeState("correcting");
-            setDisplayedText(displayedText.slice(0, -1));
-          } else if (mistakeState === "correcting") {
-            setDisplayedText(displayedText + currentMessage[mistakePosition]);
-            setMistakeState("none");
-            setCharIndex(charIndex + 1);
-          } else {
-            setDisplayedText(currentMessage.substring(0, charIndex + 1));
-            setCharIndex(charIndex + 1);
+    const currentMessage = messages[currentMessageIndex];
+    if (isTyping) {
+      if (charIndex < currentMessage.length) {
+        const timeout = setTimeout(() => {
+          setDisplayedText((prev) => prev + currentMessage[charIndex]);
+          setCharIndex((prev) => prev + 1);
+          if (Math.random() < 0.05 && charIndex > 5) {
+            setIsTyping(false); // 5% chance to backspace after 5 chars
           }
-        } else {
-          setTimeout(() => setIsTyping(false), 2000);
-        }
+        }, 100); // Typing speed
+        return () => clearTimeout(timeout);
       } else {
-        if (charIndex > 0) {
-          setDisplayedText(currentMessage.substring(0, charIndex - 1));
-          setCharIndex(charIndex - 1);
-        } else {
-          setCurrentMessageIndex((currentMessageIndex + 1) % sadMessages.length);
-          setIsTyping(true);
-          setMistakeState("none");
-        }
+        const timeout = setTimeout(() => {
+          setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+          setDisplayedText("");
+          setCharIndex(0);
+        }, 3000); // Pause before next message
+        return () => clearTimeout(timeout);
       }
-    }, isTyping ? typeSpeed : eraseSpeed);
-
-    return () => clearTimeout(timeout);
-  }, [charIndex, isTyping, currentMessageIndex, mistakeState]);
+    } else {
+      if (charIndex > 0) {
+        const timeout = setTimeout(() => {
+          setDisplayedText((prev) => prev.slice(0, -1));
+          setCharIndex((prev) => prev - 1);
+          if (Math.random() < 0.3 || charIndex <= 5) {
+            setIsTyping(true); // 30% chance to resume typing
+          }
+        }, 50); // Backspacing speed
+        return () => clearTimeout(timeout);
+      } else {
+        setIsTyping(true);
+      }
+    }
+  }, [charIndex, isTyping, currentMessageIndex]);
 
   return (
-    <div className="text-center text-base sm:text-lg italic text-[var(--text)] min-h-[2rem] font-serif truncate">
+    <div className="typing-effect text-lg sm:text-xl italic text-[var(--text)] font-mono">
       {displayedText}
-      <span className="animate-blink text-[var(--accent)]">|</span>
+      <span className="cursor">|</span>
     </div>
   );
 };
