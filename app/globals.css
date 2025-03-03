@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
-/* Light, sad, 1980s-inspired color palette */
+/* Refined sad, depressing, yet appealing color palette */
 :root {
   --background: #F5F5F5; /* Soft off-white */
   --text: #4A4A4A; /* Dark gray for readability */
@@ -83,26 +83,43 @@ body {
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
 .animate-slide-up {
   animation: slide-up 0.5s ease-out;
 }
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
 }
-.animate-blink {
-  animation: blink 1s step-end infinite;
-}
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
+
+/* Enhanced flip card styles */
+.flip-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.group:hover .flip-card {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px var(--shadow);
+}
+
+/* Typing effect styles */
+.typing-effect {
+  font-family: monospace;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+.cursor {
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .arrow-icon {
     font-size: 2rem;
+  }
+  .typing-effect {
+    font-size: 1rem;
   }
 }
