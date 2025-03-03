@@ -106,12 +106,3 @@ body {
     font-size: 2rem;
   }
 }
-
-/* Additional styles for visual appeal */
-.card {
-  box-shadow: 0 4px 6px var(--shadow);
-  transition: box-shadow 0.3s ease;
-}
-.card:hover {
-  box-shadow: 0 6px 8px var(--shadow);
-}
