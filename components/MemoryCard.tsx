@@ -166,7 +166,7 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts]);
 
   return (
-    <div className="h-6 text-center text-sm text-[var(--text)] font-serif">
+    <div className="h-6 text-center text-sm text-[var(--text)] font-serif overflow-hidden">
       {displayedText}
     </div>
   );
@@ -204,20 +204,24 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   if (detail) {
     return (
       <div
-        className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg aspect-[3/4] animate-slide-up`}
+        className={`w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg aspect-[3/4] flex flex-col animate-slide-up`}
       >
-        <h3 className="text-2xl font-bold text-[var(--text)]">
-          {memory.animation && (
-            <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
-          )}
-          To: {memory.recipient}
-        </h3>
-        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-        <hr className="my-4 border-[var(--border)]" />
-        <div className="text-[var(--text)] whitespace-pre-wrap">{renderMessage(memory)}</div>
-        <hr className="my-4 border-[var(--border)]" />
-        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
-          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
+        <div>
+          <h3 className="text-2xl font-bold text-[var(--text)]">
+            {memory.animation && (
+              <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
+            )}
+            To: {memory.recipient}
+          </h3>
+          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+          <hr className="my-4 border-[var(--border)]" />
+        </div>
+        <div className="flex-1 overflow-auto card-scroll">{renderMessage(memory)}</div>
+        <div className="mt-auto">
+          <hr className="my-4 border-[var(--border)]" />
+          <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
+            <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
+          </div>
         </div>
       </div>
     );
@@ -231,7 +235,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </Link>
       </div>
       <div
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 aspect-square cursor-pointer rounded-xl shadow-lg border border-[var(--border)]"
+        className="flip-card w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto perspective-1000 aspect-square cursor-pointer rounded-xl shadow-lg border border-[var(--border)]"
         onClick={handleCardClick}
       >
         <div
