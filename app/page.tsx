@@ -23,16 +23,11 @@ export default function Home() {
   const [quoteIndex, setQuoteIndex] = useState(0);
   const [showWelcome, setShowWelcome] = useState(false);
   const quotes = [
-    "The wound is the place where the Light enters you.",
-    "Let yourself be silently drawn by the strange pull of what you really love.",
-    "When you let go, you feel free.",
-    "Don’t grieve. Anything you lose comes round in another form.",
-    "The minute I heard my first love story, I started looking for you.",
-    "Why do you stay in prison when the door is so wide open?",
-    "The soul has its own ears to hear things the mind does not understand.",
-    "Let the beauty we love be what we do.",
-    "Everything beautiful is made for the eye of one who sees.",
-    "Forget safety. Live where you fear to live.",
+    "Words left unsaid echo the loudest.",
+    "In the silence, I found you again.",
+    "Some letters are written in tears.",
+    "Time fades, but regrets linger.",
+    "I kept it all inside, too late.",
   ];
 
   useEffect(() => {
@@ -43,11 +38,8 @@ export default function Home() {
         .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(3);
-      if (error) {
-        console.error("Error fetching recent memories:", error);
-      } else {
-        setRecentMemories(data || []);
-      }
+      if (error) console.error("Error fetching memories:", error);
+      else setRecentMemories(data || []);
     }
     fetchRecentMemories();
 
@@ -64,56 +56,54 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [quotes.length]);
 
-  const handleWelcomeClose = () => {
-    setShowWelcome(false);
-  };
+  const handleWelcomeClose = () => setShowWelcome(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900">
+    <div className="min-h-screen flex flex-col">
       {showWelcome && (
-        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-8 rounded-lg shadow-xl max-w-md text-center">
-            <h2 className="text-2xl font-bold text-gray-200 mb-4">Welcome to If Only I Sent This</h2>
-            <p className="text-gray-400 mb-6">
-              A place for the words you never sent. Learn more on our{" "}
-              <Link href="/how-it-works" className="text-teal-400 hover:underline">
+        <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in">
+            <h2 className="text-xl font-bold text-[var(--text)] mb-4">Welcome</h2>
+            <p className="text-[var(--text)] mb-6">
+              A space for unsent memories. Check out{" "}
+              <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">
                 How It Works
-              </Link>{" "}
-              page.
+              </Link>
+              .
             </p>
             <button
               onClick={handleWelcomeClose}
-              className="px-4 py-2 bg-teal-600 text-gray-200 rounded hover:bg-teal-700 transition duration-200"
+              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded hover:bg-blue-200 transition duration-200"
             >
-              OK
+              Got It
             </button>
           </div>
         </div>
       )}
 
-      <header className="bg-gray-900/90 backdrop-blur-md shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 py-6 text-center">
-          <h1 className="text-4xl font-bold text-gray-200">If Only I Sent This</h1>
-          <hr className="my-4 border-gray-600" />
+      <header className="bg-[var(--card-bg)] shadow-md">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
+          <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap justify-center gap-6 text-gray-400">
+            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
               <li>
-                <Link href="/" className="hover:text-teal-400 transition-colors duration-200">
+                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-teal-400 transition-colors duration-200">
+                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Memories
                 </Link>
               </li>
               <li>
-                <Link href="/submit" className="hover:text-teal-400 transition-colors duration-200">
+                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Submit
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:text-teal-400 transition-colors duration-200">
+                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   How It Works
                 </Link>
               </li>
@@ -122,28 +112,28 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="mb-10 p-4 bg-gray-900 text-gray-300 rounded-lg shadow-lg text-center mx-auto max-w-4xl">
-        <p className="text-xl md:text-2xl italic">{quotes[quoteIndex]}</p>
+      <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
+        <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+          <p className="text-lg sm:text-xl italic text-[var(--text)]">{quotes[quoteIndex]}</p>
+        </div>
       </section>
 
-      <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
-        <h2 className="text-3xl font-semibold mb-6 text-gray-200">Recent Memories</h2>
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
         {recentMemories.length > 0 ? (
-          recentMemories.map((memory) => (
-            <MemoryCard key={memory.id} memory={memory} />
-          ))
+          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
         ) : (
-          <p className="text-gray-400">No recent memories found.</p>
+          <p className="text-[var(--text)]">No memories yet.</p>
         )}
         <div className="text-right mt-4">
-          <Link href="/memories" className="text-teal-400 hover:underline transition-colors duration-200">
-            View All Memories →
+          <Link href="/memories" className="text-[var(--accent)] hover:underline">
+            See All →
           </Link>
         </div>
       </main>
 
-      <footer className="bg-gray-900/90 backdrop-blur-md shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-gray-400">
+      <footer className="bg-[var(--card-bg)] shadow-md">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
