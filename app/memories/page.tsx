@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
@@ -18,34 +17,36 @@ interface Memory {
   animation?: string;
 }
 
-export default function MemoryDetail() {
-  const { id } = useParams();
-  const [memory, setMemory] = useState<Memory | null>(null);
+export default function Memories() {
+  const [memories, setMemories] = useState<Memory[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    async function fetchMemory() {
-      const { data, error } = await supabase
+    async function fetchMemories() {
+      let query = supabase
         .from("memories")
         .select("*")
-        .eq("id", id)
-        .single();
+        .eq("status", "approved")
+        .order("created_at", { ascending: false });
+      if (searchTerm) {
+        query = query.ilike("recipient", `%${searchTerm}%`);
+      }
+      const { data, error } = await query;
       if (error) {
-        console.error(error);
+        console.error("Error fetching memories:", error);
       } else {
-        setMemory(data);
+        setMemories(data || []);
       }
     }
-    fetchMemory();
-  }, [id]);
-
-  if (!memory) return <p className="p-6">Loading...</p>;
+    fetchMemories();
+  }, [searchTerm]);
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-md shadow-lg">
         <div className="max-w-4xl mx-auto px-6 py-6 text-center">
-          <h1 className="text-4xl font-bold text-gray-900">Memory Detail</h1>
+          <h1 className="text-4xl font-bold text-gray-900">Memories</h1>
           <hr className="my-4 border-gray-300" />
           <nav>
             <ul className="flex flex-wrap justify-center gap-6">
@@ -56,7 +57,17 @@ export default function MemoryDetail() {
               </li>
               <li>
                 <Link href="/memories" className="hover:text-blue-600">
-                  Back to Memories
+                  Memories
+                </Link>
+              </li>
+              <li>
+                <Link href="/submit" className="hover:text-blue-600">
+                  Submit
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-blue-600">
+                  About
                 </Link>
               </li>
             </ul>
@@ -66,7 +77,20 @@ export default function MemoryDetail() {
 
       {/* Main Content */}
       <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
-        <MemoryCard memory={memory} detail />
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search by recipient name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-400"
+          />
+        </div>
+        {memories.length > 0 ? (
+          memories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+        ) : (
+          <p className="text-gray-700">No memories found.</p>
+        )}
       </main>
 
       {/* Footer */}
