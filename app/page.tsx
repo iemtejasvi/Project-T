@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabaseClient";
 import MemoryCard from "../components/MemoryCard";
@@ -14,6 +14,7 @@ interface Memory {
   animation?: boolean;
   full_bg?: boolean;
   status?: string;
+  letter_style: string;
 }
 
 const TypingEffect: React.FC = () => {
@@ -23,87 +24,89 @@ const TypingEffect: React.FC = () => {
   const [charIndex, setCharIndex] = useState(0);
   const [mistyped, setMistyped] = useState(false);
 
-  const quotes = [
-    "I wish I said no more often",
-    "You inspire me to be nothing like you",
-    "The silence between us was deafening",
-    "I kept my pain hidden behind a smile",
-    "The hardest part was letting go",
-    "I never knew how to say goodbye",
-    "My heart still aches for what could have been",
-    "I miss the person I used to be",
-    "The memories haunt me every night",
-    "I wish I could turn back time",
-    "Every word I didn’t say weighs on me",
-    "I loved you more than I showed",
-    "The emptiness feels louder than words",
-    "I’m sorry I wasn’t enough",
-    "You’ll never know how much I cared",
-    "I lost myself trying to keep you",
-    "The past is a ghost I can’t escape",
-    "I wish I fought harder for us",
-    "Your absence echoes in my soul",
-    "I hid my tears so you wouldn’t see",
-    "Time didn’t heal what I broke",
-    "I regret the chances I didn’t take",
-    "My silence was my biggest mistake",
-    "I still hear your voice in my dreams",
-    "I gave up when I should’ve held on",
-    "The words I held back choke me now",
-    "I wish I told you I was scared",
-    "You were my home, and I left",
-    "I pretended I didn’t need you",
-    "The pain lingers like an old song",
-    "I should’ve said I love you more",
-    "I watched you fade from my life",
-    "My heart broke in silence",
-    "I wish I hadn’t pushed you away",
-    "You’ll never read these words",
-    "I failed to be who you needed",
-    "The goodbye I never said haunts me",
-    "I buried my feelings too deep",
-    "I wish I’d been braver for you",
-    "Your memory cuts like a knife",
-    "I let pride steal my voice",
-    "I miss the us we could’ve been",
-    "I didn’t fight the tears you caused",
-    "I’m trapped in what I didn’t say",
-    "You were my unsent letter",
-    "I wish I’d held you longer",
-    "The regret grows heavier each day",
-    "I lost you to my own silence",
-    "I should’ve begged you to stay",
-    "My heart whispers your name",
-    "I hid my love behind fear",
-    "I wish I’d shared my darkness",
-    "You left a hole words can’t fill",
-    "I’m sorry I let you slip away",
-    "I never told you how I broke",
-    "The unsaid burns brighter than fire",
-    "I wish I’d been honest with you",
-    "You were my almost, my maybe",
-    "I still feel you in the quiet",
-    "I let you go without a word",
-    "My soul aches for one more chance",
-    "I wish I’d said it all",
-    "You’ll never know my truth",
-    "I drowned in my own silence",
-    "I miss you more than I can say",
-  ];
+  const quotes = useMemo(
+    () => [
+      "I wish I said no more often",
+      "You inspire me to be nothing like you",
+      "The silence between us was deafening",
+      "I kept my pain hidden behind a smile",
+      "The hardest part was letting go",
+      "I never knew how to say goodbye",
+      "My heart still aches for what could have been",
+      "I miss the person I used to be",
+      "The memories haunt me every night",
+      "I wish I could turn back time",
+      "Every word I didn’t say weighs on me",
+      "I loved you more than I showed",
+      "The emptiness feels louder than words",
+      "I’m sorry I wasn’t enough",
+      "You’ll never know how much I cared",
+      "I lost myself trying to keep you",
+      "The past is a ghost I can’t escape",
+      "I wish I fought harder for us",
+      "Your absence echoes in my soul",
+      "I hid my tears so you wouldn’t see",
+      "Time didn’t heal what I broke",
+      "I regret the chances I didn’t take",
+      "My silence was my biggest mistake",
+      "I still hear your voice in my dreams",
+      "I gave up when I should’ve held on",
+      "The words I held back choke me now",
+      "I wish I told you I was scared",
+      "You were my home, and I left",
+      "I pretended I didn’t need you",
+      "The pain lingers like an old song",
+      "I should’ve said I love you more",
+      "I watched you fade from my life",
+      "My heart broke in silence",
+      "I wish I hadn’t pushed you away",
+      "You’ll never read these words",
+      "I failed to be who you needed",
+      "The goodbye I never said haunts me",
+      "I buried my feelings too deep",
+      "I wish I’d been braver for you",
+      "Your memory cuts like a knife",
+      "I let pride steal my voice",
+      "I miss the us we could’ve been",
+      "I didn’t fight the tears you caused",
+      "I’m trapped in what I didn’t say",
+      "You were my unsent letter",
+      "I wish I’d held you longer",
+      "The regret grows heavier each day",
+      "I lost you to my own silence",
+      "I should’ve begged you to stay",
+      "My heart whispers your name",
+      "I hid my love behind fear",
+      "I wish I’d shared my darkness",
+      "You left a hole words can’t fill",
+      "I’m sorry I let you slip away",
+      "I never told you how I broke",
+      "The unsaid burns brighter than fire",
+      "I wish I’d been honest with you",
+      "You were my almost, my maybe",
+      "I still feel you in the quiet",
+      "I let you go without a word",
+      "My soul aches for one more chance",
+      "I wish I’d said it all",
+      "You’ll never know my truth",
+      "I drowned in my own silence",
+      "I miss you more than I can say",
+    ],
+    []
+  );
 
   useEffect(() => {
     const typeSpeed = 80;
     const deleteSpeed = 40;
     const pauseTime = 1500;
     const mistypeChance = 0.1;
+    const currentQuote = quotes[currentQuoteIndex];
 
     const type = () => {
-      const currentQuote = quotes[currentQuoteIndex];
-
       if (!isDeleting && charIndex < currentQuote.length) {
         if (Math.random() < mistypeChance && !mistyped && charIndex > 5) {
-          setDisplayedText(
-            displayedText + String.fromCharCode(97 + Math.floor(Math.random() * 26))
+          setDisplayedText((prev) =>
+            prev + String.fromCharCode(97 + Math.floor(Math.random() * 26))
           );
           setMistyped(true);
           setTimeout(() => {
@@ -125,9 +128,12 @@ const TypingEffect: React.FC = () => {
       }
     };
 
-    const timer = setTimeout(type, isDeleting ? deleteSpeed : mistyped ? 200 : typeSpeed);
+    const timer = setTimeout(
+      type,
+      isDeleting ? deleteSpeed : mistyped ? 200 : typeSpeed
+    );
     return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, currentQuoteIndex, mistyped]);
+  }, [charIndex, isDeleting, currentQuoteIndex, mistyped, quotes]);
 
   return (
     <p className="text-lg sm:text-xl md:text-2xl font-serif italic text-[var(--text)] animate-pulse-slow">
@@ -168,13 +174,19 @@ export default function Home() {
             className="bg-[var(--card-bg)] p-8 rounded-xl shadow-2xl max-w-md w-full transform transition-all duration-500 animate-fade-in"
             style={{
               background: `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
-              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
+              boxShadow:
+                "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
             }}
           >
-            <h2 className="text-2xl font-serif font-bold text-[var(--text)] mb-4">Welcome</h2>
+            <h2 className="text-2xl font-serif font-bold text-[var(--text)] mb-4">
+              Welcome
+            </h2>
             <p className="text-[var(--text)] mb-6 font-serif">
               A sanctuary for unsent memories. Discover{" "}
-              <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">
+              <Link
+                href="/how-it-works"
+                className="text-[var(--accent)] hover:underline"
+              >
                 How It Works
               </Link>
               .
@@ -199,7 +211,11 @@ export default function Home() {
               {["Home", "Memories", "Submit", "How It Works"].map((item) => (
                 <li key={item}>
                   <Link
-                    href={item === "Home" ? "/" : `/${item.toLowerCase().replace(" ", "-")}`}
+                    href={
+                      item === "Home"
+                        ? "/"
+                        : `/${item.toLowerCase().replace(" ", "-")}`
+                    }
                     className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-300 font-serif text-lg"
                   >
                     {item}
@@ -215,7 +231,8 @@ export default function Home() {
           className="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg text-center transform transition-all duration-300 hover:shadow-xl"
           style={{
             background: `linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)`,
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
+            boxShadow:
+              "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
           }}
         >
           <TypingEffect />
@@ -232,10 +249,15 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <p className="text-[var(--text)] text-center font-serif">No memories yet.</p>
+          <p className="text-[var(--text)] text-center font-serif">
+            No memories yet.
+          </p>
         )}
         <div className="text-right mt-6">
-          <Link href="/memories" className="text-[var(--accent)] hover:underline font-serif text-lg">
+          <Link
+            href="/memories"
+            className="text-[var(--accent)] hover:underline font-serif text-lg"
+          >
             See All →
           </Link>
         </div>
