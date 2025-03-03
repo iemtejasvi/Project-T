@@ -45,10 +45,10 @@ export default function Home() {
   const handleWelcomeClose = () => setShowWelcome(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[var(--background)] to-[var(--secondary)]">
+    <div className="min-h-screen flex flex-col">
       {showWelcome && (
         <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in border border-[var(--border)]">
+          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in">
             <h2 className="text-xl font-bold text-[var(--text)] mb-4">Welcome</h2>
             <p className="text-[var(--text)] mb-6">
               A space for unsent memories. Check out{" "}
@@ -59,7 +59,7 @@ export default function Home() {
             </p>
             <button
               onClick={handleWelcomeClose}
-              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded hover:bg-opacity-80 transition duration-300"
+              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded hover:bg-blue-200 transition duration-200"
             >
               Got It
             </button>
@@ -67,9 +67,9 @@ export default function Home() {
         </div>
       )}
 
-      <header className="bg-[var(--card-bg)] shadow-md border-b border-[var(--border)]">
+      <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] animate-fade-in">If Only I Sent This</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
@@ -99,26 +99,26 @@ export default function Home() {
       </header>
 
       <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
-        <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-md border border-[var(--border)] text-center animate-slide-up">
+        <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-xl text-center">
           <TypingEffect />
         </div>
       </section>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] animate-fade-in">Recent Memories</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
         {recentMemories.length > 0 ? (
           recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
         ) : (
           <p className="text-[var(--text)]">No memories yet.</p>
         )}
         <div className="text-right mt-4">
-          <Link href="/memories" className="text-[var(--accent)] hover:underline transition-colors duration-200">
+          <Link href="/memories" className="text-[var(--accent)] hover:underline">
             See All →
           </Link>
         </div>
       </main>
 
-      <footer className="bg-[var(--card-bg)] shadow-md border-t border-[var(--border)]">
+      <footer className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
