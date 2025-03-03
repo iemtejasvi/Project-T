@@ -71,7 +71,12 @@ const TypingEffect = () => {
           setDisplayedText((prev) => prev + currentMessage[charIndex]);
           setCharIndex((prev) => prev + 1);
           if (Math.random() < 0.05 && charIndex > 5) {
-            setIsTyping(false); // 5% chance to backspace after 5 chars
+            // Add a random typo
+            setDisplayedText((prev) => prev + String.fromCharCode(97 + Math.floor(Math.random() * 26)));
+            setTimeout(() => {
+              setDisplayedText((prev) => prev.slice(0, -1)); // Backspace it
+              setIsTyping(true);
+            }, 500);
           }
         }, 100); // Typing speed
         return () => clearTimeout(timeout);
@@ -82,19 +87,6 @@ const TypingEffect = () => {
           setCharIndex(0);
         }, 3000); // Pause before next message
         return () => clearTimeout(timeout);
-      }
-    } else {
-      if (charIndex > 0) {
-        const timeout = setTimeout(() => {
-          setDisplayedText((prev) => prev.slice(0, -1));
-          setCharIndex((prev) => prev - 1);
-          if (Math.random() < 0.3 || charIndex <= 5) {
-            setIsTyping(true); // 30% chance to resume typing
-          }
-        }, 50); // Backspacing speed
-        return () => clearTimeout(timeout);
-      } else {
-        setIsTyping(true);
       }
     }
   }, [charIndex, isTyping, currentMessageIndex]);
