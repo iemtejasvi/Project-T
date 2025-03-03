@@ -5,16 +5,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
-/* Updated light, sad, visually appealing palette */
+/* Light, sad, 1980s-inspired color palette */
 :root {
-  --background: #F8F9FA; /* Softer off-white */
-  --text: #2D3748; /* Softer dark gray for readability */
-  --accent: #90CAF9; /* Muted light blue */
-  --secondary: #E2E8F0; /* Very light gray */
-  --card-bg: #FFFFFF; /* Pure white for cards */
-  --border: #CBD5E0; /* Subtle gray-blue border */
-  --scroll-bg: #EDF2F7; /* Light gray-blue scrollbar track */
-  --shadow: rgba(0, 0, 0, 0.08); /* Softer shadow */
+  --background: #F5F5F5; /* Soft off-white */
+  --text: #4A4A4A; /* Dark gray for readability */
+  --accent: #AEDFF7; /* Muted sky blue */
+  --secondary: #E8D8D8; /* Faded pink */
+  --card-bg: #FDFDFD; /* Near-white for cards */
+  --border: #D9D9D9; /* Light gray border */
+  --scroll-bg: #F0F0F0; /* Scrollbar track */
+  --shadow: rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
 body {
@@ -54,7 +54,7 @@ body {
 
 /* Special text styles */
 .bleeding-text {
-  font-family: 'Architects+Daughter', cursive;
+  font-family: 'Architects Daughter', cursive;
   color: var(--accent);
 }
 .handwritten-text p {
@@ -91,14 +91,6 @@ body {
 }
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
-
-/* Blinking cursor */
-.animate-blink {
-  animation: blink 1s step-end infinite;
-}
-@keyframes blink {
-  50% { opacity: 0; }
-}
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
