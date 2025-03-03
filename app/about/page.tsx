@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export default function HowItWorks() {
+export default function About() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900">
       <header className="bg-gray-900/90 backdrop-blur-md shadow-lg">
@@ -44,7 +44,7 @@ export default function HowItWorks() {
               <strong>Submit a Memory:</strong> Go to the Submit page, enter a recipient and message, and choose a color and effect to personalize your card.
             </li>
             <li>
-              <strong>Special Effects:</strong> Add "Bleeding Text" or "Handwritten Text" to your message. These cards are marked with a star (★) on the home page.
+              <strong>Special Effects:</strong> Add `Bleeding Text` or `Handwritten Text` to your message. These cards are marked with a star (★) on the home page.
             </li>
             <li>
               <strong>View Memories:</strong> On the home page, click a card to flip it and read the message, or use the arrow to see it in detail.
