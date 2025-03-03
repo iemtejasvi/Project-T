@@ -1,6 +1,5 @@
-// components/MemoryCard.tsx
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 
 interface Memory {
@@ -21,7 +20,7 @@ interface MemoryCardProps {
   detail?: boolean;
 }
 
-// Color mappings
+// Color mappings for the light palette
 function getBorderColor(color: string) {
   const mapping: { [key: string]: string } = {
     default: "border-gray-300",
@@ -42,17 +41,17 @@ function getBorderColor(color: string) {
 
 function getColorHex(color: string): string {
   const mapping: { [key: string]: string } = {
-    default: "#A0AEC0",
-    blue: "#63B3ED",
+    default: "#A0AEC0", // Light gray
+    blue: "#63B3ED", // Light blue
     gray: "#A0AEC0",
-    purple: "#B794F4",
-    navy: "#5A9BD3",
-    maroon: "#E57373",
-    pink: "#F687B3",
+    purple: "#B794F4", // Light purple
+    navy: "#5A9BD3", // Lighter navy
+    maroon: "#E57373", // Lighter red
+    pink: "#F687B3", // Light pink
     teal: "#38B2AC",
-    olive: "#A9B665",
+    olive: "#A9B665", // Lighter olive
     mustard: "#FFDB58",
-    coral: "#FF9A8B",
+    coral: "#FF9A8B", // Lighter coral
     lavender: "#E6E6FA",
   };
   return mapping[color] || "#A0AEC0";
@@ -79,7 +78,6 @@ function getBgColor(color: string, full_bg: boolean) {
   return "bg-[var(--card-bg)]";
 }
 
-// Typing prompt for the front of the card
 const TypewriterPrompt: React.FC = () => {
   const prompts = useMemo(
     () => [
@@ -142,7 +140,7 @@ const TypewriterPrompt: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const currentPrompt = prompts[currentIndex];
     const typeSpeed = isDeleting ? 50 : 100;
     const timeout = setTimeout(() => {
@@ -168,20 +166,18 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts]);
 
   return (
-    <div className="h-6 text-center text-sm text-[var(--text)] font-serif truncate">
+    <div className="h-6 text-center text-sm text-[var(--text)] font-serif">
       {displayedText}
     </div>
   );
 };
 
-// Handwritten text effect (if you use it)
 const HandwrittenText: React.FC<{ message: string }> = ({ message }) => (
   <div className="handwritten-text">
     <p>{message}</p>
   </div>
 );
 
-// Render message with animation
 const renderMessage = (memory: Memory) => {
   switch (memory.animation) {
     case "bleeding":
@@ -205,10 +201,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const handleCardClick = () => !detail && setFlipped(!flipped);
 
-  // Detail view (individual memory page)
   if (detail) {
     return (
-      <div className={`w-full max-w-md mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md`}>
+      <div
+        className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg aspect-[3/4] animate-slide-up`}
+      >
         <h3 className="text-2xl font-bold text-[var(--text)]">
           {memory.animation && (
             <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
@@ -217,7 +214,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </h3>
         {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
         <hr className="my-4 border-[var(--border)]" />
-        <div className="text-[var(--text)] whitespace-pre-wrap text-sm">{renderMessage(memory)}</div>
+        <div className="text-[var(--text)] whitespace-pre-wrap">{renderMessage(memory)}</div>
         <hr className="my-4 border-[var(--border)]" />
         <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
@@ -226,25 +223,22 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     );
   }
 
-  // Flippable card view
   return (
-    <div className="relative group my-6">
-      {/* Arrow link to detail page */}
-      <div className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 sm:right-[-40px]">
+    <div className="relative group my-8">
+      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
         <Link href={`/memories/${memory.id}`}>
           <span className="arrow-icon" style={{ color: arrowColor }}>➜</span>
         </Link>
       </div>
       <div
-        className="flip-card mx-auto cursor-pointer"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 aspect-square cursor-pointer rounded-xl shadow-lg border border-[var(--border)]"
         onClick={handleCardClick}
       >
         <div
           className={`flip-card-inner relative w-full h-full transition-transform duration-500 ${flipped ? "rotate-y-180" : ""}`}
         >
-          {/* Front of the card */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between`}
           >
             <div>
               <h3 className="text-xl font-bold text-[var(--text)]">
@@ -254,20 +248,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                 To: {memory.recipient}
               </h3>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
+              <hr className="my-2 border-[var(--border)]" />
             </div>
             <div className="text-xs text-[var(--text)] text-center">
               {dateStr} | {dayStr}
             </div>
             <TypewriterPrompt />
           </div>
-          {/* Back of the card */}
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-start`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180`}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
             <div
-              className="flex-1 overflow-y-auto text-sm text-[var(--text)] whitespace-pre-wrap"
+              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap"
               style={{ "--scroll-thumb": arrowColor } as React.CSSProperties}
             >
               {renderMessage(memory)}
