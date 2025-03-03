@@ -255,6 +255,8 @@ const renderMessage = (memory: Memory, arrowColor: string) => {
 };
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
+  console.log("Memory prop in MemoryCard:", memory); // Debug memory prop
+
   const [flipped, setFlipped] = useState(false);
   const borderColor = getBorderColor(memory.color);
   const bgColor = memory.full_bg ? getBgColor(memory.color) : "bg-white/90";
@@ -263,7 +265,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
   const timeStr = new Date(memory.created_at).toLocaleTimeString();
-  const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: 'long' });
+  const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
 
   const handleCardClick = () => {
     setFlipped(!flipped);
@@ -309,7 +311,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         onClick={handleCardClick}
       >
         <div className={`flip-card-inner relative w-full h-full transition-transform duration-700 transform ${flipped ? "rotate-y-180" : ""}`}>
-          {/* Front Side */}
           <div className={`flip-card-front absolute w-full h-full backface-hidden rounded-lg shadow-xl ${bgColor} ${borderColor} border-4 p-4 flex flex-col justify-between`}>
             <div>
               <h3 className="text-xl font-bold text-gray-800">
@@ -332,7 +333,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               <TypewriterPrompt />
             </div>
           </div>
-          {/* Back Side */}
           <div className={`flip-card-back absolute w-full h-full backface-hidden rounded-lg shadow-xl ${bgColor} ${borderColor} border-4 transform rotate-y-180 p-4 flex flex-col justify-start`}>
             <div>
               <h3 className="text-lg italic text-gray-700 text-center">if only I sent this</h3>
