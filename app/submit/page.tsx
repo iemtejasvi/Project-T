@@ -75,25 +75,25 @@ export default function Submit() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900">
-      <header className="bg-gray-900/80 backdrop-blur-md shadow-md">
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-4xl mx-auto px-6 py-6 text-center">
-          <h1 className="text-4xl font-serif text-gray-200">Submit a Memory</h1>
-          <hr className="my-4 border-gray-600" />
+          <h1 className="text-4xl font-serif text-[var(--text)]">Submit a Memory</h1>
+          <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap justify-center gap-6 text-gray-400">
+            <ul className="flex flex-wrap justify-center gap-6 text-[var(--text)]">
               <li>
-                <Link href="/" className="hover:text-teal-400 transition duration-200">
+                <Link href="/" className="hover:text-[var(--accent)] transition duration-200">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-teal-400 transition duration-200">
+                <Link href="/memories" className="hover:text-[var(--accent)] transition duration-200">
                   Memories
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:text-teal-400 transition duration-200">
+                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition duration-200">
                   How It Works
                 </Link>
               </li>
@@ -104,51 +104,51 @@ export default function Submit() {
 
       <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
         {submitted ? (
-          <div className="bg-gradient-to-r from-teal-600 to-teal-800 text-gray-200 p-8 rounded-lg shadow-lg text-center animate-fade-in">
+          <div className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-lg shadow-lg text-center animate-fade-in">
             Thank you for your submission! Your memory is pending approval.
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800/90 p-8 rounded-lg shadow-xl">
-            {error && <p className="text-red-400 text-center font-medium">{error}</p>}
+          <form onSubmit={handleSubmit} className="space-y-6 bg-[var(--card-bg)] p-8 rounded-lg shadow-xl">
+            {error && <p className="text-red-500 text-center font-medium">{error}</p>}
 
             <div className="animate-slide-up">
-              <label className="block font-serif text-gray-300">{`Recipient's Name (required):`}</label>
+              <label className="block font-serif text-[var(--text)]">{`Recipient's Name (required):`}</label>
               <input
                 type="text"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 required
-                className="w-full mt-2 p-3 border border-gray-600 rounded-lg bg-gray-900 text-gray-200 focus:outline-none focus:border-teal-400 transition duration-200"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
               />
             </div>
 
             <div className="animate-slide-up delay-100">
-              <label className="block font-serif text-gray-300">{`Message (required):`}</label>
+              <label className="block font-serif text-[var(--text)]">{`Message (required):`}</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={5}
-                className="w-full mt-2 p-3 border border-gray-600 rounded-lg bg-gray-900 text-gray-200 focus:outline-none focus:border-teal-400 transition duration-200"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
               ></textarea>
             </div>
 
             <div className="animate-slide-up delay-200">
-              <label className="block font-serif text-gray-300">{`Your Name (optional):`}</label>
+              <label className="block font-serif text-[var(--text)]">{`Your Name (optional):`}</label>
               <input
                 type="text"
                 value={sender}
                 onChange={(e) => setSender(e.target.value)}
-                className="w-full mt-2 p-3 border border-gray-600 rounded-lg bg-gray-900 text-gray-200 focus:outline-none focus:border-teal-400 transition duration-200"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
               />
             </div>
 
             <div className="animate-slide-up delay-300">
-              <label className="block font-serif text-gray-300">{`Select a Color for Your Message (optional):`}</label>
+              <label className="block font-serif text-[var(--text)]">{`Select a Color for Your Message (optional):`}</label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="w-full mt-2 p-3 border border-gray-600 rounded-lg bg-gray-900 text-gray-200 focus:outline-none focus:border-teal-400 transition duration-200"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
               >
                 {colorOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -159,11 +159,11 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-400">
-              <label className="block font-serif text-gray-300">{`Do you want any special effect?`}</label>
+              <label className="block font-serif text-[var(--text)]">{`Do you want any special effect?`}</label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
-                className="w-full mt-2 p-3 border border-gray-600 rounded-lg bg-gray-900 text-gray-200 focus:outline-none focus:border-teal-400 transition duration-200"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
               >
                 {specialEffectOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -179,9 +179,9 @@ export default function Submit() {
                 checked={fullBg}
                 onChange={(e) => setFullBg(e.target.checked)}
                 id="fullBg"
-                className="mr-2 accent-teal-400"
+                className="mr-2"
               />
-              <label htmlFor="fullBg" className="font-serif text-gray-300">
+              <label htmlFor="fullBg" className="font-serif text-[var(--text)]">
                 Apply color to full card background
               </label>
             </div>
@@ -189,7 +189,7 @@ export default function Submit() {
             <div className="text-center animate-slide-up delay-600">
               <button
                 type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-teal-500 to-teal-700 text-gray-200 font-semibold rounded-lg shadow-md hover:from-teal-600 hover:to-teal-800 transition duration-200"
+                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-lg shadow-md hover:bg-blue-200 transition duration-200"
               >
                 Submit Memory
               </button>
@@ -198,8 +198,8 @@ export default function Submit() {
         )}
       </main>
 
-      <footer className="bg-gray-900/80 backdrop-blur-md shadow-md">
-        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-gray-400">
+      <footer className="bg-[var(--card-bg)] shadow-md">
+        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
