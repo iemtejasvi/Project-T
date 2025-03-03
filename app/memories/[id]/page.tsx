@@ -38,24 +38,23 @@ export default function MemoryDetail() {
     fetchMemory();
   }, [id]);
 
-  if (!memory) return <p className="p-6">Loading...</p>;
+  if (!memory) return <p className="p-6 text-center text-[var(--text)]">Loading...</p>;
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-md shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 py-6 text-center">
-          <h1 className="text-4xl font-bold text-gray-900">Memory Detail</h1>
-          <hr className="my-4 border-gray-300" />
+      <header className="bg-[var(--card-bg)] shadow-md">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">Memory Detail</h1>
+          <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap justify-center gap-6">
+            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
               <li>
-                <Link href="/" className="hover:text-blue-600">
+                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-blue-600">
+                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Back to Memories
                 </Link>
               </li>
@@ -64,14 +63,12 @@ export default function MemoryDetail() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <MemoryCard memory={memory} detail />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white/90 backdrop-blur-md shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-gray-600">
+      <footer className="bg-[var(--card-bg)] shadow-md">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
