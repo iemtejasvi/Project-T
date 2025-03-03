@@ -20,76 +20,62 @@ interface MemoryCardProps {
   detail?: boolean;
 }
 
+// Color mappings for the light palette
 function getBorderColor(color: string) {
   const mapping: { [key: string]: string } = {
-    default: "border-gray-400",
-    blue: "border-blue-400",
-    gray: "border-gray-400",
-    purple: "border-purple-400",
-    navy: "border-blue-900",
-    maroon: "border-red-800",
-    pink: "border-pink-400",
-    teal: "border-teal-400",
-    olive: "border-olive-400",
-    mustard: "border-yellow-600",
-    coral: "border-coral-400",
-    lavender: "border-lavender-400",
+    default: "border-gray-300",
+    blue: "border-blue-300",
+    gray: "border-gray-300",
+    purple: "border-purple-300",
+    navy: "border-blue-400",
+    maroon: "border-red-300",
+    pink: "border-pink-300",
+    teal: "border-teal-300",
+    olive: "border-green-300",
+    mustard: "border-yellow-300",
+    coral: "border-orange-300",
+    lavender: "border-purple-200",
   };
-  return mapping[color] || "border-gray-400";
+  return mapping[color] || "border-gray-300";
 }
 
 function getColorHex(color: string): string {
   const mapping: { [key: string]: string } = {
-    default: "#A0AEC0",
-    blue: "#63B3ED",
+    default: "#A0AEC0", // Light gray
+    blue: "#63B3ED", // Light blue
     gray: "#A0AEC0",
-    purple: "#B794F4",
-    navy: "#2A4365",
-    maroon: "#C53030",
-    pink: "#F687B3",
+    purple: "#B794F4", // Light purple
+    navy: "#5A9BD3", // Lighter navy
+    maroon: "#E57373", // Lighter red
+    pink: "#F687B3", // Light pink
     teal: "#38B2AC",
-    olive: "#808000",
+    olive: "#A9B665", // Lighter olive
     mustard: "#FFDB58",
-    coral: "#FF6F61",
+    coral: "#FF9A8B", // Lighter coral
     lavender: "#E6E6FA",
   };
   return mapping[color] || "#A0AEC0";
 }
 
-function getBgColor(color: string) {
-  const mapping: { [key: string]: string } = {
-    default: "bg-gray-700",
-    blue: "bg-blue-700",
-    gray: "bg-gray-700",
-    purple: "bg-purple-700",
-    navy: "bg-blue-900",
-    maroon: "bg-red-900",
-    pink: "bg-pink-700",
-    teal: "bg-teal-700",
-    olive: "bg-olive-700",
-    mustard: "bg-yellow-700",
-    coral: "bg-coral-700",
-    lavender: "bg-lavender-700",
-  };
-  return mapping[color] || "bg-gray-700";
-}
-
-function getScrollColors(color: string) {
-  const mapping: { [key: string]: { track: string; thumb: string } } = {
-    default: { track: "#ECEFF1", thumb: "#90A4AE" },
-    blue: { track: "#BBDEFB", thumb: "#1E88E5" },
-    gray: { track: "#ECEFF1", thumb: "#607D8B" },
-    purple: { track: "#E1BEE7", thumb: "#8E24AA" },
-    navy: { track: "#BBDEFB", thumb: "#0D47A1" },
-    maroon: { track: "#FFCDD2", thumb: "#C62828" },
-    pink: { track: "#F8BBD0", thumb: "#D81B60" },
-    teal: { track: "#B2DFDB", thumb: "#00796B" },
-    olive: { track: "#D9E2C9", thumb: "#556B2F" },
-    mustard: { track: "#FFF9C4", thumb: "#FBC02D" },
-    coral: { track: "#FFCCBC", thumb: "#F4511E" },
-    lavender: { track: "#EDE7F6", thumb: "#9575CD" },
-  };
-  return mapping[color] || { track: "#ECEFF1", thumb: "#90A4AE" };
+function getBgColor(color: string, full_bg: boolean) {
+  if (full_bg) {
+    const mapping: { [key: string]: string } = {
+      default: "bg-gray-50",
+      blue: "bg-blue-50",
+      gray: "bg-gray-50",
+      purple: "bg-purple-50",
+      navy: "bg-blue-50",
+      maroon: "bg-red-50",
+      pink: "bg-pink-50",
+      teal: "bg-teal-50",
+      olive: "bg-green-50",
+      mustard: "bg-yellow-50",
+      coral: "bg-orange-50",
+      lavender: "bg-purple-50",
+    };
+    return mapping[color] || "bg-gray-50";
+  }
+  return "bg-[var(--card-bg)]";
 }
 
 const TypewriterPrompt: React.FC = () => {
@@ -149,8 +135,7 @@ const TypewriterPrompt: React.FC = () => {
     []
   );
 
-  const initialIndex = useMemo(() => Math.floor(Math.random() * prompts.length), [prompts]);
-  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [currentIndex, setCurrentIndex] = useState(Math.floor(Math.random() * prompts.length));
   const [displayedText, setDisplayedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
@@ -181,7 +166,7 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts]);
 
   return (
-    <div className="h-6 text-center text-sm text-gray-400 font-serif">
+    <div className="h-6 text-center text-sm text-[var(--text)] font-serif">
       {displayedText}
     </div>
   );
@@ -207,103 +192,74 @@ const renderMessage = (memory: Memory) => {
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
   const borderColor = getBorderColor(memory.color);
-  const bgColor = memory.full_bg ? getBgColor(memory.color) : "bg-gray-800/90";
-  const scrollColors = getScrollColors(memory.color);
+  const bgColor = getBgColor(memory.color, memory.full_bg);
   const arrowColor = getColorHex(memory.color);
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
   const timeStr = new Date(memory.created_at).toLocaleTimeString();
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
 
-  const handleCardClick = () => {
-    setFlipped(!flipped);
-  };
+  const handleCardClick = () => !detail && setFlipped(!flipped);
 
   if (detail) {
     return (
-      <div className={`book-card mx-auto my-4 w-full max-w-md p-6 ${bgColor} ${borderColor} border-4 rounded-lg shadow-xl`}>
-        <div className="mb-2">
-          <h3 className="text-2xl font-bold text-gray-200">
-            {memory.animation && (
-              <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
-            )}
-            To: {memory.recipient}
-          </h3>
-          {memory.sender && <p className="mt-1 text-lg italic text-gray-400">From: {memory.sender}</p>}
-        </div>
-        <hr className="my-2 border-gray-600" />
-        <div className="mb-2 text-gray-300">{renderMessage(memory)}</div>
-        <hr className="my-2 border-gray-600" />
-        <div className="text-xs text-gray-400 flex flex-wrap justify-center gap-2">
-          <span>Date: {dateStr}</span>
-          <span>|</span>
-          <span>Day: {dayStr}</span>
-          <span>|</span>
-          <span>Time: {timeStr}</span>
-          <span>|</span>
-          <span>Color: {memory.color}</span>
+      <div className={`w-full max-w-md mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md`}>
+        <h3 className="text-2xl font-bold text-[var(--text)]">
+          {memory.animation && (
+            <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
+          )}
+          To: {memory.recipient}
+        </h3>
+        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-[var(--text)] whitespace-pre-wrap">{renderMessage(memory)}</div>
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
+          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative group">
-      <div className="absolute right-[-30px] top-1/2 transform -translate-y-1/2">
+    <div className="relative group my-6">
+      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
         <Link href={`/memories/${memory.id}`}>
-          <span className="text-3xl arrow-icon" style={{ color: arrowColor }}>➜</span>
+          <span className="arrow-icon" style={{ color: arrowColor }}>➜</span>
         </Link>
       </div>
       <div
-        className="flip-card w-full max-w-sm mx-auto my-4 perspective-1000 aspect-square cursor-pointer overflow-hidden"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 aspect-square cursor-pointer"
         onClick={handleCardClick}
       >
         <div
-          className={`flip-card-inner relative w-full h-full transition-transform duration-700 transform ${
-            flipped ? "rotate-y-180" : ""
-          }`}
+          className={`flip-card-inner relative w-full h-full transition-transform duration-500 ${flipped ? "rotate-y-180" : ""}`}
         >
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden rounded-lg shadow-xl ${bgColor} ${borderColor} border-4 p-4 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-between`}
           >
             <div>
-              <h3 className="text-xl font-bold text-gray-200">
+              <h3 className="text-xl font-bold text-[var(--text)]">
                 {memory.animation && (
                   <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
                 )}
                 To: {memory.recipient}
               </h3>
-              {memory.sender && <p className="mt-1 text-md italic text-gray-400">From: {memory.sender}</p>}
+              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
             </div>
-            <hr className="border-t border-gray-600 my-1" />
-            <div className="text-xs text-gray-400 flex flex-wrap justify-center gap-1">
-              <span>Date: {dateStr}</span>
-              <span>|</span>
-              <span>Day: {dayStr}</span>
-              <span>|</span>
-              <span>Time: {timeStr}</span>
-              <span>|</span>
-              <span>Color: {memory.color}</span>
+            <div className="text-xs text-[var(--text)] text-center">
+              {dateStr} | {dayStr}
             </div>
-            <div className="mt-2">
-              <TypewriterPrompt />
-            </div>
+            <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden rounded-lg shadow-xl ${bgColor} ${borderColor} border-4 transform rotate-y-180 p-4 flex flex-col justify-start`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-start rotate-y-180`}
           >
-            <div>
-              <h3 className="text-lg italic text-gray-400 text-center">if only I sent this</h3>
-              <hr className="border-t border-gray-600 my-1" />
-            </div>
+            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
+            <hr className="my-2 border-[var(--border)]" />
             <div
-              className="flex-1 overflow-y-auto card-scroll cute_scroll text-sm text-gray-300 whitespace-pre-wrap"
-              style={
-                {
-                  "--scroll-bg": scrollColors.track,
-                  "--scroll-thumb": scrollColors.thumb,
-                } as React.CSSProperties
-              }
+              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap"
+              style={{ "--scroll-thumb": arrowColor } as React.CSSProperties}
             >
               {renderMessage(memory)}
             </div>
