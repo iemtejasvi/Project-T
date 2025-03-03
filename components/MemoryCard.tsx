@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 
@@ -80,24 +80,109 @@ function getBgColor(color: string, full_bg: boolean) {
 const TypewriterPrompt: React.FC = () => {
   const prompts = useMemo(
     () => [
-      "Why?", "You left.", "It’s gone.", "Was I enough?", "You forgot.", "This hurts.", "Come back?", 
-      "Too late.", "You chose.", "I waited.", "It’s over.", "No more us.", "You meant it.", "Not again.", 
-      "Why me?", "I tried.", "You knew.", "You promised.", "Did you care?", "You did this.", "Not enough.", 
-      "I’m tired.", "Was I real?", "It lingers.", "You changed.", "It faded.", "I stayed.", "You didn’t.", 
-      "Nothing left.", "We broke.", "Not us.", "I miss you.", "I let go.", "You moved on.", "I never did.", 
-      "Still hurts.", "You forgot me.", "Just memories.", "Why stay?", "You never did.", "Lost us.", 
-      "I’m empty.", "You walked.", "No goodbye?", "What now?", "You never saw.", "You let go.", 
-      "Was it love?", "Just silence.", "I’ll go now.", "Why did you go?", "Was I not enough?", 
-      "It still hurts.", "Do you miss me?", "I waited. You didn’t.", "We had forever.", "Too late now.", 
-      "You let me go.", "I held on. Alone.", "Not even goodbye?", "Did you even care?", "It was real to me.", 
-      "You meant the world.", "You left. I stayed.", "We were everything.", "I never let go.", "You didn’t fight.", 
-      "I still wonder why.", "I miss what we had.", "You walked away.", "We fell apart.", "I still feel you.", 
-      "Was it all a lie?", "You moved on fast.", "You said forever.", "You didn’t try.", "You forgot so easily.", 
-      "I broke. You didn’t.", "I thought we’d last.", "Was I just a phase?", "I needed you.", 
-      "You never looked back.", "I see you everywhere.", "You’re happy. I’m not.", "Why did I believe you?", 
-      "I should’ve known.", "I wish I mattered.", "I lost you forever.", "We had something rare.", 
-      "You didn’t stay.", "It wasn’t supposed to end.", "I replay it all.", "You never even missed me.", 
-      "You let me slip away.", "I hope you remember.", "Do you ever think of me?",
+      "Why did you?",
+      "I hope it was worth it.",
+      "You chose this.",
+      "I was never enough.",
+      "Did you ever mean it?",
+      "Was it a lie?",
+      "You let go first.",
+      "I won’t ask again.",
+      "So that’s it?",
+      "You promised.",
+      "I waited. You didn’t.",
+      "You stopped trying.",
+      "This is what you wanted.",
+      "I saw the signs.",
+      "You made it easy to leave.",
+      "I still check.",
+      "We had forever.",
+      "You left so quietly.",
+      "I almost called.",
+      "Do you even care?",
+      "Was I just convenient?",
+      "I still dream of you.",
+      "This doesn’t feel real.",
+      "I should hate you.",
+      "You changed first.",
+      "What a waste.",
+      "I’m done waiting.",
+      "You’re a stranger now.",
+      "Was it ever love?",
+      "I’ll never know why.",
+      "You never looked back.",
+      "I still hear your voice.",
+      "I don’t know you anymore.",
+      "You chose someone else.",
+      "Was I easy to forget?",
+      "I deserved better.",
+      "You let me down.",
+      "I don’t miss you. (Lie)",
+      "I should have left first.",
+      "Did you even love me?",
+      "It wasn’t supposed to end.",
+      "How long were you pretending?",
+      "Did you find better?",
+      "You said forever.",
+      "I wish I hated you.",
+      "Was it all fake?",
+      "I don’t blame you.",
+      "You never fought for me.",
+      "I loved you. That was my mistake.",
+      "You disappeared so easily.",
+      "We don’t even talk now.",
+      "You broke me. Did you notice?",
+      "What changed?",
+      "You moved on too fast.",
+      "I saw you with her.",
+      "Was I just a phase?",
+      "I wish you missed me.",
+      "I wish I could forget.",
+      "I hope she’s worth it.",
+      "You never said sorry.",
+      "I wrote, then deleted it.",
+      "I hope it haunts you.",
+      "You always walked away first.",
+      "I never stopped loving you.",
+      "You don’t even check.",
+      "This is all I have left.",
+      "I still have your hoodie.",
+      "I hate how much I care.",
+      "I don’t text first anymore.",
+      "You knew you’d hurt me.",
+      "I lost myself in you.",
+      "Was I a mistake?",
+      "You faded so easily.",
+      "You left and never looked back.",
+      "I should’ve left too.",
+      "Why wasn’t I enough?",
+      "You never fought for me.",
+      "You didn’t even try.",
+      "Did I mean anything?",
+      "I still have your playlist.",
+      "I was never yours, was I?",
+      "I can’t hate you.",
+      "You left without a word.",
+      "I should hate you, but I don’t.",
+      "I should have let go first.",
+      "You meant everything.",
+      "You left me empty.",
+      "Do you even remember?",
+      "You forgot me so fast.",
+      "I wish I didn’t care.",
+      "You chose her.",
+      "You were my home.",
+      "I gave you everything.",
+      "This wasn’t the plan.",
+      "I should be over this.",
+      "I hate that I miss you.",
+      "I should have seen it coming.",
+      "You don’t even think of me.",
+      "You took my heart with you.",
+      "I hope you’re happy.",
+      "You let go too soon.",
+      "It still hurts.",
+      "I still love you.",
     ],
     []
   );
@@ -132,23 +217,11 @@ const TypewriterPrompt: React.FC = () => {
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, currentIndex, prompts]);
 
-  return <div className="h-8 text-center text-sm text-[var(--text)] font-serif transition-all duration-300">{displayedText}</div>;
-};
-
-const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
-  const borderColor = getBorderColor(memory.color);
-  const bgColor = getBgColor(memory.color, memory.full_bg);
-
   return (
-    <div className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md`}>
-      <h3 className="text-2xl font-bold text-[var(--text)]">To: {memory.recipient}</h3>
-      {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-      <hr className="my-2 border-[var(--border)]" />
-      <div className="text-sm text-[var(--text)] whitespace-pre-wrap">{memory.message}</div>
-      <hr className="my-2 border-[var(--border)]" />
-      <TypewriterPrompt />
+    <div className="h-8 text-center text-sm text-[var(--text)] font-serif transition-all duration-300">
+      {displayedText}
     </div>
   );
 };
 
-export default MemoryCard;
+export default TypewriterPrompt;
