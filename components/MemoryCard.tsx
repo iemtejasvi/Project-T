@@ -186,7 +186,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   if (detail) {
     return (
-      <div className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md flex flex-col min-h-[500px]`}>
+      <div className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md flex flex-col min-h-[300px]`}>
         <div>
           <h3 className="text-2xl font-bold text-[var(--text)]">
             {memory.animation && (
@@ -216,7 +216,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </Link>
       </div>
       <div
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[400px] cursor-pointer"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[250px] cursor-pointer"
         onClick={handleCardClick}
       >
         <div
