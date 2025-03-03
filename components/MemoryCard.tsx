@@ -166,10 +166,27 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts]);
 
   return (
-    <div className="h-6 text-center text-sm text-[var(--text)] font-serif overflow-hidden">
+    <div className="h-6 text-center text-sm text-[var(--text)] font-serif overflow-hidden text-ellipsis whitespace-nowrap">
       {displayedText}
     </div>
   );
+};
+
+const HandwrittenText: React.FC<{ message: string }> = ({ message }) => (
+  <div className="handwritten-text">
+    <p>{message}</p>
+  </div>
+);
+
+const renderMessage = (memory: Memory) => {
+  switch (memory.animation) {
+    case "bleeding":
+      return <p className="bleeding-text">{memory.message}</p>;
+    case "handwritten":
+      return <HandwrittenText message={memory.message} />;
+    default:
+      return <p>{memory.message}</p>;
+  }
 };
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
@@ -186,21 +203,17 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   if (detail) {
     return (
-      <div className={`w-full max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md flex flex-col`}>
-        <div>
-          <h3 className="text-2xl font-bold text-[var(--text)]">
-            {memory.animation && (
-              <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
-            )}
-            To: {memory.recipient}
-          </h3>
-          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-          <hr className="my-2 border-[var(--border)]" />
-        </div>
-        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap">
-          {renderMessage(memory)}
-        </div>
-        <hr className="my-2 border-[var(--border)]" />
+      <div className={`w-full sm:w-80 md:w-96 mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md`}>
+        <h3 className="text-2xl font-bold text-[var(--text)]">
+          {memory.animation && (
+            <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
+          )}
+          To: {memory.recipient}
+        </h3>
+        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-[var(--text)] whitespace-pre-wrap">{renderMessage(memory)}</div>
+        <hr className="my-4 border-[var(--border)]" />
         <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
         </div>
@@ -233,8 +246,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                 To: {memory.recipient}
               </h3>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
-              <hr className="my-2 border-[var(--border)]" />
             </div>
+            <hr className="my-2 border-[var(--border)]" />
             <div className="text-xs text-[var(--text)] text-center">
               {dateStr} | {dayStr}
             </div>
@@ -257,22 +270,5 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     </div>
   );
 };
-
-const renderMessage = (memory: Memory) => {
-  switch (memory.animation) {
-    case "bleeding":
-      return <p className="bleeding-text">{memory.message}</p>;
-    case "handwritten":
-      return <HandwrittenText message={memory.message} />;
-    default:
-      return <p>{memory.message}</p>;
-  }
-};
-
-const HandwrittenText: React.FC<{ message: string }> = ({ message }) => (
-  <div className="handwritten-text">
-    <p>{message}</p>
-  </div>
-);
 
 export default MemoryCard;
