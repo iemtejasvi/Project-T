@@ -5,39 +5,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
-/* Light, sad, 1980s-inspired color palette */
+/* Updated light, sad, visually appealing palette */
 :root {
-  --background: #F5F5F5; /* Soft off-white */
-  --text: #4A4A4A; /* Dark gray for readability */
-  --accent: #AEDFF7; /* Muted sky blue */
-  --secondary: #E8D8D8; /* Faded pink */
-  --card-bg: #FDFDFD; /* Near-white for cards */
-  --border: #D9D9D9; /* Light gray border */
-  --scroll-bg: #F0F0F0; /* Scrollbar track */
-  --shadow: rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  --background: #F8F9FA; /* Softer off-white */
+  --text: #2D3748; /* Softer dark gray for readability */
+  --accent: #90CAF9; /* Muted light blue */
+  --secondary: #E2E8F0; /* Very light gray */
+  --card-bg: #FFFFFF; /* Pure white for cards */
+  --border: #CBD5E0; /* Subtle gray-blue border */
+  --scroll-bg: #EDF2F7; /* Light gray-blue scrollbar track */
+  --shadow: rgba(0, 0, 0, 0.08); /* Softer shadow */
 }
 
-/* Base styles */
 body {
   background-color: var(--background);
   color: var(--text);
   font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-/* Additional typography enhancements */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Georgia', serif;
-}
-
-/* Links styling for smooth transitions */
-a {
-  color: var(--text);
-  transition: color 0.3s ease;
-}
-a:hover {
-  color: var(--accent);
 }
 
 /* Card flip styles */
@@ -65,13 +48,13 @@ a:hover {
   background-color: var(--scroll-bg);
 }
 .card-scroll::-webkit-scrollbar-thumb {
-  background-color: var(--accent);
+  background-color: var(--scroll-thumb);
   border-radius: 4px;
 }
 
 /* Special text styles */
 .bleeding-text {
-  font-family: 'Architects Daughter', cursive;
+  font-family: 'Architects+Daughter', cursive;
   color: var(--accent);
 }
 .handwritten-text p {
@@ -109,13 +92,12 @@ a:hover {
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
 
-/* New animation for blinking cursor if needed */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+/* Blinking cursor */
+.animate-blink {
+  animation: blink 1s step-end infinite;
 }
-.blink {
-  animation: blink 1s step-start infinite;
+@keyframes blink {
+  50% { opacity: 0; }
 }
 
 /* Responsive adjustments */
@@ -123,15 +105,4 @@ a:hover {
   .arrow-icon {
     font-size: 2rem;
   }
-  body {
-    padding: 0 1rem;
-  }
-}
-
-/* Additional styling for improved visual appeal */
-header, footer {
-  box-shadow: 0 2px 4px var(--shadow);
-}
-header {
-  background: linear-gradient(135deg, var(--card-bg), #ffffff);
 }
