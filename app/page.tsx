@@ -99,7 +99,9 @@ export default function Home() {
       </header>
 
       <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
-        <TypingEffect />
+        <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+          <TypingEffect />
+        </div>
       </section>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
