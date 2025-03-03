@@ -43,31 +43,25 @@ export default function Memories() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-md shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 py-6 text-center">
-          <h1 className="text-4xl font-bold text-gray-900">Memories</h1>
-          <hr className="my-4 border-gray-300" />
+      <header className="bg-[var(--card-bg)] shadow-md">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">Memories</h1>
+          <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap justify-center gap-6">
+            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
               <li>
-                <Link href="/" className="hover:text-blue-600">
+                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-blue-600">
-                  Memories
-                </Link>
-              </li>
-              <li>
-                <Link href="/submit" className="hover:text-blue-600">
+                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Submit
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-blue-600">
-                  About
+                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                  How It Works
                 </Link>
               </li>
             </ul>
@@ -75,27 +69,25 @@ export default function Memories() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <input
             type="text"
             placeholder="Search by recipient name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:border-blue-400"
+            className="w-full p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
           />
         </div>
         {memories.length > 0 ? (
           memories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
         ) : (
-          <p className="text-gray-700">No memories found.</p>
+          <p className="text-[var(--text)]">No memories found.</p>
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white/90 backdrop-blur-md shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-gray-600">
+      <footer className="bg-[var(--card-bg)] shadow-md">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
