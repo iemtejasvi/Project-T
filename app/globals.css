@@ -2,25 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
-/* Melancholic color palette */
+/* Light, sad, 1980s-inspired color palette */
 :root {
-  --background: #F0F4F8; /* Soft blue-gray */
-  --text: #333333; /* Dark gray for readability */
-  --accent: #87CEEB; /* Sky blue */
-  --secondary: #FFB6C1; /* Light pink */
-  --card-bg: #FFFFFF; /* White for cards */
-  --border: #D3D3D3; /* Light gray border */
+  --background: #F5F5F5; /* Soft off-white */
+  --text: #4A4A4A; /* Dark gray for readability */
+  --accent: #AEDFF7; /* Muted sky blue */
+  --secondary: #E8D8D8; /* Faded pink */
+  --card-bg: #FDFDFD; /* Near-white for cards */
+  --border: #D9D9D9; /* Light gray border */
+  --scroll-bg: #F0F0F0; /* Scrollbar track */
   --shadow: rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
+/* Base styles */
 body {
   background-color: var(--background);
   color: var(--text);
-  font-family: 'Merriweather', serif;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Additional typography enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Georgia', serif;
+}
+
+/* Links styling for smooth transitions */
+a {
+  color: var(--text);
+  transition: color 0.3s ease;
+}
+a:hover {
+  color: var(--accent);
 }
 
 /* Card flip styles */
@@ -45,7 +62,7 @@ body {
   width: 8px;
 }
 .card-scroll::-webkit-scrollbar-track {
-  background-color: var(--background);
+  background-color: var(--scroll-bg);
 }
 .card-scroll::-webkit-scrollbar-thumb {
   background-color: var(--accent);
@@ -89,28 +106,16 @@ body {
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
 }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
 
-/* Enhanced flip card styles */
-.flip-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.group:hover .flip-card {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px var(--shadow);
-}
-
-/* Typing effect styles */
-.typing-effect {
-  font-family: monospace;
-  font-size: 1.2rem;
-  color: var(--text);
-  white-space: pre-wrap;
-}
-.cursor {
-  animation: blink 1s step-end infinite;
-}
+/* New animation for blinking cursor if needed */
 @keyframes blink {
+  0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+.blink {
+  animation: blink 1s step-start infinite;
 }
 
 /* Responsive adjustments */
@@ -118,10 +123,15 @@ body {
   .arrow-icon {
     font-size: 2rem;
   }
-  .typing-effect {
-    font-size: 1rem;
+  body {
+    padding: 0 1rem;
   }
-  .flip-card {
-    max-width: 100%;
-  }
+}
+
+/* Additional styling for improved visual appeal */
+header, footer {
+  box-shadow: 0 2px 4px var(--shadow);
+}
+header {
+  background: linear-gradient(135deg, var(--card-bg), #ffffff);
 }
