@@ -1,143 +1,130 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 
 const TypingEffect: React.FC = () => {
-  const messages = useMemo(
-    () => [
-      "I wish I said no more often.",
-      "You inspire me to be nothing like you.",
-      "We were just strangers with memories.",
-      "I miss the old me, before you.",
-      "Some things are better left unsaid.",
-      "You never realized, did you?",
-      "I was always second choice.",
-      "I should have walked away sooner.",
-      "You never fought for me.",
-      "It still hurts, but I hide it well.",
-      "I let you break me.",
-      "You never even noticed.",
-      "I was just an option, not a priority.",
-      "The silence said more than you ever did.",
-      "I cared too much. You didn't care at all.",
-      "I kept waiting for something that never came.",
-      "Some wounds never heal.",
-      "If I mattered, you'd still be here.",
-      "I should have been enough.",
-      "You let me go so easily.",
-      "I wish I could unmeet you.",
-      "I still wait for a message that never comes.",
-      "I wanted forever, you wanted convenience.",
-      "We never even got closure.",
-      "Maybe I was just a lesson, not a love.",
-      "You promised, then you left.",
-      "I should have listened when they warned me.",
-      "I deserved more than unanswered texts.",
-      "I was there for you. You were nowhere for me.",
-      "You always said 'maybe later.' Later never came.",
-      // 50 more sad messages:
-      "Every goodbye leaves a scar.",
-      "I still hear your silence.",
-      "You were never truly mine.",
-      "Regrets whisper in the dark.",
-      "I lost parts of myself with you.",
-      "Love turned cold too fast.",
-      "Your absence echoes in my heart.",
-      "I wished for more than what was given.",
-      "I keep your ghost in every memory.",
-      "Your shadow lingers in my dreams.",
-      "I hoped for warmth, found only frost.",
-      "Loneliness became my only friend.",
-      "I carry the weight of unspoken words.",
-      "Our memories haunt me daily.",
-      "Every moment with you was bittersweet.",
-      "I tried to hold on, but you slipped away.",
-      "Silence became our final conversation.",
-      "I wore my heart on a fragile sleeve.",
-      "The truth hurts more than lies.",
-      "I wish I could forget what we had.",
-      "I drown in a sea of missed chances.",
-      "I kept falling, even when I knew the end.",
-      "You left behind more than empty promises.",
-      "I once believed in us, now I only believe in solitude.",
-      "I built dreams on promises that crumbled.",
-      "The mirror reflects a stranger now.",
-      "I still search for the love that vanished.",
-      "Every memory is a bittersweet reminder.",
-      "I stand alone in the ruins of our past.",
-      "I sacrificed my soul for a love unreturned.",
-      "The pain of goodbye never truly fades.",
-      "I linger in the shadow of what could have been.",
-      "Every heartbeat echoes your absence.",
-      "I hoped you would be different.",
-      "Your silence is louder than any words.",
-      "I gave my all, but it wasn't enough.",
-      "Every promise you broke still stings.",
-      "I hide my scars behind a forced smile.",
-      "I lost more than I ever thought possible.",
-      "The emptiness inside speaks volumes.",
-      "I watch the rain, feeling every drop of sorrow.",
-      "I yearn for a past that can never return.",
-      "I wear my solitude like a second skin.",
-      "I fell for dreams that were never real.",
-      "I mourn the future that we never had.",
-      "Every tear tells a story of loss.",
-      "I held on, even when I knew I should let go.",
-      "The cold truth is harder to bear than the lies.",
-      "I built hope on a foundation of despair.",
-      "In the silence, my heart still whispers your name."
-    ],
-    []
-  );
-  
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [displayText, setDisplayText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isMistyped, setIsMistyped] = useState(false);
+  const messages = [
+    "Words left unsaid echo the loudest.",
+    "In the silence, I found you again.",
+    "Some letters are written in tears.",
+    "Time fades, but regrets linger.",
+    "I kept it all inside, too late.",
+    "I wish I said no more often.",
+    "You inspire me to be nothing like you.",
+    "We were just strangers with memories.",
+    "I miss the old me, before you.",
+    "Some things are better left unsaid.",
+    "You never realized, did you?",
+    "I was always second choice.",
+    "I should have walked away sooner.",
+    "You never fought for me.",
+    "It still hurts, but I hide it well.",
+    "I let you break me.",
+    "You never even noticed.",
+    "I was just an option, not a priority.",
+    "The silence said more than you ever did.",
+    "I cared too much. You didn't care at all.",
+    "I kept waiting for something that never came.",
+    "Some wounds never heal.",
+    "If I mattered, you'd still be here.",
+    "I should have been enough.",
+    "You let me go so easily.",
+    "I wish I could unmeet you.",
+    "I still wait for a message that never comes.",
+    "I wanted forever, you wanted convenience.",
+    "We never even got closure.",
+    "Maybe I was just a lesson, not a love.",
+    "You promised, then you left.",
+    "I should have listened when they warned me.",
+    "I deserved more than unanswered texts.",
+    "I was there for you. You were nowhere for me.",
+    "You always said 'maybe later.' Later never came.",
+    "I gave you all my tomorrows, you gave me yesterday.",
+    "Your absence screams louder than words.",
+    "I built a world you never lived in.",
+    "The echoes of you still haunt me.",
+    "I lost myself trying to find you.",
+    "You were my dream, now my regret.",
+    "I wrote you letters I’ll never send.",
+    "Your goodbye was just silence.",
+    "I held on until my hands bled.",
+    "You left a mark time can’t erase.",
+    "I whispered your name to no one.",
+    "Every maybe became a never.",
+    "I was your shadow, never your light.",
+    "You forgot me like an old song.",
+    "I waited, but the clock stopped."
+  ];
+
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [phase, setPhase] = useState<"typing" | "pausing" | "backspacing">("typing");
   const [charIndex, setCharIndex] = useState(0);
+  const [mistakeStep, setMistakeStep] = useState<0 | 1 | 2>(0);
+
+  const typingSpeed = 100;
+  const backspaceSpeed = 50;
+  const mistakeDelay = 500;
+  const pauseDuration = 2000;
+  const mistakeProbability = 0.05;
+
+  const currentMessage = messages[currentMessageIndex];
 
   useEffect(() => {
-    const currentMessage = messages[currentIndex];
-    let delay = Math.random() * 100 + 100; // Typing delay between 100-200ms
-    if (isDeleting) {
-      delay = 50; // Faster deletion
-    }
-
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        // With a 10% chance, simulate mistyping (if not at start)
-        if (!isMistyped && Math.random() < 0.1 && charIndex > 0) {
-          const wrongChar = String.fromCharCode(97 + Math.floor(Math.random() * 26));
-          setDisplayText(currentMessage.substring(0, charIndex) + wrongChar);
-          setIsMistyped(true);
-        } else if (isMistyped) {
-          // Remove the wrong character and reset mistype flag
-          setDisplayText(currentMessage.substring(0, charIndex));
-          setIsMistyped(false);
-        } else {
-          const nextCharIndex = charIndex + 1;
-          setDisplayText(currentMessage.substring(0, nextCharIndex));
-          setCharIndex(nextCharIndex);
-          if (nextCharIndex === currentMessage.length) {
-            setTimeout(() => setIsDeleting(true), 2000);
+    const handleTyping = () => {
+      if (phase === "typing") {
+        if (charIndex < currentMessage.length) {
+          if (mistakeStep === 0) {
+            const isMistake = Math.random() < mistakeProbability;
+            if (isMistake) {
+              const wrongChar = "abcdefghijklmnopqrstuvwxyz "[Math.floor(Math.random() * 27)];
+              setDisplayedText((prev) => prev + wrongChar);
+              setMistakeStep(1);
+              setTimeout(handleTyping, mistakeDelay);
+            } else {
+              setDisplayedText((prev) => prev + currentMessage[charIndex]);
+              setCharIndex((prev) => prev + 1);
+              setTimeout(handleTyping, typingSpeed);
+            }
+          } else if (mistakeStep === 1) {
+            setDisplayedText((prev) => prev.slice(0, -1));
+            setMistakeStep(2);
+            setTimeout(handleTyping, backspaceSpeed);
+          } else if (mistakeStep === 2) {
+            setDisplayedText((prev) => prev + currentMessage[charIndex]);
+            setCharIndex((prev) => prev + 1);
+            setMistakeStep(0);
+            setTimeout(handleTyping, typingSpeed);
           }
-        }
-      } else {
-        if (charIndex > 0) {
-          setDisplayText(currentMessage.substring(0, charIndex - 1));
-          setCharIndex(charIndex - 1);
         } else {
-          setIsDeleting(false);
-          setCurrentIndex((currentIndex + 1) % messages.length);
+          setPhase("pausing");
+          setTimeout(() => {
+            setPhase("backspacing");
+            handleTyping();
+          }, pauseDuration);
+        }
+      } else if (phase === "backspacing") {
+        if (displayedText.length > 0) {
+          setDisplayedText((prev) => prev.slice(0, -1));
+          setTimeout(handleTyping, backspaceSpeed);
+        } else {
+          setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+          setPhase("typing");
+          setCharIndex(0);
+          setMistakeStep(0);
+          handleTyping();
         }
       }
-    }, delay);
+    };
 
-    return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, isMistyped, currentIndex, messages]);
+    handleTyping();
+  }, []);
 
   return (
-    <div className="typing-effect text-center text-lg font-mono text-[var(--text)]">
-      {displayText}
+    <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+      <p className="text-lg sm:text-xl italic text-[var(--text)]">
+        <span>{displayedText}</span>
+        <span className="cursor">|</span>
+      </p>
     </div>
   );
 };
