@@ -150,7 +150,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchRecentMemories() {
       const { data, error } = await supabase
-        .from("memories")
+        .from<Partial<Memory>>("memories")
         .select("*")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
@@ -158,9 +158,16 @@ export default function Home() {
       if (error) {
         console.error("Error fetching memories:", error);
       } else if (data) {
-        const memoriesWithDefaults = data.map((mem: any) => ({
-          ...mem,
+        const memoriesWithDefaults: Memory[] = data.map((mem) => ({
+          id: mem.id,
+          recipient: mem.recipient,
+          sender: mem.sender,
+          message: mem.message,
+          color: mem.color,
+          created_at: mem.created_at,
+          animation: mem.animation,
           full_bg: mem.full_bg ?? false,
+          status: mem.status,
           letter_style: mem.letter_style ?? "",
         }));
         setRecentMemories(memoriesWithDefaults);
