@@ -48,7 +48,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       {showWelcome && (
         <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in">
+          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in border border-[var(--border)]">
             <h2 className="text-xl font-bold text-[var(--text)] mb-4">Welcome</h2>
             <p className="text-[var(--text)] mb-6">
               A space for unsent memories. Check out{" "}
@@ -67,9 +67,9 @@ export default function Home() {
         </div>
       )}
 
-      <header className="bg-[var(--card-bg)] shadow-md">
+      <header className="bg-gradient-to-b from-[var(--card-bg)] to-[var(--secondary)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] tracking-tight">If Only I Sent This</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
@@ -99,13 +99,13 @@ export default function Home() {
       </header>
 
       <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
-        <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-xl text-center">
+        <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-md text-center border border-[var(--border)]">
           <TypingEffect />
         </div>
       </section>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] tracking-tight">Recent Memories</h2>
         {recentMemories.length > 0 ? (
           recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
         ) : (
@@ -118,7 +118,7 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="bg-[var(--card-bg)] shadow-md">
+      <footer className="bg-gradient-to-t from-[var(--card-bg)] to-[var(--secondary)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
