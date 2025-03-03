@@ -25,21 +25,17 @@ export default function MemoryDetail() {
 
   useEffect(() => {
     async function fetchMemory() {
-      console.log("Fetching memory for id:", id);
+      console.log("Fetching memory for id:", id); // Debug ID
       if (!id) {
         setError("No ID provided in the URL");
         return;
       }
-      const { data, error } = await supabase
-        .from("memories")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data, error } = await supabase.from("memories").select("*").eq("id", id).single();
       if (error) {
-        console.error("Error fetching memory:", error);
+        console.error("Error fetching memory:", error); // Debug fetch error
         setError("Failed to load memory. Check the console for details.");
       } else {
-        console.log("Fetched memory:", data);
+        console.log("Fetched memory:", data); // Debug fetched data
         setMemory(data);
       }
     }
