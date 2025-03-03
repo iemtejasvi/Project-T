@@ -1,116 +1,75 @@
-/* app/globals.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
-
-/* Light, sad, 1980s-inspired color palette */
-:root {
-  --background: #E8ECEF; /* Softer light gray */
-  --text: #4A5568; /* Slightly darker gray for contrast */
-  --accent: #A3BFFA; /* Muted lavender-blue */
-  --secondary: #FED7D7; /* Pale pink */
-  --card-bg: #F7FAFC; /* Soft off-white for cards */
-  --border: #CBD5E0; /* Gentle gray border */
-  --scroll-bg: #EDF2F7; /* Light scroll background */
-  --shadow: rgba(0, 0, 0, 0.08); /* Subtle, soft shadow */
-}
-
-body {
-  background-color: var(--background);
-  color: var(--text);
-  font-family: 'Arial', sans-serif;
-}
-
-/* Card flip styles */
+/* globals.css */
 .flip-card {
-  perspective: 1000px;
+  perspective: 1000px; /* Enables 3D flip effect */
 }
+
 .flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s ease-in-out;
+  transition: transform 0.6s;
   transform-style: preserve-3d;
 }
-.flip-card-front, .flip-card-back {
+
+.flip-card-inner.rotate-y-180 {
+  transform: rotateY(180deg); /* Flips the card */
+}
+
+.flip-card-front,
+.flip-card-back {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Hides the back when flipped */
   border-radius: 12px;
-  box-shadow: 0 6px 12px var(--shadow);
-  transition: box-shadow 0.3s ease;
+  overflow: hidden; /* Prevents content overflow on small screens */
 }
+
 .flip-card-back {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* Rotates back face */
 }
 
-/* Custom scrollbar */
-.card-scroll {
-  -webkit-overflow-scrolling: touch;
-}
-.card-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-.card-scroll::-webkit-scrollbar-track {
-  background-color: var(--scroll-bg);
-}
-.card-scroll::-webkit-scrollbar-thumb {
-  background-color: var(--scroll-thumb);
-  border-radius: 4px;
-}
-
-/* Special text styles */
-.bleeding-text {
-  font-family: 'Architects Daughter', cursive;
-  color: var(--accent);
-}
-.handwritten-text p {
-  font-family: 'Pacifico', cursive;
-  font-size: 1.5rem;
-  color: var(--text);
-}
-
-/* Custom arrow */
-.arrow-icon {
-  font-size: 2.5rem;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-.arrow-icon:hover {
-  transform: scale(1.2);
-  opacity: 1;
-}
-
-/* Animations */
-@keyframes slide-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes fade-in {
-  0% { opacity: 0; }
+/* Blinking cursor for TypingEffect */
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
   100% { opacity: 1; }
 }
-@keyframes blink {
-  50% { opacity: 0; }
-}
-.animate-slide-up {
-  animation: slide-up 0.5s ease-out;
-}
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out;
-}
+
 .animate-blink {
   animation: blink 1s step-end infinite;
 }
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
 
 /* Responsive adjustments */
+.flip-card {
+  width: 100%;
+  max-width: 320px; /* Default size for larger screens */
+  aspect-ratio: 1 / 1; /* Keeps it square */
+  height: auto;
+}
+
 @media (max-width: 640px) {
+  .flip-card {
+    max-width: 260px; /* Slightly smaller for mobile */
+    min-height: 260px; /* Ensures enough room on small screens */
+  }
   .arrow-icon {
-    font-size: 2rem;
+    font-size: 1.25rem; /* Smaller arrow on mobile */
+  }
+  .text-xl {
+    font-size: 1.125rem; /* Adjust title size */
+  }
+  .text-md {
+    font-size: 0.875rem; /* Adjust sender text */
+  }
+  .text-sm {
+    font-size: 0.75rem; /* Adjust message text */
+  }
+}
+
+@media (max-width: 400px) {
+  .flip-card {
+    max-width: 220px; /* Even smaller for tiny screens */
+    min-height: 220px;
   }
 }
