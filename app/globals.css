@@ -74,6 +74,14 @@ body {
   opacity: 1;
 }
 
+/* Cursor style for TypingEffect */
+.cursor {
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
 /* Animations */
 @keyframes slide-up {
   0% { opacity: 0; transform: translateY(20px); }
