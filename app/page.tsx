@@ -12,7 +12,7 @@ interface Memory {
   color: string;
   created_at: string;
   animation?: boolean;
-  full_bg?: boolean;
+  full_bg: boolean;
   status?: string;
   letter_style: string;
 }
@@ -155,8 +155,16 @@ export default function Home() {
         .eq("status", "approved")
         .order("created_at", { ascending: false })
         .limit(3);
-      if (error) console.error("Error fetching memories:", error);
-      else setRecentMemories(data || []);
+      if (error) {
+        console.error("Error fetching memories:", error);
+      } else if (data) {
+        const memoriesWithDefaults = data.map((mem: any) => ({
+          ...mem,
+          full_bg: mem.full_bg ?? false,
+          letter_style: mem.letter_style ?? "",
+        }));
+        setRecentMemories(memoriesWithDefaults);
+      }
     }
     fetchRecentMemories();
 
