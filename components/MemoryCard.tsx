@@ -299,9 +299,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   return (
     <div className="relative group">
-      <div className="absolute right-[-30px] top-1/2 transform -translate-y-1/2">
+      <div className="absolute right-[-30px] top-1/2 transform -translate-y-1/2" onClick={(e) => e.stopPropagation()}>
         <Link href={`/memories/${memory.id}`}>
-          <span className="text-3xl" style={{ color: arrowColor, fontFamily: "cursive" }}>➜</span>
+          <span className="text-3xl cursor-pointer" style={{ color: arrowColor, fontFamily: "cursive" }}>➜</span>
         </Link>
       </div>
       <div
