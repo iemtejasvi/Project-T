@@ -166,7 +166,7 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts]);
 
   return (
-    <div className="h-6 text-center text-sm text-[var(--text)] font-serif overflow-hidden">
+    <div className="h-6 text-center text-sm text-[var(--text)] font-serif">
       {displayedText}
     </div>
   );
@@ -203,46 +203,40 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   if (detail) {
     return (
-      <div
-        className={`w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg aspect-[3/4] flex flex-col animate-slide-up`}
-      >
-        <div>
-          <h3 className="text-2xl font-bold text-[var(--text)]">
-            {memory.animation && (
-              <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
-            )}
-            To: {memory.recipient}
-          </h3>
-          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-          <hr className="my-4 border-[var(--border)]" />
-        </div>
-        <div className="flex-1 overflow-auto card-scroll">{renderMessage(memory)}</div>
-        <div className="mt-auto">
-          <hr className="my-4 border-[var(--border)]" />
-          <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
-            <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
-          </div>
+      <div className={`w-full max-w-md mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-2xl shadow-2xl`}>
+        <h3 className="text-2xl font-bold text-[var(--text)]">
+          {memory.animation && (
+            <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
+          )}
+          To: {memory.recipient}
+        </h3>
+        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-[var(--text)] whitespace-pre-wrap">{renderMessage(memory)}</div>
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
+          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative group my-8">
+    <div className="relative group my-6">
       <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
         <Link href={`/memories/${memory.id}`}>
           <span className="arrow-icon" style={{ color: arrowColor }}>➜</span>
         </Link>
       </div>
       <div
-        className="flip-card w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto perspective-1000 aspect-square cursor-pointer rounded-xl shadow-lg border border-[var(--border)]"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 cursor-pointer"
         onClick={handleCardClick}
       >
         <div
           className={`flip-card-inner relative w-full h-full transition-transform duration-500 ${flipped ? "rotate-y-180" : ""}`}
         >
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-2xl shadow-2xl p-6 flex flex-col justify-between`}
           >
             <div>
               <h3 className="text-xl font-bold text-[var(--text)]">
@@ -254,13 +248,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
               <hr className="my-2 border-[var(--border)]" />
             </div>
-            <div className="text-xs text-[var(--text)] text-center">
-              {dateStr} | {dayStr}
+            <div className="text-xs text-[var(--text)] text-center border-t border-[var(--border)] mt-2 pt-2">
+              {dateStr} | {dayStr} | {timeStr} | {memory.color}
             </div>
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-2xl shadow-2xl p-6 flex flex-col justify-start rotate-y-180`}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
