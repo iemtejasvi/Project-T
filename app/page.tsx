@@ -150,7 +150,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchRecentMemories() {
       const { data, error } = await supabase
-        .from<Partial<Memory>>("memories")
+        .from<Partial<Memory>, any>("memories")
         .select("*")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
