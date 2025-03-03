@@ -105,9 +105,50 @@ const TypewriterPrompt: React.FC = () => {
       "Unsent regret—what remains unseen?",
       "The truth stayed here. Perhaps you’ll know.",
       "I never let go. See the silent truth.",
+      "Barely spoken—wanna see more?",
+      "It lies unsent. Would you dare?",
+      "All left behind. Could you unveil it?",
+      "Hidden in quiet. Uncover my truth.",
+      "The unsaid endures. Look a little closer.",
+      "I held back my words. See if they shift.",
+      "Silence remains—maybe you can sense it.",
+      "Too much left unsaid. Notice it?",
+      "I never released it. Find the hidden pain.",
+      "The letter stayed. Let it reveal itself.",
+      "All unsent. What if you noticed?",
+      "I kept my silence. Dare to discern?",
+      "Lost in stillness—see what lingers.",
+      "It was never sent. Perhaps you'll sense it.",
+      "My truth was hidden. Would you glimpse it?",
+      "I held my words. Notice the quiet sorrow.",
+      "Unspoken and raw—could you see it?",
+      "What was never sent still lives here.",
+      "The words stayed inside—could you unveil them?",
+      "A quiet miss remains. Would you discover?",
+      "I left it unsaid. Might you notice?",
+      "A secret letter, unsent. Look a little closer.",
+      "Unshared, it endures—could you sense its weight?",
+      "I never dared to send it. See if it changes you.",
+      "The silence holds a secret. Do you feel it?",
+      "A muted farewell lingers—could you perceive it?",
+      "I never let you in. Perhaps you'll understand.",
+      "The unsent remains, hidden yet true.",
+      "Too real to send—wanna glimpse the truth?",
+      "My silence speaks volumes. Can you sense it?",
+      "A quiet goodbye, left unsent. Look again.",
+      "The words were mine alone—could you share them?",
+      "I kept them hidden—maybe you'll notice the void.",
+      "What was never sent still speaks softly.",
+      "A secret kept in time—does it stir you?",
+      "The unsaid lingers—perhaps you'll sense the loss.",
+      "I never let it out. Could you feel the absence?",
+      "Hidden sorrow endures—see if it calls to you.",
+      "A missed goodbye remains—wonder what it holds?",
+      "Unsent, unspoken—its truth lies here."
     ],
     []
   );
+
   const initialIndex = useMemo(() => Math.floor(Math.random() * prompts.length), [prompts]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [displayedText, setDisplayedText] = useState("");
@@ -152,7 +193,7 @@ const HandwrittenText: React.FC<{ message: string }> = ({ message }) => (
   </div>
 );
 
-const renderMessage = (memory: Memory, arrowColor: string) => {
+const renderMessage = (memory: Memory) => {
   switch (memory.animation) {
     case "bleeding":
       return <p className="bleeding-text">{memory.message}</p>;
@@ -191,7 +232,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           {memory.sender && <p className="mt-1 text-lg italic text-gray-400">From: {memory.sender}</p>}
         </div>
         <hr className="my-2 border-gray-600" />
-        <div className="mb-2 text-gray-300">{renderMessage(memory, arrowColor)}</div>
+        <div className="mb-2 text-gray-300">{renderMessage(memory)}</div>
         <hr className="my-2 border-gray-600" />
         <div className="text-xs text-gray-400 flex flex-wrap justify-center gap-2">
           <span>Date: {dateStr}</span>
@@ -264,7 +305,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                 } as React.CSSProperties
               }
             >
-              {renderMessage(memory, arrowColor)}
+              {renderMessage(memory)}
             </div>
           </div>
         </div>
