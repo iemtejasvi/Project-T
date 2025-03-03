@@ -1,3 +1,4 @@
+// components/MemoryCard.tsx
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
@@ -203,18 +204,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   if (detail) {
     return (
-      <div className={`w-full max-w-md mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md`}>
-        <h3 className="text-2xl font-bold text-[var(--text)]">
+      <div className={`w-full max-w-sm mx-auto my-8 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl`}>
+        <h3 className="text-2xl font-bold text-[var(--text)] font-serif">
           {memory.animation && (
             <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
           )}
           To: {memory.recipient}
         </h3>
-        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)] font-serif">From: {memory.sender}</p>}
         <hr className="my-4 border-[var(--border)]" />
-        <div className="text-[var(--text)] whitespace-pre-wrap">{renderMessage(memory)}</div>
+        <div className="text-[var(--text)] whitespace-pre-wrap font-serif">{renderMessage(memory)}</div>
         <hr className="my-4 border-[var(--border)]" />
-        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
+        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2 font-serif">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
         </div>
       </div>
@@ -222,46 +223,51 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   }
 
   return (
-    <div className="relative group my-6">
-      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
+    <div className="relative group my-8">
+      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px] transition-opacity duration-300 group-hover:opacity-100 opacity-70">
         <Link href={`/memories/${memory.id}`}>
           <span className="arrow-icon" style={{ color: arrowColor }}>➜</span>
         </Link>
       </div>
       <div
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 aspect-square cursor-pointer"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 cursor-pointer transition-all duration-300 hover:shadow-xl"
         onClick={handleCardClick}
       >
         <div
-          className={`flip-card-inner relative w-full h-full transition-transform duration-500 ${flipped ? "rotate-y-180" : ""}`}
+          className={`flip-card-inner relative w-full h-72 sm:h-80 transition-transform duration-600 ${flipped ? "rotate-y-180" : ""}`}
         >
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-6 flex flex-col justify-between`}
           >
             <div>
-              <h3 className="text-xl font-bold text-[var(--text)]">
+              <h3 className="text-xl font-bold text-[var(--text)] font-serif">
                 {memory.animation && (
                   <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
                 )}
                 To: {memory.recipient}
               </h3>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
+              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] font-serif">From: {memory.sender}</p>}
+              <hr className="my-3 border-[var(--border)]" />
             </div>
-            <div className="text-xs text-[var(--text)] text-center">
+            <div className="text-xs text-[var(--text)] text-center font-serif">
               {dateStr} | {dayStr}
             </div>
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-6 flex flex-col justify-start rotate-y-180`}
           >
-            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
-            <hr className="my-2 border-[var(--border)]" />
+            <h3 className="text-lg italic text-[var(--text)] text-center font-serif">if only i sent this</h3>
+            <hr className="my-3 border-[var(--border)]" />
             <div
-              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap"
+              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap font-serif"
               style={{ "--scroll-thumb": arrowColor } as React.CSSProperties}
             >
               {renderMessage(memory)}
+            </div>
+            <hr className="my-4 border-[var(--border)]" />
+            <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2 font-serif">
+              <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
             </div>
           </div>
         </div>
