@@ -1,6 +1,6 @@
 // components/MemoryCard.tsx
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 
 interface Memory {
@@ -21,7 +21,7 @@ interface MemoryCardProps {
   detail?: boolean;
 }
 
-// Color mappings for the light palette
+// Color mappings
 function getBorderColor(color: string) {
   const mapping: { [key: string]: string } = {
     default: "border-gray-300",
@@ -42,17 +42,17 @@ function getBorderColor(color: string) {
 
 function getColorHex(color: string): string {
   const mapping: { [key: string]: string } = {
-    default: "#A0AEC0", // Light gray
-    blue: "#63B3ED", // Light blue
+    default: "#A0AEC0",
+    blue: "#63B3ED",
     gray: "#A0AEC0",
-    purple: "#B794F4", // Light purple
-    navy: "#5A9BD3", // Lighter navy
-    maroon: "#E57373", // Lighter red
-    pink: "#F687B3", // Light pink
+    purple: "#B794F4",
+    navy: "#5A9BD3",
+    maroon: "#E57373",
+    pink: "#F687B3",
     teal: "#38B2AC",
-    olive: "#A9B665", // Lighter olive
+    olive: "#A9B665",
     mustard: "#FFDB58",
-    coral: "#FF9A8B", // Lighter coral
+    coral: "#FF9A8B",
     lavender: "#E6E6FA",
   };
   return mapping[color] || "#A0AEC0";
@@ -79,6 +79,7 @@ function getBgColor(color: string, full_bg: boolean) {
   return "bg-[var(--card-bg)]";
 }
 
+// Typing prompt for the front of the card
 const TypewriterPrompt: React.FC = () => {
   const prompts = useMemo(
     () => [
@@ -141,7 +142,7 @@ const TypewriterPrompt: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const currentPrompt = prompts[currentIndex];
     const typeSpeed = isDeleting ? 50 : 100;
     const timeout = setTimeout(() => {
@@ -167,18 +168,20 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts]);
 
   return (
-    <div className="h-6 text-center text-sm text-[var(--text)] font-serif">
+    <div className="h-6 text-center text-sm text-[var(--text)] font-serif truncate">
       {displayedText}
     </div>
   );
 };
 
+// Handwritten text effect (if you use it)
 const HandwrittenText: React.FC<{ message: string }> = ({ message }) => (
   <div className="handwritten-text">
     <p>{message}</p>
   </div>
 );
 
+// Render message with animation
 const renderMessage = (memory: Memory) => {
   switch (memory.animation) {
     case "bleeding":
@@ -202,72 +205,72 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const handleCardClick = () => !detail && setFlipped(!flipped);
 
+  // Detail view (individual memory page)
   if (detail) {
     return (
-      <div className={`w-full max-w-sm mx-auto my-8 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl`}>
-        <h3 className="text-2xl font-bold text-[var(--text)] font-serif">
+      <div className={`w-full max-w-md mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md`}>
+        <h3 className="text-2xl font-bold text-[var(--text)]">
           {memory.animation && (
             <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
           )}
           To: {memory.recipient}
         </h3>
-        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)] font-serif">From: {memory.sender}</p>}
+        {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
         <hr className="my-4 border-[var(--border)]" />
-        <div className="text-[var(--text)] whitespace-pre-wrap font-serif">{renderMessage(memory)}</div>
+        <div className="text-[var(--text)] whitespace-pre-wrap text-sm">{renderMessage(memory)}</div>
         <hr className="my-4 border-[var(--border)]" />
-        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2 font-serif">
+        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
         </div>
       </div>
     );
   }
 
+  // Flippable card view
   return (
-    <div className="relative group my-8">
-      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px] transition-opacity duration-300 group-hover:opacity-100 opacity-70">
+    <div className="relative group my-6">
+      {/* Arrow link to detail page */}
+      <div className="absolute right-[-30px] top-1/2 transform -translate-y-1/2 sm:right-[-40px]">
         <Link href={`/memories/${memory.id}`}>
           <span className="arrow-icon" style={{ color: arrowColor }}>➜</span>
         </Link>
       </div>
       <div
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 cursor-pointer transition-all duration-300 hover:shadow-xl"
+        className="flip-card mx-auto cursor-pointer"
         onClick={handleCardClick}
       >
         <div
-          className={`flip-card-inner relative w-full h-72 sm:h-80 transition-transform duration-600 ${flipped ? "rotate-y-180" : ""}`}
+          className={`flip-card-inner relative w-full h-full transition-transform duration-500 ${flipped ? "rotate-y-180" : ""}`}
         >
+          {/* Front of the card */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-6 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-between`}
           >
             <div>
-              <h3 className="text-xl font-bold text-[var(--text)] font-serif">
+              <h3 className="text-xl font-bold text-[var(--text)]">
                 {memory.animation && (
                   <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
                 )}
                 To: {memory.recipient}
               </h3>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] font-serif">From: {memory.sender}</p>}
-              <hr className="my-3 border-[var(--border)]" />
+              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
             </div>
-            <div className="text-xs text-[var(--text)] text-center font-serif">
+            <div className="text-xs text-[var(--text)] text-center">
               {dateStr} | {dayStr}
             </div>
             <TypewriterPrompt />
           </div>
+          {/* Back of the card */}
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-6 flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-start`}
           >
-            <h3 className="text-lg italic text-[var(--text)] text-center font-serif">if only i sent this</h3>
-            <hr className="my-3 border-[var(--border)]" />
+            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
+            <hr className="my-2 border-[var(--border)]" />
             <div
-              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap font-serif"
+              className="flex-1 overflow-y-auto text-sm text-[var(--text)] whitespace-pre-wrap"
               style={{ "--scroll-thumb": arrowColor } as React.CSSProperties}
             >
               {renderMessage(memory)}
-            </div>
-            <hr className="my-4 border-[var(--border)]" />
-            <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2 font-serif">
-              <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
             </div>
           </div>
         </div>
