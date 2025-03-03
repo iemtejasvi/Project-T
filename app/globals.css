@@ -1,21 +1,21 @@
+/* app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap');
 
-/* Refined light, sad, and appealing color palette */
+/* Light, sad, 1980s-inspired color palette */
 :root {
-  --background: #F5F5F5; /* Soft off-white */
-  --text: #4A4A4A; /* Dark gray for readability */
-  --accent: #B0C4DE; /* Light steel blue */
-  --secondary: #D8BFD8; /* Thistle */
-  --card-bg: #FAFAFA; /* Near-white for cards */
-  --border: #B0B0B0; /* Medium gray border */
-  --scroll-bg: #F0F0F0; /* Scrollbar track */
-  --shadow: rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
+  --background: #E8ECEF; /* Softer light gray */
+  --text: #4A5568; /* Slightly darker gray for contrast */
+  --accent: #A3BFFA; /* Muted lavender-blue */
+  --secondary: #FED7D7; /* Pale pink */
+  --card-bg: #F7FAFC; /* Soft off-white for cards */
+  --border: #CBD5E0; /* Gentle gray border */
+  --scroll-bg: #EDF2F7; /* Light scroll background */
+  --shadow: rgba(0, 0, 0, 0.08); /* Subtle, soft shadow */
 }
 
 body {
@@ -25,16 +25,26 @@ body {
 }
 
 /* Card flip styles */
-.perspective-1000 {
+.flip-card {
   perspective: 1000px;
 }
 .flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
   transform-style: preserve-3d;
 }
-.backface-hidden {
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   backface-visibility: hidden;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px var(--shadow);
+  transition: box-shadow 0.3s ease;
 }
-.rotate-y-180 {
+.flip-card-back {
   transform: rotateY(180deg);
 }
 
@@ -64,20 +74,10 @@ body {
   color: var(--text);
 }
 
-/* Typing effect styles */
-.typewriter-text {
-  font-family: 'Caveat', cursive;
-  font-size: 1.25rem;
-  color: var(--text);
-  text-shadow: 0 0 5px var(--accent);
-  transition: all 0.2s ease;
-}
-
 /* Custom arrow */
 .arrow-icon {
   font-size: 2.5rem;
   transition: transform 0.3s ease, opacity 0.3s ease;
-  opacity: 0.7;
 }
 .arrow-icon:hover {
   transform: scale(1.2);
@@ -93,10 +93,8 @@ body {
   0% { opacity: 0; }
   100% { opacity: 1; }
 }
-@keyframes subtle-glow {
-  0% { text-shadow: 0 0 5px var(--accent); }
-  50% { text-shadow: 0 0 10px var(--accent); }
-  100% { text-shadow: 0 0 5px var(--accent); }
+@keyframes blink {
+  50% { opacity: 0; }
 }
 .animate-slide-up {
   animation: slide-up 0.5s ease-out;
@@ -104,28 +102,15 @@ body {
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
 }
-.animate-glow {
-  animation: subtle-glow 3s infinite ease-in-out;
+.animate-blink {
+  animation: blink 1s step-end infinite;
 }
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
-
-/* Card enhancements */
-.flip-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  background: linear-gradient(135deg, var(--card-bg), var(--secondary));
-}
-.flip-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 6px 12px var(--shadow);
-}
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .arrow-icon {
     font-size: 2rem;
-  }
-  .typewriter-text {
-    font-size: 1rem;
   }
 }
