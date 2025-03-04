@@ -89,7 +89,7 @@ const TypingEffect: React.FC = () => {
     []
   );
   
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * messages.length));
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [isMistyped, setIsMistyped] = useState(false);
@@ -104,13 +104,11 @@ const TypingEffect: React.FC = () => {
 
     const timeout = setTimeout(() => {
       if (!isDeleting) {
-        // With a 10% chance, simulate mistyping (if not at start)
         if (!isMistyped && Math.random() < 0.1 && charIndex > 0) {
           const wrongChar = String.fromCharCode(97 + Math.floor(Math.random() * 26));
           setDisplayText(currentMessage.substring(0, charIndex) + wrongChar);
           setIsMistyped(true);
         } else if (isMistyped) {
-          // Remove the wrong character and reset mistype flag
           setDisplayText(currentMessage.substring(0, charIndex));
           setIsMistyped(false);
         } else {
