@@ -301,7 +301,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
           <hr className="my-2 border-[var(--border)]" />
         </div>
-        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap">
+        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words">
           {renderMessage(memory)}
         </div>
         <hr className="my-2 border-[var(--border)]" />
@@ -350,7 +350,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
             <div
-              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap"
+              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap break-words"
               style={{ "--scroll-thumb": arrowColor } as React.CSSProperties}
             >
               {renderMessage(memory)}
