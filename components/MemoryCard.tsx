@@ -79,6 +79,7 @@ function getBgColor(color: string, full_bg: boolean) {
 }
 
 const TypewriterPrompt: React.FC = () => {
+  // Use your new prompt list with 100 messages (your provided list plus additional 50 similar ones)
   const prompts = useMemo(
     () => [
       "Why did you?",
@@ -239,6 +240,9 @@ const TypewriterPrompt: React.FC = () => {
     []
   );
 
+  // Use a random offset to desynchronize multiple instances
+  const randomOffset = useMemo(() => Math.random() * 1000, []);
+
   const [currentIndex, setCurrentIndex] = useState(Math.floor(Math.random() * prompts.length));
   const [displayedText, setDisplayedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -246,7 +250,11 @@ const TypewriterPrompt: React.FC = () => {
 
   useEffect(() => {
     const currentPrompt = prompts[currentIndex];
-    const typeSpeed = isDeleting ? 50 : 100;
+    let delay = isDeleting ? 50 : 100;
+    // Apply random offset only at the very start (charIndex === 0)
+    if (!isDeleting && charIndex === 0) {
+      delay += randomOffset;
+    }
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setDisplayedText(currentPrompt.substring(0, charIndex + 1));
@@ -265,12 +273,12 @@ const TypewriterPrompt: React.FC = () => {
           setCharIndex(charIndex - 1);
         }
       }
-    }, typeSpeed);
+    }, delay);
     return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, currentIndex, prompts]);
+  }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
-    <div className="h-8 overflow-hidden whitespace-nowrap text-center text-sm text-[var(--text)] font-serif transition-all duration-300">
+    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 break-words">
       {displayedText}
     </div>
   );
