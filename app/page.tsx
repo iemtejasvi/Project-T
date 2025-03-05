@@ -22,6 +22,7 @@ interface Memory {
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [theme, setTheme] = useState("light"); // Theme state
 
   useEffect(() => {
     async function fetchRecentMemories() {
@@ -44,11 +45,15 @@ export default function Home() {
 
   const handleWelcomeClose = () => setShowWelcome(false);
 
+  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTheme(e.target.value);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={`min-h-screen flex flex-col ${theme === "dark" ? "theme-dark" : "theme-light"}`}>
       {showWelcome && (
         <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in">
+          <div className="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg max-w-sm w-full animate-fade-in">
             <h2 className="text-xl font-bold text-[var(--text)] mb-4">Welcome</h2>
             <p className="text-[var(--text)] mb-6">
               A space for unsent memories. Check out{" "}
@@ -68,57 +73,67 @@ export default function Home() {
       )}
 
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
-          <hr className="my-4 border-[var(--border)]" />
-          <nav>
-            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
-              <li>
-                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                  Memories
-                </Link>
-              </li>
-              <li>
-                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                  Submit
-                </Link>
-              </li>
-              <li>
-                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                  How It Works
-                </Link>
-              </li>
-            </ul>
-          </nav>
+          <div className="mt-4 sm:mt-0 flex items-center space-x-4">
+            <nav>
+              <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
+                <li>
+                  <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                    Memories
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                    Submit
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                    How It Works
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+            <select value={theme} onChange={handleThemeChange} className="p-2 border rounded">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              {/* Add more themes if needed */}
+            </select>
+          </div>
         </div>
       </header>
 
       <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
-        <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+        <div className="bg-[var(--card-bg)] p-4 rounded-xl shadow-md text-center">
           <TypingEffect />
         </div>
       </section>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
-        {recentMemories.length > 0 ? (
-          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
-        ) : (
-          <p className="text-[var(--text)]">No memories yet.</p>
-        )}
-        <div className="text-right mt-4">
-          <Link href="/memories" className="text-[var(--accent)] hover:underline">
-            See All →
-          </Link>
+      {/* Mobile carousel layout */}
+      <div className="sm:hidden px-4">
+        <div className="flex space-x-4 overflow-x-auto">
+          {recentMemories.map((memory) => (
+            <div key={memory.id} className="flex-shrink-0 w-4/5">
+              <MemoryCard memory={memory} />
+            </div>
+          ))}
         </div>
-      </main>
+      </div>
 
-      <footer className="bg-[var(--card-bg)] shadow-md">
+      {/* Desktop grid layout */}
+      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 sm:px-6 max-w-5xl mx-auto">
+        {recentMemories.map((memory) => (
+          <MemoryCard key={memory.id} memory={memory} />
+        ))}
+      </div>
+
+      <footer className="bg-[var(--card-bg)] shadow-md mt-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
