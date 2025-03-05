@@ -42,17 +42,17 @@ function getBorderColor(color: string) {
 
 function getColorHex(color: string): string {
   const mapping: { [key: string]: string } = {
-    default: "#A0AEC0", // Light gray
-    blue: "#63B3ED", // Light blue
+    default: "#A0AEC0",
+    blue: "#63B3ED",
     gray: "#A0AEC0",
-    purple: "#B794F4", // Light purple
-    navy: "#5A9BD3", // Lighter navy
-    maroon: "#E57373", // Lighter red
-    pink: "#F687B3", // Light pink
+    purple: "#B794F4",
+    navy: "#5A9BD3",
+    maroon: "#E57373",
+    pink: "#F687B3",
     teal: "#38B2AC",
-    olive: "#A9B665", // Lighter olive
+    olive: "#A9B665",
     mustard: "#FFDB58",
-    coral: "#FF9A8B", // Lighter coral
+    coral: "#FF9A8B",
     lavender: "#E6E6FA",
   };
   return mapping[color] || "#A0AEC0";
@@ -80,7 +80,6 @@ function getBgColor(color: string, full_bg: boolean) {
 }
 
 const TypewriterPrompt: React.FC = () => {
-  // Use your new prompt list with 100 messages (provided list plus additional 50 similar ones)
   const prompts = useMemo(
     () => [
       "Why did you?",
@@ -186,7 +185,6 @@ const TypewriterPrompt: React.FC = () => {
       "You let go too soon.",
       "It still hurts.",
       "I still love you.",
-      // Additional 50 similar messages
       "I never got closure.",
       "Your silence still hurts.",
       "I wonder if you ever cared.",
@@ -381,7 +379,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start`}
+            style={{ transform: "rotateY(180deg)" }}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
