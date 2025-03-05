@@ -42,17 +42,17 @@ function getBorderColor(color: string) {
 
 function getColorHex(color: string): string {
   const mapping: { [key: string]: string } = {
-    default: "#A0AEC0", // Light gray
-    blue: "#63B3ED", // Light blue
+    default: "#A0AEC0",
+    blue: "#63B3ED",
     gray: "#A0AEC0",
-    purple: "#B794F4", // Light purple
-    navy: "#5A9BD3", // Lighter navy
-    maroon: "#E57373", // Lighter red
-    pink: "#F687B3", // Light pink
+    purple: "#B794F4",
+    navy: "#5A9BD3",
+    maroon: "#E57373",
+    pink: "#F687B3",
     teal: "#38B2AC",
-    olive: "#A9B665", // Lighter olive
+    olive: "#A9B665",
     mustard: "#FFDB58",
-    coral: "#FF9A8B", // Lighter coral
+    coral: "#FF9A8B",
     lavender: "#E6E6FA",
   };
   return mapping[color] || "#A0AEC0";
@@ -80,7 +80,6 @@ function getBgColor(color: string, full_bg: boolean) {
 }
 
 const TypewriterPrompt: React.FC = () => {
-  // Updated prompt list: your provided list plus an additional 50 similar messages
   const prompts = useMemo(
     () => [
       "Why did you?",
@@ -241,6 +240,7 @@ const TypewriterPrompt: React.FC = () => {
     []
   );
 
+  // Desynchronize multiple instances with a random offset
   const randomOffset = useMemo(() => Math.random() * 1000, []);
 
   const [currentIndex, setCurrentIndex] = useState(Math.floor(Math.random() * prompts.length));
@@ -297,8 +297,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   if (detail) {
     return (
-      <div className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg flex flex-col min-h-[300px] hover:scale-105 transition-transform duration-300`}>
-        <div className="relative">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.02 }}
+        className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-md flex flex-col min-h-[300px] hover:shadow-2xl`}
+      >
+        <div>
           <h3 className="text-2xl font-bold text-[var(--text)]">
             {memory.animation && (
               <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
@@ -307,7 +312,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           </h3>
           {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
           <hr className="my-2 border-[var(--border)]" />
-          <span className="tooltip">Click to flip for details</span>
         </div>
         <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words">
           {renderMessage(memory)}
@@ -316,7 +320,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -327,19 +331,22 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           <span className="arrow-icon" style={{ color: arrowColor }}>➜</span>
         </Link>
       </div>
-      <div
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[250px] cursor-pointer hover:scale-105 transition-transform duration-300"
+      <motion.div
+        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[250px] cursor-pointer rounded-xl hover:shadow-2xl"
         onClick={handleCardClick}
       >
-        <motion.div
+        <motion.div 
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
         >
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg p-4 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between`}
           >
-            <div className="relative">
+            <div>
               <h3 className="text-xl font-bold text-[var(--text)]">
                 {memory.animation && (
                   <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
@@ -348,7 +355,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               </h3>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
               <hr className="my-2 border-[var(--border)]" />
-              <span className="tooltip">Click to flip for details</span>
             </div>
             <div className="text-xs text-[var(--text)] text-center">
               {dateStr} | {dayStr}
@@ -356,7 +362,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg p-4 flex flex-col justify-start`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180`}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
@@ -368,7 +374,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             </div>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 };
