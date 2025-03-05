@@ -42,17 +42,17 @@ function getBorderColor(color: string) {
 
 function getColorHex(color: string): string {
   const mapping: { [key: string]: string } = {
-    default: "#A0AEC0",
-    blue: "#63B3ED",
+    default: "#A0AEC0", // Light gray
+    blue: "#63B3ED", // Light blue
     gray: "#A0AEC0",
-    purple: "#B794F4",
-    navy: "#5A9BD3",
-    maroon: "#E57373",
-    pink: "#F687B3",
+    purple: "#B794F4", // Light purple
+    navy: "#5A9BD3", // Lighter navy
+    maroon: "#E57373", // Lighter red
+    pink: "#F687B3", // Light pink
     teal: "#38B2AC",
-    olive: "#A9B665",
+    olive: "#A9B665", // Lighter olive
     mustard: "#FFDB58",
-    coral: "#FF9A8B",
+    coral: "#FF9A8B", // Lighter coral
     lavender: "#E6E6FA",
   };
   return mapping[color] || "#A0AEC0";
@@ -80,6 +80,7 @@ function getBgColor(color: string, full_bg: boolean) {
 }
 
 const TypewriterPrompt: React.FC = () => {
+  // Use your new prompt list with 100 messages (provided list plus additional 50 similar ones)
   const prompts = useMemo(
     () => [
       "Why did you?",
@@ -340,8 +341,26 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       >
         <motion.div 
           className="flip-card-inner relative w-full h-full"
-          animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          variants={{
+            default: {
+              rotateY: 0,
+              scale: 1,
+              opacity: 1,
+              skewY: 0,
+              filter: "blur(0px)",
+              transition: { type: "spring", stiffness: 500, damping: 30 }
+            },
+            flipped: {
+              rotateY: 180,
+              scale: [1, 0.97, 1],
+              opacity: [1, 0.8, 1],
+              skewY: [0, 2, 0],
+              filter: ["blur(0px)", "blur(2px)", "blur(0px)"],
+              transition: { type: "spring", stiffness: 500, damping: 25 }
+            }
+          }}
+          animate={flipped ? "flipped" : "default"}
+          style={{ transformStyle: "preserve-3d", transformOrigin: "center" }}
         >
           <div
             className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between`}
