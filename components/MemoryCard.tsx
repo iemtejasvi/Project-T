@@ -185,6 +185,7 @@ const TypewriterPrompt: React.FC = () => {
       "You let go too soon.",
       "It still hurts.",
       "I still love you.",
+      // Additional 50 similar messages
       "I never got closure.",
       "Your silence still hurts.",
       "I wonder if you ever cared.",
@@ -339,26 +340,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       >
         <motion.div 
           className="flip-card-inner relative w-full h-full"
-          variants={{
-            default: {
-              rotateY: 0,
-              scale: 1,
-              opacity: 1,
-              skewY: 0,
-              filter: "blur(0px)",
-              transition: { type: "spring", stiffness: 500, damping: 30 }
-            },
-            flipped: {
-              rotateY: 180,
-              scale: [1, 0.97, 1],
-              opacity: [1, 0.8, 1],
-              skewY: [0, 2, 0],
-              filter: ["blur(0px)", "blur(2px)", "blur(0px)"],
-              transition: { type: "spring", stiffness: 500, damping: 25 }
-            }
-          }}
-          animate={flipped ? "flipped" : "default"}
-          style={{ transformStyle: "preserve-3d", transformOrigin: "center" }}
+          animate={{ rotateY: flipped ? 180 : 0 }}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
         >
           <div
             className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between`}
@@ -379,8 +362,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start`}
-            style={{ transform: "rotateY(180deg)" }}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180`}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
