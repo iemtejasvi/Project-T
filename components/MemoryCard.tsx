@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 interface Memory {
   id: string;
@@ -79,7 +80,7 @@ function getBgColor(color: string, full_bg: boolean) {
 }
 
 const TypewriterPrompt: React.FC = () => {
-  // Use your new prompt list with 100 messages (your provided list plus additional 50 similar ones)
+  // Updated prompt list: your provided list plus an additional 50 similar messages
   const prompts = useMemo(
     () => [
       "Why did you?",
@@ -240,7 +241,6 @@ const TypewriterPrompt: React.FC = () => {
     []
   );
 
-  // Use a random offset to desynchronize multiple instances
   const randomOffset = useMemo(() => Math.random() * 1000, []);
 
   const [currentIndex, setCurrentIndex] = useState(Math.floor(Math.random() * prompts.length));
@@ -251,7 +251,6 @@ const TypewriterPrompt: React.FC = () => {
   useEffect(() => {
     const currentPrompt = prompts[currentIndex];
     let delay = isDeleting ? 50 : 100;
-    // Apply random offset only at the very start (charIndex === 0)
     if (!isDeleting && charIndex === 0) {
       delay += randomOffset;
     }
@@ -298,8 +297,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   if (detail) {
     return (
-      <div className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-lg shadow-md flex flex-col min-h-[300px]`}>
-        <div>
+      <div className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg flex flex-col min-h-[300px] hover:scale-105 transition-transform duration-300`}>
+        <div className="relative">
           <h3 className="text-2xl font-bold text-[var(--text)]">
             {memory.animation && (
               <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
@@ -308,6 +307,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           </h3>
           {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
           <hr className="my-2 border-[var(--border)]" />
+          <span className="tooltip">Click to flip for details</span>
         </div>
         <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words">
           {renderMessage(memory)}
@@ -328,16 +328,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </Link>
       </div>
       <div
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[250px] cursor-pointer"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[250px] cursor-pointer hover:scale-105 transition-transform duration-300"
         onClick={handleCardClick}
       >
-        <div
-          className={`flip-card-inner relative w-full h-full transition-transform duration-500 ${flipped ? "rotate-y-180" : ""}`}
+        <motion.div
+          className="flip-card-inner relative w-full h-full"
+          animate={{ rotateY: flipped ? 180 : 0 }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
         >
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg p-4 flex flex-col justify-between`}
           >
-            <div>
+            <div className="relative">
               <h3 className="text-xl font-bold text-[var(--text)]">
                 {memory.animation && (
                   <span style={{ fontSize: "0.8rem", color: arrowColor, marginRight: "4px" }}>★</span>
@@ -346,6 +348,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               </h3>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
               <hr className="my-2 border-[var(--border)]" />
+              <span className="tooltip">Click to flip for details</span>
             </div>
             <div className="text-xs text-[var(--text)] text-center">
               {dateStr} | {dayStr}
@@ -353,7 +356,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-lg shadow-md p-4 flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-lg p-4 flex flex-col justify-start`}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
@@ -364,7 +367,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               {renderMessage(memory)}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
