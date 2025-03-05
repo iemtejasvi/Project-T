@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
-/* Light, sad, 1980s-inspired color palette */
+/* Light Theme (default) */
 :root {
   --background: #F5F5F5; /* Soft off-white */
   --text: #4A4A4A; /* Dark gray for readability */
@@ -15,6 +15,18 @@
   --border: #D9D9D9; /* Light gray border */
   --scroll-bg: #F0F0F0; /* Scrollbar track */
   --shadow: rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Dark Theme overrides */
+.theme-dark {
+  --background: #1F2937;
+  --text: #E5E7EB;
+  --accent: #60A5FA;
+  --secondary: #4B5563;
+  --card-bg: #374151;
+  --border: #4B5563;
+  --scroll-bg: #374151;
+  --shadow: rgba(0, 0, 0, 0.5);
 }
 
 body {
@@ -33,8 +45,23 @@ body {
 .backface-hidden {
   backface-visibility: hidden;
 }
-.rotate-y-180 {
-  transform: rotateY(180deg);
+
+/* Tooltip styles */
+.tooltip {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: var(--accent);
+  color: var(--text);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.relative:hover .tooltip {
+  opacity: 1;
 }
 
 /* Custom scrollbar */
@@ -48,7 +75,7 @@ body {
   background-color: var(--scroll-bg);
 }
 .card-scroll::-webkit-scrollbar-thumb {
-  background-color: var(--scroll-thumb);
+  background-color: var(--accent);
   border-radius: 4px;
 }
 
