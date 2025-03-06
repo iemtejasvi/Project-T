@@ -34,7 +34,6 @@ const TypingEffect: React.FC = () => {
       "I deserved more than unanswered texts.",
       "I was there for you. You were nowhere for me.",
       "You always said 'maybe later.' Later never came.",
-      // 50 more sad messages:
       "Every goodbye leaves a scar.",
       "I still hear your silence.",
       "You were never truly mine.",
