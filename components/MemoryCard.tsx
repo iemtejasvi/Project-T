@@ -341,10 +341,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         <motion.div 
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 35 }}
+          transition={{ type: "spring", stiffness: 350, damping: 30 }}
         >
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between min-h-[250px]`}
           >
             <div>
               <h3 className="text-xl font-bold text-[var(--text)]">
@@ -362,7 +362,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start min-h-[250px] rotate-y-180`}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
