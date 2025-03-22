@@ -124,7 +124,7 @@ const TypingEffect: React.FC = () => {
           setCharIndex(charIndex - 1);
         } else {
           setIsDeleting(false);
-          setCurrentIndex((currentIndex + 1) % messages.length);
+          setCurrentIndex(Math.floor(Math.random() * messages.length));
         }
       }
     }, delay);
