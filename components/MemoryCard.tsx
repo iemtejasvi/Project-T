@@ -341,7 +341,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         <motion.div 
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ type: "spring", stiffness: 600, damping: 25 }}
+          transition={{ type: "spring", stiffness: 400, damping: 35 }}
         >
           <div
             className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between`}
