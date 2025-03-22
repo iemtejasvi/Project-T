@@ -185,56 +185,6 @@ const TypewriterPrompt: React.FC = () => {
       "You let go too soon.",
       "It still hurts.",
       "I still love you.",
-      // Additional 50 similar messages
-      "I never got closure.",
-      "Your silence still hurts.",
-      "I wonder if you ever cared.",
-      "Every memory is a reminder.",
-      "I wish I could erase you.",
-      "My heart still aches.",
-      "I’m lost without you.",
-      "Your absence is overwhelming.",
-      "I keep replaying our past.",
-      "I can’t escape the pain.",
-      "Every moment is a regret.",
-      "I still question your love.",
-      "I’m haunted by your memory.",
-      "I feel empty without you.",
-      "I wish I could let you go.",
-      "I can’t fill the void you left.",
-      "Your loss is my burden.",
-      "I keep searching for answers.",
-      "I long for what we had.",
-      "I’m broken by our goodbye.",
-      "I’m still waiting for a sign.",
-      "I question every word you said.",
-      "Your departure still stings.",
-      "I carry your memory with me.",
-      "I miss the way you smiled.",
-      "I wonder if you ever looked back.",
-      "I still feel your touch.",
-      "I’m trapped in our past.",
-      "I can’t forget what we lost.",
-      "I’m drowning in our memories.",
-      "I ache for the love we had.",
-      "I wish I could turn back time.",
-      "I’m lost in the echoes of you.",
-      "Your memory is a constant pain.",
-      "I can’t shake the feeling of loss.",
-      "I’m still holding on to hope.",
-      "I regret not saying more.",
-      "I still wonder what went wrong.",
-      "I’m scarred by our goodbye.",
-      "I never learned to move on.",
-      "I still feel the emptiness inside.",
-      "I wish I never loved you.",
-      "I’m haunted by what could have been.",
-      "I still hold onto the past.",
-      "I feel lost without your love.",
-      "I’m aching for a second chance.",
-      "I regret every moment we shared.",
-      "I still cry in silence.",
-      "I wish my heart could heal.",
       "I’m forever missing you."
     ],
     []
@@ -341,10 +291,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         <motion.div 
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+          transition={{ type: "spring", stiffness: 400, damping: 35 }}
         >
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between min-h-[250px]`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-between`}
           >
             <div>
               <h3 className="text-xl font-bold text-[var(--text)]">
@@ -362,7 +312,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <TypewriterPrompt />
           </div>
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start min-h-[250px] rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${bgColor} ${borderColor} border-2 rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180`}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
