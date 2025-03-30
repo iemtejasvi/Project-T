@@ -14,7 +14,7 @@ export default function HowItWorks() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">How It Works</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav className="relative">
-            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6 items-center">
+            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 items-center">
               <li>
                 <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
