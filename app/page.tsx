@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
 
@@ -6,60 +7,57 @@ export default function HowItWorks() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--background)]">
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-8">
+        <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-8 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">How It Works</h1>
           <hr className="my-4 border-[var(--border)]" />
-          <nav className="flex flex-wrap justify-center gap-4 sm:gap-6 relative">
-            <Link href="/">
-              <a className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                Home
-              </a>
-            </Link>
-            <Link href="/memories">
-              <a className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                Memories
-              </a>
-            </Link>
-            <Link href="/submit">
-              <a className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                Submit
-              </a>
-            </Link>
-            <Link href="/how-it-works">
-              <a className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                How It Works
-              </a>
-            </Link>
-            <div className="relative">
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center gap-1"
-              >
-                More Options <span className="text-lg">▼</span>
-              </button>
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
-                  <Link href="/contact">
-                    <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
-                      Contact
-                    </div>
-                  </Link>
-                  <Link href="/privacy-policy">
-                    <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
-                      Privacy Policy
-                    </div>
-                  </Link>
-                  <Link href="/donate">
-                    <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
-                      Donate
-                    </div>
-                  </Link>
-                </div>
-              )}
-            </div>
+          <nav className="relative">
+            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6 items-center">
+              <li>
+                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                  Memories
+                </Link>
+              </li>
+              <li>
+                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                  Submit
+                </Link>
+              </li>
+              <li className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center"
+                >
+                  More Options ▼
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute top-full mt-2 w-48 left-1/2 transform -translate-x-1/2 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
+                    <Link href="/contact">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                        Contact
+                      </div>
+                    </Link>
+                    <Link href="/privacy-policy">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                        Privacy Policy
+                      </div>
+                    </Link>
+                    <Link href="/donate">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                        Donate
+                      </div>
+                    </Link>
+                  </div>
+                )}
+              </li>
+            </ul>
           </nav>
         </div>
       </header>
@@ -67,34 +65,19 @@ export default function HowItWorks() {
       {/* Main Content */}
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <article className="bg-[var(--card-bg)] p-6 sm:p-8 rounded-lg shadow-md animate-slide-up">
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">
-            Using If Only I Sent This
-          </h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">Using If Only I Sent This</h2>
           <p className="text-base sm:text-lg text-[var(--text)] mb-4">
-            This platform is a sanctuary for unsent words—a place to share memories you never dared to send. Whether it’s a message to a long-lost love, an apology that was never uttered, or a tribute to a cherished moment, your feelings find a home here.
+            This is a sanctuary for unsent words—a place to lay down memories you couldn’t share. Whether it’s for a person, a pet, or a moment, your thoughts find peace here.
           </p>
           <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--text)]">What You Can Do</h3>
           <ul className="list-disc list-inside text-base sm:text-lg text-[var(--text)] mb-4">
-            <li>
-              <strong>Create Memories:</strong> Craft messages, choose color themes, and apply special effects like bleeding or handwritten text.
-            </li>
-            <li>
-              <strong>Explore:</strong> Interact with beautifully designed cards. Click the arrow to flip and read the hidden message.
-            </li>
-            <li>
-              <strong>Reflect:</strong> Each memory holds a piece of your past, displayed in a heartfelt design.
-            </li>
+            <li><strong>Create Memories:</strong> Write messages, pick colors, and add effects like bleeding or handwritten text.</li>
+            <li><strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.</li>
+            <li><strong>Stars:</strong> Special effects are marked with a ★ on cards.</li>
+            <li><strong>Quotes:</strong> Rotating quotes on the home page set the tone.</li>
           </ul>
           <p className="text-base sm:text-lg text-[var(--text)]">
-            Begin by visiting the{" "}
-            <Link href="/submit">
-              <a className="text-[var(--accent)] hover:underline">Submit</a>
-            </Link>{" "}
-            page or browse through the{" "}
-            <Link href="/memories">
-              <a className="text-[var(--accent)] hover:underline">Memories</a>
-            </Link>{" "}
-            to see what others have shared.
+            Start by heading to the <Link href="/submit" className="text-[var(--accent)] hover:underline">Submit</Link> page, or browse the <Link href="/memories" className="text-[var(--accent)] hover:underline">Memories</Link> page to see what others have shared.
           </p>
         </article>
       </main>
