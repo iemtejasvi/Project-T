@@ -24,15 +24,14 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    // On large screens, still fetching 4 memories but listing them in single column
-    const limit = window.innerWidth >= 1024 ? 4 : 3;
+    // Always fetch 3 memories for the home screen.
     async function fetchRecentMemories() {
       const { data, error } = await supabase
         .from("memories")
         .select("*")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
-        .limit(limit);
+        .limit(3);
       if (error) console.error("Error fetching memories:", error);
       else setRecentMemories(data || []);
     }
