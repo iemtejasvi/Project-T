@@ -38,7 +38,7 @@ export default function HowItWorks() {
                   More Options ▼
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute top-full mt-2 w-48 left-1/2 transform -translate-x-1/2 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
+                  <div className="absolute top-full mt-2 w-48 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
                     <Link href="/contact">
                       <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
                         Contact
