@@ -21,30 +21,6 @@ interface MemoryCardProps {
   detail?: boolean;
 }
 
-// Mapping for dark outline colors (for a partial accent)
-const darkOutlineMapping: { [key: string]: string } = {
-  default: "#000000",
-  blue: "#00008B",
-  gray: "#333333",
-  purple: "#4B0082",
-  navy: "#000080",
-  maroon: "#800000",
-  pink: "#8B008B",
-  teal: "#008080",
-  olive: "#556B2F",
-  mustard: "#8B8000",
-  coral: "#8B3E2F",
-  lavender: "#4B0082",
-  mint: "#006400",
-  aqua: "#008B8B",
-  peach: "#CD853F",
-  sky: "#1E90FF",
-  rose: "#8B0000",
-  sapphire: "#0F2A4D",
-  emerald: "#006400",
-  amber: "#8B5A2B",
-};
-
 const TypewriterPrompt: React.FC = () => {
   const prompts = useMemo(
     () => [
@@ -105,19 +81,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const borderStyle = { borderColor: `var(--color-${memory.color}-border)` };
   const bgStyle = memory.full_bg ? { backgroundColor: `var(--color-${memory.color}-bg)` } : {};
   const arrowStyle = { color: `var(--color-${memory.color}-border)` };
+  // New: dark outline style (using the new variable)
+  const outlineStyle = { outline: `3px solid var(--color-${memory.color}-outline)` };
 
-  // Determine the dark outline color based on mapping; fallback to black.
-  const outlineColor = darkOutlineMapping[memory.color] || "#000000";
-  const outlineStyle = {
-    borderBottom: `4px solid ${outlineColor}`,
-    borderRight: `4px solid ${outlineColor}`,
-    width: "60%",
-    height: "60%",
-    position: "absolute" as "absolute",
-    bottom: 0,
-    right: 0,
-    borderRadius: "inherit",
-    pointerEvents: "none"
+  // Define the scroll thumb style as a constant to avoid inline literal type assertion
+  const scrollThumbStyle: React.CSSProperties = {
+    "--scroll-thumb": `var(--color-${memory.color}-border)`
   };
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
@@ -126,37 +95,33 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const handleCardClick = () => !detail && setFlipped(!flipped);
 
-  // Wrap the card with a relative container so the outline can be absolutely positioned.
   if (detail) {
     return (
-      <div className="relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.02 }}
-          className="w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 border-2 rounded-xl shadow-md flex flex-col min-h-[300px] hover:shadow-2xl"
-          style={{ ...bgStyle, ...borderStyle }}
-        >
-          <div>
-            <h3 className="text-2xl font-bold text-[var(--text)]">
-              {memory.animation && (
-                <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>★</span>
-              )}
-              To: {memory.recipient}
-            </h3>
-            {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-            <hr className="my-2 border-[var(--border)]" />
-          </div>
-          <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words">
-            {renderMessage(memory)}
-          </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.02 }}
+        className="w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 border-2 rounded-xl shadow-md flex flex-col min-h-[300px] hover:shadow-2xl"
+        style={{ ...bgStyle, ...borderStyle, ...outlineStyle }}
+      >
+        <div>
+          <h3 className="text-2xl font-bold text-[var(--text)]">
+            {memory.animation && (
+              <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>★</span>
+            )}
+            To: {memory.recipient}
+          </h3>
+          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
           <hr className="my-2 border-[var(--border)]" />
-          <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
-            <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
-          </div>
-        </motion.div>
-        <div style={outlineStyle}></div>
-      </div>
+        </div>
+        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words">
+          {renderMessage(memory)}
+        </div>
+        <hr className="my-2 border-[var(--border)]" />
+        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
+          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
+        </div>
+      </motion.div>
     );
   }
 
@@ -173,7 +138,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         animate={{ opacity: 1, y: 0 }}
         className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
         onClick={handleCardClick}
-        style={{ ...bgStyle, ...borderStyle }}
+        style={{ ...bgStyle, ...borderStyle, ...outlineStyle }}
       >
         <motion.div 
           className="flip-card-inner relative w-full h-full"
@@ -182,7 +147,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         >
           <div
             className="flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-between"
-            style={{ ...bgStyle, ...borderStyle }}
+            style={{ ...bgStyle, ...borderStyle, ...outlineStyle }}
           >
             <div>
               <h3 className="text-xl font-bold text-[var(--text)]">
@@ -201,19 +166,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           </div>
           <div
             className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180"
-            style={{ ...bgStyle, ...borderStyle }}
+            style={{ ...bgStyle, ...borderStyle, ...outlineStyle }}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
             <div
               className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap break-words"
-              style={{ "--scroll-thumb": `var(--color-${memory.color}-border)` } as React.CSSProperties}
+              style={scrollThumbStyle}
             >
               {renderMessage(memory)}
             </div>
           </div>
         </motion.div>
-        <div style={outlineStyle}></div>
       </motion.div>
     </div>
   );
