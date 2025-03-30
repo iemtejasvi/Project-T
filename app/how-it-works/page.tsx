@@ -16,24 +16,33 @@ export default function HowItWorks() {
           <nav className="relative">
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 items-center">
               <li>
-                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link
+                  href="/"
+                  className="py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link
+                  href="/memories"
+                  className="py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                >
                   Memories
                 </Link>
               </li>
               <li>
-                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link
+                  href="/submit"
+                  className="py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                >
                   Submit
                 </Link>
               </li>
               <li className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center py-2"
+                  className="py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center"
                 >
                   More Options ▼
                 </button>
@@ -71,13 +80,29 @@ export default function HowItWorks() {
           </p>
           <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--text)]">What You Can Do</h3>
           <ul className="list-disc list-inside text-base sm:text-lg text-[var(--text)] mb-4">
-            <li><strong>Create Memories:</strong> Write messages, pick colors, and add effects like bleeding or handwritten text.</li>
-            <li><strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.</li>
-            <li><strong>Stars:</strong> Special effects are marked with a ★ on cards.</li>
-            <li><strong>Quotes:</strong> Rotating quotes on the home page set the tone.</li>
+            <li>
+              <strong>Create Memories:</strong> Write messages, pick colors, and add effects like bleeding or handwritten text.
+            </li>
+            <li>
+              <strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.
+            </li>
+            <li>
+              <strong>Stars:</strong> Special effects are marked with a ★ on cards.
+            </li>
+            <li>
+              <strong>Quotes:</strong> Rotating quotes on the home page set the tone.
+            </li>
           </ul>
           <p className="text-base sm:text-lg text-[var(--text)]">
-            Start by heading to the <Link href="/submit" className="text-[var(--accent)] hover:underline">Submit</Link> page, or browse the <Link href="/memories" className="text-[var(--accent)] hover:underline">Memories</Link> page to see what others have shared.
+            Start by heading to the{" "}
+            <Link href="/submit" className="text-[var(--accent)] hover:underline">
+              Submit
+            </Link>{" "}
+            page, or browse the{" "}
+            <Link href="/memories" className="text-[var(--accent)] hover:underline">
+              Memories
+            </Link>{" "}
+            page to see what others have shared.
           </p>
         </article>
       </main>
