@@ -84,8 +84,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   // New: dark outline style (using the new variable)
   const outlineStyle = { outline: `3px solid var(--color-${memory.color}-outline)` };
 
-  // Define the scroll thumb style as a constant to avoid inline literal type assertion
-  const scrollThumbStyle: React.CSSProperties = {
+  // Define the scroll thumb style with an explicit custom property type.
+  const scrollThumbStyle: React.CSSProperties & { "--scroll-thumb": string } = {
     "--scroll-thumb": `var(--color-${memory.color}-border)`
   };
 
