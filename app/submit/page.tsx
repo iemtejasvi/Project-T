@@ -17,6 +17,13 @@ const colorOptions = [
   { value: "mustard", label: "Mustard" },
   { value: "coral", label: "Coral" },
   { value: "lavender", label: "Lavender" },
+  // Additional colors
+  { value: "red", label: "Red" },
+  { value: "green", label: "Green" },
+  { value: "orange", label: "Orange" },
+  { value: "yellow", label: "Yellow" },
+  { value: "brown", label: "Brown" },
+  { value: "magenta", label: "Magenta" },
 ];
 
 const specialEffectOptions = [
@@ -44,6 +51,25 @@ export default function Submit() {
       return;
     }
 
+    // Gather extra details: IP and geolocation
+    let ip = "";
+    let city = "";
+    let country = "";
+    let stateRegion = "";
+    try {
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+      ip = data.ip || "";
+      city = data.city || "";
+      country = data.country_name || "";
+      stateRegion = data.region || "";
+    } catch (err) {
+      console.error("Error fetching IP info:", err);
+    }
+
+    // Get device info from user agent
+    const device = navigator.userAgent;
+
     const status = "pending";
     const { error } = await supabase
       .from("memories")
@@ -57,6 +83,11 @@ export default function Submit() {
           full_bg: fullBg,
           letter_style: "default",
           animation: specialEffect,
+          ip,
+          city,
+          country,
+          state: stateRegion,
+          device,
         },
       ]);
 
