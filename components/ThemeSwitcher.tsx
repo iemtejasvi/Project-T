@@ -35,9 +35,9 @@ export default function ThemeSwitcher() {
     }
 
     // Set color variables for card borders and backgrounds.
-    // These variables ensure the chosen card colors are consistent across themes.
+    // "default" cards now use a creme background ("#FFFDD0") so they don't match the page background.
     const colors = {
-      default: { border: "#A0AEC0", bg: "#FDFDFD" },
+      default: { border: "#A0AEC0", bg: "#FFFDD0" },
       blue: { border: "#63B3ED", bg: "#EBF8FF" },
       gray: { border: "#A0AEC0", bg: "#F7FAFC" },
       purple: { border: "#B794F4", bg: "#FAF5FF" },
