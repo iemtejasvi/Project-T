@@ -1,20 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabaseClient";
+import MemoryCard from "@/components/MemoryCard";
+import TypingEffect from "@/components/TypingEffect";
 
-export default function HowItWorks() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+interface Memory {
+  id: string;
+  recipient: string;
+  message: string;
+  sender?: string;
+  created_at: string;
+  status: string;
+  color: string;
+  full_bg: boolean;
+  letter_style: string;
+  animation?: string;
+}
+
+export default function Home() {
+  const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    // On large screens, still fetching 4 memories but listing them in single column
+    const limit = window.innerWidth >= 1024 ? 4 : 3;
+    async function fetchRecentMemories() {
+      const { data, error } = await supabase
+        .from("memories")
+        .select("*")
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) console.error("Error fetching memories:", error);
+      else setRecentMemories(data || []);
+    }
+    fetchRecentMemories();
+
+    if (!localStorage.getItem("hasVisited")) {
+      setShowWelcome(true);
+      localStorage.setItem("hasVisited", "true");
+    }
+  }, []);
+
+  const handleWelcomeClose = () => setShowWelcome(false);
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {showWelcome && (
+        <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in">
+            <h2 className="text-xl font-bold text-[var(--text)] mb-4">Welcome</h2>
+            <p className="text-[var(--text)] mb-6">
+              A space for unsent memories. Check out{" "}
+              <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">
+                How It Works
+              </Link>
+              .
+            </p>
+            <button
+              onClick={handleWelcomeClose}
+              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded hover:bg-blue-200 transition duration-200"
+            >
+              Got It
+            </button>
+          </div>
+        </div>
+      )}
+
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-8 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">How It Works</h1>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
           <hr className="my-4 border-[var(--border)]" />
-          <nav className="relative">
-            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6 items-center">
+          <nav>
+            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
               <li>
                 <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
@@ -30,59 +90,36 @@ export default function HowItWorks() {
                   Submit
                 </Link>
               </li>
-              <li className="relative">
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center"
-                >
-                  More Options ▼
-                </button>
-                {dropdownOpen && (
-                  <div className="absolute top-full mt-2 w-48 left-1/2 transform -translate-x-1/2 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
-                    <Link href="/contact">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
-                        Contact
-                      </div>
-                    </Link>
-                    <Link href="/privacy-policy">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
-                        Privacy Policy
-                      </div>
-                    </Link>
-                    <Link href="/donate">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
-                        Donate
-                      </div>
-                    </Link>
-                  </div>
-                )}
+              <li>
+                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                  How It Works
+                </Link>
               </li>
             </ul>
           </nav>
         </div>
       </header>
 
-      {/* Main Content */}
+      <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
+        <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+          <TypingEffect />
+        </div>
+      </section>
+
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <article className="bg-[var(--card-bg)] p-6 sm:p-8 rounded-lg shadow-md animate-slide-up">
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">Using If Only I Sent This</h2>
-          <p className="text-base sm:text-lg text-[var(--text)] mb-4">
-            This is a sanctuary for unsent words—a place to lay down memories you couldn’t share. Whether it’s for a person, a pet, or a moment, your thoughts find peace here.
-          </p>
-          <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--text)]">What You Can Do</h3>
-          <ul className="list-disc list-inside text-base sm:text-lg text-[var(--text)] mb-4">
-            <li><strong>Create Memories:</strong> Write messages, pick colors, and add effects like bleeding or handwritten text.</li>
-            <li><strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.</li>
-            <li><strong>Stars:</strong> Special effects are marked with a ★ on cards.</li>
-            <li><strong>Quotes:</strong> Rotating quotes on the home page set the tone.</li>
-          </ul>
-          <p className="text-base sm:text-lg text-[var(--text)]">
-            Start by heading to the <Link href="/submit" className="text-[var(--accent)] hover:underline">Submit</Link> page, or browse the <Link href="/memories" className="text-[var(--accent)] hover:underline">Memories</Link> page to see what others have shared.
-          </p>
-        </article>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
+        {recentMemories.length > 0 ? (
+          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+        ) : (
+          <p className="text-[var(--text)]">No memories yet.</p>
+        )}
+        <div className="text-right mt-4">
+          <Link href="/memories" className="text-[var(--accent)] hover:underline">
+            See All →
+          </Link>
+        </div>
       </main>
 
-      {/* Footer */}
       <footer className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
