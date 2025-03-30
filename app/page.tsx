@@ -1,124 +1,105 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
-import MemoryCard from "@/components/MemoryCard";
-import TypingEffect from "@/components/TypingEffect";
 
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  letter_style: string;
-  animation?: string;
-}
-
-export default function Home() {
-  const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
-  const [showWelcome, setShowWelcome] = useState(false);
-
-  useEffect(() => {
-    // Always fetch 3 memories for the home screen.
-    async function fetchRecentMemories() {
-      const { data, error } = await supabase
-        .from("memories")
-        .select("*")
-        .eq("status", "approved")
-        .order("created_at", { ascending: false })
-        .limit(3);
-      if (error) console.error("Error fetching memories:", error);
-      else setRecentMemories(data || []);
-    }
-    fetchRecentMemories();
-
-    if (!localStorage.getItem("hasVisited")) {
-      setShowWelcome(true);
-      localStorage.setItem("hasVisited", "true");
-    }
-  }, []);
-
-  const handleWelcomeClose = () => setShowWelcome(false);
+export default function HowItWorks() {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {showWelcome && (
-        <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in">
-            <h2 className="text-xl font-bold text-[var(--text)] mb-4">Welcome</h2>
-            <p className="text-[var(--text)] mb-6">
-              A space for unsent memories. Check out{" "}
-              <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">
-                How It Works
-              </Link>
-              .
-            </p>
-            <button
-              onClick={handleWelcomeClose}
-              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded hover:bg-blue-200 transition duration-200"
-            >
-              Got It
-            </button>
-          </div>
-        </div>
-      )}
-
+    <div className="min-h-screen flex flex-col bg-[var(--background)]">
+      {/* Header */}
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
+        <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">How It Works</h1>
           <hr className="my-4 border-[var(--border)]" />
-          <nav>
-            <ul className="flex flex-wrap justify-center gap-4 sm:gap-6">
-              <li>
-                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                  Memories
-                </Link>
-              </li>
-              <li>
-                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                  Submit
-                </Link>
-              </li>
-              <li>
-                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
-                  How It Works
-                </Link>
-              </li>
-            </ul>
+          <nav className="flex flex-wrap justify-center gap-4 sm:gap-6 relative">
+            <Link href="/">
+              <a className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                Home
+              </a>
+            </Link>
+            <Link href="/memories">
+              <a className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                Memories
+              </a>
+            </Link>
+            <Link href="/submit">
+              <a className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                Submit
+              </a>
+            </Link>
+            <Link href="/how-it-works">
+              <a className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                How It Works
+              </a>
+            </Link>
+            <div className="relative">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center gap-1"
+              >
+                More Options <span className="text-lg">▼</span>
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
+                  <Link href="/contact">
+                    <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                      Contact
+                    </div>
+                  </Link>
+                  <Link href="/privacy-policy">
+                    <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                      Privacy Policy
+                    </div>
+                  </Link>
+                  <Link href="/donate">
+                    <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                      Donate
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
           </nav>
         </div>
       </header>
 
-      <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
-        <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
-          <TypingEffect />
-        </div>
-      </section>
-
+      {/* Main Content */}
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
-        {recentMemories.length > 0 ? (
-          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
-        ) : (
-          <p className="text-[var(--text)]">No memories yet.</p>
-        )}
-        <div className="text-right mt-4">
-          <Link href="/memories" className="text-[var(--accent)] hover:underline">
-            See All →
-          </Link>
-        </div>
+        <article className="bg-[var(--card-bg)] p-6 sm:p-8 rounded-lg shadow-md animate-slide-up">
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">
+            Using If Only I Sent This
+          </h2>
+          <p className="text-base sm:text-lg text-[var(--text)] mb-4">
+            This platform is a sanctuary for unsent words—a place to share memories you never dared to send. Whether it’s a message to a long-lost love, an apology that was never uttered, or a tribute to a cherished moment, your feelings find a home here.
+          </p>
+          <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--text)]">What You Can Do</h3>
+          <ul className="list-disc list-inside text-base sm:text-lg text-[var(--text)] mb-4">
+            <li>
+              <strong>Create Memories:</strong> Craft messages, choose color themes, and apply special effects like bleeding or handwritten text.
+            </li>
+            <li>
+              <strong>Explore:</strong> Interact with beautifully designed cards. Click the arrow to flip and read the hidden message.
+            </li>
+            <li>
+              <strong>Reflect:</strong> Each memory holds a piece of your past, displayed in a heartfelt design.
+            </li>
+          </ul>
+          <p className="text-base sm:text-lg text-[var(--text)]">
+            Begin by visiting the{" "}
+            <Link href="/submit">
+              <a className="text-[var(--accent)] hover:underline">Submit</a>
+            </Link>{" "}
+            page or browse through the{" "}
+            <Link href="/memories">
+              <a className="text-[var(--accent)] hover:underline">Memories</a>
+            </Link>{" "}
+            to see what others have shared.
+          </p>
+        </article>
       </main>
 
+      {/* Footer */}
       <footer className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
