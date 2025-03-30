@@ -1,5 +1,5 @@
-// app/layout.tsx
 import "./globals.css";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 export const metadata = {
   title: "If Only I Sent This",
@@ -12,7 +12,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ThemeSwitcher />
+        {children}
+      </body>
     </html>
   );
 }
