@@ -5,35 +5,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
-/* Theme variables */
-.morning {
+/* Light, sad, 1980s-inspired color palette */
+:root {
   --background: #F5F5F5; /* Soft off-white */
-  --text: #4A4A4A; /* Dark gray */
+  --text: #4A4A4A; /* Dark gray for readability */
   --accent: #AEDFF7; /* Muted sky blue */
   --secondary: #E8D8D8; /* Faded pink */
-  --card-bg: #FDFDFD;
-  --border: #D9D9D9;
-  --scroll-bg: #F0F0F0;
-}
-
-.evening {
-  --background: #FFF8F0; /* Warm off-white */
-  --text: #5A4A4A;
-  --accent: #FFC07C; /* Soft peach */
-  --secondary: #F8D7DA;
-  --card-bg: #FDFDFD;
-  --border: #D9D9D9;
-  --scroll-bg: #F0F0F0;
-}
-
-.night {
-  --background: #F0F8FF; /* Light blue tint */
-  --text: #3A3A3A;
-  --accent: #9AD0EC; /* Cool blue */
-  --secondary: #E0D7D7;
-  --card-bg: #FDFDFD;
-  --border: #D9D9D9;
-  --scroll-bg: #F0F0F0;
+  --card-bg: #FDFDFD; /* Near-white for cards */
+  --border: #D9D9D9; /* Light gray border */
+  --scroll-bg: #F0F0F0; /* Scrollbar track */
+  --shadow: rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
 body {
