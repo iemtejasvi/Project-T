@@ -33,7 +33,7 @@ export default function HowItWorks() {
               <li className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center py-2"
                 >
                   More Options ▼
                 </button>
