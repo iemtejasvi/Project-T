@@ -4,6 +4,13 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
+interface IPData {
+  ip?: string;
+  city?: string;
+  region?: string;
+  country?: string;
+}
+
 const colorOptions = [
   { value: "default", label: "Default" },
   { value: "blue", label: "Blue" },
@@ -43,14 +50,14 @@ export default function Submit() {
   const [fullBg, setFullBg] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-  const [ipData, setIpData] = useState<any>(null);
+  const [ipData, setIpData] = useState<IPData | null>(null);
 
   // Fetch IP and geo info on mount
   useEffect(() => {
     async function fetchIP() {
       try {
         const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
+        const data: IPData = await res.json();
         setIpData(data);
       } catch (err) {
         console.error("Error fetching IP info:", err);
