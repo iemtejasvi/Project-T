@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -98,7 +98,7 @@ const TypewriterPrompt: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const currentPrompt = prompts[currentIndex];
     let delay = isDeleting ? 50 : 100;
     if (!isDeleting && charIndex === 0) {
@@ -185,7 +185,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 min-h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
         onClick={handleCardClick}
       >
         <motion.div 
