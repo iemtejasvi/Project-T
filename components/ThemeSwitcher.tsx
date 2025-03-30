@@ -59,35 +59,9 @@ export default function ThemeSwitcher() {
       amber: { border: "#FFBF00", bg: "#FFFAF0" },
     };
 
-    // Define dark outline colors (using dark variants) for each option
-    const outlines: { [key: string]: string } = {
-      default: "#2F2F2F",   // dark gray
-      blue: "#000080",      // navy
-      gray: "#2F4F4F",      // dark slate gray
-      purple: "#4B0082",    // indigo
-      navy: "#191970",      // midnight blue
-      maroon: "#800000",    // maroon
-      pink: "#8B008B",      // dark magenta
-      teal: "#008080",      // teal
-      olive: "#556B2F",     // dark olive green
-      mustard: "#654321",   // dark brown
-      coral: "#8B0000",     // dark red
-      lavender: "#483D8B",  // dark slate blue
-      mint: "#006400",      // dark green
-      aqua: "#008B8B",      // dark cyan
-      peach: "#8B4513",     // saddle brown
-      sky: "#4682B4",       // steel blue
-      rose: "#8B0000",      // dark red
-      sapphire: "#00008B",  // dark blue
-      emerald: "#006400",   // dark green
-      amber: "#8B4513",     // saddle brown
-    };
-
     for (const [color, values] of Object.entries(colors)) {
       root.style.setProperty(`--color-${color}-border`, values.border);
       root.style.setProperty(`--color-${color}-bg`, values.bg);
-      // Set dark outline color
-      root.style.setProperty(`--color-${color}-outline`, outlines[color] || "#000");
     }
   }, []);
 
