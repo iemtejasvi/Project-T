@@ -12,12 +12,12 @@ interface Memory {
   sender?: string;
   created_at: string;
   status: string;
-  animation?: string;
   ip?: string;
   city?: string;
-  country?: string;
   state?: string;
+  country?: string;
   device?: string;
+  animation?: string;
 }
 
 function AdminPanelContent() {
@@ -72,69 +72,6 @@ function AdminPanelContent() {
     return <p className="p-6 text-center text-red-600">Access Denied</p>;
   }
 
-  async function handleUpdateMemoryStatus(id: string, newStatus: string) {
-    if (newStatus === "rejected") {
-      // Delete memory entirely
-      const { error } = await supabase
-        .from("memories")
-        .delete()
-        .eq("id", id);
-      if (error) console.error(error);
-    } else if (newStatus === "banned") {
-      // Fetch memory details to get user info
-      const { data, error: fetchError } = await supabase
-        .from("memories")
-        .select("ip, city, country, state, device")
-        .eq("id", id)
-        .single();
-      if (fetchError) console.error(fetchError);
-      else {
-        // Insert banned user details into banned_users table
-        await supabase.from("banned_users").insert([
-          {
-            ip: data.ip,
-            city: data.city,
-            country: data.country,
-            state: data.state,
-            device: data.device,
-          },
-        ]);
-      }
-      // Update memory status to banned
-      const { error } = await supabase
-        .from("memories")
-        .update({ status: newStatus })
-        .eq("id", id);
-      if (error) console.error(error);
-    } else if (newStatus === "unbanned") {
-      // Remove from banned_users table based on memory's ip and update memory status to approved
-      const { data, error: fetchError } = await supabase
-        .from("memories")
-        .select("ip")
-        .eq("id", id)
-        .single();
-      if (fetchError) console.error(fetchError);
-      else {
-        await supabase.from("banned_users").delete().eq("ip", data.ip);
-      }
-      const { error } = await supabase
-        .from("memories")
-        .update({ status: "approved" })
-        .eq("id", id);
-      if (error) console.error(error);
-    } else {
-      const { error } = await supabase
-        .from("memories")
-        .update({ status: newStatus })
-        .eq("id", id);
-      if (error) console.error(error);
-    }
-    // Refresh all sections
-    fetchPendingMemories();
-    fetchApprovedMemories();
-    fetchBannedMemories();
-  }
-
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navigation */}
@@ -153,12 +90,9 @@ function AdminPanelContent() {
         </div>
       </header>
 
-      <main className="flex-grow max-w-4xl mx-auto px-6 py-8 space-y-12">
-        {/* Pending Memories Section */}
+      <main className="flex-grow max-w-4xl mx-auto px-6 py-8 space-y-8">
         <section>
-          <h2 className="text-3xl font-semibold mb-6 text-gray-900">
-            Pending Memories for Review
-          </h2>
+          <h2 className="text-3xl font-semibold mb-4 text-gray-900">Pending Memories for Review</h2>
           {pendingMemories.length > 0 ? (
             pendingMemories.map((memory) => (
               <div
@@ -172,24 +106,31 @@ function AdminPanelContent() {
                 {memory.sender && (
                   <p className="mt-3 italic text-lg text-gray-600">— {memory.sender}</p>
                 )}
+                <div className="mt-3 text-sm text-gray-500">
+                  <p>IP: {memory.ip}</p>
+                  <p>City: {memory.city}</p>
+                  <p>State: {memory.state}</p>
+                  <p>Country: {memory.country}</p>
+                  <p>Device: {memory.device}</p>
+                </div>
                 <small className="block mt-3 text-gray-500">
                   {new Date(memory.created_at).toLocaleString()}
                 </small>
                 <div className="mt-4 flex gap-4">
                   <button
-                    onClick={() => handleUpdateMemoryStatus(memory.id, "approved")}
+                    onClick={() => updateMemoryStatus(memory.id, "approved", refreshAll)}
                     className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
                   >
                     Approve
                   </button>
                   <button
-                    onClick={() => handleUpdateMemoryStatus(memory.id, "rejected")}
+                    onClick={() => deleteMemory(memory.id, refreshAll)}
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                   >
-                    Reject
+                    Reject/Delete
                   </button>
                   <button
-                    onClick={() => handleUpdateMemoryStatus(memory.id, "banned")}
+                    onClick={() => banMemory(memory, refreshAll)}
                     className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors"
                   >
                     Ban
@@ -202,11 +143,8 @@ function AdminPanelContent() {
           )}
         </section>
 
-        {/* Approved Memories Section */}
         <section>
-          <h2 className="text-3xl font-semibold mb-6 text-gray-900">
-            Approved Memories (with Submission Info)
-          </h2>
+          <h2 className="text-3xl font-semibold mb-4 text-gray-900">Approved Memories</h2>
           {approvedMemories.length > 0 ? (
             approvedMemories.map((memory) => (
               <div
@@ -220,20 +158,19 @@ function AdminPanelContent() {
                 {memory.sender && (
                   <p className="mt-3 italic text-lg text-gray-600">— {memory.sender}</p>
                 )}
-                <small className="block mt-3 text-gray-500">
-                  {new Date(memory.created_at).toLocaleString()}
-                </small>
-                {/* Extra submission info */}
-                <div className="mt-2 text-sm text-gray-600">
+                <div className="mt-3 text-sm text-gray-500">
                   <p>IP: {memory.ip}</p>
                   <p>City: {memory.city}</p>
                   <p>State: {memory.state}</p>
                   <p>Country: {memory.country}</p>
                   <p>Device: {memory.device}</p>
                 </div>
-                <div className="mt-4">
+                <small className="block mt-3 text-gray-500">
+                  {new Date(memory.created_at).toLocaleString()}
+                </small>
+                <div className="mt-4 flex gap-4">
                   <button
-                    onClick={() => handleUpdateMemoryStatus(memory.id, "rejected")}
+                    onClick={() => deleteMemory(memory.id, refreshAll)}
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                   >
                     Delete
@@ -242,20 +179,17 @@ function AdminPanelContent() {
               </div>
             ))
           ) : (
-            <p className="text-gray-700">No approved memories available.</p>
+            <p className="text-gray-700">No approved memories.</p>
           )}
         </section>
 
-        {/* Banned Memories Section */}
         <section>
-          <h2 className="text-3xl font-semibold mb-6 text-gray-900">
-            Banned Memories
-          </h2>
+          <h2 className="text-3xl font-semibold mb-4 text-gray-900">Banned Memories</h2>
           {bannedMemories.length > 0 ? (
             bannedMemories.map((memory) => (
               <div
                 key={memory.id}
-                className="bg-white/90 shadow rounded-lg p-6 mb-6 border-l-4 border-red-400"
+                className="bg-white/90 shadow rounded-lg p-6 mb-6 border-l-4 border-red-600"
               >
                 <h3 className="text-2xl font-semibold text-gray-800">
                   To: {memory.recipient}
@@ -264,27 +198,26 @@ function AdminPanelContent() {
                 {memory.sender && (
                   <p className="mt-3 italic text-lg text-gray-600">— {memory.sender}</p>
                 )}
-                <small className="block mt-3 text-gray-500">
-                  {new Date(memory.created_at).toLocaleString()}
-                </small>
-                {/* Extra submission info */}
-                <div className="mt-2 text-sm text-gray-600">
+                <div className="mt-3 text-sm text-gray-500">
                   <p>IP: {memory.ip}</p>
                   <p>City: {memory.city}</p>
                   <p>State: {memory.state}</p>
                   <p>Country: {memory.country}</p>
                   <p>Device: {memory.device}</p>
                 </div>
-                <div className="mt-4">
+                <small className="block mt-3 text-gray-500">
+                  {new Date(memory.created_at).toLocaleString()}
+                </small>
+                <div className="mt-4 flex gap-4">
                   <button
-                    onClick={() => handleUpdateMemoryStatus(memory.id, "unbanned")}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    onClick={() => unbanMemory(memory, refreshAll)}
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
                   >
                     Unban
                   </button>
                   <button
-                    onClick={() => handleUpdateMemoryStatus(memory.id, "rejected")}
-                    className="ml-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                    onClick={() => deleteMemory(memory.id, refreshAll)}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
                   >
                     Delete
                   </button>
@@ -304,6 +237,66 @@ function AdminPanelContent() {
       </footer>
     </div>
   );
+
+  function refreshAll() {
+    fetchPendingMemories();
+    fetchApprovedMemories();
+    fetchBannedMemories();
+  }
+}
+
+async function updateMemoryStatus(
+  id: string,
+  newStatus: string,
+  refreshCallback: () => void
+) {
+  if (newStatus === "rejected") {
+    const { error } = await supabase.from("memories").delete().eq("id", id);
+    if (error) console.error(error);
+  } else {
+    const { error } = await supabase
+      .from("memories")
+      .update({ status: newStatus })
+      .eq("id", id);
+    if (error) console.error(error);
+  }
+  refreshCallback();
+}
+
+async function deleteMemory(id: string, refreshCallback: () => void) {
+  const { error } = await supabase.from("memories").delete().eq("id", id);
+  if (error) console.error(error);
+  refreshCallback();
+}
+
+async function banMemory(memory: Memory, refreshCallback: () => void) {
+  // Update memory status to "banned"
+  const { error } = await supabase
+    .from("memories")
+    .update({ status: "banned" })
+    .eq("id", memory.id);
+  if (error) console.error(error);
+  // Insert banned IP details into banned_ips table if not exists
+  if (memory.ip) {
+    await supabase
+      .from("banned_ips")
+      .insert([{ ip: memory.ip, city: memory.city, state: memory.state, country: memory.country, device: memory.device }]);
+  }
+  refreshCallback();
+}
+
+async function unbanMemory(memory: Memory, refreshCallback: () => void) {
+  // Update memory status to "approved"
+  const { error } = await supabase
+    .from("memories")
+    .update({ status: "approved" })
+    .eq("id", memory.id);
+  if (error) console.error(error);
+  // Remove from banned_ips table
+  if (memory.ip) {
+    await supabase.from("banned_ips").delete().eq("ip", memory.ip);
+  }
+  refreshCallback();
 }
 
 export default function AdminPanel() {
