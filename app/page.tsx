@@ -24,6 +24,7 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
+    // On large screens, still fetching 4 memories but listing them in single column
     const limit = window.innerWidth >= 1024 ? 4 : 3;
     async function fetchRecentMemories() {
       const { data, error } = await supabase
@@ -107,13 +108,11 @@ export default function Home() {
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-items-center">
-          {recentMemories.length > 0 ? (
-            recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
-          ) : (
-            <p className="text-[var(--text)]">No memories yet.</p>
-          )}
-        </div>
+        {recentMemories.length > 0 ? (
+          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+        ) : (
+          <p className="text-[var(--text)]">No memories yet.</p>
+        )}
         <div className="text-right mt-4">
           <Link href="/memories" className="text-[var(--accent)] hover:underline">
             See All →
