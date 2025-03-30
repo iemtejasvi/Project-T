@@ -18,7 +18,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/"
-                  className="py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
                 >
                   Home
                 </Link>
@@ -26,7 +26,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/memories"
-                  className="py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
                 >
                   Memories
                 </Link>
@@ -34,7 +34,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/submit"
-                  className="py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
                 >
                   Submit
                 </Link>
@@ -42,7 +42,7 @@ export default function HowItWorks() {
               <li className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 flex items-center"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
                 >
                   More Options ▼
                 </button>
@@ -80,18 +80,10 @@ export default function HowItWorks() {
           </p>
           <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--text)]">What You Can Do</h3>
           <ul className="list-disc list-inside text-base sm:text-lg text-[var(--text)] mb-4">
-            <li>
-              <strong>Create Memories:</strong> Write messages, pick colors, and add effects like bleeding or handwritten text.
-            </li>
-            <li>
-              <strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.
-            </li>
-            <li>
-              <strong>Stars:</strong> Special effects are marked with a ★ on cards.
-            </li>
-            <li>
-              <strong>Quotes:</strong> Rotating quotes on the home page set the tone.
-            </li>
+            <li><strong>Create Memories:</strong> Write messages, pick colors, and add effects like bleeding or handwritten text.</li>
+            <li><strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.</li>
+            <li><strong>Stars:</strong> Special effects are marked with a ★ on cards.</li>
+            <li><strong>Quotes:</strong> Rotating quotes on the home page set the tone.</li>
           </ul>
           <p className="text-base sm:text-lg text-[var(--text)]">
             Start by heading to the{" "}
