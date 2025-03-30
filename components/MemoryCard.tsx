@@ -150,7 +150,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-md flex flex-col min-h-[300px]`}
+        whileHover={{ scale: 1.02 }}
+        className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 ${bgColor} ${borderColor} border-2 rounded-xl shadow-md flex flex-col min-h-[300px] hover:shadow-2xl`}
       >
         <div>
           <h3 className="text-2xl font-bold text-[var(--text)]">
@@ -181,11 +182,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </Link>
       </div>
       <motion.div
-        whileHover={{ scale: 1.01, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        // Added transformOrigin to ensure uniform scaling
-        style={{ transformOrigin: "center" }}
         className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
         onClick={handleCardClick}
       >
