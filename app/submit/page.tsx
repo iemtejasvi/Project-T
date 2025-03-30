@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
@@ -17,13 +17,15 @@ const colorOptions = [
   { value: "mustard", label: "Mustard" },
   { value: "coral", label: "Coral" },
   { value: "lavender", label: "Lavender" },
-  // Additional colors
-  { value: "red", label: "Red" },
-  { value: "green", label: "Green" },
-  { value: "orange", label: "Orange" },
-  { value: "yellow", label: "Yellow" },
-  { value: "brown", label: "Brown" },
-  { value: "magenta", label: "Magenta" },
+  // New colors
+  { value: "mint", label: "Mint" },
+  { value: "aqua", label: "Aqua" },
+  { value: "peach", label: "Peach" },
+  { value: "sky", label: "Sky" },
+  { value: "rose", label: "Rose" },
+  { value: "sapphire", label: "Sapphire" },
+  { value: "emerald", label: "Emerald" },
+  { value: "amber", label: "Amber" },
 ];
 
 const specialEffectOptions = [
@@ -41,6 +43,21 @@ export default function Submit() {
   const [fullBg, setFullBg] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [ipData, setIpData] = useState<any>(null);
+
+  // Fetch IP and geo info on mount
+  useEffect(() => {
+    async function fetchIP() {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        setIpData(data);
+      } catch (err) {
+        console.error("Error fetching IP info:", err);
+      }
+    }
+    fetchIP();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,45 +68,39 @@ export default function Submit() {
       return;
     }
 
-    // Gather extra details: IP and geolocation
-    let ip = "";
-    let city = "";
-    let country = "";
-    let stateRegion = "";
-    try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      ip = data.ip || "";
-      city = data.city || "";
-      country = data.country_name || "";
-      stateRegion = data.region || "";
-    } catch (err) {
-      console.error("Error fetching IP info:", err);
+    // Check if user's IP is banned
+    if (ipData && ipData.ip) {
+      const { data: bannedData, error: bannedError } = await supabase
+        .from("banned_ips")
+        .select("*")
+        .eq("ip", ipData.ip);
+      if (bannedError) {
+        console.error("Error checking banned IPs:", bannedError);
+      }
+      if (bannedData && bannedData.length > 0) {
+        setError("You are banned from submitting memories.");
+        return;
+      }
     }
 
-    // Get device info from user agent
-    const device = navigator.userAgent;
-
     const status = "pending";
-    const { error } = await supabase
-      .from("memories")
-      .insert([
-        {
-          recipient,
-          message,
-          sender,
-          status,
-          color,
-          full_bg: fullBg,
-          letter_style: "default",
-          animation: specialEffect,
-          ip,
-          city,
-          country,
-          state: stateRegion,
-          device,
-        },
-      ]);
+    const submission = {
+      recipient,
+      message,
+      sender,
+      status,
+      color,
+      full_bg: fullBg,
+      letter_style: "default",
+      animation: specialEffect,
+      ip: ipData?.ip || null,
+      city: ipData?.city || null,
+      state: ipData?.region || null,
+      country: ipData?.country || null,
+      device: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+    };
+
+    const { error } = await supabase.from("memories").insert([submission]);
 
     if (error) {
       setError("Error submitting your memory.");
