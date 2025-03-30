@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -36,23 +36,22 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (isAuthorized) {
+      async function fetchMemories() {
+        let query = supabase.from("memories").select("*").order("created_at", { ascending: false });
+        if (selectedTab === "pending") {
+          query = query.eq("status", "pending");
+        } else if (selectedTab === "approved") {
+          query = query.eq("status", "approved");
+        } else if (selectedTab === "banned") {
+          query = query.eq("status", "banned");
+        }
+        const { data, error } = await query;
+        if (error) console.error(error);
+        else setMemories(data || []);
+      }
       fetchMemories();
     }
   }, [isAuthorized, selectedTab]);
-
-  async function fetchMemories() {
-    let query = supabase.from("memories").select("*").order("created_at", { ascending: false });
-    if (selectedTab === "pending") {
-      query = query.eq("status", "pending");
-    } else if (selectedTab === "approved") {
-      query = query.eq("status", "approved");
-    } else if (selectedTab === "banned") {
-      query = query.eq("status", "banned");
-    }
-    const { data, error } = await query;
-    if (error) console.error(error);
-    else setMemories(data || []);
-  }
 
   async function updateMemoryStatus(id: string, newStatus: string) {
     const { error } = await supabase
@@ -60,13 +59,40 @@ export default function AdminPanel() {
       .update({ status: newStatus })
       .eq("id", id);
     if (error) console.error(error);
-    fetchMemories();
+    // Refresh memories after update
+    if (isAuthorized) {
+      // Same as useEffect's logic
+      let query = supabase.from("memories").select("*").order("created_at", { ascending: false });
+      if (selectedTab === "pending") {
+        query = query.eq("status", "pending");
+      } else if (selectedTab === "approved") {
+        query = query.eq("status", "approved");
+      } else if (selectedTab === "banned") {
+        query = query.eq("status", "banned");
+      }
+      const { data, error: fetchError } = await query;
+      if (fetchError) console.error(fetchError);
+      else setMemories(data || []);
+    }
   }
 
   async function deleteMemory(id: string) {
     const { error } = await supabase.from("memories").delete().eq("id", id);
     if (error) console.error(error);
-    fetchMemories();
+    // Refresh memories after deletion
+    if (isAuthorized) {
+      let query = supabase.from("memories").select("*").order("created_at", { ascending: false });
+      if (selectedTab === "pending") {
+        query = query.eq("status", "pending");
+      } else if (selectedTab === "approved") {
+        query = query.eq("status", "approved");
+      } else if (selectedTab === "banned") {
+        query = query.eq("status", "banned");
+      }
+      const { data, error: fetchError } = await query;
+      if (fetchError) console.error(fetchError);
+      else setMemories(data || []);
+    }
   }
 
   async function banMemory(memory: Memory) {
@@ -80,7 +106,14 @@ export default function AdminPanel() {
         .from("banned_ips")
         .insert([{ ip: memory.ip, city: memory.city, state: memory.state, country: memory.country, device: memory.device }]);
     }
-    fetchMemories();
+    // Refresh memories
+    if (isAuthorized) {
+      let query = supabase.from("memories").select("*").order("created_at", { ascending: false });
+      query = query.eq("status", "pending");
+      const { data, error: fetchError } = await query;
+      if (fetchError) console.error(fetchError);
+      else setMemories(data || []);
+    }
   }
 
   async function unbanMemory(memory: Memory) {
@@ -92,7 +125,14 @@ export default function AdminPanel() {
     if (memory.ip) {
       await supabase.from("banned_ips").delete().eq("ip", memory.ip);
     }
-    fetchMemories();
+    // Refresh memories
+    if (isAuthorized) {
+      let query = supabase.from("memories").select("*").order("created_at", { ascending: false });
+      query = query.eq("status", "banned");
+      const { data, error: fetchError } = await query;
+      if (fetchError) console.error(fetchError);
+      else setMemories(data || []);
+    }
   }
 
   if (!isAuthorized) {
@@ -126,19 +166,25 @@ export default function AdminPanel() {
         <div className="flex space-x-4 border-b border-[var(--border)]">
           <button
             onClick={() => setSelectedTab("pending")}
-            className={`py-2 px-4 font-semibold ${selectedTab === "pending" ? "border-b-2 border-blue-600 text-gray-900" : "text-gray-600"}`}
+            className={`py-2 px-4 font-semibold ${
+              selectedTab === "pending" ? "border-b-2 border-blue-600 text-gray-900" : "text-gray-600"
+            }`}
           >
             Pending
           </button>
           <button
             onClick={() => setSelectedTab("approved")}
-            className={`py-2 px-4 font-semibold ${selectedTab === "approved" ? "border-b-2 border-blue-600 text-gray-900" : "text-gray-600"}`}
+            className={`py-2 px-4 font-semibold ${
+              selectedTab === "approved" ? "border-b-2 border-blue-600 text-gray-900" : "text-gray-600"
+            }`}
           >
             Approved
           </button>
           <button
             onClick={() => setSelectedTab("banned")}
-            className={`py-2 px-4 font-semibold ${selectedTab === "banned" ? "border-b-2 border-blue-600 text-gray-900" : "text-gray-600"}`}
+            className={`py-2 px-4 font-semibold ${
+              selectedTab === "banned" ? "border-b-2 border-blue-600 text-gray-900" : "text-gray-600"
+            }`}
           >
             Banned
           </button>
