@@ -25,12 +25,14 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchRecentMemories() {
+      // Determine limit based on screen width
+      const limit = (typeof window !== "undefined" && window.innerWidth >= 1024) ? 6 : 3;
       const { data, error } = await supabase
         .from("memories")
         .select("*")
         .eq("status", "approved")
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(limit);
       if (error) console.error("Error fetching memories:", error);
       else setRecentMemories(data || []);
     }
@@ -107,7 +109,9 @@ export default function Home() {
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
         {recentMemories.length > 0 ? (
-          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)}
+          </div>
         ) : (
           <p className="text-[var(--text)]">No memories yet.</p>
         )}
