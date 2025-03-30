@@ -145,6 +145,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const handleCardClick = () => !detail && setFlipped(!flipped);
 
+  // Determine hover animation based on animation type
+  const hoverAnimation =
+    memory.animation === "handwritten"
+      ? { scale: 1.01, boxShadow: "0 6px 12px rgba(0,0,0,0.1)" }
+      : { scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" };
+
   if (detail) {
     return (
       <motion.div
@@ -182,7 +188,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </Link>
       </div>
       <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+        whileHover={hoverAnimation}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
