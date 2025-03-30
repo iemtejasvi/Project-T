@@ -107,7 +107,7 @@ export default function Home() {
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-items-center">
           {recentMemories.length > 0 ? (
             recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
           ) : (
