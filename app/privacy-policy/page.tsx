@@ -28,7 +28,7 @@ export default function PrivacyPolicy() {
         <section className="bg-[var(--card-bg)] p-8 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold text-[var(--text)] mb-4">Our Commitment to Your Privacy</h2>
           <p className="text-[var(--text)] text-lg mb-4">
-            Your privacy is important to us. We collect only the information necessary to provide and improve our services. This includes data such as your IP address, location details, and device information when you submit a memory.
+            Your privacy is important to us. We collect only the information necessary to provide and improve our services. This includes data such as your current date, time, and day when you submit a memory.
           </p>
           <p className="text-[var(--text)] text-lg mb-4">
             We do not share your personal information with third parties without your consent, except as required by law or to protect our rights. All data is stored securely in our database.
