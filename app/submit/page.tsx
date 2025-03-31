@@ -1,5 +1,7 @@
 "use client";
 
+// Ensure you have installed ua-parser-js: npm install ua-parser-js
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
@@ -107,7 +109,7 @@ export default function Submit() {
         ? `${result.os.name} ${result.os.version || ""}`.trim()
         : navigator.platform;
       let deviceVendor = result.device.vendor;
-      let deviceModel = result.device.model;
+      const deviceModel = result.device.model; // Changed to const as it's not reassigned
       if (!deviceVendor && deviceModel) {
         const ua = navigator.userAgent;
         if (/samsung/i.test(ua)) {
