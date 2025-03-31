@@ -83,7 +83,7 @@ function getDeviceInfo() {
     if (parenMatch) {
       const parts = parenMatch[1].split(";");
       // Try to find a part that contains "Build"
-      for (let part of parts) {
+      for (const part of parts) {
         if (part.includes("Build")) {
           model = part.split("Build")[0].trim();
           break;
