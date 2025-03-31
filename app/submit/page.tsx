@@ -96,74 +96,9 @@ export default function Submit() {
       }
     }
 
-    // Dynamically import UAParser to avoid build-time errors
-    let deviceInfo = "unknown device";
-    try {
-      const { default: UAParser } = await import("ua-parser-js");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const parser = new (UAParser as any)(navigator.userAgent);
-      const result = parser.getResult();
-
-      // Get OS info (or fallback to navigator.platform)
-      const osInfo = result.os.name
-        ? `${result.os.name} ${result.os.version || ""}`.trim()
-        : navigator.platform;
-
-      // Extract device vendor and model from UAParser result
-      let deviceVendor = result.device.vendor;
-      let deviceModel = result.device.model; // const changed to let to allow assignment below
-
-      // If not detected, try additional regex matching on userAgent string
-      if (!deviceVendor && !deviceModel) {
-        const ua = navigator.userAgent;
-        // Check for Samsung devices (e.g., "SM-G998B" etc.)
-        const samsungMatch = ua.match(/SM-[A-Z0-9]+/);
-        if (samsungMatch) {
-          deviceVendor = "Samsung";
-          deviceModel = samsungMatch[0];
-        } else if (/iPhone/i.test(ua)) {
-          deviceVendor = "Apple";
-          deviceModel = "iPhone";
-        } else if (/huawei/i.test(ua)) {
-          deviceVendor = "Huawei";
-          // Optionally, extract model info if available
-          const huaweiMatch = ua.match(/HUAWEI\s?([A-Z0-9]+)/i);
-          if (huaweiMatch) {
-            deviceModel = huaweiMatch[1];
-          }
-        } else if (/oneplus/i.test(ua)) {
-          deviceVendor = "OnePlus";
-          // Optionally, extract model info if available
-          const oneplusMatch = ua.match(/ONEPLUS\s?([A-Z0-9]+)/i);
-          if (oneplusMatch) {
-            deviceModel = oneplusMatch[1];
-          }
-        }
-      } else {
-        // If one is missing, try to set from UA string as fallback
-        if (!deviceVendor && deviceModel) {
-          const ua = navigator.userAgent;
-          if (/samsung/i.test(ua)) {
-            deviceVendor = "Samsung";
-          } else if (/iphone/i.test(ua)) {
-            deviceVendor = "Apple";
-          } else if (/huawei/i.test(ua)) {
-            deviceVendor = "Huawei";
-          } else if (/oneplus/i.test(ua)) {
-            deviceVendor = "OnePlus";
-          }
-        }
-      }
-
-      if (deviceVendor || deviceModel) {
-        const device = `${deviceVendor || ""} ${deviceModel || ""}`.trim();
-        deviceInfo = `${device}, ${osInfo}`;
-      } else {
-        deviceInfo = osInfo;
-      }
-    } catch (error) {
-      console.error("Error loading UAParser:", error);
-    }
+    // Use simple device info extraction from navigator.userAgent
+    const deviceInfo =
+      typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
 
     const status = "pending";
     const submission = {
@@ -236,7 +171,9 @@ export default function Submit() {
             {error && <p className="text-red-500 text-center font-medium">{error}</p>}
 
             <div className="animate-slide-up">
-              <label className="block font-serif text-[var(--text)]">{`Recipient's Name (required):`}</label>
+              <label className="block font-serif text-[var(--text)]">
+                {`Recipient's Name (required):`}
+              </label>
               <input
                 type="text"
                 value={recipient}
@@ -247,7 +184,9 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-100">
-              <label className="block font-serif text-[var(--text)]">{`Message (required):`}</label>
+              <label className="block font-serif text-[var(--text)]">
+                {`Message (required):`}
+              </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -258,7 +197,9 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-200">
-              <label className="block font-serif text-[var(--text)]">{`Your Name (optional):`}</label>
+              <label className="block font-serif text-[var(--text)]">
+                {`Your Name (optional):`}
+              </label>
               <input
                 type="text"
                 value={sender}
@@ -268,7 +209,9 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-300">
-              <label className="block font-serif text-[var(--text)]">{`Select a Color for Your Message (optional):`}</label>
+              <label className="block font-serif text-[var(--text)]">
+                {`Select a Color for Your Message (optional):`}
+              </label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
@@ -283,7 +226,9 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-400">
-              <label className="block font-serif text-[var(--text)]">{`Do you want any special effect?`}</label>
+              <label className="block font-serif text-[var(--text)]">
+                {`Do you want any special effect?`}
+              </label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
