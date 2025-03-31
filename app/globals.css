@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
@@ -11,16 +12,57 @@
   --text: #4A4A4A; /* Dark gray for readability */
   --accent: #AEDFF7; /* Muted sky blue */
   --secondary: #E8D8D8; /* Faded pink */
-  --card-bg: #FDFDFD; /* Near-white for cards */
+  --card-bg: #F8F8F0; /* Off white for cards */
   --border: #D9D9D9; /* Light gray border */
   --scroll-bg: #F0F0F0; /* Scrollbar track */
-  --shadow: rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  --shadow: rgba(0, 0, 0, 0.1);
+
+  --color-default-border: #D3D3D3;
+  --color-default-bg: #F8F8F0;
+  --color-mint-border: #98FF98;
+  --color-mint-bg: #E0FFE0;
+  --color-cherry-border: #FF4C4C;
+  --color-cherry-bg: #FFD6D6;
+  --color-sapphire-border: #0F52BA;
+  --color-sapphire-bg: #DDEEFF;
+  --color-lavender-border: #B57EDC;
+  --color-lavender-bg: #F0E6FF;
+  --color-coral-border: #FF7F50;
+  --color-coral-bg: #FFEFE6;
+  --color-olive-border: #808000;
+  --color-olive-bg: #E6E6B3;
+  --color-turquoise-border: #40E0D0;
+  --color-turquoise-bg: #E0FFFF;
+  --color-amethyst-border: #9966CC;
+  --color-amethyst-bg: #F2E6FF;
+  --color-gold-border: #FFD700;
+  --color-gold-bg: #FFF9E6;
+  --color-midnight-border: #191970;
+  --color-midnight-bg: #C0C0FF;
+  --color-emerald-border: #50C878;
+  --color-emerald-bg: #E0FFE0;
+  --color-ruby-border: #E0115F;
+  --color-ruby-bg: #FFD1DC;
+  --color-periwinkle-border: #CCCCFF;
+  --color-periwinkle-bg: #E6E6FF;
+  --color-peach-border: #FFE5B4;
+  --color-peach-bg: #FFF5E6;
+  --color-sky-border: #87CEEB;
+  --color-sky-bg: #E0F7FF;
+  --color-lemon-border: #FFF44F;
+  --color-lemon-bg: #FFFBE6;
+  --color-aqua-border: #00FFFF;
+  --color-aqua-bg: #E0FFFF;
+  --color-berry-border: #8A2BE2;
+  --color-berry-bg: #E6D6FF;
+  --color-graphite-border: #383838;
+  --color-graphite-bg: #D3D3D3;
 }
 
 body {
   background-color: var(--background);
   color: var(--text);
-  font-family: 'Arial', sans-serif;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 /* Card flip styles */
