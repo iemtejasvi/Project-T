@@ -1,7 +1,5 @@
 "use client";
 
-// Ensure you have installed ua-parser-js: npm install ua-parser-js
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
@@ -101,7 +99,6 @@ export default function Submit() {
     // Dynamically import UAParser to avoid build-time errors
     let deviceInfo = "unknown device";
     try {
-      // @ts-expect-error: Expect error if type declarations for ua-parser-js are missing
       const { default: UAParser } = await import("ua-parser-js");
       const parser = new UAParser(navigator.userAgent);
       const result = parser.getResult();
