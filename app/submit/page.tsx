@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import UAParser from "ua-parser-js";
 
 interface IPData {
   ip?: string;
@@ -40,6 +39,25 @@ const specialEffectOptions = [
   { value: "bleeding", label: "Bleeding Text Effect" },
   { value: "handwritten", label: "Handwritten Text Effect" },
 ];
+
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let device = "";
+  if (/iPhone/.test(ua)) {
+    device = "Apple iPhone";
+  } else if (/iPad/.test(ua)) {
+    device = "Apple iPad";
+  } else if (/Android/.test(ua)) {
+    device = "Android Device";
+  } else if (/Windows NT/.test(ua)) {
+    device = "Windows PC";
+  } else if (/Mac OS X/.test(ua)) {
+    device = "Macintosh";
+  } else {
+    device = "Desktop";
+  }
+  return device;
+}
 
 export default function Submit() {
   const [recipient, setRecipient] = useState("");
@@ -98,12 +116,8 @@ export default function Submit() {
       }
     }
 
-    // Use UAParser to get a more precise device name
-    const parser = new UAParser();
-    const result = parser.getResult();
-    const device = result.device.model
-      ? `${result.device.vendor ? result.device.vendor + " " : ""}${result.device.model}`
-      : `${result.os.name} ${result.os.version} - ${result.browser.name} ${result.browser.version}`;
+    // Get a more precise device name using our custom parser
+    const device = getDeviceInfo();
 
     const status = "pending";
     const submission = {
