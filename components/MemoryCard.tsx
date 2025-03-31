@@ -93,9 +93,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const handleCardClick = () => !detail && setFlipped(!flipped);
 
+  // Modified: Check message length instead of word count.
+  const isShort = memory.message.length < 100;
+  const messageStyle = isShort ? { fontSize: "1.5rem" } : {};
+  
   const renderMessage = (memory: Memory) => {
-    const isShort = memory.message.split(" ").length < 5;
-    const messageStyle = isShort ? { fontSize: "1.5rem" } : {};
     switch (memory.animation) {
       case "bleeding":
         return <p className="bleeding-text" style={messageStyle}>{memory.message}</p>;
@@ -112,7 +114,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.02 }}
-        className="w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 border-2 rounded-xl shadow-md flex flex-col min-h-[300px] hover:shadow-2xl"
+        // Modified: More rectangular and less “cylindrical” styling.
+        className="w-full max-w-3xl mx-auto my-6 p-6 border-2 rounded-lg shadow-md flex flex-col hover:shadow-2xl"
         style={{ ...bgStyle, ...borderStyle }}
       >
         <div>
