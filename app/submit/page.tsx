@@ -99,7 +99,7 @@ export default function Submit() {
     // Dynamically import UAParser to avoid build-time errors
     let deviceInfo = "unknown device";
     try {
-      // @ts-ignore: Ignore missing type declarations for dynamic import of ua-parser-js
+      // @ts-expect-error: Expect error if type declarations for ua-parser-js are missing
       const { default: UAParser } = await import("ua-parser-js");
       const parser = new UAParser(navigator.userAgent);
       const result = parser.getResult();
