@@ -100,6 +100,7 @@ export default function Submit() {
     let deviceInfo = "unknown device";
     try {
       const { default: UAParser } = await import("ua-parser-js");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const parser = new (UAParser as any)(navigator.userAgent);
       const result = parser.getResult();
       const osInfo = result.os.name
