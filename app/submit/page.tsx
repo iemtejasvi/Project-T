@@ -43,19 +43,46 @@ const specialEffectOptions = [
 function getDeviceInfo() {
   const ua = navigator.userAgent;
   let device = "";
+
   if (/iPhone/.test(ua)) {
-    device = "Apple iPhone";
+    // For iPhones, extract iOS version
+    const osMatch = ua.match(/OS\s([\d_]+)/);
+    const osVersion = osMatch ? osMatch[1].replace(/_/g, ".") : "";
+    device = `iPhone (iOS ${osVersion})`;
   } else if (/iPad/.test(ua)) {
-    device = "Apple iPad";
+    const osMatch = ua.match(/OS\s([\d_]+)/);
+    const osVersion = osMatch ? osMatch[1].replace(/_/g, ".") : "";
+    device = `iPad (iOS ${osVersion})`;
   } else if (/Android/.test(ua)) {
-    device = "Android Device";
+    // Extract contents within parentheses which might contain the model
+    const parenMatch = ua.match(/\(([^)]+)\)/);
+    let possibleModel = "";
+    if (parenMatch) {
+      // Split by semicolon and assume the last segment is the model info
+      const parts = parenMatch[1].split(";");
+      possibleModel = parts[parts.length - 1].trim();
+      // Clean up common patterns
+      possibleModel = possibleModel.replace(/Build\/[\w\s\-]+/, "").trim();
+    }
+    const osMatch = ua.match(/Android\s([\d\.]+)/);
+    const osVersion = osMatch ? osMatch[1] : "";
+    if (possibleModel && possibleModel.length > 0) {
+      device = `${possibleModel} (Android ${osVersion})`;
+    } else {
+      device = `Android Device (Android ${osVersion})`;
+    }
   } else if (/Windows NT/.test(ua)) {
-    device = "Windows PC";
+    const match = ua.match(/Windows NT ([\d\.]+)/);
+    const version = match ? match[1] : "";
+    device = `Windows PC (Windows ${version})`;
   } else if (/Mac OS X/.test(ua)) {
-    device = "Macintosh";
+    const match = ua.match(/Mac OS X ([\d_]+)/);
+    const version = match ? match[1].replace(/_/g, ".") : "";
+    device = `Macintosh (macOS ${version})`;
   } else {
     device = "Desktop";
   }
+
   return device;
 }
 
