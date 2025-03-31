@@ -20,7 +20,7 @@
   --color-default-border: #D3D3D3;
   --color-default-bg: #F8F8F0;
   --color-mint-border: #98FF98;
-  --color-mint-bg: #E0FFE0;
+  --color-mint-bg: #F0FFF0;
   --color-cherry-border: #FF4C4C;
   --color-cherry-bg: #FFD6D6;
   --color-sapphire-border: #0F52BA;
@@ -63,6 +63,13 @@ body {
   background-color: var(--background);
   color: var(--text);
   font-family: 'Playfair Display', serif;
+  /* Disable text selection site-wide */
+  user-select: none;
+}
+
+/* Allow text selection in input and textarea elements */
+input, textarea {
+  user-select: text;
 }
 
 /* Card flip styles */
