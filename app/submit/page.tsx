@@ -34,6 +34,29 @@ const colorOptions = [
   { value: "cerulean", label: "Cerulean" },
 ];
 
+const colorMap: { [key: string]: string } = {
+  default: "inherit",
+  pearl: "#f8f4e3",
+  ivory: "#fffff0",
+  obsidian: "#3b3b3b",
+  ruby: "#9b111e",
+  amethyst: "#9966cc",
+  topaz: "#ffc87c",
+  opal: "#a8c3bc",
+  quartz: "#c9c0bb",
+  sapphire: "#0f52ba",
+  emerald: "#50c878",
+  onyx: "#353839",
+  silver: "#c0c0c0",
+  gold: "#d4af37",
+  bronze: "#cd7f32",
+  copper: "#b87333",
+  jade: "#00a86b",
+  crimson: "#dc143c",
+  platinum: "#e5e4e2",
+  cerulean: "#007ba7",
+};
+
 const specialEffectOptions = [
   { value: "", label: "None" },
   { value: "bleeding", label: "Bleeding Text Effect" },
@@ -54,23 +77,30 @@ function getDeviceInfo() {
     const osVersion = osMatch ? osMatch[1].replace(/_/g, ".") : "";
     device = `iPad (iOS ${osVersion})`;
   } else if (/Android/.test(ua)) {
-    // Extract contents within parentheses which might contain the model
+    // Extract details from inside parentheses
     const parenMatch = ua.match(/\(([^)]+)\)/);
-    let possibleModel = "";
+    let model = "";
     if (parenMatch) {
-      // Split by semicolon and assume the last segment is the model info
       const parts = parenMatch[1].split(";");
-      possibleModel = parts[parts.length - 1].trim();
-      // Clean up common patterns
-      possibleModel = possibleModel.replace(/Build\/[\w\s\-]+/, "").trim();
+      // Try to find a part that contains "Build"
+      for (let part of parts) {
+        if (part.includes("Build")) {
+          model = part.split("Build")[0].trim();
+          break;
+        }
+      }
+      // Fallback: if no part with "Build" found, use the last part
+      if (!model && parts.length >= 1) {
+        model = parts[parts.length - 1].trim();
+      }
+      // If model seems too short, discard it.
+      if (model.length < 3) {
+        model = "";
+      }
     }
     const osMatch = ua.match(/Android\s([\d\.]+)/);
     const osVersion = osMatch ? osMatch[1] : "";
-    if (possibleModel && possibleModel.length > 0) {
-      device = `${possibleModel} (Android ${osVersion})`;
-    } else {
-      device = `Android Device (Android ${osVersion})`;
-    }
+    device = model ? `${model} (Android ${osVersion})` : `Android Device (Android ${osVersion})`;
   } else if (/Windows NT/.test(ua)) {
     const match = ua.match(/Windows NT ([\d\.]+)/);
     const version = match ? match[1] : "";
@@ -143,7 +173,7 @@ export default function Submit() {
       }
     }
 
-    // Get a more precise device name using our custom parser
+    // Get a more precise device description using our enhanced parser
     const device = getDeviceInfo();
 
     const status = "pending";
@@ -209,15 +239,27 @@ export default function Submit() {
 
       <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
         {submitted ? (
-          <div className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-lg shadow-lg text-center animate-fade-in">
+          <div
+            className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-lg shadow-lg text-center animate-fade-in"
+          >
             Thank you for your submission! Your memory is pending approval.
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 bg-[var(--card-bg)] p-8 rounded-lg shadow-xl">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6 p-8 rounded-lg shadow-xl"
+            style={
+              fullBg && color !== "default"
+                ? { backgroundColor: colorMap[color] }
+                : { backgroundColor: "var(--card-bg)" }
+            }
+          >
             {error && <p className="text-red-500 text-center font-medium">{error}</p>}
 
             <div className="animate-slide-up">
-              <label className="block font-serif text-[var(--text)]">{`Recipient's Name (required):`}</label>
+              <label className="block font-serif text-[var(--text)]">
+                {`Recipient's Name (required):`}
+              </label>
               <input
                 type="text"
                 value={recipient}
@@ -249,7 +291,9 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-300">
-              <label className="block font-serif text-[var(--text)]">{`Select a Color for Your Message (optional):`}</label>
+              <label className="block font-serif text-[var(--text)]">
+                {`Select a Color for Your Message (optional):`}
+              </label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
@@ -264,7 +308,9 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-400">
-              <label className="block font-serif text-[var(--text)]">{`Do you want any special effect?`}</label>
+              <label className="block font-serif text-[var(--text)]">
+                {`Do you want any special effect?`}
+              </label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
