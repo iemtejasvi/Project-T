@@ -73,24 +73,27 @@ export default function Home() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            {/* Changed flex-wrap to flex-nowrap */}
-            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
-              <li>
+            {/* 
+              Added items-center and whitespace-nowrap to keep everything 
+              perfectly inline across screen sizes.
+            */}
+            <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6">
+              <li className="whitespace-nowrap">
                 <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
                 </Link>
               </li>
-              <li>
+              <li className="whitespace-nowrap">
                 <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Memories
                 </Link>
               </li>
-              <li>
+              <li className="whitespace-nowrap">
                 <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Submit
                 </Link>
               </li>
-              <li>
+              <li className="whitespace-nowrap">
                 <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   How It Works
                 </Link>
