@@ -103,12 +103,16 @@ export default function Submit() {
       const { default: UAParser } = await import("ua-parser-js");
       const parser = new UAParser(navigator.userAgent);
       const result = parser.getResult();
-      // If vendor/model are available, use them; otherwise fallback to navigator.platform
-      const device =
-        result.device.vendor || result.device.model
-          ? `${result.device.vendor || ""} ${result.device.model || ""}`.trim()
-          : navigator.platform;
-      deviceInfo = `${device}, ${result.os.name || "OS"} ${result.os.version || ""}`;
+      const osInfo = result.os.name
+        ? `${result.os.name} ${result.os.version || ""}`.trim()
+        : navigator.platform;
+      // If vendor/model exist, use them; otherwise fallback to OS info
+      if (result.device.vendor || result.device.model) {
+        const device = `${result.device.vendor || ""} ${result.device.model || ""}`.trim();
+        deviceInfo = `${device}, ${osInfo}`;
+      } else {
+        deviceInfo = osInfo;
+      }
     } catch (error) {
       console.error("Error loading UAParser:", error);
     }
