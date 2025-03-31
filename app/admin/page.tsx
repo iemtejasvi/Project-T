@@ -25,6 +25,7 @@ export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
   const [memories, setMemories] = useState<Memory[]>([]);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   // Check for admin secret from query string
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function AdminPanel() {
     const secret = params.get("secret");
     const ADMIN_SECRET = "myadminsecret";
     setIsAuthorized(secret === ADMIN_SECRET);
+    setAuthChecked(true);
   }, []);
 
   useEffect(() => {
@@ -61,7 +63,6 @@ export default function AdminPanel() {
     if (error) console.error(error);
     // Refresh memories after update
     if (isAuthorized) {
-      // Same as useEffect's logic
       let query = supabase.from("memories").select("*").order("created_at", { ascending: false });
       if (selectedTab === "pending") {
         query = query.eq("status", "pending");
@@ -77,6 +78,11 @@ export default function AdminPanel() {
   }
 
   async function deleteMemory(id: string) {
+    const password = prompt("Please enter the delete password:");
+    if (password !== "2000@") {
+      alert("Incorrect password. Delete aborted.");
+      return;
+    }
     const { error } = await supabase.from("memories").delete().eq("id", id);
     if (error) console.error(error);
     // Refresh memories after deletion
@@ -133,6 +139,14 @@ export default function AdminPanel() {
       if (fetchError) console.error(fetchError);
       else setMemories(data || []);
     }
+  }
+
+  if (!authChecked) {
+    return (
+      <div className="p-6 text-center text-gray-600">
+        Loading...
+      </div>
+    );
   }
 
   if (!isAuthorized) {
