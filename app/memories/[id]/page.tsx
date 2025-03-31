@@ -47,14 +47,16 @@ export default function MemoryDetail() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">Memory Detail</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            {/* Changed flex-wrap to flex-nowrap */}
-            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
-              <li>
+            {/* 
+              Same approach again: flex-nowrap + items-center + whitespace-nowrap
+            */}
+            <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6">
+              <li className="whitespace-nowrap">
                 <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
                 </Link>
               </li>
-              <li>
+              <li className="whitespace-nowrap">
                 <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Back to Memories
                 </Link>
