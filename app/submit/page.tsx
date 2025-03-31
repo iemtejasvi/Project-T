@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import UAParser from "ua-parser-js";
 
 interface IPData {
   ip?: string;
@@ -13,108 +14,32 @@ interface IPData {
 
 const colorOptions = [
   { value: "default", label: "Default" },
-  { value: "pearl", label: "Pearl" },
-  { value: "ivory", label: "Ivory" },
-  { value: "obsidian", label: "Obsidian" },
-  { value: "ruby", label: "Ruby" },
-  { value: "amethyst", label: "Amethyst" },
-  { value: "topaz", label: "Topaz" },
-  { value: "opal", label: "Opal" },
-  { value: "quartz", label: "Quartz" },
+  { value: "mint", label: "Mint" },
+  { value: "cherry", label: "Cherry" },
   { value: "sapphire", label: "Sapphire" },
-  { value: "emerald", label: "Emerald" },
-  { value: "onyx", label: "Onyx" },
-  { value: "silver", label: "Silver" },
+  { value: "lavender", label: "Lavender" },
+  { value: "coral", label: "Coral" },
+  { value: "olive", label: "Olive" },
+  { value: "turquoise", label: "Turquoise" },
+  { value: "amethyst", label: "Amethyst" },
   { value: "gold", label: "Gold" },
-  { value: "bronze", label: "Bronze" },
-  { value: "copper", label: "Copper" },
-  { value: "jade", label: "Jade" },
-  { value: "crimson", label: "Crimson" },
-  { value: "platinum", label: "Platinum" },
-  { value: "cerulean", label: "Cerulean" },
+  { value: "midnight", label: "Midnight" },
+  { value: "emerald", label: "Emerald" },
+  { value: "ruby", label: "Ruby" },
+  { value: "periwinkle", label: "Periwinkle" },
+  { value: "peach", label: "Peach" },
+  { value: "sky", label: "Sky" },
+  { value: "lemon", label: "Lemon" },
+  { value: "aqua", label: "Aqua" },
+  { value: "berry", label: "Berry" },
+  { value: "graphite", label: "Graphite" },
 ];
-
-const colorMap: { [key: string]: string } = {
-  default: "inherit",
-  pearl: "#f8f4e3",
-  ivory: "#fffff0",
-  obsidian: "#3b3b3b",
-  ruby: "#9b111e",
-  amethyst: "#9966cc",
-  topaz: "#ffc87c",
-  opal: "#a8c3bc",
-  quartz: "#c9c0bb",
-  sapphire: "#0f52ba",
-  emerald: "#50c878",
-  onyx: "#353839",
-  silver: "#c0c0c0",
-  gold: "#d4af37",
-  bronze: "#cd7f32",
-  copper: "#b87333",
-  jade: "#00a86b",
-  crimson: "#dc143c",
-  platinum: "#e5e4e2",
-  cerulean: "#007ba7",
-};
 
 const specialEffectOptions = [
   { value: "", label: "None" },
   { value: "bleeding", label: "Bleeding Text Effect" },
   { value: "handwritten", label: "Handwritten Text Effect" },
 ];
-
-function getDeviceInfo() {
-  const ua = navigator.userAgent;
-  let device = "";
-
-  if (/iPhone/.test(ua)) {
-    // For iPhones, extract iOS version
-    const osMatch = ua.match(/OS\s([\d_]+)/);
-    const osVersion = osMatch ? osMatch[1].replace(/_/g, ".") : "";
-    device = `iPhone (iOS ${osVersion})`;
-  } else if (/iPad/.test(ua)) {
-    const osMatch = ua.match(/OS\s([\d_]+)/);
-    const osVersion = osMatch ? osMatch[1].replace(/_/g, ".") : "";
-    device = `iPad (iOS ${osVersion})`;
-  } else if (/Android/.test(ua)) {
-    // Extract details from inside parentheses
-    const parenMatch = ua.match(/\(([^)]+)\)/);
-    let model = "";
-    if (parenMatch) {
-      const parts = parenMatch[1].split(";");
-      // Try to find a part that contains "Build"
-      for (const part of parts) {
-        if (part.includes("Build")) {
-          model = part.split("Build")[0].trim();
-          break;
-        }
-      }
-      // Fallback: if no part with "Build" found, use the last part
-      if (!model && parts.length >= 1) {
-        model = parts[parts.length - 1].trim();
-      }
-      // If model seems too short, discard it.
-      if (model.length < 3) {
-        model = "";
-      }
-    }
-    const osMatch = ua.match(/Android\s([\d\.]+)/);
-    const osVersion = osMatch ? osMatch[1] : "";
-    device = model ? `${model} (Android ${osVersion})` : `Android Device (Android ${osVersion})`;
-  } else if (/Windows NT/.test(ua)) {
-    const match = ua.match(/Windows NT ([\d\.]+)/);
-    const version = match ? match[1] : "";
-    device = `Windows PC (Windows ${version})`;
-  } else if (/Mac OS X/.test(ua)) {
-    const match = ua.match(/Mac OS X ([\d_]+)/);
-    const version = match ? match[1].replace(/_/g, ".") : "";
-    device = `Macintosh (macOS ${version})`;
-  } else {
-    device = "Desktop";
-  }
-
-  return device;
-}
 
 export default function Submit() {
   const [recipient, setRecipient] = useState("");
@@ -127,21 +52,20 @@ export default function Submit() {
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
 
-  // Fetch IP and geo info on mount using ipify and ipapi.co
+  // Fetch IP and geo info on mount using a different service
   useEffect(() => {
     async function fetchIP() {
       try {
-        const res = await fetch("https://api.ipify.org?format=json");
-        const ipDataTemp = await res.json();
-        const ip = ipDataTemp.ip;
-        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
-        const geoData = await geoRes.json();
-        setIpData({
-          ip,
-          city: geoData.city,
-          region: geoData.region,
-          country: geoData.country,
-        });
+        const res = await fetch("https://geolocation-db.com/json/");
+        const data = await res.json();
+        // Map returned keys to our IPData interface
+        const mappedData: IPData = {
+          ip: data.IPv4 || data.ip,
+          city: data.city,
+          region: data.state,
+          country: data.country_name,
+        };
+        setIpData(mappedData);
       } catch (err) {
         console.error("Error fetching IP info:", err);
       }
@@ -173,8 +97,10 @@ export default function Submit() {
       }
     }
 
-    // Get a more precise device description using our enhanced parser
-    const device = getDeviceInfo();
+    // Parse device information using UAParser
+    const parser = new UAParser(navigator.userAgent);
+    const result = parser.getResult();
+    const deviceInfo = `${result.device.vendor || "Unknown"} ${result.device.model || "Device"}, ${result.os.name || "OS"} ${result.os.version || ""}`;
 
     const status = "pending";
     const submission = {
@@ -190,7 +116,7 @@ export default function Submit() {
       city: ipData?.city || null,
       state: ipData?.region || null,
       country: ipData?.country || null,
-      device,
+      device: deviceInfo,
     };
 
     const { error } = await supabase.from("memories").insert([submission]);
@@ -239,27 +165,15 @@ export default function Submit() {
 
       <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
         {submitted ? (
-          <div
-            className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-lg shadow-lg text-center animate-fade-in"
-          >
+          <div className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-lg shadow-lg text-center animate-fade-in">
             Thank you for your submission! Your memory is pending approval.
           </div>
         ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6 p-8 rounded-lg shadow-xl"
-            style={
-              fullBg && color !== "default"
-                ? { backgroundColor: colorMap[color] }
-                : { backgroundColor: "var(--card-bg)" }
-            }
-          >
+          <form onSubmit={handleSubmit} className="space-y-6 bg-[var(--card-bg)] p-8 rounded-lg shadow-xl">
             {error && <p className="text-red-500 text-center font-medium">{error}</p>}
 
             <div className="animate-slide-up">
-              <label className="block font-serif text-[var(--text)]">
-                {`Recipient's Name (required):`}
-              </label>
+              <label className="block font-serif text-[var(--text)]">{`Recipient's Name (required):`}</label>
               <input
                 type="text"
                 value={recipient}
@@ -291,9 +205,7 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-300">
-              <label className="block font-serif text-[var(--text)]">
-                {`Select a Color for Your Message (optional):`}
-              </label>
+              <label className="block font-serif text-[var(--text)]">{`Select a Color for Your Message (optional):`}</label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
@@ -308,9 +220,7 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-400">
-              <label className="block font-serif text-[var(--text)]">
-                {`Do you want any special effect?`}
-              </label>
+              <label className="block font-serif text-[var(--text)]">{`Do you want any special effect?`}</label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
