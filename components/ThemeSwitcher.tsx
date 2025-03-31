@@ -34,29 +34,28 @@ export default function ThemeSwitcher() {
       root.style.setProperty("--border", "#CCCCCC");
     }
 
-    // Set color variables for card borders and backgrounds.
-    // "default" cards now use a creme background ("#FFFDD0") so they don't match the page background.
+    // Card colors remain constant across themes.
     const colors = {
-      default: { border: "#A0AEC0", bg: "#FFFDD0" },
-      blue: { border: "#63B3ED", bg: "#EBF8FF" },
-      gray: { border: "#A0AEC0", bg: "#F7FAFC" },
-      purple: { border: "#B794F4", bg: "#FAF5FF" },
-      navy: { border: "#5A9BD3", bg: "#EBF8FF" },
-      maroon: { border: "#E57373", bg: "#FFF5F5" },
-      pink: { border: "#F687B3", bg: "#FFF5F7" },
-      teal: { border: "#38B2AC", bg: "#E6FFFA" },
-      olive: { border: "#A9B665", bg: "#F0FFF4" },
-      mustard: { border: "#FFDB58", bg: "#FFFFF0" },
-      coral: { border: "#FF9A8B", bg: "#FFF5F0" },
-      lavender: { border: "#E6E6FA", bg: "#F8F8FF" },
+      default: { border: "#A0AEC0", bg: "#F8F8F0" },
       mint: { border: "#98FF98", bg: "#F0FFF0" },
-      aqua: { border: "#00FFFF", bg: "#F0FFFF" },
-      peach: { border: "#FFE5B4", bg: "#FFF5EE" },
-      sky: { border: "#87CEEB", bg: "#F0F8FF" },
-      rose: { border: "#FF007F", bg: "#FFF0F5" },
-      sapphire: { border: "#0F52BA", bg: "#F0F8FF" },
-      emerald: { border: "#50C878", bg: "#F0FFF0" },
-      amber: { border: "#FFBF00", bg: "#FFFAF0" },
+      cherry: { border: "#FF4C4C", bg: "#FFD6D6" },
+      sapphire: { border: "#0F52BA", bg: "#DDEEFF" },
+      lavender: { border: "#B57EDC", bg: "#F0E6FF" },
+      coral: { border: "#FF7F50", bg: "#FFEFE6" },
+      olive: { border: "#808000", bg: "#E6E6B3" },
+      turquoise: { border: "#40E0D0", bg: "#E0FFFF" },
+      amethyst: { border: "#9966CC", bg: "#F2E6FF" },
+      gold: { border: "#FFD700", bg: "#FFF9E6" },
+      midnight: { border: "#191970", bg: "#C0C0FF" },
+      emerald: { border: "#50C878", bg: "#E0FFE0" },
+      ruby: { border: "#E0115F", bg: "#FFD1DC" },
+      periwinkle: { border: "#CCCCFF", bg: "#E6E6FF" },
+      peach: { border: "#FFE5B4", bg: "#FFF5E6" },
+      sky: { border: "#87CEEB", bg: "#E0F7FF" },
+      lemon: { border: "#FFF44F", bg: "#FFFBE6" },
+      aqua: { border: "#00FFFF", bg: "#E0FFFF" },
+      berry: { border: "#8A2BE2", bg: "#E6D6FF" },
+      graphite: { border: "#383838", bg: "#D3D3D3" },
     };
 
     for (const [color, values] of Object.entries(colors)) {
