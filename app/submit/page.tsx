@@ -103,23 +103,58 @@ export default function Submit() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const parser = new (UAParser as any)(navigator.userAgent);
       const result = parser.getResult();
+
+      // Get OS info (or fallback to navigator.platform)
       const osInfo = result.os.name
         ? `${result.os.name} ${result.os.version || ""}`.trim()
         : navigator.platform;
+
+      // Extract device vendor and model from UAParser result
       let deviceVendor = result.device.vendor;
-      const deviceModel = result.device.model; // Changed to const as it's not reassigned
-      if (!deviceVendor && deviceModel) {
+      let deviceModel = result.device.model; // const changed to let to allow assignment below
+
+      // If not detected, try additional regex matching on userAgent string
+      if (!deviceVendor && !deviceModel) {
         const ua = navigator.userAgent;
-        if (/samsung/i.test(ua)) {
+        // Check for Samsung devices (e.g., "SM-G998B" etc.)
+        const samsungMatch = ua.match(/SM-[A-Z0-9]+/);
+        if (samsungMatch) {
           deviceVendor = "Samsung";
-        } else if (/iphone/i.test(ua)) {
+          deviceModel = samsungMatch[0];
+        } else if (/iPhone/i.test(ua)) {
           deviceVendor = "Apple";
+          deviceModel = "iPhone";
         } else if (/huawei/i.test(ua)) {
           deviceVendor = "Huawei";
+          // Optionally, extract model info if available
+          const huaweiMatch = ua.match(/HUAWEI\s?([A-Z0-9]+)/i);
+          if (huaweiMatch) {
+            deviceModel = huaweiMatch[1];
+          }
         } else if (/oneplus/i.test(ua)) {
           deviceVendor = "OnePlus";
+          // Optionally, extract model info if available
+          const oneplusMatch = ua.match(/ONEPLUS\s?([A-Z0-9]+)/i);
+          if (oneplusMatch) {
+            deviceModel = oneplusMatch[1];
+          }
+        }
+      } else {
+        // If one is missing, try to set from UA string as fallback
+        if (!deviceVendor && deviceModel) {
+          const ua = navigator.userAgent;
+          if (/samsung/i.test(ua)) {
+            deviceVendor = "Samsung";
+          } else if (/iphone/i.test(ua)) {
+            deviceVendor = "Apple";
+          } else if (/huawei/i.test(ua)) {
+            deviceVendor = "Huawei";
+          } else if (/oneplus/i.test(ua)) {
+            deviceVendor = "OnePlus";
+          }
         }
       }
+
       if (deviceVendor || deviceModel) {
         const device = `${deviceVendor || ""} ${deviceModel || ""}`.trim();
         deviceInfo = `${device}, ${osInfo}`;
