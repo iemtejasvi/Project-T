@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import UAParser from "ua-parser-js"; // Static import for consistent parsing
 
 interface IPData {
   ip?: string;
@@ -97,49 +96,38 @@ export default function Submit() {
       }
     }
 
-    // Parse device info using UAParser
+    // Dynamically import UAParser to avoid build-time errors
     let deviceInfo = "unknown device";
     try {
+      // @ts-expect-error: Expect error if type declarations for ua-parser-js are missing
+      const { default: UAParser } = await import("ua-parser-js");
       const parser = new UAParser(navigator.userAgent);
       const result = parser.getResult();
-      console.log("UAParser result:", result); // Log for debugging
-
       const osInfo = result.os.name
         ? `${result.os.name} ${result.os.version || ""}`.trim()
-        : navigator.platform || "Unknown OS";
-
-      // Construct device info if vendor or model is available
-      if (result.device.vendor || result.device.model) {
-        const device = `${result.device.vendor || ""} ${result.device.model || ""}`.trim();
+        : navigator.platform;
+      let deviceVendor = result.device.vendor;
+      let deviceModel = result.device.model;
+      if (!deviceVendor && deviceModel) {
+        const ua = navigator.userAgent;
+        if (/samsung/i.test(ua)) {
+          deviceVendor = "Samsung";
+        } else if (/iphone/i.test(ua)) {
+          deviceVendor = "Apple";
+        } else if (/huawei/i.test(ua)) {
+          deviceVendor = "Huawei";
+        } else if (/oneplus/i.test(ua)) {
+          deviceVendor = "OnePlus";
+        }
+      }
+      if (deviceVendor || deviceModel) {
+        const device = `${deviceVendor || ""} ${deviceModel || ""}`.trim();
         deviceInfo = `${device}, ${osInfo}`;
       } else {
-        deviceInfo = osInfo; // Fallback to OS if no device specifics
-      }
-
-      // Additional fallback for Android and iPhone if UAParser doesn't provide enough detail
-      if (deviceInfo === "unknown device" || deviceInfo === osInfo) {
-        const ua = navigator.userAgent;
-
-        // Android fallback
-        if (ua.includes("Android")) {
-          const parts = ua.split("; ");
-          const devicePart = parts[2] || "Android Device"; // e.g., "SM-G991B"
-          const osMatch = ua.match(/Android\s([\d.]+)/);
-          const osVersion = osMatch ? `Android ${osMatch[1]}` : osInfo;
-          deviceInfo = `${devicePart}, ${osVersion}`;
-        }
-
-        // iPhone fallback
-        if (ua.includes("iPhone")) {
-          const osMatch = ua.match(/iPhone OS (\d+_\d+)/);
-          const osVersion = osMatch ? `iOS ${osMatch[1].replace("_", ".")}` : osInfo;
-          deviceInfo = `iPhone, ${osVersion}`;
-        }
+        deviceInfo = osInfo;
       }
     } catch (error) {
-      console.error("Error parsing device info:", error);
-      // Fallback to basic OS detection if UAParser fails completely
-      deviceInfo = navigator.platform || "Unknown Device";
+      console.error("Error loading UAParser:", error);
     }
 
     const status = "pending";
