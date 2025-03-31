@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import UAParser from "ua-parser-js";
 
 interface IPData {
   ip?: string;
@@ -97,10 +96,16 @@ export default function Submit() {
       }
     }
 
-    // Parse device information using UAParser
-    const parser = new UAParser(navigator.userAgent);
-    const result = parser.getResult();
-    const deviceInfo = `${result.device.vendor || "Unknown"} ${result.device.model || "Device"}, ${result.os.name || "OS"} ${result.os.version || ""}`;
+    // Dynamically import UAParser to avoid build-time errors
+    let deviceInfo = "unknown device";
+    try {
+      const { default: UAParser } = await import("ua-parser-js");
+      const parser = new UAParser(navigator.userAgent);
+      const result = parser.getResult();
+      deviceInfo = `${result.device.vendor || "Unknown"} ${result.device.model || "Device"}, ${result.os.name || "OS"} ${result.os.version || ""}`;
+    } catch (error) {
+      console.error("Error loading UAParser:", error);
+    }
 
     const status = "pending";
     const submission = {
