@@ -51,17 +51,17 @@ export default function Submit() {
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
 
-  // Fetch IP and geo info on mount using a different service
+  // Fetch IP and geo info on mount using ipapi.co
   useEffect(() => {
     async function fetchIP() {
       try {
-        const res = await fetch("https://geolocation-db.com/json/");
+        const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
-        // Map returned keys to our IPData interface
+        // Map returned keys from ipapi.co to our IPData interface
         const mappedData: IPData = {
-          ip: data.IPv4 || data.ip,
+          ip: data.ip,
           city: data.city,
-          region: data.state,
+          region: data.region,
           country: data.country_name,
         };
         setIpData(mappedData);
