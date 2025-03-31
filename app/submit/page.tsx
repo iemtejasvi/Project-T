@@ -99,16 +99,29 @@ export default function Submit() {
     // Dynamically import UAParser to avoid build-time errors
     let deviceInfo = "unknown device";
     try {
-      // @ts-expect-error: Expect error if type declarations for ua-parser-js are missing
       const { default: UAParser } = await import("ua-parser-js");
-      const parser = new UAParser(navigator.userAgent);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parser = new (UAParser as any)(navigator.userAgent);
       const result = parser.getResult();
       const osInfo = result.os.name
         ? `${result.os.name} ${result.os.version || ""}`.trim()
         : navigator.platform;
-      // If vendor/model exist, use them; otherwise fallback to OS info
-      if (result.device.vendor || result.device.model) {
-        const device = `${result.device.vendor || ""} ${result.device.model || ""}`.trim();
+      let deviceVendor = result.device.vendor;
+      const deviceModel = result.device.model; // Changed to const as it's not reassigned
+      if (!deviceVendor && deviceModel) {
+        const ua = navigator.userAgent;
+        if (/samsung/i.test(ua)) {
+          deviceVendor = "Samsung";
+        } else if (/iphone/i.test(ua)) {
+          deviceVendor = "Apple";
+        } else if (/huawei/i.test(ua)) {
+          deviceVendor = "Huawei";
+        } else if (/oneplus/i.test(ua)) {
+          deviceVendor = "OnePlus";
+        }
+      }
+      if (deviceVendor || deviceModel) {
+        const device = `${deviceVendor || ""} ${deviceModel || ""}`.trim();
         deviceInfo = `${device}, ${osInfo}`;
       } else {
         deviceInfo = osInfo;
