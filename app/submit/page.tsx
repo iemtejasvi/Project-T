@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import UAParser from "ua-parser-js";
 
 interface IPData {
   ip?: string;
@@ -13,26 +14,25 @@ interface IPData {
 
 const colorOptions = [
   { value: "default", label: "Default" },
-  { value: "blue", label: "Blue" },
-  { value: "gray", label: "Gray" },
-  { value: "purple", label: "Purple" },
-  { value: "navy", label: "Navy" },
-  { value: "maroon", label: "Maroon" },
-  { value: "pink", label: "Pink" },
-  { value: "teal", label: "Teal" },
-  { value: "olive", label: "Olive" },
-  { value: "mustard", label: "Mustard" },
-  { value: "coral", label: "Coral" },
-  { value: "lavender", label: "Lavender" },
-  // New colors
-  { value: "mint", label: "Mint" },
-  { value: "aqua", label: "Aqua" },
-  { value: "peach", label: "Peach" },
-  { value: "sky", label: "Sky" },
-  { value: "rose", label: "Rose" },
+  { value: "pearl", label: "Pearl" },
+  { value: "ivory", label: "Ivory" },
+  { value: "obsidian", label: "Obsidian" },
+  { value: "ruby", label: "Ruby" },
+  { value: "amethyst", label: "Amethyst" },
+  { value: "topaz", label: "Topaz" },
+  { value: "opal", label: "Opal" },
+  { value: "quartz", label: "Quartz" },
   { value: "sapphire", label: "Sapphire" },
   { value: "emerald", label: "Emerald" },
-  { value: "amber", label: "Amber" },
+  { value: "onyx", label: "Onyx" },
+  { value: "silver", label: "Silver" },
+  { value: "gold", label: "Gold" },
+  { value: "bronze", label: "Bronze" },
+  { value: "copper", label: "Copper" },
+  { value: "jade", label: "Jade" },
+  { value: "crimson", label: "Crimson" },
+  { value: "platinum", label: "Platinum" },
+  { value: "cerulean", label: "Cerulean" },
 ];
 
 const specialEffectOptions = [
@@ -52,13 +52,21 @@ export default function Submit() {
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
 
-  // Fetch IP and geo info on mount
+  // Fetch IP and geo info on mount using ipify and ipapi.co
   useEffect(() => {
     async function fetchIP() {
       try {
-        const res = await fetch("https://ipapi.co/json/");
-        const data: IPData = await res.json();
-        setIpData(data);
+        const res = await fetch("https://api.ipify.org?format=json");
+        const ipDataTemp = await res.json();
+        const ip = ipDataTemp.ip;
+        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+        const geoData = await geoRes.json();
+        setIpData({
+          ip,
+          city: geoData.city,
+          region: geoData.region,
+          country: geoData.country,
+        });
       } catch (err) {
         console.error("Error fetching IP info:", err);
       }
@@ -90,6 +98,13 @@ export default function Submit() {
       }
     }
 
+    // Use UAParser to get a more precise device name
+    const parser = new UAParser();
+    const result = parser.getResult();
+    const device = result.device.model
+      ? `${result.device.vendor ? result.device.vendor + " " : ""}${result.device.model}`
+      : `${result.os.name} ${result.os.version} - ${result.browser.name} ${result.browser.version}`;
+
     const status = "pending";
     const submission = {
       recipient,
@@ -104,7 +119,7 @@ export default function Submit() {
       city: ipData?.city || null,
       state: ipData?.region || null,
       country: ipData?.country || null,
-      device: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      device,
     };
 
     const { error } = await supabase.from("memories").insert([submission]);
