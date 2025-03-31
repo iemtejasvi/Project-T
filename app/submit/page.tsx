@@ -100,7 +100,7 @@ export default function Submit() {
     let deviceInfo = "unknown device";
     try {
       const { default: UAParser } = await import("ua-parser-js");
-      const parser = new UAParser(navigator.userAgent);
+      const parser = new (UAParser as any)(navigator.userAgent);
       const result = parser.getResult();
       const osInfo = result.os.name
         ? `${result.os.name} ${result.os.version || ""}`.trim()
