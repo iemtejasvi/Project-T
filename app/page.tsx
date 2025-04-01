@@ -73,25 +73,34 @@ export default function Home() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            {/* Changed flex-wrap to flex-nowrap for consistent alignment across screen sizes */}
-            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
+            {/* Ensure all nav items stay on one line with horizontal scroll if needed */}
+            <ul className="flex flex-row flex-nowrap items-center justify-center gap-4 sm:gap-6 whitespace-nowrap overflow-x-auto">
               <li>
                 <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link
+                  href="/memories"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                >
                   Memories
                 </Link>
               </li>
               <li>
-                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link
+                  href="/submit"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                >
                   Submit
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link
+                  href="/how-it-works"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                >
                   How It Works
                 </Link>
               </li>
