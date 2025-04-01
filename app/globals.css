@@ -80,32 +80,50 @@ body {
 }
 
 /* Custom scrollbar for card messages (cute scrollbar) */
-.cute_scroll {
+/* Additional classes for HTML structure, if needed */
+.scrollbar {
+  margin-left: 30px;
+  float: left;
+  height: 300px;
+  width: 65px;
+  background: #F5F5F5;
   overflow-y: scroll;
-  /* For Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  margin-bottom: 25px;
 }
 
+.force-overflow {
+  min-height: 450px;
+}
+
+/*
+ *  STYLE 1
+ */
 .cute_scroll::-webkit-scrollbar {
   width: 10px;
-  background-color: var(--scroll-track);
+  background-color: var(--scroll-track, #f8bbd0);
 }
 
 .cute_scroll::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px #f06292;
   border-radius: 10px;
-  background-color: var(--scroll-track);
+  background-color: var(--scroll-track, #f8bbd0);
   border-left: 3px solid white;
   border-right: 3px solid white;
 }
 
 .cute_scroll::-webkit-scrollbar-thumb {
   border-radius: 20px;
-  background-color: var(--scroll-thumb);
+  -webkit-box-shadow: inset 0 0 0px #ad1457;
+  background-color: var(--scroll-thumb, #e91e63);
 }
 
-/* Custom scrollbar for general use (if needed) */
+/* For Firefox scrollbar styling (applies to elements with cute_scroll) */
+.cute_scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb, #e91e63) var(--scroll-track, #f8bbd0);
+}
+
+/* General scrollbar styles for card-scroll if needed */
 .card-scroll {
   -webkit-overflow-scrolling: touch;
 }
