@@ -79,7 +79,33 @@ body {
   transform: rotateY(180deg);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar for card messages (cute scrollbar) */
+.cute_scroll {
+  overflow-y: scroll;
+  /* For Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+
+.cute_scroll::-webkit-scrollbar {
+  width: 10px;
+  background-color: var(--scroll-track);
+}
+
+.cute_scroll::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px #f06292;
+  border-radius: 10px;
+  background-color: var(--scroll-track);
+  border-left: 3px solid white;
+  border-right: 3px solid white;
+}
+
+.cute_scroll::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+  background-color: var(--scroll-thumb);
+}
+
+/* Custom scrollbar for general use (if needed) */
 .card-scroll {
   -webkit-overflow-scrolling: touch;
 }
