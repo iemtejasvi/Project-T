@@ -108,17 +108,17 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     effectiveColor = colorMapping[memory.color] || "default";
   }
 
-  // Use fixed colors if default, otherwise use the chosen CSS variables
+  // Ensure default always uses off white background and fixed border regardless of full_bg.
   const borderStyle =
     effectiveColor === "default"
       ? { borderColor: "#D9D9D9" }
       : { borderColor: `var(--color-${effectiveColor}-border)` };
 
   const bgStyle =
-    memory.full_bg
-      ? effectiveColor === "default"
-        ? { backgroundColor: "#F8F8F0" }
-        : { backgroundColor: `var(--color-${effectiveColor}-bg)` }
+    effectiveColor === "default"
+      ? { backgroundColor: "#F8F8F0" }
+      : memory.full_bg
+      ? { backgroundColor: `var(--color-${effectiveColor}-bg)` }
       : {};
 
   const arrowStyle =
@@ -171,12 +171,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           )}
           <hr className="my-2 border-[var(--border)]" />
         </div>
-        {/* Added pt-2 so emojis or large text won't clip at the top in mobile */}
+        {/* Added pt-2 so emojis or large text won't clip at the top */}
         <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words pt-2">
           {renderMessage(memory)}
         </div>
         <hr className="my-2 border-[var(--border)]" />
-        <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
+        {/* Removed flex-wrap and added whitespace-nowrap to keep details on one line */}
+        <div className="text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
         </div>
       </motion.div>
@@ -235,7 +236,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
-            {/* Added pt-2 to avoid clipping emojis/text at the top in mobile */}
+            {/* Added pt-2 to avoid clipping emojis/text at the top */}
             <div className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap break-words pt-2">
               {renderMessage(memory)}
             </div>
