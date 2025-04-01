@@ -18,7 +18,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
                 >
                   Home
                 </Link>
@@ -26,7 +26,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/memories"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
                 >
                   Memories
                 </Link>
@@ -34,15 +34,15 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/submit"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
                 >
                   Submit
                 </Link>
               </li>
-              <li className="relative">
+              <li>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="inline-flex items-center py-2 mt-2 sm:mt-0 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
                 >
                   More Options ▼
                 </button>
@@ -95,11 +95,11 @@ export default function HowItWorks() {
           </ul>
           <p className="text-base sm:text-lg text-[var(--text)]">
             Start by heading to the{" "}
-            <Link href="/submit" className="text-[var(--accent)] hover:underline">
+            <Link href="/submit" className="text-[var(--accent)] hover:underline whitespace-nowrap">
               Submit
             </Link>{" "}
             page, or browse the{" "}
-            <Link href="/memories" className="text-[var(--accent)] hover:underline">
+            <Link href="/memories" className="text-[var(--accent)] hover:underline whitespace-nowrap">
               Memories
             </Link>{" "}
             page to see what others have shared.
