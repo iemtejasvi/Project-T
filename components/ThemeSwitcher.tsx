@@ -34,10 +34,10 @@ export default function ThemeSwitcher() {
       root.style.setProperty("--border", "#CCCCCC");
     }
 
-    // Card colors remain constant across themes.
-    const colors = {
-      default: { border: "#A0AEC0", bg: "#F8F8F0" },
-      mint: { border: "#98FF98", bg: "#F0FFF0" },
+    // Set constant card color variables (they remain the same regardless of theme)
+    const cardColors = {
+      default: { border: "#D9D9D9", bg: "#F8F8F0" },
+      mint: { border: "#98FF98", bg: "#E0FFE0" },
       cherry: { border: "#FF4C4C", bg: "#FFD6D6" },
       sapphire: { border: "#0F52BA", bg: "#DDEEFF" },
       lavender: { border: "#B57EDC", bg: "#F0E6FF" },
@@ -58,7 +58,7 @@ export default function ThemeSwitcher() {
       graphite: { border: "#383838", bg: "#D3D3D3" },
     };
 
-    for (const [color, values] of Object.entries(colors)) {
+    for (const [color, values] of Object.entries(cardColors)) {
       root.style.setProperty(`--color-${color}-border`, values.border);
       root.style.setProperty(`--color-${color}-bg`, values.bg);
     }
