@@ -140,7 +140,7 @@ export default function Submit() {
           <h1 className="text-4xl font-serif text-[var(--text)]">Submit a Memory</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-row flex-nowrap items-center justify-center gap-4 sm:gap-6 whitespace-nowrap overflow-x-auto text-[var(--text)]">
+            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
               <li>
                 <Link href="/" className="hover:text-[var(--accent)] transition duration-200">
                   Home
