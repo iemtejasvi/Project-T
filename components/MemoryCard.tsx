@@ -77,30 +77,67 @@ const TypewriterPrompt: React.FC = () => {
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
 
+  // Map any old or unknown color names to new ones
+  const allowedColors = new Set([
+    "default",
+    "mint",
+    "cherry",
+    "sapphire",
+    "lavender",
+    "coral",
+    "olive",
+    "turquoise",
+    "amethyst",
+    "gold",
+    "midnight",
+    "emerald",
+    "ruby",
+    "periwinkle",
+    "peach",
+    "sky",
+    "lemon",
+    "aqua",
+    "berry",
+    "graphite"
+  ]);
+  const colorMapping: Record<string, string> = {
+    rose: "cherry"
+  };
+  let effectiveColor = memory.color;
+  if (!allowedColors.has(memory.color)) {
+    effectiveColor = colorMapping[memory.color] || "default";
+  }
+
   // Use fixed colors if default, otherwise use the chosen CSS variables
   const borderStyle =
-    memory.color === "default"
+    effectiveColor === "default"
       ? { borderColor: "#D9D9D9" }
-      : { borderColor: `var(--color-${memory.color}-border)` };
+      : { borderColor: `var(--color-${effectiveColor}-border)` };
+
   const bgStyle =
     memory.full_bg
-      ? memory.color === "default"
+      ? effectiveColor === "default"
         ? { backgroundColor: "#F8F8F0" }
-        : { backgroundColor: `var(--color-${memory.color}-bg)` }
+        : { backgroundColor: `var(--color-${effectiveColor}-bg)` }
       : {};
 
-  const arrowStyle = memory.color === "default"
-    ? { color: "#D9D9D9" }
-    : { color: `var(--color-${memory.color}-border)` };
+  const arrowStyle =
+    effectiveColor === "default"
+      ? { color: "#D9D9D9" }
+      : { color: `var(--color-${effectiveColor}-border)` };
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
   const timeStr = new Date(memory.created_at).toLocaleTimeString();
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
 
-  const handleCardClick = () => !detail && setFlipped(!flipped);
+  const handleCardClick = () => {
+    if (!detail) {
+      setFlipped(!flipped);
+    }
+  };
 
+  // If message is < 100 chars, we display it slightly bigger
   const renderMessage = (memory: Memory) => {
-    // Changed condition from checking word count to length in characters (less than 100)
     const isShort = memory.message.length < 100;
     const messageStyle = isShort ? { fontSize: "1.5rem" } : {};
     switch (memory.animation) {
@@ -129,15 +166,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             )}
             To: {memory.recipient}
           </h3>
-          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+          {memory.sender && (
+            <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>
+          )}
           <hr className="my-2 border-[var(--border)]" />
         </div>
-        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words">
+        {/* Added pt-2 so emojis or large text won't clip at the top in mobile */}
+        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words pt-2">
           {renderMessage(memory)}
         </div>
         <hr className="my-2 border-[var(--border)]" />
         <div className="text-xs text-[var(--text)] flex flex-wrap justify-center gap-2">
-          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{memory.color}</span>
+          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
         </div>
       </motion.div>
     );
@@ -147,7 +187,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     <div className="relative group my-6">
       <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
         <Link href={`/memories/${memory.id}`}>
-          <span className="arrow-icon" style={arrowStyle}>➜</span>
+          <span className="arrow-icon" style={arrowStyle}>
+            ➜
+          </span>
         </Link>
       </div>
       <motion.div
@@ -158,11 +200,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <motion.div 
+        <motion.div
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
         >
+          {/* FRONT */}
           <div
             className="flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-between"
             style={{ ...bgStyle, ...borderStyle }}
@@ -174,7 +217,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                 )}
                 To: {memory.recipient}
               </h3>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
+              {memory.sender && (
+                <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>
+              )}
               <hr className="my-2 border-[var(--border)]" />
             </div>
             <div className="text-xs text-[var(--text)] text-center">
@@ -182,15 +227,16 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             </div>
             <TypewriterPrompt />
           </div>
+
+          {/* BACK */}
           <div
             className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180"
             style={{ ...bgStyle, ...borderStyle }}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
-            <div
-              className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap break-words"
-            >
+            {/* Added pt-2 to avoid clipping emojis/text at the top in mobile */}
+            <div className="flex-1 overflow-y-auto card-scroll text-sm text-[var(--text)] whitespace-pre-wrap break-words pt-2">
               {renderMessage(memory)}
             </div>
           </div>
