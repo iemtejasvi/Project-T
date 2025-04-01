@@ -24,7 +24,6 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    // Always fetch 3 memories for the home screen.
     async function fetchRecentMemories() {
       const { data, error } = await supabase
         .from("memories")
@@ -53,7 +52,7 @@ export default function Home() {
             <h2 className="text-xl font-bold text-[var(--text)] mb-4">Welcome</h2>
             <p className="text-[var(--text)] mb-6">
               A space for unsent memories. Check out{" "}
-              <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">
+              <Link href="/how-it-works" className="text-[var(--accent)] hover:underline whitespace-nowrap">
                 How It Works
               </Link>
               .
@@ -73,7 +72,6 @@ export default function Home() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            {/* Now using flex-nowrap without overflow so items never scroll */}
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
               <li>
                 <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
@@ -91,7 +89,10 @@ export default function Home() {
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link
+                  href="/how-it-works"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
+                >
                   How It Works
                 </Link>
               </li>
