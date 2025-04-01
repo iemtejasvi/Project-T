@@ -135,7 +135,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const renderMessage = (memory: Memory) => {
     const isShort = memory.message.length < 100;
-    const messageStyle = isShort ? { fontSize: "1.5rem" } : {};
+    const messageStyle = isShort ? { fontSize: "1.5rem", lineHeight: 1.5 } : {};
     switch (memory.animation) {
       case "bleeding":
         return <p className="bleeding-text" style={messageStyle}>{memory.message}</p>;
