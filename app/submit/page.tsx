@@ -51,6 +51,9 @@ export default function Submit() {
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
 
+  // Compute word count for message
+  const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
+
   // Fetch IP and geo info on mount using ipapi.co
   useEffect(() => {
     async function fetchIP() {
@@ -76,7 +79,6 @@ export default function Submit() {
     setError("");
 
     // Word limit check
-    const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
     if (wordCount > 250) {
       setError("Message cannot exceed 250 words.");
       return;
@@ -226,11 +228,13 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-400">
-              <label className="block font-serif text-[var(--text)]">{`Do you want any special effect?`}</label>
+              <label className="block font-serif text-[var(--text)]">{`Special Effect (optional):`}</label>
+              <p className="text-xs italic text-[var(--text)] mb-2">Special effects available only when message is under 30 words.</p>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus-border-[var(--accent)] transition duration-200"
+                disabled={wordCount > 30}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus-border-[var(--accent)] transition duration-200 disabled:opacity-50"
               >
                 {specialEffectOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -256,8 +260,7 @@ export default function Submit() {
             <div className="text-center animate-slide-up delay-600">
               <button
                 type="submit"
-                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-lg */
-                shadow-md hover:bg-blue-200 transition duration-200"
+                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-lg shadow-md hover:bg-blue-200 transition duration-200"
               >
                 Submit Memory
               </button>
