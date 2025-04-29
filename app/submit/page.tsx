@@ -187,7 +187,9 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-100">
-              <p className="text-sm text-[var(--text)]">Maximum 250 words for the message.</p>
+              <p className="text-sm italic text-[var(--text)] bg-[var(--secondary)] border-l-4 border-[var(--accent)] px-4 py-2 rounded-md">
+                Note: Maximum 250 words for the message.
+              </p>
               <label className="block font-serif text-[var(--text)]">{`Message (required):`}</label>
               <textarea
                 value={message}
@@ -254,7 +256,8 @@ export default function Submit() {
             <div className="text-center animate-slide-up delay-600">
               <button
                 type="submit"
-                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-lg shadow-md hover:bg-blue-200 transition duration-200"
+                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-lg */
+                shadow-md hover:bg-blue-200 transition duration-200"
               >
                 Submit Memory
               </button>
