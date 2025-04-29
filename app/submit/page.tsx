@@ -57,7 +57,6 @@ export default function Submit() {
       try {
         const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
-        // Map returned keys from ipapi.co to our IPData interface
         const mappedData: IPData = {
           ip: data.ip,
           city: data.city,
@@ -75,6 +74,13 @@ export default function Submit() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Word limit check
+    const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
+    if (wordCount > 250) {
+      setError("Message cannot exceed 250 words.");
+      return;
+    }
 
     if (!recipient || !message) {
       setError("Please fill in all required fields.");
@@ -96,7 +102,6 @@ export default function Submit() {
       }
     }
 
-    // Use simple device info extraction from navigator.userAgent
     const deviceInfo =
       typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
 
@@ -171,9 +176,7 @@ export default function Submit() {
             {error && <p className="text-red-500 text-center font-medium">{error}</p>}
 
             <div className="animate-slide-up">
-              <label className="block font-serif text-[var(--text)]">
-                {`Recipient's Name (required):`}
-              </label>
+              <label className="block font-serif text-[var(--text)]">{`Recipient's Name (required):`}</label>
               <input
                 type="text"
                 value={recipient}
@@ -184,9 +187,8 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-100">
-              <label className="block font-serif text-[var(--text)]">
-                {`Message (required):`}
-              </label>
+              <p className="text-sm text-[var(--text)]">Maximum 250 words for the message.</p>
+              <label className="block font-serif text-[var(--text)]">{`Message (required):`}</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -197,9 +199,7 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-200">
-              <label className="block font-serif text-[var(--text)]">
-                {`Your Name (optional):`}
-              </label>
+              <label className="block font-serif text-[var(--text)]">{`Your Name (optional):`}</label>
               <input
                 type="text"
                 value={sender}
@@ -209,13 +209,11 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-300">
-              <label className="block font-serif text-[var(--text)]">
-                {`Select a Color for Your Message (optional):`}
-              </label>
+              <label className="block font-serif text-[var(--text)]">{`Select a Color for Your Message (optional):`}</label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus-border-[var(--accent)] transition duration-200"
               >
                 {colorOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -226,13 +224,11 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-400">
-              <label className="block font-serif text-[var(--text)]">
-                {`Do you want any special effect?`}
-              </label>
+              <label className="block font-serif text-[var(--text)]">{`Do you want any special effect?`}</label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus-border-[var(--accent)] transition duration-200"
               >
                 {specialEffectOptions.map((option) => (
                   <option key={option.value} value={option.value}>
