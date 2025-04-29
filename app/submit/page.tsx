@@ -51,9 +51,6 @@ export default function Submit() {
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
 
-  // Compute word count for message
-  const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
-
   // Fetch IP and geo info on mount using ipapi.co
   useEffect(() => {
     async function fetchIP() {
@@ -74,11 +71,13 @@ export default function Submit() {
     fetchIP();
   }, []);
 
+  const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
+  const isSpecialEffectAllowed = wordCount <= 30;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Word limit check
     if (wordCount > 250) {
       setError("Message cannot exceed 250 words.");
       return;
@@ -89,7 +88,6 @@ export default function Submit() {
       return;
     }
 
-    // Check if user's IP is banned
     if (ipData && ipData.ip) {
       const { data: bannedData, error: bannedError } = await supabase
         .from("banned_ips")
@@ -189,9 +187,7 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-100">
-              <p className="text-sm italic text-[var(--text)] bg-[var(--secondary)] border-l-4 border-[var(--accent)] px-4 py-2 rounded-md">
-                Note: Maximum 250 words for the message.
-              </p>
+              <p className="text-sm text-[var(--text)]">Maximum 250 words for the message.</p>
               <label className="block font-serif text-[var(--text)]">{`Message (required):`}</label>
               <textarea
                 value={message}
@@ -228,13 +224,12 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-400">
-              <label className="block font-serif text-[var(--text)]">{`Special Effect (optional):`}</label>
-              <p className="text-xs italic text-[var(--text)] mb-2">Special effects available only when message is under 30 words.</p>
+              <label className="block font-serif text-[var(--text)]">{`Do you want any special effect?`}</label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
-                disabled={wordCount > 30}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus-border-[var(--accent)] transition duration-200 disabled:opacity-50"
+                disabled={!isSpecialEffectAllowed}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus-border-[var(--accent)] transition duration-200"
               >
                 {specialEffectOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -242,6 +237,11 @@ export default function Submit() {
                   </option>
                 ))}
               </select>
+              {!isSpecialEffectAllowed && (
+                <p className="text-sm italic text-[var(--text)] mt-1">
+                  _Special effects can only be used for short and sweet messages—under 30 words. Keep it snappy to unlock the magic._
+                </p>
+              )}
             </div>
 
             <div className="flex items-center animate-slide-up delay-500">
