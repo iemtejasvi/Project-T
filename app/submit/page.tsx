@@ -187,7 +187,7 @@ export default function Submit() {
             </div>
 
             <div className="animate-slide-up delay-100">
-              <p className="text-sm text-[var(--text)]">Maximum 250 words for the message.</p>
+              <p className="text-sm text-[var(--text)]">(Maximum 250 words for the message.)</p>
               <label className="block font-serif text-[var(--text)]">{`Message (required):`}</label>
               <textarea
                 value={message}
@@ -239,7 +239,7 @@ export default function Submit() {
               </select>
               {!isSpecialEffectAllowed && (
                 <p className="text-sm italic text-[var(--text)] mt-1">
-                  _Special effects can only be used for short and sweet messages—under 30 words. Keep it snappy to unlock the magic._
+                  (Special effects can only be used for short and sweet messages—under 30 words. Keep it snappy to unlock the magic.)
                 </p>
               )}
             </div>
