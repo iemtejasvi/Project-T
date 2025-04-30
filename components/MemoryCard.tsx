@@ -71,7 +71,7 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 break-words">
+    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 break-words px-4">
       {displayedText}
     </div>
   );
@@ -92,7 +92,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 overflow-y-auto text-sm text-[var(--text)] whitespace-pre-wrap break-words pt-2 ${
+      className={`flex-1 overflow-y-auto text-sm text-[var(--text)] whitespace-pre-wrap break-words mt-4 mx-4 pb-4 ${
         needsScroll ? "cute_scroll" : ""
       }`}
       style={style}
@@ -104,6 +104,11 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
+
+  // Dynamic sizing for short messages
+  const isVeryShort = memory.message.length < 30;
+  const cardHeightClass = isVeryShort ? 'h-[350px] sm:h-[400px]' : 'h-[300px] sm:h-[350px]';
+  const paddingClass = isVeryShort ? 'p-8 sm:p-10' : 'p-6 sm:p-8';
 
   const allowedColors = new Set([
     "default",
@@ -150,9 +155,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       ? { color: "#D9D9D9" }
       : { color: `var(--color-${effectiveColor}-border)` };
 
-  const dateStr = new Date(memory.created_at).toLocaleDateString();
-  const timeStr = new Date(memory.created_at).toLocaleTimeString();
-  const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
+  const dateObj = new Date(memory.created_at);
+  const dateStr = dateObj.toLocaleDateString();
+  const timeStr = dateObj.toLocaleTimeString();
+  const dayStr = dateObj.toLocaleDateString(undefined, { weekday: "long" });
 
   const handleCardClick = () => {
     if (!detail) {
@@ -165,20 +171,27 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     const messageStyle: React.CSSProperties = isShort
       ? { fontSize: "1.5rem", lineHeight: 1.2 }
       : { lineHeight: 1.5 };
+    const marginClasses = "mt-4 mx-4";
 
     switch (memory.animation) {
       case "bleeding":
         return (
-          <p className="bleeding-text" style={messageStyle}>
+          <p className={`bleeding-text ${marginClasses}`} style={messageStyle}>
             {memory.message}
           </p>
         );
       case "handwritten":
         return (
-          <HandwrittenText message={memory.message} messageStyle={messageStyle} />
+          <div className={marginClasses}>
+            <HandwrittenText message={memory.message} messageStyle={messageStyle} />
+          </div>
         );
       default:
-        return <p style={messageStyle}>{memory.message}</p>;
+        return (
+          <p className={marginClasses} style={messageStyle}>
+            {memory.message}
+          </p>
+        );
     }
   };
 
@@ -187,10 +200,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 border-2 rounded-xl shadow-md flex flex-col min-h-[300px]"
+        className={`w-full max-w-xs sm:max-w-sm mx-auto my-6 border-2 rounded-2xl shadow-lg flex flex-col ${paddingClass} ${isVeryShort ? 'min-h-[350px]' : 'min-h-[300px]'}`}
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <div>
+        <div className="text-center">
           <h3 className="text-2xl font-bold text-[var(--text)]">
             {memory.animation && (
               <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
@@ -199,14 +212,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             )}
             To: {memory.recipient}
           </h3>
-          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-          <hr className="my-2 border-[var(--border)]" />
+          {memory.sender && <p className="mt-2 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+          <hr className="my-4 border-[var(--border)]" />
         </div>
-        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words pt-2">
+        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words mt-4 mx-4">
           {renderMessage(memory)}
         </div>
-        <hr className="my-2 border-[var(--border)]" />
-        <div className="text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap">
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-xs text-[var(--text)] text-center space-x-2 whitespace-nowrap">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
         </div>
       </motion.div>
@@ -224,7 +237,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
+        className={`flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 ${cardHeightClass} cursor-pointer rounded-2xl hover:shadow-2xl`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -235,7 +248,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         >
           {/* FRONT */}
           <div
-            className="flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-between"
+            className={`flip-card-front absolute w-full h-full backface-hidden rounded-2xl shadow-md flex flex-col justify-between text-center ${paddingClass}`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             <div>
@@ -247,21 +260,21 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                 )}
                 To: {memory.recipient}
               </h3>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
-              <hr className="my-2 border-[var(--border)]" />
+              {memory.sender && <p className="mt-2 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
+              <hr className="my-4 border-[var(--border)]" />
             </div>
-            <div className="text-xs text-[var(--text)] text-center">
+            <div className="text-xs text-[var(--text)]">
               {dateStr} | {dayStr}
             </div>
             <TypewriterPrompt />
           </div>
           {/* BACK */}
           <div
-            className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180"
+            className={`flip-card-back absolute w-full h-full backface-hidden rounded-2xl shadow-md flex flex-col justify-start rotate-y-180 text-center ${paddingClass}`}
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
-            <hr className="my-2 border-[var(--border)]" />
+            <h3 className="italic text-lg text-[var(--text)]">if only i sent this</h3>
+            <hr className="my-4 border-[var(--border)]" />
             <ScrollableMessage
               style={
                 {
