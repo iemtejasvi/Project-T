@@ -31,16 +31,16 @@ const colorOptions = [
   { value: "lemon", label: "Lemon" },
   { value: "aqua", label: "Aqua" },
   { value: "berry", label: "Berry" },
-  { value: "graphite", label: "Graphite" }
+  { value: "graphite", label: "Graphite" },
 ];
 
 const specialEffectOptions = [
   { value: "", label: "None" },
   { value: "bleeding", label: "Bleeding Text Effect" },
-  { value: "handwritten", label: "Handwritten Text Effect" }
+  { value: "handwritten", label: "Handwritten Text Effect" },
 ];
 
-export default function Submit() {
+export default function SubmitPage() {
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
@@ -60,7 +60,7 @@ export default function Submit() {
           ip: data.ip,
           city: data.city,
           region: data.region,
-          country: data.country_name
+          country: data.country_name,
         });
       } catch (err) {
         console.error("Error fetching IP info:", err);
@@ -70,16 +70,13 @@ export default function Submit() {
   }, []);
 
   const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
-  const maxWords = 250;
-  const specialLimit = 30;
-  const percent = Math.min((wordCount / maxWords) * 100, 100);
-  const isSpecialEffectAllowed = wordCount <= specialLimit;
+  const isSpecialAllowed = wordCount <= 30;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (wordCount > maxWords) {
+    if (wordCount > 250) {
       setError("Message cannot exceed 250 words.");
       return;
     }
@@ -87,21 +84,21 @@ export default function Submit() {
       setError("Please fill in all required fields.");
       return;
     }
-
     if (ipData?.ip) {
-      const { data: bannedData, error: bannedError } = await supabase
+      const { data: banned, error: banErr } = await supabase
         .from("banned_ips")
         .select("*")
         .eq("ip", ipData.ip);
-      if (bannedError) console.error("Error checking banned IPs:", bannedError);
-      if (bannedData?.length) {
+      if (banErr) {
+        console.error("Error checking banned IPs:", banErr);
+      }
+      if (banned && banned.length > 0) {
         setError("You are banned from submitting memories.");
         return;
       }
     }
 
-    const deviceInfo =
-      typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
+    const deviceInfo = typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
     const submission = {
       recipient,
       message,
@@ -115,13 +112,13 @@ export default function Submit() {
       city: ipData?.city || null,
       state: ipData?.region || null,
       country: ipData?.country || null,
-      device: deviceInfo
+      device: deviceInfo,
     };
 
-    const { error } = await supabase.from("memories").insert([submission]);
-    if (error) {
+    const { error: insertErr } = await supabase.from("memories").insert([submission]);
+    if (insertErr) {
+      console.error(insertErr);
       setError("Error submitting your memory.");
-      console.error(error);
     } else {
       setSubmitted(true);
       setRecipient("");
@@ -133,6 +130,8 @@ export default function Submit() {
     }
   };
 
+  const percent = Math.min((wordCount / 250) * 100, 100).toFixed(0);
+
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-lg">
@@ -140,133 +139,169 @@ export default function Submit() {
           <h1 className="text-4xl font-serif text-[var(--text)]">Submit a Memory</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap justify-center gap-6">
+            <ul className="flex justify-center gap-6">
               <li>
-                <Link href="/" className="transition hover:text-[var(--accent)]">
-                  Home
-                </Link>
+                <Link href="/" className="hover:text-[var(--accent)] transition">Home</Link>
               </li>
               <li>
-                <Link href="/memories" className="transition hover:text-[var(--accent)]">
-                  Memories
-                </Link>
+                <Link href="/memories" className="hover:text-[var(--accent)] transition">Memories</Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="transition hover:text-[var(--accent)]">
-                  How It Works
-                </Link>
+                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">How It Works</Link>
               </li>
             </ul>
           </nav>
         </div>
       </header>
-      <main className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10">
-        <div className="w-full max-w-2xl bg-[var(--card-bg)] p-8 rounded-2xl shadow-2xl transition transform hover:-translate-y-1">
-          {submitted ? (
-            <div className="p-10 bg-[var(--secondary)] rounded-xl text-center font-medium animate-fade-in">
-              Thank you for your submission! Your memory is pending approval.
+
+      <main className="flex-grow flex items-center justify-center px-4 py-8">
+        {submitted ? (
+          <div className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-xl shadow-xl text-center animate-fade-in">
+            Thank you for your submission! Your memory is pending approval.
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-2xl bg-[var(--card-bg)] p-8 rounded-xl shadow-2xl space-y-6"
+          >
+            {error && (
+              <p className="text-red-500 text-center font-medium">{error}</p>
+            )}
+
+            {/* Recipient */}
+            <div>
+              <label className="block font-serif text-[var(--text)]">
+                Recipient&rsquo;s Name (required):
+              </label>
+              <input
+                type="text"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                required
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--accent)] transition"
+              />
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && <p className="text-red-500 text-center font-medium">{error}</p>}
 
-              <div>
-                <label className="block text-lg font-serif text-[var(--text)]">
-                  Recipient&apos;s Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={recipient}
-                  onChange={(e) => setRecipient(e.target.value)}
-                  required
-                  className="mt-2 block w-full px-4 py-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
-                />
+            {/* Message + Progress Bar */}
+            <div>
+              <p className="text-sm text-[var(--text)] mb-1">
+                Message (required, max 250 words):
+              </p>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                rows={5}
+                className="w-full mt-1 p-3 border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--accent)] transition"
+              />
+              {/* Progress Bar */}
+              <div className="h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    wordCount <= 30
+                      ? "bg-[var(--accent)]"
+                      : wordCount <= 250
+                      ? "bg-[var(--secondary)]"
+                      : "bg-red-500"
+                  }`}
+                  style={{ width: `${percent}%` }}
+                ></div>
               </div>
-
-              <div>
-                <label className="block text-lg font-serif text-[var(--text)]">
-                  Message <span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-[var(--text)] mb-1">
-                  Maximum {maxWords} words. Current: {wordCount}
-                </p>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  required
-                  rows={5}
-                  className="mt-2 block w-full px-4 py-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition resize-none"
-                ></textarea>
-
-                <div className="mt-2 relative">
-                  <div className="w-full h-3 rounded-full bg-[var(--border)] overflow-hidden relative">
-                    <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{ width: `${percent}%` }}
-                    ></div>
-                    <div
-                      className="absolute top-0 h-full w-px bg-[var(--border)]"
-                      style={{ left: `${(specialLimit / maxWords) * 100}%` }}
-                    ></div>
-                  </div>
-                  {!isSpecialEffectAllowed && (
-                    <p className="text-sm italic text-red-500 mt-1">
-                      Special effects disabled after {specialLimit} words.
-                    </p>
-                  )}
-                  {wordCount >= maxWords && (
-                    <p className="text-sm italic text-red-500 mt-1">
-                      You have reached the word limit of {maxWords}.
-                    </p>
-                  )}
-                </div>
+              <div className="flex justify-between text-xs mt-1">
+                <span>{wordCount} / 250</span>
+                {wordCount > 30 && wordCount <= 250 && (
+                  <span className="text-red-500">
+                    Special effects disabled beyond 30 words.
+                  </span>
+                )}
+                {wordCount > 250 && (
+                  <span className="text-red-500">Word limit reached.</span>
+                )}
               </div>
+            </div>
 
-              <div>
-                <label className="block text-lg font-serif text-[var(--text)]">Your Name</label>
-                <input
-                  type="text"
-                  value={sender}
-                  onChange={(e) => setSender(e.target.value)}
-                  className="mt-2 block w-full px-4 py-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
-                />
-              </div>
+            {/* Sender */}
+            <div>
+              <label className="block font-serif text-[var(--text)]">
+                Your Name (optional):
+              </label>
+              <input
+                type="text"
+                value={sender}
+                onChange={(e) => setSender(e.target.value)}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--accent)] transition"
+              />
+            </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-lg font-serif text-[var(--text)]">
-                    Message Color
-                  </label>
-                  <select
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    className="mt-2 block w-full px-4 py-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
-                  >
-                    {colorOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            {/* Color Picker */}
+            <div>
+              <label className="block font-serif text-[var(--text)]">
+                Select a Color for Your Message (optional):
+              </label>
+              <select
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--accent)] transition"
+              >
+                {colorOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                <div>
-                  <label className="block text-lg font-serif text-[var(--text)]">
-                    Special Effect
-                  </label>
-                  <select
-                    value={specialEffect}
-                    onChange={(e) => setSpecialEffect(e.target.value)}
-                    disabled={!isSpecialEffectAllowed}
-                    className="mt-2 block w-full px-4 py-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50"
-                  >
-                    {specialEffectOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+            {/* Special Effect */}
+            <div>
+              <label className="block font-serif text-[var(--text)]">
+                Do you want any special effect?
+              </label>
+              <select
+                value={specialEffect}
+                onChange={(e) => setSpecialEffect(e.target.value)}
+                disabled={!isSpecialAllowed}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--accent)] transition disabled:opacity-50"
+              >
+                {specialEffectOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div className="flex items-center">...
+            {/* Full Background */}
+            <div className="flex items-center">
+              <input
+                id="fullBg"
+                type="checkbox"
+                checked={fullBg}
+                onChange={(e) => setFullBg(e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="fullBg" className="font-serif text-[var(--text)]">
+                Apply color to full card background
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <div className="text-center">
+              <button
+                type="submit"
+                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-md shadow hover:opacity-90 transition"
+              >
+                Submit Memory
+              </button>
+            </div>
+          </form>
+        )}
+      </main>
+
+      <footer className="bg-[var(--card-bg)] shadow-inner">
+        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)]">
+          © {new Date().getFullYear()} If Only I Sent This
+        </div>
+      </footer>
+    </div>
+  );
+}
