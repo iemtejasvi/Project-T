@@ -51,19 +51,18 @@ export default function Submit() {
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
 
-  // Fetch IP and geo info on mount using ipapi.co
+  // Fetch IP and geo info on mount
   useEffect(() => {
     async function fetchIP() {
       try {
         const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
-        const mappedData: IPData = {
+        setIpData({
           ip: data.ip,
           city: data.city,
           region: data.region,
           country: data.country_name,
-        };
-        setIpData(mappedData);
+        });
       } catch (err) {
         console.error("Error fetching IP info:", err);
       }
@@ -102,7 +101,9 @@ export default function Submit() {
       }
     }
 
-    const deviceInfo = typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
+    const deviceInfo =
+      typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
+
     const submission = {
       recipient,
       message,
@@ -119,7 +120,10 @@ export default function Submit() {
       device: deviceInfo,
     };
 
-    const { error: insertError } = await supabase.from("memories").insert([submission]);
+    const { error: insertError } = await supabase
+      .from("memories")
+      .insert([submission]);
+
     if (insertError) {
       setError("Error submitting your memory.");
       console.error(insertError);
@@ -134,7 +138,6 @@ export default function Submit() {
     }
   };
 
-  // Calculate percentage
   const percentage = Math.min((wordCount / maxWords) * 100, 100);
   const effectPercentage = Math.min((wordCount / effectLimit) * 100, 100);
 
@@ -143,14 +146,19 @@ export default function Submit() {
       {/* Header */}
       <header className="bg-[var(--card-bg)] shadow-lg">
         <div className="max-w-4xl mx-auto px-6 py-6 text-center">
-          <h1 className="text-4xl font-serif text-[var(--text)]">Submit a Memory</h1>
+          <h1 className="text-4xl font-serif text-[var(--text)]">
+            Submit a Memory
+          </h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-wrap justify-center gap-6">
-              {['/', '/memories', '/how-it-works'].map((path, idx) => (
+              {["/", "/memories", "/how-it-works"].map((path, idx) => (
                 <li key={path}>
-                  <Link href={path} className="text-lg hover:text-[var(--accent)] transition-colors">
-                    {['Home', 'Memories', 'How It Works'][idx]}
+                  <Link
+                    href={path}
+                    className="text-lg hover:text-[var(--accent)] transition-colors"
+                  >
+                    {["Home", "Memories", "How It Works"][idx]}
                   </Link>
                 </li>
               ))}
@@ -163,16 +171,25 @@ export default function Submit() {
       <main className="flex-grow max-w-4xl mx-auto px-6 py-8 w-full">
         {submitted ? (
           <div className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-2xl shadow-2xl text-center animate-fade-in">
-            <p className="text-2xl font-serif mb-4">Thank you for your submission!</p>
+            <p className="text-2xl font-serif mb-4">
+              Thank you for your submission!
+            </p>
             <p className="italic">Your memory is pending approval.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-8 bg-[var(--card-bg)] p-8 rounded-2xl shadow-2xl">
-            {error && <p className="text-red-500 text-center font-medium">{error}</p>}
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-8 bg-[var(--card-bg)] p-8 rounded-2xl shadow-2xl"
+          >
+            {error && (
+              <p className="text-red-500 text-center font-medium">{error}</p>
+            )}
 
             {/* Recipient */}
             <div>
-              <label className="block font-serif text-xl text-[var(--text)]">Recipient's Name *</label>
+              <label className="block font-serif text-xl text-[var(--text)]">
+                Recipient's Name *
+              </label>
               <input
                 type="text"
                 value={recipient}
@@ -184,8 +201,12 @@ export default function Submit() {
 
             {/* Message with Progress Bar */}
             <div>
-              <label className="block font-serif text-xl text-[var(--text)]">Message *</label>
-              <p className="text-sm text-[var(--text)] mb-2">Max {maxWords} words. Special effects until {effectLimit} words.</p>
+              <label className="block font-serif text-xl text-[var(--text)]">
+                Message *
+              </label>
+              <p className="text-sm text-[var(--text)] mb-2">
+                Max {maxWords} words. Special effects until {effectLimit} words.
+              </p>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -194,27 +215,37 @@ export default function Submit() {
                 className="mt-2 w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition resize-none"
               />
 
-              {/* Progress Bar Container */}
+              {/* Progress Bar */}
               <div className="mt-4 w-full h-4 bg-[var(--border)] rounded-full overflow-hidden">
                 <div
-                  className={`h-full transition-width duration-500 ease-out rounded-full"
-                  style={{ width: `${percentage}%`, background: 'linear-gradient(to right, var(--accent) ${effectPercentage}%, var(--accent-muted) ${effectPercentage}% 100%)` }}
+                  className="h-full transition-width duration-500 ease-out rounded-full"
+                  style={{
+                    width: `${percentage}%`,
+                    background: `linear-gradient(to right, var(--accent) ${effectPercentage}%, var(--accent-muted) ${effectPercentage}% 100%)`,
+                  }}
                 />
               </div>
-              {/* Messages */}
+
+              {/* Inline Messages */}
               <div className="mt-2 text-sm text-[var(--text)]">
-                {wordCount > effectLimit && (
-                  <p className="italic text-yellow-600">Special effects cannot be used beyond {effectLimit} words.</p>
+                {!isEffectAllowed && (
+                  <p className="italic text-yellow-600">
+                    Special effects cannot be used beyond {effectLimit} words.
+                  </p>
                 )}
                 {wordCount > maxWords && (
-                  <p className="italic text-red-600">You have exceeded the {maxWords}-word limit.</p>
+                  <p className="italic text-red-600">
+                    You have exceeded the {maxWords}-word limit.
+                  </p>
                 )}
               </div>
             </div>
 
             {/* Sender */}
             <div>
-              <label className="block font-serif text-xl text-[var(--text)]">Your Name (optional)</label>
+              <label className="block font-serif text-xl text-[var(--text)]">
+                Your Name (optional)
+              </label>
               <input
                 type="text"
                 value={sender}
@@ -225,21 +256,27 @@ export default function Submit() {
 
             {/* Color Selector */}
             <div>
-              <label className="block font-serif text-xl text-[var(--text)]">Select a Color (optional)</label>
+              <label className="block font-serif text-xl text-[var(--text)]">
+                Select a Color (optional)
+              </label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
                 className="mt-2 w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               >
                 {colorOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Special Effect */}
             <div>
-              <label className="block font-serif text-xl text-[var(--text)]">Special Effect</label>
+              <label className="block font-serif text-xl text-[var(--text)]">
+                Special Effect
+              </label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
@@ -247,7 +284,9 @@ export default function Submit() {
                 className="mt-2 w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               >
                 {specialEffectOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -261,12 +300,15 @@ export default function Submit() {
                 onChange={(e) => setFullBg(e.target.checked)}
                 className="h-5 w-5 text-[var(--accent)] focus:ring-[var(--accent)] transition"
               />
-              <label htmlFor="fullBg" className="ml-3 font-serif text-[var(--text)]">
+              <label
+                htmlFor="fullBg"
+                className="ml-3 font-serif text-[var(--text)]"
+              >
                 Apply color to full card background
               </label>
             </div>
 
-            {/* Submit */}
+            {/* Submit Button */}
             <div className="text-center">
               <button
                 type="submit"
