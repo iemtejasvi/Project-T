@@ -31,13 +31,13 @@ const colorOptions = [
   { value: "lemon", label: "Lemon" },
   { value: "aqua", label: "Aqua" },
   { value: "berry", label: "Berry" },
-  { value: "graphite", label: "Graphite" },
+  { value: "graphite", label: "Graphite" }
 ];
 
 const specialEffectOptions = [
   { value: "", label: "None" },
   { value: "bleeding", label: "Bleeding Text Effect" },
-  { value: "handwritten", label: "Handwritten Text Effect" },
+  { value: "handwritten", label: "Handwritten Text Effect" }
 ];
 
 export default function Submit() {
@@ -60,7 +60,7 @@ export default function Submit() {
           ip: data.ip,
           city: data.city,
           region: data.region,
-          country: data.country_name,
+          country: data.country_name
         });
       } catch (err) {
         console.error("Error fetching IP info:", err);
@@ -73,7 +73,6 @@ export default function Submit() {
   const maxWords = 250;
   const specialLimit = 30;
   const percent = Math.min((wordCount / maxWords) * 100, 100);
-  const specialPercent = Math.min((wordCount / specialLimit) * 100, 100);
   const isSpecialEffectAllowed = wordCount <= specialLimit;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,7 +115,7 @@ export default function Submit() {
       city: ipData?.city || null,
       state: ipData?.region || null,
       country: ipData?.country || null,
-      device: deviceInfo,
+      device: deviceInfo
     };
 
     const { error } = await supabase.from("memories").insert([submission]);
@@ -173,7 +172,7 @@ export default function Submit() {
 
               <div>
                 <label className="block text-lg font-serif text-[var(--text)]">
-                  Recipient's Name <span className="text-red-500">*</span>
+                  Recipient&apos;s Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -199,19 +198,14 @@ export default function Submit() {
                   className="mt-2 block w-full px-4 py-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition resize-none"
                 ></textarea>
 
-                {/* Progress Bar */}
-                <div className="mt-2">
-                  <div className="w-full h-3 rounded-full bg-[var(--border)] overflow-hidden">
+                <div className="mt-2 relative">
+                  <div className="w-full h-3 rounded-full bg-[var(--border)] overflow-hidden relative">
                     <div
                       className="h-full rounded-full transition-all duration-300"
-                      style={{
-                        width: `${percent}%`,
-                        background: wordCount <= specialLimit ? 'var(--accent)' : 'var(--accent-hover)',
-                      }}
+                      style={{ width: `${percent}%` }}
                     ></div>
-                    {/* Special threshold marker */}
                     <div
-                      className="absolute h-3 w-px bg-[var(--border)]"
+                      className="absolute top-0 h-full w-px bg-[var(--border)]"
                       style={{ left: `${(specialLimit / maxWords) * 100}%` }}
                     ></div>
                   </div>
@@ -275,34 +269,4 @@ export default function Submit() {
                 </div>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={fullBg}
-                  onChange={(e) => setFullBg(e.target.checked)}
-                  id="fullBg"
-                  className="h-5 w-5 text-[var(--accent)] border-[var(--border)] rounded focus:ring-2 focus:ring-[var(--accent)] transition"
-                />
-                <label htmlFor="fullBg" className="ml-3 text-lg font-serif text-[var(--text)]">
-                  Apply full-card background color
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-4 text-lg font-semibold rounded-2xl shadow-lg bg-[var(--accent)] text-[var(--text)] hover:bg-[var(--accent-hover)] transition transform hover:-translate-y-0.5"
-              >
-                Submit Memory
-              </button>
-            </form>
-          )}
-        </div>
-      </main>
-      <footer className="bg-[var(--card-bg)] mt-auto shadow-inner">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-sm text-[var(--text)]">
-          © {new Date().getFullYear()} If Only I Sent This
-        </div>
-      </footer>
-    </div>
-  );
-}
+              <div className="flex items-center">...
