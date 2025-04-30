@@ -11,8 +11,34 @@ interface IPData {
   country?: string;
 }
 
-const colorOptions = [ /* ... existing options ... */ ];
-const specialEffectOptions = [ /* ... existing options ... */ ];
+const colorOptions = [
+  { value: "default", label: "Default" },
+  { value: "mint", label: "Mint" },
+  { value: "cherry", label: "Cherry" },
+  { value: "sapphire", label: "Sapphire" },
+  { value: "lavender", label: "Lavender" },
+  { value: "coral", label: "Coral" },
+  { value: "olive", label: "Olive" },
+  { value: "turquoise", label: "Turquoise" },
+  { value: "amethyst", label: "Amethyst" },
+  { value: "gold", label: "Gold" },
+  { value: "midnight", label: "Midnight" },
+  { value: "emerald", label: "Emerald" },
+  { value: "ruby", label: "Ruby" },
+  { value: "periwinkle", label: "Periwinkle" },
+  { value: "peach", label: "Peach" },
+  { value: "sky", label: "Sky" },
+  { value: "lemon", label: "Lemon" },
+  { value: "aqua", label: "Aqua" },
+  { value: "berry", label: "Berry" },
+  { value: "graphite", label: "Graphite" },
+];
+
+const specialEffectOptions = [
+  { value: "", label: "None" },
+  { value: "bleeding", label: "Bleeding Text Effect" },
+  { value: "handwritten", label: "Handwritten Text Effect" },
+];
 
 export default function Submit() {
   const [recipient, setRecipient] = useState("");
@@ -45,8 +71,6 @@ export default function Submit() {
 
   const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
   const isSpecialEffectAllowed = wordCount <= 30;
-  const pctTotal = Math.min((wordCount / 250) * 100, 100);
-  const pctSpecial = Math.min((wordCount / 30) * 100, 100);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,24 +84,40 @@ export default function Submit() {
       setError("Please fill in all required fields.");
       return;
     }
+
     if (ipData?.ip) {
-      const { data: bannedData } = await supabase
+      const { data: bannedData, error: bannedError } = await supabase
         .from("banned_ips")
         .select("*")
         .eq("ip", ipData.ip);
-      if (bannedData?.length) {
+      if (bannedError) console.error("Error checking banned IPs:", bannedError);
+      if (bannedData && bannedData.length > 0) {
         setError("You are banned from submitting memories.");
         return;
       }
     }
 
     const deviceInfo = typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
-    const submission = { /* ... existing fields ... */ };
+    const submission = {
+      recipient,
+      message,
+      sender,
+      status: "pending",
+      color,
+      full_bg: fullBg,
+      letter_style: "default",
+      animation: specialEffect,
+      ip: ipData?.ip || null,
+      city: ipData?.city || null,
+      state: ipData?.region || null,
+      country: ipData?.country || null,
+      device: deviceInfo,
+    };
 
-    const { error } = await supabase.from("memories").insert([submission]);
-    if (error) {
+    const { error: supaError } = await supabase.from("memories").insert([submission]);
+    if (supaError) {
       setError("Error submitting your memory.");
-      console.error(error);
+      console.error(supaError);
     } else {
       setSubmitted(true);
       setRecipient("");
@@ -89,128 +129,126 @@ export default function Submit() {
     }
   };
 
+  // Determine progress bar color
+  const progressPercent = Math.min((wordCount / 250) * 100, 100);
+  let progressColor = wordCount <= 30 ? "bg-green-400" : "bg-purple-400";
+  if (wordCount > 250) progressColor = "bg-red-500";
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-[var(--card-bg)] shadow">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] transition-colors duration-300">
+      <header className="bg-[var(--card-bg)] shadow-lg">
         <div className="max-w-4xl mx-auto px-6 py-6 text-center">
-          <h1 className="text-4xl font-serif text-[var(--text)]">Submit a Memory</h1>
-          <nav className="mt-4">
-            <ul className="flex flex-wrap justify-center gap-6">
-              {/* links... */}
+          <h1 className="text-4xl md:text-5xl font-serif font-bold">Submit a Memory</h1>
+          <hr className="my-4 border-[var(--border)]" />
+          <nav>
+            <ul className="flex flex-wrap justify-center gap-6 text-lg">
+              {['/', '/memories', '/how-it-works'].map((href, idx) => (
+                <li key={href}>
+                  <Link href={href} className="hover:text-[var(--accent)] px-3 py-1 rounded-lg transition-colors">
+                    {['Home','Memories','How It Works'][idx]}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
       </header>
 
-      {/* Main */}
-      <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
+      <main className="flex-grow max-w-4xl mx-auto px-6 py-8 w-full">
         {submitted ? (
-          <div className="bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
-            <p className="text-lg font-medium text-[var(--text)]">Thank you! Your memory is pending approval.</p>
+          <div className="bg-[var(--secondary)] p-8 rounded-2xl shadow-xl transform animate-fade-in text-center text-xl">
+            🎉 Thank you! Your memory is pending approval.
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-8 bg-[var(--card-bg)] p-8 rounded-2xl shadow-2xl">
+          <form onSubmit={handleSubmit} className="space-y-8 bg-[var(--card-bg)] p-8 rounded-2xl shadow-2xl w-full">
             {error && <p className="text-red-500 text-center font-semibold">{error}</p>}
 
-            {/* Recipient */}
-            <div>
-              <label className="block font-serif text-lg text-[var(--text)]">Recipient's Name<span className="text-red-500">*</span></label>
+            <div className="flex flex-col space-y-2">
+              <label className="font-serif text-lg">Recipient's Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 required
-                className="w-full mt-2 p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] transition"
+                className="w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
               />
             </div>
 
-            {/* Message with Progress Bar */}
-            <div>
-              <label className="block font-serif text-lg text-[var(--text)]">Message (max 250 words)<span className="text-red-500">*</span></label>
+            <div className="flex flex-col space-y-2">
+              <label className="font-serif text-lg">Message (max 250 words) <span className="text-red-500">*</span></label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={5}
-                className="w-full mt-2 p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] transition resize-none"
+                className="w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] resize-none"
               />
-
-              {/* Progress Bar Container */}
-              <div className="relative h-4 w-full bg-[var(--border)] rounded-full overflow-hidden mt-3">
-                {/* Special Effect Segment */}
+              {/* Progress Bar */}
+              <div className="w-full bg-[var(--border)] rounded-full h-3 overflow-hidden">
                 <div
-                  className="absolute top-0 left-0 h-full rounded-l-full"
-                  style={{ width: `${pctSpecial}%`, backgroundColor: 'var(--accent)' }}
-                />
-                {/* Remaining Segment */}
-                <div
-                  className="absolute top-0 left-0 h-full rounded-full"
-                  style={{ width: `${pctTotal}%`, backgroundColor: 'rgba( var(--accent-rgb), 0.5)' }}
+                  className={`${progressColor} h-full rounded-full transition-all duration-300`} 
+                  style={{ width: `${progressPercent}%` }}
                 />
               </div>
-              {/* Status Messages */}
-              <div className="flex justify-between mt-2 text-sm text-[var(--text)]">
-                <span>{wordCount} / 250 words</span>
-                {!isSpecialEffectAllowed && <span className="text-yellow-500">Special effects unavailable beyond 30 words</span>}
-                {wordCount > 250 && <span className="text-red-500">Word limit exceeded!</span>}
-              </div>
+              <p className="text-sm font-medium">
+                {wordCount <= 30
+                  ? `${wordCount}/30 words for special effects`
+                  : wordCount <= 250
+                    ? `⚠️ Special effects disabled beyond 30 words; total ${wordCount}/250 words`
+                    : `❌ Word limit exceeded: ${wordCount}/250`}
+              </p>
             </div>
 
-            {/* Sender */}
-            <div>
-              <label className="block font-serif text-lg text-[var(--text)]">Your Name (optional)</label>
+            <div className="flex flex-col space-y-2">
+              <label className="font-serif text-lg">Your Name (optional)</label>
               <input
                 type="text"
                 value={sender}
                 onChange={(e) => setSender(e.target.value)}
-                className="w-full mt-2 p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] transition"
+                className="w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
               />
             </div>
 
-            {/* Color & Effects */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block font-serif text-lg text-[var(--text)]">Select a Color (optional)</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col space-y-2">
+                <label className="font-serif text-lg">Select a Color (optional)</label>
                 <select
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
-                  className="w-full mt-2 p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] transition"
+                  className="w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
                 >
                   {colorOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                 </select>
               </div>
 
-              <div>
-                <label className="block font-serif text-lg text-[var(--text)]">Special Effect</label>
+              <div className="flex flex-col space-y-2">
+                <label className="font-serif text-lg">Special Effect</label>
                 <select
                   value={specialEffect}
                   onChange={(e) => setSpecialEffect(e.target.value)}
                   disabled={!isSpecialEffectAllowed}
-                  className="w-full mt-2 p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] transition"
+                  className="w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] disabled:opacity-50"
                 >
                   {specialEffectOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                 </select>
               </div>
             </div>
 
-            {/* Full Background Checkbox */}
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
+                id="fullBg"
                 checked={fullBg}
                 onChange={(e) => setFullBg(e.target.checked)}
-                id="fullBg"
-                className="mr-2"
+                className="w-5 h-5 text-[var(--accent)] border-[var(--border)] rounded focus:ring-2 focus:ring-[var(--accent)]"
               />
-              <label htmlFor="fullBg" className="font-serif text-[var(--text)]">Apply full background color</label>
+              <label htmlFor="fullBg" className="font-serif text-lg">Apply full card background color</label>
             </div>
 
-            {/* Submit Button */}
             <div className="text-center">
               <button
                 type="submit"
-                className="px-10 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transform transition"
+                className="px-10 py-4 bg-[var(--accent)] font-semibold rounded-2xl shadow-lg hover:scale-105 transform transition-all duration-200"
               >
                 Submit Memory
               </button>
@@ -219,9 +257,8 @@ export default function Submit() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-[var(--card-bg)] shadow-inner mt-auto">
-        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)]">
+      <footer className="bg-[var(--card-bg)] shadow-inner">
+        <div className="max-w-4xl mx-auto text-center py-4 text-sm">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
