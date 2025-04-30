@@ -72,14 +72,16 @@ export default function Submit() {
   }, []);
 
   const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
-  const isSpecialEffectAllowed = wordCount <= 30;
+  const maxWords = 250;
+  const effectLimit = 30;
+  const isEffectAllowed = wordCount <= effectLimit;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (wordCount > 250) {
-      setError("Message cannot exceed 250 words.");
+    if (wordCount > maxWords) {
+      setError(`Message cannot exceed ${maxWords} words.`);
       return;
     }
 
@@ -88,29 +90,24 @@ export default function Submit() {
       return;
     }
 
-    if (ipData && ipData.ip) {
+    if (ipData?.ip) {
       const { data: bannedData, error: bannedError } = await supabase
         .from("banned_ips")
         .select("*")
         .eq("ip", ipData.ip);
-      if (bannedError) {
-        console.error("Error checking banned IPs:", bannedError);
-      }
-      if (bannedData && bannedData.length > 0) {
+      if (bannedError) console.error("Error checking banned IPs:", bannedError);
+      if (bannedData?.length) {
         setError("You are banned from submitting memories.");
         return;
       }
     }
 
-    const deviceInfo =
-      typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
-
-    const status = "pending";
+    const deviceInfo = typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
     const submission = {
       recipient,
       message,
       sender,
-      status,
+      status: "pending",
       color,
       full_bg: fullBg,
       letter_style: "default",
@@ -122,11 +119,10 @@ export default function Submit() {
       device: deviceInfo,
     };
 
-    const { error } = await supabase.from("memories").insert([submission]);
-
-    if (error) {
+    const { error: insertError } = await supabase.from("memories").insert([submission]);
+    if (insertError) {
       setError("Error submitting your memory.");
-      console.error(error);
+      console.error(insertError);
     } else {
       setSubmitted(true);
       setRecipient("");
@@ -138,129 +134,143 @@ export default function Submit() {
     }
   };
 
+  // Calculate percentage
+  const percentage = Math.min((wordCount / maxWords) * 100, 100);
+  const effectPercentage = Math.min((wordCount / effectLimit) * 100, 100);
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-[var(--card-bg)] shadow-md">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)]">
+      {/* Header */}
+      <header className="bg-[var(--card-bg)] shadow-lg">
         <div className="max-w-4xl mx-auto px-6 py-6 text-center">
           <h1 className="text-4xl font-serif text-[var(--text)]">Submit a Memory</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
-              <li>
-                <Link href="/" className="hover:text-[var(--accent)] transition duration-200">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/memories" className="hover:text-[var(--accent)] transition duration-200">
-                  Memories
-                </Link>
-              </li>
-              <li>
-                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition duration-200">
-                  How It Works
-                </Link>
-              </li>
+            <ul className="flex flex-wrap justify-center gap-6">
+              {['/', '/memories', '/how-it-works'].map((path, idx) => (
+                <li key={path}>
+                  <Link href={path} className="text-lg hover:text-[var(--accent)] transition-colors">
+                    {['Home', 'Memories', 'How It Works'][idx]}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
       </header>
 
-      <main className="flex-grow max-w-4xl mx-auto px-6 py-8">
+      {/* Main */}
+      <main className="flex-grow max-w-4xl mx-auto px-6 py-8 w-full">
         {submitted ? (
-          <div className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-lg shadow-lg text-center animate-fade-in">
-            Thank you for your submission! Your memory is pending approval.
+          <div className="bg-[var(--secondary)] text-[var(--text)] p-8 rounded-2xl shadow-2xl text-center animate-fade-in">
+            <p className="text-2xl font-serif mb-4">Thank you for your submission!</p>
+            <p className="italic">Your memory is pending approval.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6 bg-[var(--card-bg)] p-8 rounded-lg shadow-xl">
+          <form onSubmit={handleSubmit} className="space-y-8 bg-[var(--card-bg)] p-8 rounded-2xl shadow-2xl">
             {error && <p className="text-red-500 text-center font-medium">{error}</p>}
 
-            <div className="animate-slide-up">
-              <label className="block font-serif text-[var(--text)]">{`Recipient's Name (required):`}</label>
+            {/* Recipient */}
+            <div>
+              <label className="block font-serif text-xl text-[var(--text)]">Recipient's Name *</label>
               <input
                 type="text"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 required
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
+                className="mt-2 w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
             </div>
 
-            <div className="animate-slide-up delay-100">
-              <p className="text-sm text-[var(--text)]">(Maximum 250 words for the message.)</p>
-              <label className="block font-serif text-[var(--text)]">{`Message (required):`}</label>
+            {/* Message with Progress Bar */}
+            <div>
+              <label className="block font-serif text-xl text-[var(--text)]">Message *</label>
+              <p className="text-sm text-[var(--text)] mb-2">Max {maxWords} words. Special effects until {effectLimit} words.</p>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required
-                rows={5}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
-              ></textarea>
+                rows={6}
+                className="mt-2 w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition resize-none"
+              />
+
+              {/* Progress Bar Container */}
+              <div className="mt-4 w-full h-4 bg-[var(--border)] rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-width duration-500 ease-out rounded-full"
+                  style={{ width: `${percentage}%`, background: 'linear-gradient(to right, var(--accent) ${effectPercentage}%, var(--accent-muted) ${effectPercentage}% 100%)` }}
+                />
+              </div>
+              {/* Messages */}
+              <div className="mt-2 text-sm text-[var(--text)]">
+                {wordCount > effectLimit && (
+                  <p className="italic text-yellow-600">Special effects cannot be used beyond {effectLimit} words.</p>
+                )}
+                {wordCount > maxWords && (
+                  <p className="italic text-red-600">You have exceeded the {maxWords}-word limit.</p>
+                )}
+              </div>
             </div>
 
-            <div className="animate-slide-up delay-200">
-              <label className="block font-serif text-[var(--text)]">{`Your Name (optional):`}</label>
+            {/* Sender */}
+            <div>
+              <label className="block font-serif text-xl text-[var(--text)]">Your Name (optional)</label>
               <input
                 type="text"
                 value={sender}
                 onChange={(e) => setSender(e.target.value)}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition duration-200"
+                className="mt-2 w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
             </div>
 
-            <div className="animate-slide-up delay-300">
-              <label className="block font-serif text-[var(--text)]">{`Select a Color for Your Message (optional):`}</label>
+            {/* Color Selector */}
+            <div>
+              <label className="block font-serif text-xl text-[var(--text)]">Select a Color (optional)</label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus-border-[var(--accent)] transition duration-200"
+                className="mt-2 w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               >
-                {colorOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
+                {colorOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
             </div>
 
-            <div className="animate-slide-up delay-400">
-              <label className="block font-serif text-[var(--text)]">{`Do you want any special effect?`}</label>
+            {/* Special Effect */}
+            <div>
+              <label className="block font-serif text-xl text-[var(--text)]">Special Effect</label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
-                disabled={!isSpecialEffectAllowed}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-lg focus:outline-none focus-border-[var(--accent)] transition duration-200"
+                disabled={!isEffectAllowed}
+                className="mt-2 w-full p-4 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               >
-                {specialEffectOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
+                {specialEffectOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
-              {!isSpecialEffectAllowed && (
-                <p className="text-sm italic text-[var(--text)] mt-1">
-                  (Special effects can only be used for short and sweet messages—under 30 words. Keep it snappy to unlock the magic.)
-                </p>
-              )}
             </div>
 
-            <div className="flex items-center animate-slide-up delay-500">
+            {/* Full Background Checkbox */}
+            <div className="flex items-center">
               <input
+                id="fullBg"
                 type="checkbox"
                 checked={fullBg}
                 onChange={(e) => setFullBg(e.target.checked)}
-                id="fullBg"
-                className="mr-2"
+                className="h-5 w-5 text-[var(--accent)] focus:ring-[var(--accent)] transition"
               />
-              <label htmlFor="fullBg" className="font-serif text-[var(--text)]">
+              <label htmlFor="fullBg" className="ml-3 font-serif text-[var(--text)]">
                 Apply color to full card background
               </label>
             </div>
 
-            <div className="text-center animate-slide-up delay-600">
+            {/* Submit */}
+            <div className="text-center">
               <button
                 type="submit"
-                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-lg shadow-md hover:bg-blue-200 transition duration-200"
+                className="px-10 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold text-lg rounded-2xl shadow-lg hover:scale-105 transform transition"
               >
                 Submit Memory
               </button>
@@ -269,7 +279,8 @@ export default function Submit() {
         )}
       </main>
 
-      <footer className="bg-[var(--card-bg)] shadow-md">
+      {/* Footer */}
+      <footer className="bg-[var(--card-bg)] shadow-inner">
         <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
