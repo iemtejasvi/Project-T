@@ -21,6 +21,7 @@ interface MemoryCardProps {
   detail?: boolean;
 }
 
+// Typewriter prompt with premium sizing
 const TypewriterPrompt: React.FC = () => {
   const prompts = useMemo(
     () => [
@@ -71,12 +72,13 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 break-words">
+    <div className="min-h-[2rem] overflow-hidden text-center text-[clamp(0.875rem,1.5vw,1rem)] tracking-wide text-[var(--text)] font-serif transition-all duration-300 break-words">
       {displayedText}
     </div>
   );
 };
 
+// Scrollable message with responsive premium text
 const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsScroll, setNeedsScroll] = useState(false);
@@ -92,7 +94,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 overflow-y-auto text-sm text-[var(--text)] whitespace-pre-wrap break-words pt-2 ${
+      className={`flex-1 overflow-y-auto text-[clamp(1rem,2vw,1.125rem)] tracking-wide text-[var(--text)] whitespace-pre-wrap break-words pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
       style={style}
@@ -147,10 +149,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const renderMessage = (memory: Memory) => {
     const wordCount = memory.message.trim().split(/\s+/).length;
     const isPremium = wordCount < 30;
-    // Responsive sizing using clamp for fluid scaling
+
+    // Premium scaling and spacing
     const messageStyle: React.CSSProperties = isPremium
-      ? { fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)', lineHeight: 1.3, padding: '0.5rem' }
-      : { fontSize: 'clamp(1rem, 2vw, 1.125rem)', lineHeight: 1.6, padding: '0.25rem' };
+      ? { fontSize: 'clamp(1.5rem, 3vw, 2rem)', lineHeight: 1.25, padding: '0.75rem', letterSpacing: '0.03em' }
+      : { fontSize: 'clamp(1.125rem, 2.5vw, 1.375rem)', lineHeight: 1.5, padding: '0.5rem', letterSpacing: '0.02em' };
 
     switch (memory.animation) {
       case "bleeding":
@@ -168,86 +171,97 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     }
   };
 
+  // Detailed view
   if (detail) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 border-2 rounded-xl shadow-md flex flex-col min-h-[300px]"
+        className="w-full max-w-md mx-auto my-8 p-8 border-2 rounded-2xl shadow-lg flex flex-col min-h-[320px]"
         style={{ ...bgStyle, ...borderStyle }}
       >
         <div>
-          <h3 className="text-2xl font-bold text-[var(--text)]">
+          <h3 className="text-[clamp(1.75rem,4vw,2.25rem)] font-bold text-[var(--text)]">
             {memory.animation && (
-              <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+              <span style={{ fontSize: "0.85rem", ...arrowStyle, marginRight: "6px" }}>
                 ★
               </span>
             )}
             To: {memory.recipient}
           </h3>
-          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-          <hr className="my-2 border-[var(--border)]" />
+          {memory.sender && <p className="mt-2 text-[clamp(1.125rem,2.5vw,1.5rem)] italic text-[var(--text)]">From: {memory.sender}</p>}
+          <hr className="my-4 border-[var(--border)]" />
         </div>
-        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words pt-2">
+        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words pt-4">
           {renderMessage(memory)}
         </div>
-        <hr className="my-2 border-[var(--border)]" />
-        <div className="text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap">
-          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
+        <hr className="my-4 border-[var(--border)]" />
+        <div className="text-sm text-[var(--text)] flex justify-center gap-4 whitespace-nowrap">
+          <span>{dateStr}</span>
+          <span>|</span>
+          <span>{dayStr}</span>
+          <span>|</span>
+          <span>{timeStr}</span>
+          <span>|</span>
+          <span>{effectiveColor}</span>
         </div>
       </motion.div>
     );
   }
 
+  // Flip card view
   return (
-    <div className="relative group my-6">
-      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
+    <div className="relative group my-8">
+      <div className="absolute right-[-50px] top-1/2 transform -translate-y-1/2 sm:right-[-60px]">
         <Link href={`/memories/${memory.id}`}>
           <span className="arrow-icon" style={arrowStyle}>➜</span>
         </Link>
       </div>
       <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+        whileHover={{ scale: 1.05, boxShadow: "0 12px 24px rgba(0,0,0,0.25)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
+        className="flip-card w-full max-w-md mx-auto perspective-1000 h-[320px] cursor-pointer rounded-2xl hover:shadow-2xl"
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <motion.div 
+        <motion.div
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 35 }}
+          transition={{ type: "spring", stiffness: 350, damping: 30 }}
         >
           {/* FRONT */}
           <div
-            className="flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-between"
+            className="flip-card-front absolute w-full h-full backface-hidden rounded-2xl shadow-md p-6 flex flex-col justify-between"
             style={{ ...bgStyle, ...borderStyle }}
           >
             <div>
-              <h3 className="text-xl font-bold text-[var(--text)]">
+              <h3 className="text-[clamp(1.5rem,3vw,2rem)] font-bold text-[var(--text)]">
                 {memory.animation && (
-                  <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                  <span style={{ fontSize: "0.85rem", ...arrowStyle, marginRight: "6px" }}>
                     ★
                   </span>
                 )}
                 To: {memory.recipient}
               </h3>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
-              <hr className="my-2 border-[var(--border)]" />
+              {memory.sender && <p className="mt-2 text-[clamp(1rem,2.5vw,1.25rem)] italic text-[var(--text)]">From: {memory.sender}</p>}
+              <hr className="my-4 border-[var(--border)]" />
             </div>
-            <div className="text-xs text-[var(--text)] text-center">
+            <div className="text-[clamp(1rem,2vw,1.125rem)] text-[var(--text)] text-center tracking-wide">
               {dateStr} | {dayStr}
             </div>
             <TypewriterPrompt />
           </div>
+
           {/* BACK */}
           <div
-            className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180"
+            className="flip-card-back absolute w-full h-full backface-hidden rounded-2xl shadow-md p-6 flex flex-col justify-start rotate-y-180"
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
-            <hr className="my-2 border-[var(--border)]" />
+            <h3 className="text-[clamp(1.25rem,2.5vw,1.5rem)] italic text-[var(--text)] text-center tracking-wide mb-2">
+              if only i sent this
+            </h3>
+            <hr className="my-4 border-[var(--border)]" />
             <ScrollableMessage
               style={{
                 "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
@@ -268,17 +282,19 @@ interface HandwrittenTextProps {
   messageStyle: React.CSSProperties;
 }
 
+// Handwritten effect with consistent smoothing
 const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, messageStyle }) => (
-  <div
+  <p
     className="handwritten-text"
     style={{
       ...messageStyle,
       fontWeight: 'normal',
       WebkitFontSmoothing: 'antialiased',
+      MozOsxFontSmoothing: 'grayscale',
     }}
   >
-    <p>{message}</p>
-  </div>
+    {message}
+  </p>
 );
 
 export default MemoryCard;
