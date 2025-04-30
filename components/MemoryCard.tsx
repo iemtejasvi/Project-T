@@ -71,7 +71,7 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-base sm:text-lg text-[var(--text)] font-serif transition-all duration-300 break-words">
+    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 break-words">
       {displayedText}
     </div>
   );
@@ -92,7 +92,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 overflow-y-auto text-base sm:text-lg text-[var(--text)] whitespace-pre-wrap break-words pt-2 ${
+      className={`flex-1 overflow-y-auto text-sm text-[var(--text)] whitespace-pre-wrap break-words pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
       style={style}
@@ -106,9 +106,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
 
   const allowedColors = new Set([
-    "default", "mint", "cherry", "sapphire", "lavender", "coral", "olive", "turquoise",
-    "amethyst", "gold", "midnight", "emerald", "ruby", "periwinkle", "peach", "sky", "lemon",
-    "aqua", "berry", "graphite",
+    "default", "mint", "cherry", "sapphire", "lavender", "coral", "olive",
+    "turquoise", "amethyst", "gold", "midnight", "emerald", "ruby",
+    "periwinkle", "peach", "sky", "lemon", "aqua", "berry", "graphite",
   ]);
   const colorMapping: Record<string, string> = { rose: "cherry" };
   let effectiveColor = memory.color;
@@ -133,9 +133,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       ? { color: "#D9D9D9" }
       : { color: `var(--color-${effectiveColor}-border)` };
 
-  const dateStr = new Date(memory.created_at).toLocaleDateString();
-  const timeStr = new Date(memory.created_at).toLocaleTimeString();
-  const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
+  const date = new Date(memory.created_at);
+  const dateStr = date.toLocaleDateString();
+  const timeStr = date.toLocaleTimeString();
+  const dayStr = date.toLocaleDateString(undefined, { weekday: "long" });
 
   const handleCardClick = () => {
     if (!detail) {
@@ -144,16 +145,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   };
 
   const renderMessage = (memory: Memory) => {
-    const words = memory.message.trim().split(/\s+/).length;
-    let messageStyle: React.CSSProperties;
-
-    if (words < 30) {
-      messageStyle = { fontSize: '2rem', lineHeight: 1.3 };
-    } else if (words < 100) {
-      messageStyle = { fontSize: '1.5rem', lineHeight: 1.4 };
-    } else {
-      messageStyle = { fontSize: '1rem', lineHeight: 1.6 };
-    }
+    const wordCount = memory.message.trim().split(/\s+/).length;
+    const isPremium = wordCount < 30;
+    // Responsive sizing using clamp for fluid scaling
+    const messageStyle: React.CSSProperties = isPremium
+      ? { fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)', lineHeight: 1.3, padding: '0.5rem' }
+      : { fontSize: 'clamp(1rem, 2vw, 1.125rem)', lineHeight: 1.6, padding: '0.25rem' };
 
     switch (memory.animation) {
       case "bleeding":
@@ -164,10 +161,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         );
       case "handwritten":
         return (
-          <HandwrittenText
-            message={memory.message}
-            messageStyle={{ ...messageStyle, fontWeight: 'normal' }}
-          />
+          <HandwrittenText message={memory.message} messageStyle={messageStyle} />
         );
       default:
         return <p style={messageStyle}>{memory.message}</p>;
@@ -179,84 +173,81 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md mx-auto my-8 p-8 border-2 rounded-2xl shadow-lg flex flex-col min-h-[350px]"
+        className="w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 border-2 rounded-xl shadow-md flex flex-col min-h-[300px]"
         style={{ ...bgStyle, ...borderStyle }}
       >
         <div>
-          <h3 className="text-3xl font-bold text-[var(--text)]">
+          <h3 className="text-2xl font-bold text-[var(--text)]">
             {memory.animation && (
-              <span className="mr-2" style={arrowStyle}>★</span>
+              <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                ★
+              </span>
             )}
             To: {memory.recipient}
           </h3>
-          {memory.sender && (
-            <p className="mt-2 text-xl italic text-[var(--text)]">From: {memory.sender}</p>
-          )}
-          <hr className="my-4 border-[var(--border)]" />
+          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
+          <hr className="my-2 border-[var(--border)]" />
         </div>
-        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words pt-4">
+        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-words pt-2">
           {renderMessage(memory)}
         </div>
-        <hr className="my-4 border-[var(--border)]" />
-        <div className="text-sm text-[var(--text)] flex justify-center gap-4 whitespace-nowrap">
-          <span>{dateStr}</span>
-          <span>{dayStr}</span>
-          <span>{timeStr}</span>
-          <span>{effectiveColor}</span>
+        <hr className="my-2 border-[var(--border)]" />
+        <div className="text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap">
+          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
         </div>
       </motion.div>
     );
   }
 
   return (
-    <div className="relative group my-8">
+    <div className="relative group my-6">
       <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
         <Link href={`/memories/${memory.id}`}>
           <span className="arrow-icon" style={arrowStyle}>➜</span>
         </Link>
       </div>
       <motion.div
-        whileHover={{ scale: 1.05, boxShadow: "0 12px 24px rgba(0,0,0,0.2)" }}
+        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flip-card w-full max-w-md mx-auto perspective-1000 h-[350px] cursor-pointer rounded-2xl"
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <motion.div
+        <motion.div 
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
         >
           {/* FRONT */}
           <div
-            className="flip-card-front absolute w-full h-full backface-hidden rounded-2xl shadow-lg p-6 flex flex-col justify-between"
+            className="flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-between"
             style={{ ...bgStyle, ...borderStyle }}
           >
             <div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-[var(--text)]">
+              <h3 className="text-xl font-bold text-[var(--text)]">
                 {memory.animation && (
-                  <span className="mr-2" style={arrowStyle}>★</span>
+                  <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                    ★
+                  </span>
                 )}
                 To: {memory.recipient}
               </h3>
-              {memory.sender && (
-                <p className="mt-2 text-lg italic text-[var(--text)]">From: {memory.sender}</p>
-              )}
-              <hr className="my-3 border-[var(--border)]" />
+              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
+              <hr className="my-2 border-[var(--border)]" />
             </div>
-            <div className="text-sm sm:text-base text-[var(--text)] text-center">
+            <div className="text-xs text-[var(--text)] text-center">
               {dateStr} | {dayStr}
             </div>
             <TypewriterPrompt />
           </div>
           {/* BACK */}
           <div
-            className="flip-card-back absolute w-full h-full backface-hidden rounded-2xl shadow-lg p-6 flex flex-col justify-start rotate-y-180"
+            className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180"
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <h3 className="text-lg sm:text-xl italic text-[var(--text)] text-center">if only i sent this</h3>
-            <hr className="my-3 border-[var(--border)]" />
+            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
+            <hr className="my-2 border-[var(--border)]" />
             <ScrollableMessage
               style={{
                 "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
@@ -278,8 +269,15 @@ interface HandwrittenTextProps {
 }
 
 const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, messageStyle }) => (
-  <div className="handwritten-text" style={{ ...messageStyle, fontWeight: 'normal' }}>
-    <p style={messageStyle}>{message}</p>
+  <div
+    className="handwritten-text"
+    style={{
+      ...messageStyle,
+      fontWeight: 'normal',
+      WebkitFontSmoothing: 'antialiased',
+    }}
+  >
+    <p>{message}</p>
   </div>
 );
 
