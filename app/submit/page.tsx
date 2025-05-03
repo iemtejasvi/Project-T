@@ -98,7 +98,6 @@ export default function SubmitPage() {
       }
     }
 
-    const deviceInfo = typeof navigator !== "undefined" ? navigator.userAgent : "unknown";
     const submission = {
       recipient,
       message,
@@ -112,7 +111,6 @@ export default function SubmitPage() {
       city: ipData?.city || null,
       state: ipData?.region || null,
       country: ipData?.country || null,
-      device: deviceInfo,
     };
 
     const { error: insertErr } = await supabase.from("memories").insert([submission]);
