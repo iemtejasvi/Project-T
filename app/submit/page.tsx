@@ -76,18 +76,22 @@ export default function SubmitPage() {
       setError("Message cannot exceed 250 words.");
       return;
     }
+
     if (!recipient || !message) {
       setError("Please fill in all required fields.");
       return;
     }
+
     if (ipData?.ip) {
       const { data: banned, error: banErr } = await supabase
         .from("banned_ips")
         .select("*")
         .eq("ip", ipData.ip);
+
       if (banErr) {
         console.error("Error checking banned IPs:", banErr);
       }
+
       if (banned && banned.length > 0) {
         setError("You are banned from submitting memories.");
         return;
@@ -156,7 +160,9 @@ export default function SubmitPage() {
             onSubmit={handleSubmit}
             className="w-full max-w-2xl bg-[var(--card-bg)] p-8 rounded-xl shadow-2xl space-y-6"
           >
-            {error && <p className="text-red-500 text-center font-medium">{error}</p>}
+            {error && (
+              <p className="text-red-500 text-center font-medium">{error}</p>
+            )}
 
             <div>
               <label className="block font-serif text-[var(--text)]">
@@ -172,7 +178,9 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <p className="text-sm text-[var(--text)] mb-1">Message (required, max 250 words):</p>
+              <p className="text-sm text-[var(--text)] mb-1">
+                Message (required, max 250 words):
+              </p>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -195,14 +203,20 @@ export default function SubmitPage() {
               <div className="flex justify-between text-xs mt-1">
                 <span>{wordCount} / 250</span>
                 {wordCount > 30 && wordCount <= 250 && (
-                  <span className="text-red-500">Special effects disabled beyond 30 words.</span>
+                  <span className="text-red-500">
+                    Special effects disabled beyond 30 words.
+                  </span>
                 )}
-                {wordCount > 250 && <span className="text-red-500">Word limit reached.</span>}
+                {wordCount > 250 && (
+                  <span className="text-red-500">Word limit reached.</span>
+                )}
               </div>
             </div>
 
             <div>
-              <label className="block font-serif text-[var(--text)]">Your Name (optional):</label>
+              <label className="block font-serif text-[var(--text)]">
+                Your Name (optional):
+              </label>
               <input
                 type="text"
                 value={sender}
@@ -229,7 +243,9 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif text-[var(--text)]">Do you want any special effect?</label>
+              <label className="block font-serif text-[var(--text)]">
+                Do you want any special effect?
+              </label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
@@ -275,5 +291,5 @@ export default function SubmitPage() {
         </div>
       </footer>
     </div>
-);
+  );
 }
