@@ -105,7 +105,6 @@ export default function SubmitPage() {
       status: "pending",
       color,
       full_bg: fullBg,
-      letter_style: "default",
       animation: specialEffect,
       ip: ipData?.ip || null,
       country: ipData?.country || null,
