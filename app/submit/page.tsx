@@ -235,4 +235,65 @@ export default function SubmitPage() {
                 onChange={(e) => setColor(e.target.value)}
                 className="w-full mt-2 p-3 border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--accent)] transition"
               >
-                {colorOptions.map((o)
+                {colorOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Special Effect */}
+            <div>
+              <label className="block font-serif text-[var(--text)]">
+                Do you want any special effect?
+              </label>
+              <select
+                value={specialEffect}
+                onChange={(e) => setSpecialEffect(e.target.value)}
+                disabled={!isSpecialAllowed}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--accent)] transition disabled:opacity-50"
+              >
+                {specialEffectOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Full Background */}
+            <div className="flex items-center">
+              <input
+                id="fullBg"
+                type="checkbox"
+                checked={fullBg}
+                onChange={(e) => setFullBg(e.target.checked)}
+                className="mr-2"
+              />
+              <label htmlFor="fullBg" className="font-serif text-[var(--text)]">
+                Apply color to full card background
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <div className="text-center">
+              <button
+                type="submit"
+                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-md shadow hover:opacity-90 transition"
+              >
+                Submit Memory
+              </button>
+            </div>
+          </form>
+        )}
+      </main>
+
+      <footer className="bg-[var(--card-bg)] shadow-inner">
+        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)]">
+          © {new Date().getFullYear()} If Only I Sent This
+        </div>
+      </footer>
+    </div>
+  );
+}
