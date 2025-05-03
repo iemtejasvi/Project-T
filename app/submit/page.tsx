@@ -156,14 +156,11 @@ export default function SubmitPage() {
             onSubmit={handleSubmit}
             className="w-full max-w-2xl bg-[var(--card-bg)] p-8 rounded-xl shadow-2xl space-y-6"
           >
-            {error && (
-              <p className="text-red-500 text-center font-medium">{error}</p>
-            )}
+            {error && <p className="text-red-500 text-center font-medium">{error}</p>}
 
-            {/* Recipient */}
             <div>
               <label className="block font-serif text-[var(--text)]">
-                Recipient&rsquo;s Name (required):
+                Recipient’s Name (required):
               </label>
               <input
                 type="text"
@@ -174,11 +171,8 @@ export default function SubmitPage() {
               />
             </div>
 
-            {/* Message + Progress Bar */}
             <div>
-              <p className="text-sm text-[var(--text)] mb-1">
-                Message (required, max 250 words):
-              </p>
+              <p className="text-sm text-[var(--text)] mb-1">Message (required, max 250 words):</p>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -186,7 +180,6 @@ export default function SubmitPage() {
                 rows={5}
                 className="w-full mt-1 p-3 border border-[var(--border)] rounded-md focus:outline-none focus:border-[var(--accent)] transition"
               />
-              {/* Progress Bar */}
               <div className="h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${
@@ -202,21 +195,14 @@ export default function SubmitPage() {
               <div className="flex justify-between text-xs mt-1">
                 <span>{wordCount} / 250</span>
                 {wordCount > 30 && wordCount <= 250 && (
-                  <span className="text-red-500">
-                    Special effects disabled beyond 30 words.
-                  </span>
+                  <span className="text-red-500">Special effects disabled beyond 30 words.</span>
                 )}
-                {wordCount > 250 && (
-                  <span className="text-red-500">Word limit reached.</span>
-                )}
+                {wordCount > 250 && <span className="text-red-500">Word limit reached.</span>}
               </div>
             </div>
 
-            {/* Sender */}
             <div>
-              <label className="block font-serif text-[var(--text)]">
-                Your Name (optional):
-              </label>
+              <label className="block font-serif text-[var(--text)]">Your Name (optional):</label>
               <input
                 type="text"
                 value={sender}
@@ -225,7 +211,6 @@ export default function SubmitPage() {
               />
             </div>
 
-            {/* Color Picker */}
             <div>
               <label className="block font-serif text-[var(--text)]">
                 Select a Color for Your Message (optional):
@@ -243,11 +228,8 @@ export default function SubmitPage() {
               </select>
             </div>
 
-            {/* Special Effect */}
             <div>
-              <label className="block font-serif text-[var(--text)]">
-                Do you want any special effect?
-              </label>
+              <label className="block font-serif text-[var(--text)]">Do you want any special effect?</label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
@@ -262,7 +244,6 @@ export default function SubmitPage() {
               </select>
             </div>
 
-            {/* Full Background */}
             <div className="flex items-center">
               <input
                 id="fullBg"
@@ -276,7 +257,6 @@ export default function SubmitPage() {
               </label>
             </div>
 
-            {/* Submit Button */}
             <div className="text-center">
               <button
                 type="submit"
@@ -295,5 +275,5 @@ export default function SubmitPage() {
         </div>
       </footer>
     </div>
-  );
+);
 }
