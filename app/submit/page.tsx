@@ -91,10 +91,8 @@ export default function SubmitPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
-
-  // track if special-effect notice has shown once
-  const [specialNoticeShown, setSpecialNoticeShown] = useState(false);
-  const [showSpecialNotice, setShowSpecialNotice] = useState(false);
+  const [specialEffectMessageVisible, setSpecialEffectMessageVisible] = useState(false);
+  const [specialEffectMessageShown, setSpecialEffectMessageShown] = useState(false);
 
   useEffect(() => {
     async function fetchIP() {
@@ -116,22 +114,21 @@ export default function SubmitPage() {
   const randomLimitMessage =
     limitMessages[Math.floor(Math.random() * limitMessages.length)];
 
-  // show special-effect notice only once when crossing 30 words
   useEffect(() => {
-    if (!specialNoticeShown && wordCount > 30 && wordCount <= 200) {
-      setShowSpecialNotice(true);
-      setSpecialNoticeShown(true);
-      const timeout = setTimeout(() => setShowSpecialNotice(false), 5000);
+    if (wordCount > 30 && !specialEffectMessageShown) {
+      setSpecialEffectMessageVisible(true);
+      setSpecialEffectMessageShown(true);
+      const timeout = setTimeout(() => setSpecialEffectMessageVisible(false), 5000);
       return () => clearTimeout(timeout);
     }
-  }, [wordCount, specialNoticeShown]);
+  }, [wordCount, specialEffectMessageShown]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     if (wordCount > 200) {
-      setError("Please keep it below 200 words.");
+      setError("Submission not allowed. Maximum word limit is 200.");
       return;
     }
     if (!recipient || !message) {
@@ -171,7 +168,6 @@ export default function SubmitPage() {
       setError("Error submitting your memory.");
     } else {
       setSubmitted(true);
-      // clear form
       setRecipient("");
       setMessage("");
       setSender("");
@@ -184,8 +180,9 @@ export default function SubmitPage() {
   const handleReset = () => {
     setSubmitted(false);
     setError("");
-    setSpecialNoticeShown(false);
-    setShowSpecialNotice(false);
+    // Reset special effect notice logic
+    setSpecialEffectMessageShown(false);
+    setSpecialEffectMessageVisible(false);
   };
 
   return (
@@ -218,10 +215,13 @@ export default function SubmitPage() {
 
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
         {!submitted && (
-          <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8">
+          <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8 space-y-2">
             <p className="text-center italic font-medium">
               This is for your final message—the one you never sent. Keep it honest,
-              heartfelt, and within theme. Memories not aligned with this will be rejected.
+              heartfelt, and within theme. No rants, just truth.
+            </p>
+            <p className="text-center font-bold">
+              <strong>Note:</strong> Submissions not aligned with this theme will be rejected.
             </p>
           </div>
         )}
@@ -282,7 +282,7 @@ export default function SubmitPage() {
               </div>
               <div className="flex justify-between text-xs mt-1">
                 <span>{wordCount} / 200</span>
-                {showSpecialNotice && (
+                {!overLimit && specialEffectMessageVisible && (
                   <span className="text-red-500">
                     Special effects disabled beyond 30 words.
                   </span>
