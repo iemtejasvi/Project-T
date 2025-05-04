@@ -94,7 +94,6 @@ export default function SubmitPage() {
 
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
-  const [specialEffectShown, setSpecialEffectShown] = useState(false);
   const prevCount = useRef(0);
 
   useEffect(() => {
@@ -115,26 +114,22 @@ export default function SubmitPage() {
   const percent = Math.min((wordCount / 200) * 100, 100).toFixed(0);
   const overLimit = wordCount > 200;
 
-  // once-per-session special effect warning
+  // Show/auto-hide special effect notice on every crossing of 30 words
   useEffect(() => {
-    if (
-      !specialEffectShown &&
-      prevCount.current <= 30 &&
-      wordCount > 30
-    ) {
+    if (prevCount.current <= 30 && wordCount > 30) {
       setSpecialEffectVisible(true);
-      setSpecialEffectShown(true);
-      setTimeout(() => setSpecialEffectVisible(false), 5000);
+      const timeout = setTimeout(() => setSpecialEffectVisible(false), 5000);
+      return () => clearTimeout(timeout);
     }
     prevCount.current = wordCount;
-  }, [wordCount, specialEffectShown]);
+  }, [wordCount]);
 
-  // random limit message when over 200
+  // Pick a random 200+ limit message
   useEffect(() => {
     if (overLimit) {
-      setLimitMsg(limitMessages[
-        Math.floor(Math.random() * limitMessages.length)
-      ]);
+      setLimitMsg(
+        limitMessages[Math.floor(Math.random() * limitMessages.length)]
+      );
     }
   }, [overLimit]);
 
@@ -189,14 +184,13 @@ export default function SubmitPage() {
   const resetForm = () => {
     setSubmitted(false);
     setError("");
-    setMessage("");
     setRecipient("");
+    setMessage("");
     setSender("");
     setColor("default");
     setSpecialEffect("");
     setFullBg(false);
     setLimitMsg("");
-    setSpecialEffectShown(false);
     setSpecialEffectVisible(false);
     prevCount.current = 0;
   };
@@ -210,13 +204,19 @@ export default function SubmitPage() {
           <nav>
             <ul className="flex justify-center gap-6">
               <li>
-                <Link href="/" className="hover:text-[var(--accent)] transition">Home</Link>
+                <Link href="/" className="hover:text-[var(--accent)] transition">
+                  Home
+                </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-[var(--accent)] transition">Memories</Link>
+                <Link href="/memories" className="hover:text-[var(--accent)] transition">
+                  Memories
+                </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">How It Works</Link>
+                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">
+                  How It Works
+                </Link>
               </li>
             </ul>
           </nav>
@@ -227,7 +227,8 @@ export default function SubmitPage() {
         {!submitted && (
           <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8">
             <p className="text-center italic font-medium">
-              This is for your final message—the one you never sent. Keep it honest, heartfelt, and within theme. <strong>Submissions not aligned with this purpose will be rejected.</strong>
+              This is for your final message—the one you never sent. Keep it honest,
+              heartfelt, and within theme. <strong>Submissions not aligned with this purpose will be rejected.</strong>
             </p>
           </div>
         )}
