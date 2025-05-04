@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface IPData {
   ip?: string;
@@ -40,90 +39,106 @@ const specialEffectOptions = [
 ];
 
 const limitMessages = [
-  /* … the same 40 messages … */
   "You’re typing like they still care. Shorten it.",
   "200 words max. If they didn’t read your texts, they won’t read your novel.",
-  // etc.
+  "Unsent message, not an autobiography. Edit that trauma.",
+  "This ain’t your therapist. Keep it under 200, Shakespeare.",
+  "They ghosted you, not gave you a book deal. Trim it.",
+  "Nobody’s ex read this much. Why should we?",
+  "200 words or less. You’re not auditioning for heartbreak Netflix.",
+  "Less is more. Oversharing is out.",
+  "Unsent doesn’t mean unpublished, Hemingway.",
+  "Writing a saga? Nah. This ain’t ‘Lord of the Goodbyes’.",
+  "Send a message, not a memoir.",
+  "Keep it short. Mystery is sexier than essays.",
+  "Your feelings are valid. But also… too damn long.",
+  "Brevity is hot. Trauma dumps are not.",
+  "This isn’t your diary. It’s a message they’ll never read.",
+  "It’s ‘Unsent,’ not ‘Unhinged.’ Chill.",
+  "Typing like you're pitching to a publisher. Relax.",
+  "You lost them, not the plot. Tighten it up.",
+  "This ain't a TED Talk. Drop the mic in 200.",
+  "Keep the mystery. Oversharing is a red flag.",
+  "We said unsent, not unlimited.",
+  "Heartbreak’s poetic, not academic.",
+  "If it takes more than 200 words to hurt, you’ve healed.",
+  "Save it for your therapist. They get paid to read that much.",
+  "Ever heard of a ‘read more’ button? No? Exactly.",
+  "This ain't Medium. Don’t medium dump.",
+  "If they didn’t reply to a text, why drop a chapter?",
+  "200 max. Anything else is just emotional spam.",
+  "Word vomit isn’t romantic. Edit that heartbreak.",
+  "Oversharing? In this economy?",
+  "Tell us how you *feel*, not your life story.",
+  "You’re not the main character of this paragraph.",
+  "You miss them, not your English teacher. Cut it down.",
+  "Pain should punch. Not drone.",
+  "Keep it sharp. This ain’t ‘War & Peace’.",
+  "They left you on read. You giving them a sequel?",
+  "200 words, max. Heal artistically, not endlessly.",
+  "Emotional dumping isn’t aesthetic. It’s exhausting.",
+  "We came for heartbreak, not homework.",
+  "Short and sad, like your situationship.",
 ];
 
 export default function SubmitPage() {
-  // Form state
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
   const [fullBg, setFullBg] = useState(false);
-
-  // Submission + error
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-
-  // IP info
   const [ipData, setIpData] = useState<IPData | null>(null);
 
-  // Word count / limits
-  const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
-  const percent = Math.min((wordCount / 200) * 100, 100).toFixed(0);
-  const over200 = wordCount > 200;
-
-  // Special-effect warning
-  const [warnVisible, setWarnVisible] = useState(false);
-  const hasWarned = useRef(false);
-
-  // Over-200 message
   const [limitMsg, setLimitMsg] = useState("");
+  const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
+  const [hasCrossed, setHasCrossed] = useState(false);
 
-  // Typewriter header
-  const fullTitle = "Submit a Memory";
-  const [title, setTitle] = useState("");
-  const titleIdx = useRef(0);
-
-  // Fetch IP once
   useEffect(() => {
-    fetch("https://ipapi.co/json/")
-      .then((r) => r.json())
-      .then((d) => setIpData({ ip: d.ip, country: d.country_name }))
-      .catch(() => {});
-  }, []);
-
-  // Typewriter effect
-  useEffect(() => {
-    const iv = setInterval(() => {
-      if (titleIdx.current < fullTitle.length) {
-        setTitle((t) => t + fullTitle[titleIdx.current]);
-        titleIdx.current++;
-      } else {
-        clearInterval(iv);
+    async function fetchIP() {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        setIpData({ ip: data.ip, country: data.country_name });
+      } catch (err) {
+        console.error("Error fetching IP info:", err);
       }
-    }, 100);
-    return () => clearInterval(iv);
+    }
+    fetchIP();
   }, []);
 
-  // Warn once each time crossing 30 words
-  useEffect(() => {
-    if (wordCount > 30 && !hasWarned.current) {
-      setWarnVisible(true);
-      hasWarned.current = true;
-      setTimeout(() => setWarnVisible(false), 5000);
-    }
-    if (wordCount <= 30) {
-      hasWarned.current = false;
-    }
-  }, [wordCount]);
+  const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
+  const isSpecialAllowed = wordCount <= 30;
+  const percent = Math.min((wordCount / 200) * 100, 100).toFixed(0);
+  const overLimit = wordCount > 200;
 
-  // Pick a random limit message when >200
+  // Trigger special-effect warning each time 30-word threshold is crossed
   useEffect(() => {
-    if (over200) {
-      setLimitMsg(limitMessages[Math.floor(Math.random() * limitMessages.length)]);
+    if (wordCount > 30 && !hasCrossed) {
+      setSpecialEffectVisible(true);
+      setHasCrossed(true);
+      setTimeout(() => setSpecialEffectVisible(false), 5000);
+    } else if (wordCount <= 30 && hasCrossed) {
+      setHasCrossed(false);
     }
-  }, [over200]);
+  }, [wordCount, hasCrossed]);
 
-  // Submit handler
+  // Random message when exceeding 200 words
+  useEffect(() => {
+    if (overLimit) {
+      setLimitMsg(
+        limitMessages[Math.floor(Math.random() * limitMessages.length)]
+      );
+    }
+  }, [overLimit]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (over200) {
+
+    if (overLimit) {
       setError("Submission not allowed. Maximum word limit is 200.");
       return;
     }
@@ -131,17 +146,20 @@ export default function SubmitPage() {
       setError("Please fill in all required fields.");
       return;
     }
+
     if (ipData?.ip) {
-      const { data: banned } = await supabase
+      const { data: banned, error: banErr } = await supabase
         .from("banned_ips")
         .select("*")
         .eq("ip", ipData.ip);
-      if (banned?.length) {
+      if (banErr) console.error("Error checking banned IPs:", banErr);
+      if (banned && banned.length > 0) {
         setError("You are banned from submitting memories.");
         return;
       }
     }
-    await supabase.from("memories").insert([{
+
+    const submission = {
       recipient,
       message,
       sender,
@@ -149,13 +167,21 @@ export default function SubmitPage() {
       color,
       full_bg: fullBg,
       animation: specialEffect,
-      ip: ipData?.ip,
-      country: ipData?.country
-    }]);
-    setSubmitted(true);
+      ip: ipData?.ip || null,
+      country: ipData?.country || null,
+    };
+
+    const { error: insertErr } = await supabase
+      .from("memories")
+      .insert([submission]);
+    if (insertErr) {
+      console.error(insertErr);
+      setError("Error submitting your memory.");
+    } else {
+      setSubmitted(true);
+    }
   };
 
-  // Reset for another entry
   const resetForm = () => {
     setSubmitted(false);
     setError("");
@@ -166,157 +192,92 @@ export default function SubmitPage() {
     setSpecialEffect("");
     setFullBg(false);
     setLimitMsg("");
-    setWarnVisible(false);
-    hasWarned.current = false;
-    titleIdx.current = fullTitle.length; // keep header visible
+    setSpecialEffectVisible(false);
+    setHasCrossed(false);
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)]">
       <header className="bg-[var(--card-bg)] shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 py-6 text-center">
-          <motion.h1
-            className="text-4xl font-serif inline-block"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            {title}
-            <span className="border-r-2 border-[var(--text)] animate-pulse inline-block ml-1 h-6" />
-          </motion.h1>
-          <motion.hr
-            className="my-4 border-[var(--border)]"
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 1 }}
-          />
-          <motion.nav
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
-          >
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+          <h1 className="text-4xl font-serif">Submit a Memory</h1>
+          <hr className="my-4 border-[var(--border)]" />
+          <nav>
             <ul className="flex justify-center gap-6">
-              {["Home", "Memories", "How It Works"].map((label) => (
-                <li key={label}>
-                  <Link
-                    href={ label === "Home" ? "/" : `/${label.toLowerCase().replace(/\s+/g,"-")}` }
-                    className="hover:text-[var(--accent)] transition-transform hover:scale-105"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link href="/" className="hover:text-[var(--accent)] transition">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/memories" className="hover:text-[var(--accent)] transition">
+                  Memories
+                </Link>
+              </li>
+              <li>
+                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">
+                  How It Works
+                </Link>
+              </li>
             </ul>
-          </motion.nav>
+          </nav>
         </div>
       </header>
 
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
         {!submitted && (
-          <motion.div
-            className="max-w-2xl w-full bg-[var(--card-bg)] p-6 rounded-2xl shadow-2xl mb-8 backdrop-blur-sm bg-opacity-60"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
+          <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8">
             <p className="text-center italic font-medium">
               This is for your final message—the one you never sent. Keep it honest,
               heartfelt, and within theme. <strong>Submissions not aligned with this purpose will be rejected.</strong>
             </p>
-          </motion.div>
+          </div>
         )}
 
-        <AnimatePresence>
-          {submitted && (
-            <motion.div
-              className="max-w-2xl w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
+        {submitted ? (
+          <div className="max-w-2xl w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
+            <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
+            <p className="mb-6">Thank you! Your memory is pending approval.</p>
+            <button
+              onClick={resetForm}
+              className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
             >
-              <motion.p
-                className="text-2xl font-bold mb-4"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                Sent!
-              </motion.p>
-              <motion.p
-                className="mb-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                Thank you! Your memory is pending approval.
-              </motion.p>
-              <motion.button
-                onClick={resetForm}
-                className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg"
-                whileHover={{ rotate: 2, scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Share Another
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {!submitted && (
-          <motion.form
+              Share Another
+            </button>
+          </div>
+        ) : (
+          <form
             onSubmit={handleSubmit}
-            className="w-full max-w-2xl bg-[var(--card-bg)] p-8 rounded-2xl shadow-2xl space-y-6 backdrop-blur-sm bg-opacity-70"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            {...(error && { animate:{ x:[0,-10,10,-10,0] }, transition:{ duration:0.4 } })}
+            className="w-full max-w-2xl bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-70 p-8 rounded-2xl shadow-2xl space-y-6"
           >
             {error && (
               <p className="text-red-500 text-center font-medium">{error}</p>
             )}
 
-            {/* Recipient with floating label */}
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
+            <div>
+              <label className="block font-serif">Recipient’s Name*</label>
               <input
-                id="recipient"
                 type="text"
                 value={recipient}
-                onChange={e => setRecipient(e.target.value)}
+                onChange={(e) => setRecipient(e.target.value)}
                 required
-                className="peer w-full p-3 bg-transparent border-b-2 border-[var(--border)] focus:border-[var(--accent)] focus:outline-none transition"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
-              <label
-                htmlFor="recipient"
-                className="absolute left-0 top-3 text-[var(--border)] peer-focus:text-[var(--accent)] peer-focus:-top-4 peer-focus:text-sm transition-all"
-              >
-                Recipient’s Name*
-              </label>
-            </motion.div>
+            </div>
 
-            {/* Message textarea */}
-            <motion.div
-              className="space-y-1"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-            >
+            <div>
               <label className="block font-serif">Message* (max 200 words)</label>
               <textarea
                 value={message}
-                onChange={e => setMessage(e.target.value)}
+                onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={5}
-                className="w-full p-3 border border-[var(--border)] rounded-2xl focus:ring-2 focus:ring-[var(--accent)] transition"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
-              <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
+              <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${
-                    wordCount >= 30 && wordCount < 200
-                      ? "animate-pulse bg-[var(--accent)]"
-                      : wordCount < 30
+                    wordCount <= 30
                       ? "bg-[var(--accent)]"
                       : wordCount <= 200
                       ? "bg-[var(--secondary)]"
@@ -327,108 +288,85 @@ export default function SubmitPage() {
               </div>
               <div className="flex justify-between text-xs mt-1">
                 <span>{wordCount} / 200</span>
-                {warnVisible && wordCount > 30 && (
+                {wordCount > 30 && specialEffectVisible && (
                   <span className="text-red-500">
                     Special effects disabled beyond 30 words.
                   </span>
                 )}
-                {over200 && (
+                {overLimit && (
                   <span className="text-red-500">{limitMsg}</span>
                 )}
               </div>
-            </motion.div>
+            </div>
 
-            {/* Your Name */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.0 }}
-            >
-              <label className="block font-serif mb-1">Your Name (optional)</label>
+            <div>
+              <label className="block font-serif">Your Name (optional)</label>
               <input
                 type="text"
                 value={sender}
-                onChange={e => setSender(e.target.value)}
-                className="w-full p-3 border border-[var(--border)] rounded-2xl focus:ring-2 focus:ring-[var(--accent)] transition"
+                onChange={(e) => setSender(e.target.value)}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
-            </motion.div>
+            </div>
 
-            {/* Color */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.1 }}
-            >
-              <label className="block font-serif mb-1">Select a Color (optional)</label>
+            <div>
+              <label className="block font-serif">Select a Color (optional)</label>
               <select
                 value={color}
-                onChange={e => setColor(e.target.value)}
-                className="w-full p-3 border border-[var(--border)] rounded-2xl focus:ring-2 focus:ring-[var(--accent)] transition"
+                onChange={(e) => setColor(e.target.value)}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               >
-                {colorOptions.map(o => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
+                {colorOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
                 ))}
               </select>
-            </motion.div>
+            </div>
 
-            {/* Special Effect */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2 }}
-            >
-              <label className="block font-serif mb-1">Special Effect</label>
+            <div>
+              <label className="block font-serif">Special Effect</label>
               <select
                 value={specialEffect}
-                onChange={e => setSpecialEffect(e.target.value)}
-                disabled={wordCount > 30}
-                className="w-full p-3 border border-[var(--border)] rounded-2xl focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50"
+                onChange={(e) => setSpecialEffect(e.target.value)}
+                disabled={!isSpecialAllowed}
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50"
               >
-                {specialEffectOptions.map(o => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
+                {specialEffectOptions.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
                 ))}
               </select>
-            </motion.div>
+            </div>
 
-            {/* Full-bg checkbox */}
-            <motion.div
-              className="flex items-center space-x-2"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.3 }}
-            >
+            <div className="flex items-center space-x-2">
               <input
                 id="fullBg"
                 type="checkbox"
                 checked={fullBg}
-                onChange={e => setFullBg(e.target.checked)}
+                onChange={(e) => setFullBg(e.target.checked)}
                 className="h-5 w-5 accent-[var(--accent)]"
               />
-              <label htmlFor="fullBg" className="font-serif">Apply color to full card background</label>
-            </motion.div>
+              <label htmlFor="fullBg" className="font-serif">
+                Apply color to full card background
+              </label>
+            </div>
 
-            {/* Submit */}
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4 }}
-            >
-              <motion.button
+            <div className="text-center">
+              <button
                 type="submit"
-                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg"
-                whileHover={{ rotateX: 5, rotateY: 5, scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
               >
                 Submit Memory
-              </motion.button>
-            </motion.div>
-          </motion.form>
+              </button>
+            </div>
+          </form>
         )}
       </main>
 
       <footer className="bg-[var(--card-bg)] shadow-inner">
-        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm">
+        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
