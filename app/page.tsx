@@ -110,13 +110,7 @@ export default function Home() {
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
         {recentMemories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {recentMemories.slice(0, 6).map((memory) => (
-              <div key={memory.id} className="w-full">
-                <MemoryCard memory={memory} />
-              </div>
-            ))}
-          </div>
+          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
         ) : (
           <p className="text-[var(--text)]">No memories yet.</p>
         )}
