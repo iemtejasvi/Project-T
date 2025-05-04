@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
@@ -91,8 +91,11 @@ export default function SubmitPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
-  const [specialEffectMessageVisible, setSpecialEffectMessageVisible] = useState(false);
-  const [specialEffectMessageShown, setSpecialEffectMessageShown] = useState(false);
+
+  const [limitMsg, setLimitMsg] = useState("");
+  const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
+  const [specialEffectShown, setSpecialEffectShown] = useState(false);
+  const prevCount = useRef(0);
 
   useEffect(() => {
     async function fetchIP() {
@@ -111,23 +114,35 @@ export default function SubmitPage() {
   const isSpecialAllowed = wordCount <= 30;
   const percent = Math.min((wordCount / 200) * 100, 100).toFixed(0);
   const overLimit = wordCount > 200;
-  const randomLimitMessage =
-    limitMessages[Math.floor(Math.random() * limitMessages.length)];
 
+  // once-per-session special effect warning
   useEffect(() => {
-    if (wordCount > 30 && !specialEffectMessageShown) {
-      setSpecialEffectMessageVisible(true);
-      setSpecialEffectMessageShown(true);
-      const timeout = setTimeout(() => setSpecialEffectMessageVisible(false), 5000);
-      return () => clearTimeout(timeout);
+    if (
+      !specialEffectShown &&
+      prevCount.current <= 30 &&
+      wordCount > 30
+    ) {
+      setSpecialEffectVisible(true);
+      setSpecialEffectShown(true);
+      setTimeout(() => setSpecialEffectVisible(false), 5000);
     }
-  }, [wordCount, specialEffectMessageShown]);
+    prevCount.current = wordCount;
+  }, [wordCount, specialEffectShown]);
+
+  // random limit message when over 200
+  useEffect(() => {
+    if (overLimit) {
+      setLimitMsg(limitMessages[
+        Math.floor(Math.random() * limitMessages.length)
+      ]);
+    }
+  }, [overLimit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (wordCount > 200) {
+    if (overLimit) {
       setError("Submission not allowed. Maximum word limit is 200.");
       return;
     }
@@ -168,21 +183,22 @@ export default function SubmitPage() {
       setError("Error submitting your memory.");
     } else {
       setSubmitted(true);
-      setRecipient("");
-      setMessage("");
-      setSender("");
-      setColor("default");
-      setSpecialEffect("");
-      setFullBg(false);
     }
   };
 
-  const handleReset = () => {
+  const resetForm = () => {
     setSubmitted(false);
     setError("");
-    // Reset special effect notice logic
-    setSpecialEffectMessageShown(false);
-    setSpecialEffectMessageVisible(false);
+    setMessage("");
+    setRecipient("");
+    setSender("");
+    setColor("default");
+    setSpecialEffect("");
+    setFullBg(false);
+    setLimitMsg("");
+    setSpecialEffectShown(false);
+    setSpecialEffectVisible(false);
+    prevCount.current = 0;
   };
 
   return (
@@ -194,19 +210,13 @@ export default function SubmitPage() {
           <nav>
             <ul className="flex justify-center gap-6">
               <li>
-                <Link href="/" className="hover:text-[var(--accent)] transition">
-                  Home
-                </Link>
+                <Link href="/" className="hover:text-[var(--accent)] transition">Home</Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-[var(--accent)] transition">
-                  Memories
-                </Link>
+                <Link href="/memories" className="hover:text-[var(--accent)] transition">Memories</Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">
-                  How It Works
-                </Link>
+                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">How It Works</Link>
               </li>
             </ul>
           </nav>
@@ -215,13 +225,9 @@ export default function SubmitPage() {
 
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
         {!submitted && (
-          <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8 space-y-2">
+          <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8">
             <p className="text-center italic font-medium">
-              This is for your final message—the one you never sent. Keep it honest,
-              heartfelt, and within theme. No rants, just truth.
-            </p>
-            <p className="text-center font-bold">
-              <strong>Note:</strong> Submissions not aligned with this theme will be rejected.
+              This is for your final message—the one you never sent. Keep it honest, heartfelt, and within theme. <strong>Submissions not aligned with this purpose will be rejected.</strong>
             </p>
           </div>
         )}
@@ -231,7 +237,7 @@ export default function SubmitPage() {
             <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
             <p className="mb-6">Thank you! Your memory is pending approval.</p>
             <button
-              onClick={handleReset}
+              onClick={resetForm}
               className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
             >
               Share Another
@@ -258,9 +264,7 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif">
-                Message* (max 200 words)
-              </label>
+              <label className="block font-serif">Message* (max 200 words)</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -282,13 +286,13 @@ export default function SubmitPage() {
               </div>
               <div className="flex justify-between text-xs mt-1">
                 <span>{wordCount} / 200</span>
-                {!overLimit && specialEffectMessageVisible && (
+                {specialEffectVisible && (
                   <span className="text-red-500">
                     Special effects disabled beyond 30 words.
                   </span>
                 )}
                 {overLimit && (
-                  <span className="text-red-500">{randomLimitMessage}</span>
+                  <span className="text-red-500">{limitMsg}</span>
                 )}
               </div>
             </div>
