@@ -91,6 +91,7 @@ export default function SubmitPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
+  const [specialEffectMessageVisible, setSpecialEffectMessageVisible] = useState(false);
 
   useEffect(() => {
     async function fetchIP() {
@@ -111,6 +112,14 @@ export default function SubmitPage() {
   const overLimit = wordCount > 200;
   const randomLimitMessage =
     limitMessages[Math.floor(Math.random() * limitMessages.length)];
+
+  useEffect(() => {
+    if (wordCount > 30 && wordCount <= 200) {
+      setSpecialEffectMessageVisible(true);
+      const timeout = setTimeout(() => setSpecialEffectMessageVisible(false), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [wordCount]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,25 +175,31 @@ export default function SubmitPage() {
     }
   };
 
+  const handleReset = () => {
+    setSubmitted(false);
+    setError("");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)]">
-      <header className="bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)] py-6 shadow-lg">
-        <div className="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between">
-          <h1 className="text-4xl font-serif animate-pulse">Submit a Memory</h1>
-          <nav className="mt-4 sm:mt-0">
-            <ul className="flex gap-6">
+      <header className="bg-[var(--card-bg)] shadow-lg">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+          <h1 className="text-4xl font-serif">Submit a Memory</h1>
+          <hr className="my-4 border-[var(--border)]" />
+          <nav>
+            <ul className="flex justify-center gap-6">
               <li>
-                <Link href="/" className="hover:underline">
+                <Link href="/" className="hover:text-[var(--accent)] transition">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:underline">
+                <Link href="/memories" className="hover:text-[var(--accent)] transition">
                   Memories
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:underline">
+                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">
                   How It Works
                 </Link>
               </li>
@@ -194,17 +209,23 @@ export default function SubmitPage() {
       </header>
 
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
-        <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8 space-y-4">
+        <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8">
           <p className="text-center italic font-medium">
-            Share your unsent message—the last words you never sent to an ex,
-            a loved one, a pet, or anyone you hold dear. Please stick to this
-            theme or your memory won’t be accepted.
+            This is for your final message—the one you never sent. Keep it honest,
+            heartfelt, and within theme. No rants, just truth.
           </p>
         </div>
 
         {submitted ? (
           <div className="max-w-2xl w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
-            Thank you! Your memory is pending approval.
+            <div className="text-3xl font-bold mb-4 animate-bounce">🎉 Sent!</div>
+            <p className="mb-6">Thank you! Your memory is pending approval.</p>
+            <button
+              onClick={handleReset}
+              className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
+            >
+              Share Another
+            </button>
           </div>
         ) : (
           <form
@@ -212,23 +233,21 @@ export default function SubmitPage() {
             className="w-full max-w-2xl bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-70 p-8 rounded-2xl shadow-2xl space-y-6"
           >
             {error && (
-              <p className="text-red-500 text-center font-medium animate-shake">
-                {error}
-              </p>
+              <p className="text-red-500 text-center font-medium">{error}</p>
             )}
 
-            <div className="space-y-1">
+            <div>
               <label className="block font-serif">Recipient’s Name*</label>
               <input
                 type="text"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 required
-                className="w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
             </div>
 
-            <div className="space-y-1">
+            <div>
               <label className="block font-serif">
                 Message* (max 200 words)
               </label>
@@ -237,9 +256,9 @@ export default function SubmitPage() {
                 onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={5}
-                className="w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
-              <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
+              <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${
                     wordCount <= 30
@@ -253,7 +272,7 @@ export default function SubmitPage() {
               </div>
               <div className="flex justify-between text-xs mt-1">
                 <span>{wordCount} / 200</span>
-                {!overLimit && wordCount > 30 && (
+                {!overLimit && specialEffectMessageVisible && (
                   <span className="text-red-500">
                     Special effects disabled beyond 30 words.
                   </span>
@@ -264,22 +283,22 @@ export default function SubmitPage() {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div>
               <label className="block font-serif">Your Name (optional)</label>
               <input
                 type="text"
                 value={sender}
                 onChange={(e) => setSender(e.target.value)}
-                className="w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="block font-serif">Color (optional)</label>
+            <div>
+              <label className="block font-serif">Select a Color (optional)</label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               >
                 {colorOptions.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -289,13 +308,13 @@ export default function SubmitPage() {
               </select>
             </div>
 
-            <div className="space-y-1">
+            <div>
               <label className="block font-serif">Special Effect</label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
                 disabled={!isSpecialAllowed}
-                className="w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50"
               >
                 {specialEffectOptions.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -330,8 +349,8 @@ export default function SubmitPage() {
         )}
       </main>
 
-      <footer className="bg-[var(--card-bg)] py-4 shadow-inner">
-        <div className="max-w-4xl mx-auto px-6 text-center text-sm">
+      <footer className="bg-[var(--card-bg)] shadow-inner">
+        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)]">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
