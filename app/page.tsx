@@ -112,7 +112,9 @@ export default function Home() {
         {recentMemories.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {recentMemories.slice(0, 6).map((memory) => (
-              <MemoryCard key={memory.id} memory={memory} />
+              <div key={memory.id} className="w-full">
+                <MemoryCard memory={memory} />
+              </div>
             ))}
           </div>
         ) : (
