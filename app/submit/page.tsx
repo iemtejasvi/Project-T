@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
@@ -94,7 +94,7 @@ export default function SubmitPage() {
 
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
-  const prevCount = useRef(0);
+  const [hasCrossed, setHasCrossed] = useState(false);
 
   useEffect(() => {
     async function fetchIP() {
@@ -114,17 +114,18 @@ export default function SubmitPage() {
   const percent = Math.min((wordCount / 200) * 100, 100).toFixed(0);
   const overLimit = wordCount > 200;
 
-  // Show/auto-hide special effect notice on every crossing of 30 words
+  // Trigger special-effect warning each time 30-word threshold is crossed
   useEffect(() => {
-    if (prevCount.current <= 30 && wordCount > 30) {
+    if (wordCount > 30 && !hasCrossed) {
       setSpecialEffectVisible(true);
-      const timeout = setTimeout(() => setSpecialEffectVisible(false), 5000);
-      return () => clearTimeout(timeout);
+      setHasCrossed(true);
+      setTimeout(() => setSpecialEffectVisible(false), 5000);
+    } else if (wordCount <= 30 && hasCrossed) {
+      setHasCrossed(false);
     }
-    prevCount.current = wordCount;
-  }, [wordCount]);
+  }, [wordCount, hasCrossed]);
 
-  // Pick a random 200+ limit message
+  // Random message when exceeding 200 words
   useEffect(() => {
     if (overLimit) {
       setLimitMsg(
@@ -192,7 +193,7 @@ export default function SubmitPage() {
     setFullBg(false);
     setLimitMsg("");
     setSpecialEffectVisible(false);
-    prevCount.current = 0;
+    setHasCrossed(false);
   };
 
   return (
@@ -287,7 +288,7 @@ export default function SubmitPage() {
               </div>
               <div className="flex justify-between text-xs mt-1">
                 <span>{wordCount} / 200</span>
-                {specialEffectVisible && (
+                {wordCount > 30 && specialEffectVisible && (
                   <span className="text-red-500">
                     Special effects disabled beyond 30 words.
                   </span>
