@@ -27,7 +27,8 @@ const TypewriterPrompt: React.FC = () => {
       "Why did you?",
       "It still hurts.",
       "I still love you.",
-      "Do you think i have forgotton about you?.",
+      "Do you think i have forgotton about you?",
+      "Even if you called 6 months later at 3am, I'd still answer.",
       "I’m forever missing you."
     ],
     []
