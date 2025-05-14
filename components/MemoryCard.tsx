@@ -235,7 +235,7 @@ const TypewriterPrompt: React.FC = () => {
       "I lost you in the pauses between words.",
       "Even the photos don’t feel real anymore.",
       "Your absence rearranged everything.",
-      "We were too careful and it cost us everything."
+      "We were too careful and it cost us everything.",
       "You left the part of me that loved."
     ],
     []
