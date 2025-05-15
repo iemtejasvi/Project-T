@@ -40,12 +40,12 @@ const specialEffectOptions = [
 
 const limitMessages = [
   "You’re typing like they still care. Shorten it.",
-  "200 words max. If they didn’t read your texts, they won’t read your novel.",
+  "100 words max. If they didn’t read your texts, they won’t read your novel.",
   "Unsent message, not an autobiography. Edit that trauma.",
-  "This ain’t your therapist. Keep it under 200, Shakespeare.",
+  "This ain’t your therapist. Keep it under 100, Shakespeare.",
   "They ghosted you, not gave you a book deal. Trim it.",
   "Nobody’s ex read this much. Why should we?",
-  "200 words or less. You’re not auditioning for heartbreak Netflix.",
+  "100 words or less. You’re not auditioning for heartbreak Netflix.",
   "Less is more. Oversharing is out.",
   "Unsent doesn’t mean unpublished, Hemingway.",
   "Writing a saga? Nah. This ain’t ‘Lord of the Goodbyes’.",
@@ -57,16 +57,16 @@ const limitMessages = [
   "It’s ‘Unsent,’ not ‘Unhinged.’ Chill.",
   "Typing like you're pitching to a publisher. Relax.",
   "You lost them, not the plot. Tighten it up.",
-  "This ain't a TED Talk. Drop the mic in 200.",
+  "This ain't a TED Talk. Drop the mic in 100.",
   "Keep the mystery. Oversharing is a red flag.",
   "We said unsent, not unlimited.",
   "Heartbreak’s poetic, not academic.",
-  "If it takes more than 200 words to hurt, you’ve healed.",
+  "If it takes more than 100 words to hurt, you’ve healed.",
   "Save it for your therapist. They get paid to read that much.",
   "Ever heard of a ‘read more’ button? No? Exactly.",
   "This ain't Medium. Don’t medium dump.",
   "If they didn’t reply to a text, why drop a chapter?",
-  "200 max. Anything else is just emotional spam.",
+  "100 max. Anything else is just emotional spam.",
   "Word vomit isn’t romantic. Edit that heartbreak.",
   "Oversharing? In this economy?",
   "Tell us how you *feel*, not your life story.",
@@ -75,10 +75,9 @@ const limitMessages = [
   "Pain should punch. Not drone.",
   "Keep it sharp. This ain’t ‘War & Peace’.",
   "They left you on read. You giving them a sequel?",
-  "200 words, max. Heal artistically, not endlessly.",
+  "100 max, heal artistically, not endlessly.",
   "Emotional dumping isn’t aesthetic. It’s exhausting.",
   "We came for heartbreak, not homework.",
-  "Short and sad, like your situationship.",
 ];
 
 export default function SubmitPage() {
@@ -111,21 +110,22 @@ export default function SubmitPage() {
 
   const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
   const isSpecialAllowed = wordCount <= 30;
-  const percent = Math.min((wordCount / 200) * 100, 100).toFixed(0);
-  const overLimit = wordCount > 200;
+  const percent = Math.min((wordCount / 100) * 100, 100).toFixed(0);
+  const overLimit = wordCount > 100;
 
-  // Trigger special-effect warning each time 30-word threshold is crossed
+  // Trigger special-effect warning and disable existing effect when crossing 30-word threshold
   useEffect(() => {
     if (wordCount > 30 && !hasCrossed) {
       setSpecialEffectVisible(true);
       setHasCrossed(true);
+      setSpecialEffect("");
       setTimeout(() => setSpecialEffectVisible(false), 5000);
     } else if (wordCount <= 30 && hasCrossed) {
       setHasCrossed(false);
     }
   }, [wordCount, hasCrossed]);
 
-  // Random message when exceeding 200 words
+  // Random message when exceeding 100 words
   useEffect(() => {
     if (overLimit) {
       setLimitMsg(
@@ -139,7 +139,7 @@ export default function SubmitPage() {
     setError("");
 
     if (overLimit) {
-      setError("Submission not allowed. Maximum word limit is 200.");
+      setError("Submission not allowed. Maximum word limit is 100.");
       return;
     }
     if (!recipient || !message) {
@@ -266,7 +266,7 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif">Message* (max 200 words)</label>
+              <label className="block font-serif">Message* (max 100 words)</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -279,7 +279,7 @@ export default function SubmitPage() {
                   className={`h-full rounded-full transition-all duration-300 ${
                     wordCount <= 30
                       ? "bg-[var(--accent)]"
-                      : wordCount <= 200
+                      : wordCount <= 100
                       ? "bg-[var(--secondary)]"
                       : "bg-red-500"
                   }`}
@@ -287,7 +287,7 @@ export default function SubmitPage() {
                 />
               </div>
               <div className="flex justify-between text-xs mt-1">
-                <span>{wordCount} / 200</span>
+                <span>{wordCount} / 100</span>
                 {wordCount > 30 && specialEffectVisible && (
                   <span className="text-red-500">
                     Special effects disabled beyond 30 words.
