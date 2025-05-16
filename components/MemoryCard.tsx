@@ -146,7 +146,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     const isExactThirty = wordCount === 30;
 
     // Base style: same for both normal and effect fonts
-    const fontSize = isExactThirty ? '1.1rem' : '1rem';
+    const fontSize = isExactThirty ? '1.40rem' : '1rem';
     const lineHeight = 1.6;
     const letterSpacing = '0.5px';
     const wordBreak = 'keep-all';
