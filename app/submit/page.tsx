@@ -108,12 +108,13 @@ export default function SubmitPage() {
     fetchIP();
   }, []);
 
-  const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
+  const wordCount = message.trim()
+    ? message.trim().split(/\s+/).length
+    : 0;
   const isSpecialAllowed = wordCount <= 30;
   const percent = Math.min((wordCount / 100) * 100, 100).toFixed(0);
   const overLimit = wordCount > 100;
 
-  // Trigger special-effect warning and disable existing effect when crossing 30-word threshold
   useEffect(() => {
     if (wordCount > 30 && !hasCrossed) {
       setSpecialEffectVisible(true);
@@ -125,11 +126,12 @@ export default function SubmitPage() {
     }
   }, [wordCount, hasCrossed]);
 
-  // Random message when exceeding 100 words
   useEffect(() => {
     if (overLimit) {
       setLimitMsg(
-        limitMessages[Math.floor(Math.random() * limitMessages.length)]
+        limitMessages[
+          Math.floor(Math.random() * limitMessages.length)
+        ]
       );
     }
   }, [overLimit]);
@@ -205,17 +207,26 @@ export default function SubmitPage() {
           <nav>
             <ul className="flex justify-center gap-6">
               <li>
-                <Link href="/" className="hover:text-[var(--accent)] transition">
+                <Link
+                  href="/"
+                  className="hover:text-[var(--accent)] transition"
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-[var(--accent)] transition">
+                <Link
+                  href="/memories"
+                  className="hover:text-[var(--accent)] transition"
+                >
                   Memories
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">
+                <Link
+                  href="/how-it-works"
+                  className="hover:text-[var(--accent)] transition"
+                >
                   How It Works
                 </Link>
               </li>
@@ -228,16 +239,24 @@ export default function SubmitPage() {
         {!submitted && (
           <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8">
             <p className="text-center italic font-medium">
-              This is for your final message—the one you never sent. Keep it honest,
-              heartfelt, and within theme. <strong>Submissions not aligned with this purpose will be rejected.</strong>
+              This is for your final message—the one you never sent. Keep
+              it honest, heartfelt, and within theme.{" "}
+              <strong>
+                Submissions not aligned with this purpose will be
+                rejected.
+              </strong>
             </p>
           </div>
         )}
 
         {submitted ? (
           <div className="max-w-2xl w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
-            <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
-            <p className="mb-6">Thank you! Your memory is pending approval.</p>
+            <div className="text-3xl font-bold mb-4 animate-bounce">
+              Sent!
+            </div>
+            <p className="mb-6">
+              Thank you! Your memory is pending approval.
+            </p>
             <button
               onClick={resetForm}
               className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
@@ -251,11 +270,15 @@ export default function SubmitPage() {
             className="w-full max-w-2xl bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-70 p-8 rounded-2xl shadow-2xl space-y-6"
           >
             {error && (
-              <p className="text-red-500 text-center font-medium">{error}</p>
+              <p className="text-red-500 text-center font-medium">
+                {error}
+              </p>
             )}
 
             <div>
-              <label className="block font-serif">Recipient’s Name*</label>
+              <label className="block font-serif">
+                Recipient’s Name*
+              </label>
               <input
                 type="text"
                 value={recipient}
@@ -266,7 +289,9 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif">Message* (max 100 words)</label>
+              <label className="block font-serif">
+                Message* (max 100 words)
+              </label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -300,7 +325,9 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif">Your Name (optional)</label>
+              <label className="block font-serif">
+                Your Name (optional)
+              </label>
               <input
                 type="text"
                 value={sender}
@@ -310,7 +337,9 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif">Select a Color (optional)</label>
+              <label className="block font-serif">
+                Select a Color (optional)
+              </label>
               <select
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
@@ -325,7 +354,9 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif">Special Effect</label>
+              <label className="block font-serif">
+                Special Effect
+              </label>
               <select
                 value={specialEffect}
                 onChange={(e) => setSpecialEffect(e.target.value)}
