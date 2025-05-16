@@ -1,5 +1,3 @@
-/* app/globals.css */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -66,14 +64,6 @@ body {
   background-color: var(--background);
   color: var(--text);
   font-family: 'Playfair Display', serif;
-}
-
-/* ——————————————————————————————
-   Reduce default paragraph gap by half
-———————————————————————————————— */
-p {
-  margin-block-start: 0.5em;
-  margin-block-end:   0.5em;
 }
 
 /* Card flip styles */
