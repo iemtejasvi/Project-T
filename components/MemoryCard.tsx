@@ -143,27 +143,37 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const renderMessage = (memory: Memory) => {
     const wordCount = memory.message.split(/\s+/).length;
-    // Apply larger font only when exactly 30 words
-    const fontSize = wordCount === 30 ? '1.4rem' : '1rem';
+    const isExact30 = wordCount === 30;
+
+    // Base style: same for both normal and effect fonts
+    const fontSize = isExact30 ? '1.35rem' : '1rem';
+    const lineHeight = 1.6;
+    const letterSpacing = '0.5px';
+    const wordBreak = 'keep-all';
+    const whiteSpace = 'pre-wrap';
+    const paragraphSpacing = '0.75em';
+
     const baseStyle: React.CSSProperties = {
       fontSize,
-      lineHeight: 1.6,
-      letterSpacing: '0.5px',
-      wordBreak: 'keep-all',
-      whiteSpace: 'pre-wrap',
-      marginBottom: '0.75em',
+      lineHeight,
+      letterSpacing,
+      wordBreak,
+      whiteSpace,
+      marginBottom: paragraphSpacing,
     };
 
     switch (memory.animation) {
       case "bleeding":
         return (
-          <p className="bleeding-text" style={{ ...baseStyle, marginLeft: '2px' }}>
+          <p className="bleeding-text" style={{ ...baseStyle, paddingLeft: '0.1rem' }}>
             {memory.message}
           </p>
         );
       case "handwritten":
         return (
-          <HandwrittenText message={memory.message} baseStyle={{ ...baseStyle, marginLeft: '2px' }} />
+          <div className="handwritten-text" style={{ paddingLeft: '0.1rem' }}>
+            <p style={{ ...baseStyle, fontFamily: '"Indie Flower", cursive' }}>{memory.message}</p>
+          </div>
         );
       default:
         return <p style={{ ...baseStyle, fontFamily: '"Playfair Display", serif' }}>{memory.message}</p>;
@@ -251,12 +261,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
             <ScrollableMessage
-              style={
-                {
-                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
-                } as React.CSSProperties
-              }
+              style={{
+                "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
+                "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+              } as React.CSSProperties}
             >
               {renderMessage(memory)}
             </ScrollableMessage>
@@ -266,16 +274,5 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     </div>
   );
 };
-
-interface HandwrittenTextProps {
-  message: string;
-  baseStyle: React.CSSProperties;
-}
-
-const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, baseStyle }) => (
-  <div className="handwritten-text">
-    <p style={{ ...baseStyle, fontFamily: '"Indie Flower", cursive' }}>{message}</p>
-  </div>
-);
 
 export default MemoryCard;
