@@ -113,6 +113,7 @@ export default function SubmitPage() {
   const percent = Math.min((wordCount / 100) * 100, 100).toFixed(0);
   const overLimit = wordCount > 100;
 
+  // Trigger special-effect warning and disable existing effect when crossing 30-word threshold
   useEffect(() => {
     if (wordCount > 30 && !hasCrossed) {
       setSpecialEffectVisible(true);
@@ -124,6 +125,7 @@ export default function SubmitPage() {
     }
   }, [wordCount, hasCrossed]);
 
+  // Random message when exceeding 100 words
   useEffect(() => {
     if (overLimit) {
       setLimitMsg(
@@ -270,7 +272,7 @@ export default function SubmitPage() {
                 onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={5}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition leading-tight"
+                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               />
               <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2">
                 <div
