@@ -143,10 +143,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const renderMessage = (memory: Memory) => {
     const wordCount = memory.message.split(/\s+/).length;
-    const isExact30 = wordCount === 30;
+    const isExactThirty = wordCount === 30;
 
     // Base style: same for both normal and effect fonts
-    const fontSize = isExact30 ? '1.35rem' : '1rem';
+    const fontSize = isExactThirty ? '1.1rem' : '1rem';
     const lineHeight = 1.6;
     const letterSpacing = '0.5px';
     const wordBreak = 'keep-all';
@@ -165,15 +165,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     switch (memory.animation) {
       case "bleeding":
         return (
-          <p className="bleeding-text" style={{ ...baseStyle, paddingLeft: '0.1rem' }}>
+          <p className="bleeding-text" style={{ ...baseStyle, marginLeft: '0.1rem' }}>
             {memory.message}
           </p>
         );
       case "handwritten":
         return (
-          <div className="handwritten-text" style={{ paddingLeft: '0.1rem' }}>
-            <p style={{ ...baseStyle, fontFamily: '"Indie Flower", cursive' }}>{memory.message}</p>
-          </div>
+          <HandwrittenText message={memory.message} baseStyle={{ ...baseStyle, marginLeft: '0.1rem' }} />
         );
       default:
         return <p style={{ ...baseStyle, fontFamily: '"Playfair Display", serif' }}>{memory.message}</p>;
@@ -226,7 +224,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <motion.div
+        <motion.div 
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
@@ -261,10 +259,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
             <ScrollableMessage
-              style={{
-                "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
-              } as React.CSSProperties}
+              style={
+                {
+                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
+                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                } as React.CSSProperties
+              }
             >
               {renderMessage(memory)}
             </ScrollableMessage>
@@ -274,5 +274,16 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     </div>
   );
 };
+
+interface HandwrittenTextProps {
+  message: string;
+  baseStyle: React.CSSProperties;
+}
+
+const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, baseStyle }) => (
+  <div className="handwritten-text">
+    <p style={{ ...baseStyle, fontFamily: '"Indie Flower", cursive' }}>{message}</p>
+  </div>
+);
 
 export default MemoryCard;
