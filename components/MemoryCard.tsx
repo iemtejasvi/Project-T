@@ -2,9 +2,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-// Ensure identical fonts across all platforms
-import "@fontsource/indie-flower";
-import "@fontsource/playfair-display";
 
 interface Memory {
   id: string;
@@ -160,7 +157,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       marginBottom: paragraphSpacing,
     };
 
-    // tiny left padding for special effects
     const effectPadding = memory.animation ? { paddingLeft: '0.1em' } : {};
 
     switch (memory.animation) {
@@ -179,7 +175,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           <p
             style={{
               ...baseStyle,
-              fontFamily: '"Playfair Display", serif',
+              fontFamily: 'Playfair Display, serif',
             }}
           >
             {memory.message}
@@ -230,7 +226,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
+        className="flip-card w-full max-w-xs sm-max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -259,47 +255,3 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <div className="text-xs text-[var(--text)] text-center">
               {dateStr} | {dayStr}
             </div>
-            <TypewriterPrompt />
-          </div>
-          {/* BACK */}
-          <div
-            className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180"
-            style={{ ...bgStyle, ...borderStyle }}
-          >
-            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
-            <hr className="my-2 border-[var(--border)]" />
-            <ScrollableMessage
-              style={
-                {
-                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
-                } as React.CSSProperties
-              }
-            >
-              {renderMessage(memory)}
-            </ScrollableMessage>
-          </div>
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-};
-
-interface HandwrittenTextProps {
-  message: string;
-  baseStyle: React.CSSProperties;
-}
-
-const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, baseStyle }) => (
-  <div className="handwritten-text">
-    <p style={{
-      ...baseStyle,
-      fontFamily: '"Indie Flower", cursive',
-      paddingLeft: '0.1em',
-    }}>
-      {message}
-    </p>
-  </div>
-);
-
-export default MemoryCard;
