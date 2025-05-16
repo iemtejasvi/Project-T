@@ -9,14 +9,15 @@
 /* Light, sad, 1980s-inspired color palette */
 :root {
   --background: #F5F5F5; /* Soft off-white */
-  --text: #4A4A4A; /* Dark gray for readability */
-  --accent: #AEDFF7; /* Muted sky blue */
+  --text: #4A4A4A;      /* Dark gray for readability */
+  --accent: #AEDFF7;    /* Muted sky blue */
   --secondary: #E8D8D8; /* Faded pink */
-  --card-bg: #F8F8F0; /* Off white for cards */
-  --border: #D9D9D9; /* Light gray border */
+  --card-bg: #F8F8F0;   /* Off white for cards */
+  --border: #D9D9D9;    /* Light gray border */
   --scroll-bg: #F0F0F0; /* Scrollbar track */
   --shadow: rgba(0, 0, 0, 0.1);
 
+  /* Color palettes */
   --color-default-border: #D9D9D9;
   --color-default-bg: #F8F8F0;
   --color-mint-border: #98FF98;
@@ -63,6 +64,15 @@ body {
   background-color: var(--background);
   color: var(--text);
   font-family: 'Playfair Display', serif;
+}
+
+/* Tighten spacing between paragraphs inside cards */
+.flip-card-front p,
+.flip-card-back p,
+.handwritten-text p,
+.bleeding-text {
+  margin-top: 0;
+  margin-bottom: 0.25rem; /* Tailwind mb-1 */
 }
 
 /* Card flip styles */
