@@ -2,6 +2,9 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+// Ensure identical fonts across all platforms
+import "@fontsource/indie-flower";
+import "@fontsource/playfair-display";
 
 interface Memory {
   id: string;
@@ -56,9 +59,7 @@ const TypewriterPrompt: React.FC = () => {
         setDisplayedText(currentPrompt.substring(0, charIndex - 1));
         if (charIndex - 1 === 0) {
           setIsDeleting(false);
-          setCurrentIndex(
-            Math.floor(Math.random() * prompts.length)
-          );
+          setCurrentIndex(Math.floor(Math.random() * prompts.length));
           setCharIndex(0);
         } else {
           setCharIndex(charIndex - 1);
@@ -90,7 +91,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap pt-2 ${
+      className={`flex-1 overflow-y-auto whitespace-pre-wrap pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
       style={style}
@@ -136,17 +137,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
 
   const handleCardClick = () => {
-    if (!detail) {
-      setFlipped(!flipped);
-    }
+    if (!detail) setFlipped(!flipped);
   };
 
   const renderMessage = (memory: Memory) => {
     const wordCount = memory.message.split(/\s+/).length;
-    const isShort = wordCount < 30;
+    const isShort = wordCount <= 30;
 
-    // Base style: same for both normal and effect fonts
-    const fontSize = isShort ? '1.25rem' : '1rem';
+    const fontSize = isShort ? '1.3rem' : '1rem';
     const lineHeight = 1.6;
     const letterSpacing = '0.5px';
     const wordBreak = 'keep-all';
@@ -162,19 +160,31 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       marginBottom: paragraphSpacing,
     };
 
+    // tiny left padding for special effects
+    const effectPadding = memory.animation ? { paddingLeft: '0.1em' } : {};
+
     switch (memory.animation) {
       case "bleeding":
         return (
-          <p className="bleeding-text" style={baseStyle}>
+          <p className="bleeding-text" style={{ ...baseStyle, ...effectPadding }}>
             {memory.message}
           </p>
         );
       case "handwritten":
         return (
-          <HandwrittenText message={memory.message} baseStyle={baseStyle} />
+          <HandwrittenText message={memory.message} baseStyle={{ ...baseStyle, ...effectPadding }} />
         );
       default:
-        return <p style={{ ...baseStyle, fontFamily: '"Playfair Display", serif' }}>{memory.message}</p>;
+        return (
+          <p
+            style={{
+              ...baseStyle,
+              fontFamily: '"Playfair Display", serif',
+            }}
+          >
+            {memory.message}
+          </p>
+        );
     }
   };
 
@@ -224,7 +234,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <motion.div 
+        <motion.div
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
@@ -282,7 +292,13 @@ interface HandwrittenTextProps {
 
 const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, baseStyle }) => (
   <div className="handwritten-text">
-    <p style={{ ...baseStyle, fontFamily: '"Indie Flower", cursive' }}>{message}</p>
+    <p style={{
+      ...baseStyle,
+      fontFamily: '"Indie Flower", cursive',
+      paddingLeft: '0.1em',
+    }}>
+      {message}
+    </p>
   </div>
 );
 
