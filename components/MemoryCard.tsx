@@ -2,10 +2,11 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Playfair_Display, Indie_Flower } from 'next/font/google';
 
-// Font imports for consistency across platforms
-import "@fontsource/playfair-display/400.css";  // premium serif
-import "@fontsource/indie-flower/400.css";       // handwritten
+// Load Google Fonts with Next.js font optimization
+const playfair = Playfair_Display({ weight: '400', subsets: ['latin'], display: 'swap' });
+const indieFlower = Indie_Flower({ weight: '400', subsets: ['latin'], display: 'swap' });
 
 interface Memory {
   id: string;
@@ -69,7 +70,7 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-[var(--text)] transition-all duration-300 whitespace-pre-wrap" style={{ fontFamily: 'Playfair Display, serif', fontSize: '1rem', letterSpacing: '0.05em', lineHeight: 1.6 }}>
+    <div className={`${playfair.className} min-h-[2rem] overflow-hidden text-center transition-all duration-300 whitespace-pre-wrap`} style={{ fontSize: '1rem', letterSpacing: '0.05em', lineHeight: 1.6 }}>
       {displayedText}
     </div>
   );
@@ -146,15 +147,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const renderMessage = (memory: Memory) => {
     const wordCount = memory.message.trim().split(/\s+/).length;
     const isShort = wordCount < 30;
-    // define sizes for premium look
     const fontSize = isShort ? '1.25rem' : '1rem';
     const letterSpacing = '0.05em';
     const lineHeight = 1.6;
+    const fontClass = memory.animation === 'handwritten' ? indieFlower.className : playfair.className;
     const commonStyle: React.CSSProperties = {
       fontSize,
       letterSpacing,
       lineHeight,
-      fontFamily: memory.animation === 'handwritten' ? 'Indie Flower, cursive' : 'Playfair Display, serif',
       margin: 0,
       marginBottom: '0.5em',
       wordBreak: 'normal',
@@ -165,19 +165,19 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     switch (memory.animation) {
       case 'bleeding':
         return (
-          <p className="bleeding-text" style={commonStyle}>
+          <p className={`bleeding-text ${fontClass}`} style={commonStyle}>
             {memory.message}
           </p>
         );
       case 'handwritten':
         return (
-          <p style={commonStyle}>
+          <p className={fontClass} style={commonStyle}>
             {memory.message}
           </p>
         );
       default:
         return (
-          <p style={commonStyle}>
+          <p className={fontClass} style={commonStyle}>
             {memory.message}
           </p>
         );
