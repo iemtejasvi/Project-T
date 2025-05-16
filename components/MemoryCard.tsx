@@ -69,7 +69,7 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 break-words">
+    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
       {displayedText}
     </div>
   );
@@ -90,7 +90,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap pt-2 ${
+      className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
       style={style}
@@ -104,9 +104,26 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
 
   const allowedColors = new Set([
-    "default", "mint", "cherry", "sapphire", "lavender", "coral", "olive", "turquoise",
-    "amethyst", "gold", "midnight", "emerald", "ruby", "periwinkle", "peach", "sky",
-    "lemon", "aqua", "berry", "graphite",
+    "default",
+    "mint",
+    "cherry",
+    "sapphire",
+    "lavender",
+    "coral",
+    "olive",
+    "turquoise",
+    "amethyst",
+    "gold",
+    "midnight",
+    "emerald",
+    "ruby",
+    "periwinkle",
+    "peach",
+    "sky",
+    "lemon",
+    "aqua",
+    "berry",
+    "graphite",
   ]);
   const colorMapping: Record<string, string> = { rose: "cherry" };
   let effectiveColor = memory.color;
@@ -143,38 +160,28 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const renderMessage = (memory: Memory) => {
     const wordCount = memory.message.split(/\s+/).length;
-    const isExactThirty = wordCount === 30;
-
-    // Base style: same for both normal and effect fonts
-    const fontSize = isExactThirty ? '1.40rem' : '1rem';
-    const lineHeight = 1.6;
-    const letterSpacing = '0.5px';
-    const wordBreak = 'keep-all';
-    const whiteSpace = 'pre-wrap';
-    const paragraphSpacing = '0.75em';
-
-    const baseStyle: React.CSSProperties = {
-      fontSize,
-      lineHeight,
-      letterSpacing,
-      wordBreak,
-      whiteSpace,
-      marginBottom: paragraphSpacing,
-    };
-
+    const isShortOrExact = wordCount <= 30;
+    // Premium sizing and spacing classes
+    const textClass = isShortOrExact
+      ? "text-2xl tracking-wide leading-snug"
+      : "text-lg tracking-wide leading-snug";
     switch (memory.animation) {
       case "bleeding":
         return (
-          <p className="bleeding-text" style={{ ...baseStyle, marginLeft: '0.1rem' }}>
-            {memory.message}
-          </p>
+          <div className="bleeding-text pl-[0.1rem] antialiased space-y-2">
+            <p className={textClass}>{memory.message}</p>
+          </div>
         );
       case "handwritten":
         return (
-          <HandwrittenText message={memory.message} baseStyle={{ ...baseStyle, marginLeft: '0.1rem' }} />
+          <HandwrittenText message={memory.message} textClass={textClass} />
         );
       default:
-        return <p style={{ ...baseStyle, fontFamily: '"Playfair Display", serif' }}>{memory.message}</p>;
+        return (
+          <div className="space-y-2">
+            <p className={textClass}>{memory.message}</p>
+          </div>
+        );
     }
   };
 
@@ -198,7 +205,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
           <hr className="my-2 border-[var(--border)]" />
         </div>
-        <div className="flex-grow text-[var(--text)]">
+        <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-2">
           {renderMessage(memory)}
         </div>
         <hr className="my-2 border-[var(--border)]" />
@@ -277,12 +284,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
 interface HandwrittenTextProps {
   message: string;
-  baseStyle: React.CSSProperties;
+  textClass: string;
 }
 
-const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, baseStyle }) => (
-  <div className="handwritten-text">
-    <p style={{ ...baseStyle, fontFamily: '"Indie Flower", cursive' }}>{message}</p>
+const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, textClass }) => (
+  <div className="handwritten-text pl-[0.1rem] antialiased space-y-2">
+    <p className={textClass}>{message}</p>
   </div>
 );
 
