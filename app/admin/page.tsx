@@ -179,12 +179,12 @@ export default function AdminPanel() {
                   : "border-red-600"
               }`}
             >
-              <h3 className="text-2xl font-semibold text-gray-800">To: {memory.recipient}</h3>
-              <p className="mt-3 text-gray-700">{memory.message}</p>
+              <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+              <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">{memory.message}</p>
               {memory.sender && (
-                <p className="mt-3 italic text-lg text-gray-600">— {memory.sender}</p>
+                <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
               )}
-              <div className="mt-3 text-sm text-gray-500">
+              <div className="mt-3 text-sm text-gray-500 break-words">
                 <p>IP: {memory.ip}</p>
                 <p>Country: {memory.country}</p>
               </div>

@@ -49,37 +49,37 @@ export default function Donate() {
           <div className="bg-[var(--background)] p-6 rounded-lg">
             <h3 className="text-xl font-semibold text-[var(--text)] mb-4">Cryptocurrency</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                 <span className="text-[var(--text)]">TON:</span>
-                <div className="flex items-center gap-2">
-                  <code className="bg-[var(--card-bg)] px-4 py-2 rounded-lg text-[var(--text)] break-all">UQB5HOYYssoLz0cOxWxXHuRnMlHuIBdojokuIoJ3Nw8WivkJ</code>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                  <code className="bg-[var(--card-bg)] px-4 py-2 rounded-lg text-[var(--text)] break-all w-full sm:w-auto">UQB5HOYYssoLz0cOxWxXHuRnMlHuIBdojokuIoJ3Nw8WivkJ</code>
                   <button
                     onClick={() => copyToClipboard('UQB5HOYYssoLz0cOxWxXHuRnMlHuIBdojokuIoJ3Nw8WivkJ', 'ton')}
-                    className="px-3 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity"
+                    className="px-3 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto"
                   >
                     {copied === 'ton' ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                 <span className="text-[var(--text)]">Solana:</span>
-                <div className="flex items-center gap-2">
-                  <code className="bg-[var(--card-bg)] px-4 py-2 rounded-lg text-[var(--text)] break-all">F7kqLV7kCp9CWe34rdtE9NjUf5615FBeTrwgFZCqazxE</code>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                  <code className="bg-[var(--card-bg)] px-4 py-2 rounded-lg text-[var(--text)] break-all w-full sm:w-auto">F7kqLV7kCp9CWe34rdtE9NjUf5615FBeTrwgFZCqazxE</code>
                   <button
                     onClick={() => copyToClipboard('F7kqLV7kCp9CWe34rdtE9NjUf5615FBeTrwgFZCqazxE', 'solana')}
-                    className="px-3 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity"
+                    className="px-3 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto"
                   >
                     {copied === 'solana' ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
               </div>
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                 <span className="text-[var(--text)]">Ethereum:</span>
-                <div className="flex items-center gap-2">
-                  <code className="bg-[var(--card-bg)] px-4 py-2 rounded-lg text-[var(--text)] break-all">0xc626eb78b14dA3f400706084130fc693906EC0c1</code>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                  <code className="bg-[var(--card-bg)] px-4 py-2 rounded-lg text-[var(--text)] break-all w-full sm:w-auto">0xc626eb78b14dA3f400706084130fc693906EC0c1</code>
                   <button
                     onClick={() => copyToClipboard('0xc626eb78b14dA3f400706084130fc693906EC0c1', 'eth')}
-                    className="px-3 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity"
+                    className="px-3 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto"
                   >
                     {copied === 'eth' ? 'Copied!' : 'Copy'}
                   </button>
