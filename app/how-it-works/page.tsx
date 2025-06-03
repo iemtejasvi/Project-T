@@ -78,8 +78,8 @@ export default function HowItWorks() {
             Using If Only I Sent This
           </h2>
           <p className="text-base sm:text-lg text-[var(--text)] mb-4">
-            This is a sanctuary for unsent words—a place to lay down memories you couldn't share.
-            Whether it's for a person, a pet, or a moment, your thoughts find peace here.
+            This is a sanctuary for unsent words—a place to lay down memories you couldn&apos;t share.
+            Whether it&apos;s for a person, a pet, or a moment, your thoughts find peace here.
           </p>
           <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--text)]">
             What You Can Do
