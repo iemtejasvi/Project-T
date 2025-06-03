@@ -252,6 +252,9 @@ export default function SubmitPage() {
               This is for your final message—the one you never sent. Keep it honest,
               heartfelt, and within theme. <strong>Submissions not aligned with this purpose will be rejected.</strong>
             </p>
+            <p className="text-sm text-gray-500 mb-4">
+              Don&apos;t worry, you can always edit or delete your message later.
+            </p>
           </div>
         )}
 
