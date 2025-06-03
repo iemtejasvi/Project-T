@@ -279,7 +279,7 @@ export default function SubmitPage() {
             )}
 
             <div>
-              <label className="block font-serif">Recipient's Name*</label>
+              <label className="block font-serif">Recipient&apos;s Name*</label>
               <input
                 type="text"
                 value={recipient}
