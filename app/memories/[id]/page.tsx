@@ -19,7 +19,8 @@ interface Memory {
 }
 
 export default function MemoryDetail() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
   const [memory, setMemory] = useState<Memory | null>(null);
 
   useEffect(() => {
