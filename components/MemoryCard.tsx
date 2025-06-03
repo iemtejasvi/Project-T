@@ -14,6 +14,7 @@ interface Memory {
   full_bg: boolean;
   letter_style: string;
   animation?: string;
+  pinned?: boolean;
 }
 
 interface MemoryCardProps {
@@ -426,14 +427,19 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         style={{ ...bgStyle, ...borderStyle }}
       >
         <div>
-          <h3 className="text-2xl font-bold text-[var(--text)]">
-            {memory.animation && (
-              <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                ★
-              </span>
+          <div className="flex justify-between items-start">
+            <h3 className="text-2xl font-bold text-[var(--text)]">
+              {memory.animation && (
+                <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                  ★
+                </span>
+              )}
+              To: {memory.recipient}
+            </h3>
+            {memory.pinned && (
+              <span className="text-yellow-500 text-xl">📌</span>
             )}
-            To: {memory.recipient}
-          </h3>
+          </div>
           {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
           <hr className="my-2 border-[var(--border)]" />
         </div>
@@ -474,14 +480,19 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             style={{ ...bgStyle, ...borderStyle }}
           >
             <div>
-              <h3 className="text-xl font-bold text-[var(--text)]">
-                {memory.animation && (
-                  <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                    ★
-                  </span>
+              <div className="flex justify-between items-start">
+                <h3 className="text-xl font-bold text-[var(--text)]">
+                  {memory.animation && (
+                    <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                      ★
+                    </span>
+                  )}
+                  To: {memory.recipient}
+                </h3>
+                {memory.pinned && (
+                  <span className="text-yellow-500 text-xl">📌</span>
                 )}
-                To: {memory.recipient}
-              </h3>
+              </div>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
               <hr className="my-2 border-[var(--border)]" />
             </div>

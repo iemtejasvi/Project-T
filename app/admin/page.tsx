@@ -14,6 +14,7 @@ interface Memory {
   ip?: string;
   country?: string;
   animation?: string;
+  pinned?: boolean;
 }
 
 type Tab = "pending" | "approved" | "banned";
@@ -39,6 +40,7 @@ export default function AdminPanel() {
         let query = supabase
           .from("memories")
           .select("*")
+          .order("pinned", { ascending: false })
           .order("created_at", { ascending: false });
 
         if (selectedTab !== "pending") {
@@ -103,11 +105,21 @@ export default function AdminPanel() {
     refreshMemories();
   }
 
+  async function togglePin(memory: Memory) {
+    const { error } = await supabase
+      .from("memories")
+      .update({ pinned: !memory.pinned })
+      .eq("id", memory.id);
+    if (error) console.error(error);
+    refreshMemories();
+  }
+
   function refreshMemories() {
     if (!isAuthorized) return;
     supabase
       .from("memories")
       .select("*")
+      .order("pinned", { ascending: false })
       .order("created_at", { ascending: false })
       .eq("status", selectedTab)
       .then(({ data, error }) => {
@@ -179,7 +191,12 @@ export default function AdminPanel() {
                   : "border-red-600"
               }`}
             >
-              <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+              <div className="flex justify-between items-start">
+                <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+                {memory.pinned && (
+                  <span className="text-yellow-500 text-xl">📌</span>
+                )}
+              </div>
               <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">{memory.message}</p>
               {memory.sender && (
                 <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
@@ -215,12 +232,24 @@ export default function AdminPanel() {
                   </>
                 )}
                 {selectedTab === "approved" && (
-                  <button
-                    onClick={() => deleteMemory(memory.id)}
-                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                  >
-                    Delete
-                  </button>
+                  <>
+                    <button
+                      onClick={() => deleteMemory(memory.id)}
+                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => togglePin(memory)}
+                      className={`px-4 py-2 ${
+                        memory.pinned 
+                          ? "bg-yellow-500 hover:bg-yellow-600" 
+                          : "bg-gray-500 hover:bg-gray-600"
+                      } text-white rounded transition-colors`}
+                    >
+                      {memory.pinned ? "Unpin" : "Pin"}
+                    </button>
+                  </>
                 )}
                 {selectedTab === "banned" && (
                   <>

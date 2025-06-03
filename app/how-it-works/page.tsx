@@ -78,8 +78,8 @@ export default function HowItWorks() {
             Using If Only I Sent This
           </h2>
           <p className="text-base sm:text-lg text-[var(--text)] mb-4">
-            This is a sanctuary for unsent words—a place to lay down memories you couldn’t share.
-            Whether it’s for a person, a pet, or a moment, your thoughts find peace here.
+            This is a sanctuary for unsent words—a place to lay down memories you couldn't share.
+            Whether it's for a person, a pet, or a moment, your thoughts find peace here.
           </p>
           <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--text)]">
             What You Can Do
@@ -109,6 +109,27 @@ export default function HowItWorks() {
             </Link>{" "}
             page to see what others have shared.
           </p>
+          <div className="mb-8">
+            <h3 className="text-xl font-bold mb-2">Home Page</h3>
+            <p className="mb-2">The home page showcases:</p>
+            <ul className="list-disc pl-6 space-y-1">
+              <li>Up to 3 most recent approved memories</li>
+              <li>Pinned memories appear first, followed by newest memories</li>
+              <li>Each memory card can be flipped to reveal the full message</li>
+              <li>Click the arrow to view the memory in detail</li>
+            </ul>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-xl font-bold mb-2">Memories Page</h3>
+            <p className="mb-2">The memories page features:</p>
+            <ul className="list-disc pl-6 space-y-1">
+              <li>All approved memories in chronological order</li>
+              <li>Pinned memories appear at the top</li>
+              <li>Detailed view of each memory</li>
+              <li>Option to share memories via URL</li>
+            </ul>
+          </div>
         </article>
       </main>
 

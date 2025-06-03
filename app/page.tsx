@@ -24,17 +24,18 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    async function fetchRecentMemories() {
+    async function fetchMemories() {
       const { data, error } = await supabase
         .from("memories")
         .select("*")
         .eq("status", "approved")
+        .order("pinned", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(3);
-      if (error) console.error("Error fetching memories:", error);
+      if (error) console.error(error);
       else setRecentMemories(data || []);
     }
-    fetchRecentMemories();
+    fetchMemories();
 
     if (!localStorage.getItem("hasVisited")) {
       setShowWelcome(true);

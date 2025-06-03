@@ -23,23 +23,17 @@ export default function Memories() {
 
   useEffect(() => {
     async function fetchMemories() {
-      let query = supabase
+      const { data, error } = await supabase
         .from("memories")
         .select("*")
         .eq("status", "approved")
+        .order("pinned", { ascending: false })
         .order("created_at", { ascending: false });
-      if (searchTerm) {
-        query = query.ilike("recipient", `%${searchTerm}%`);
-      }
-      const { data, error } = await query;
-      if (error) {
-        console.error("Error fetching memories:", error);
-      } else {
-        setMemories(data || []);
-      }
+      if (error) console.error(error);
+      else setMemories(data || []);
     }
     fetchMemories();
-  }, [searchTerm]);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
