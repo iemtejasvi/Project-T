@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
-
 /* Light, sad, 1980s-inspired color palette */
 :root {
   --background: #F5F5F5;        /* Soft off-white */
@@ -58,6 +54,48 @@
   --color-berry-bg:          #E6D6FF;
   --color-graphite-border:   #383838;
   --color-graphite-bg:       #D3D3D3;
+  --color-sepia-border:      #704214;
+  --color-sepia-bg:          #F4E4BC;
+  --color-sage-border:       #9CAF88;
+  --color-sage-bg:           #E8F1E4;
+  --color-dusty-rose-border: #DC8E98;
+  --color-dusty-rose-bg:     #F8E6E8;
+  --color-vintage-blue-border: #6B8E9E;
+  --color-vintage-blue-bg:     #E6EEF2;
+  --color-terracotta-border:  #A85D5C;
+  --color-terracotta-bg:      #F4E4E4;
+  --color-mustard-border:     #D4B16A;
+  --color-mustard-bg:         #FDF6E3;
+  --color-moss-border:        #4A5D23;
+  --color-moss-bg:           #E8EDE0;
+  --color-parchment-border:   #E3D5B8;
+  --color-parchment-bg:       #FDFBF7;
+  --color-burgundy-border:    #800020;
+  --color-burgundy-bg:        #F5E6E8;
+  --color-slate-border:       #708090;
+  --color-slate-bg:          #E8ECF1;
+  --color-antique-brass-border: #CD9575;
+  --color-antique-brass-bg:     #F5E6D3;
+  --color-forest-green-border:  #2E4D2E;
+  --color-forest-green-bg:      #E4EDE4;
+  --color-sand-border:          #C2B280;
+  --color-sand-bg:              #F5F2E9;
+  --color-wine-border:          #722F37;
+  --color-wine-bg:              #F5E6E8;
+  --color-copper-border:        #B87333;
+  --color-copper-bg:            #F5E6D3;
+  --color-teal-border:          #008080;
+  --color-teal-bg:              #E0F5F5;
+  --color-maroon-border:        #800000;
+  --color-maroon-bg:            #F5E6E6;
+  --color-cream-border:         #FFFDD0;
+  --color-cream-bg:             #FFFFF0;
+  --color-navy-border:          #000080;
+  --color-navy-bg:              #E6E6F5;
+  --color-bronze-border:        #CD7F32;
+  --color-bronze-bg:            #F5E6D3;
+  --color-khaki-border:         #F0E68C;
+  --color-khaki-bg:             #F5F5DC;
 }
 
 body {
@@ -150,10 +188,14 @@ body {
   font-size: 2.5rem;
   transition: transform 0.3s ease, opacity 0.3s ease;
   opacity: 0.7;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.08);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
 }
 .arrow-icon:hover {
   transform: scale(1.2);
   opacity: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
 }
 
 /* Animations */

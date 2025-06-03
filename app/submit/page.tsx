@@ -30,6 +30,27 @@ const colorOptions = [
   { value: "aqua", label: "Aqua" },
   { value: "berry", label: "Berry" },
   { value: "graphite", label: "Graphite" },
+  { value: "sepia", label: "Sepia" },
+  { value: "sage", label: "Sage" },
+  { value: "dusty-rose", label: "Dusty Rose" },
+  { value: "vintage-blue", label: "Vintage Blue" },
+  { value: "terracotta", label: "Terracotta" },
+  { value: "mustard", label: "Mustard" },
+  { value: "moss", label: "Moss" },
+  { value: "parchment", label: "Parchment" },
+  { value: "burgundy", label: "Burgundy" },
+  { value: "slate", label: "Slate" },
+  { value: "antique-brass", label: "Antique Brass" },
+  { value: "forest-green", label: "Forest Green" },
+  { value: "sand", label: "Sand" },
+  { value: "wine", label: "Wine" },
+  { value: "copper", label: "Copper" },
+  { value: "teal", label: "Teal" },
+  { value: "maroon", label: "Maroon" },
+  { value: "cream", label: "Cream" },
+  { value: "navy", label: "Navy" },
+  { value: "bronze", label: "Bronze" },
+  { value: "khaki", label: "Khaki" }
 ];
 
 const specialEffectOptions = [
@@ -39,44 +60,44 @@ const specialEffectOptions = [
 ];
 
 const limitMessages = [
-  "You’re typing like they still care. Shorten it.",
-  "100 words max. If they didn’t read your texts, they won’t read your novel.",
+  "You're typing like they still care. Shorten it.",
+  "100 words max. If they didn't read your texts, they won't read your novel.",
   "Unsent message, not an autobiography. Edit that trauma.",
-  "This ain’t your therapist. Keep it under 100, Shakespeare.",
+  "This ain't your therapist. Keep it under 100, Shakespeare.",
   "They ghosted you, not gave you a book deal. Trim it.",
-  "Nobody’s ex read this much. Why should we?",
-  "100 words or less. You’re not auditioning for heartbreak Netflix.",
+  "Nobody's ex read this much. Why should we?",
+  "100 words or less. You're not auditioning for heartbreak Netflix.",
   "Less is more. Oversharing is out.",
-  "Unsent doesn’t mean unpublished, Hemingway.",
-  "Writing a saga? Nah. This ain’t ‘Lord of the Goodbyes’.",
+  "Unsent doesn't mean unpublished, Hemingway.",
+  "Writing a saga? Nah. This ain't 'Lord of the Goodbyes'.",
   "Send a message, not a memoir.",
   "Keep it short. Mystery is sexier than essays.",
-  "Your feelings are valid. But also… too damn long.",
+  "Your feelings are valid. But also... too damn long.",
   "Brevity is hot. Trauma dumps are not.",
-  "This isn’t your diary. It’s a message they’ll never read.",
-  "It’s ‘Unsent,’ not ‘Unhinged.’ Chill.",
+  "This isn't your diary. It's a message they'll never read.",
+  "It's 'Unsent,' not 'Unhinged.' Chill.",
   "Typing like you're pitching to a publisher. Relax.",
   "You lost them, not the plot. Tighten it up.",
   "This ain't a TED Talk. Drop the mic in 100.",
   "Keep the mystery. Oversharing is a red flag.",
   "We said unsent, not unlimited.",
-  "Heartbreak’s poetic, not academic.",
-  "If it takes more than 100 words to hurt, you’ve healed.",
+  "Heartbreak's poetic, not academic.",
+  "If it takes more than 100 words to hurt, you've healed.",
   "Save it for your therapist. They get paid to read that much.",
-  "Ever heard of a ‘read more’ button? No? Exactly.",
-  "This ain't Medium. Don’t medium dump.",
-  "If they didn’t reply to a text, why drop a chapter?",
+  "Ever heard of a 'read more' button? No? Exactly.",
+  "This ain't Medium. Don't medium dump.",
+  "If they didn't reply to a text, why drop a chapter?",
   "100 max. Anything else is just emotional spam.",
-  "Word vomit isn’t romantic. Edit that heartbreak.",
+  "Word vomit isn't romantic. Edit that heartbreak.",
   "Oversharing? In this economy?",
   "Tell us how you *feel*, not your life story.",
-  "You’re not the main character of this paragraph.",
+  "You're not the main character of this paragraph.",
   "You miss them, not your English teacher. Cut it down.",
   "Pain should punch. Not drone.",
-  "Keep it sharp. This ain’t ‘War & Peace’.",
+  "Keep it sharp. This ain't 'War & Peace'.",
   "They left you on read. You giving them a sequel?",
   "100 max, heal artistically, not endlessly.",
-  "Emotional dumping isn’t aesthetic. It’s exhausting.",
+  "Emotional dumping isn't aesthetic. It's exhausting.",
   "We came for heartbreak, not homework.",
 ];
 
@@ -255,7 +276,7 @@ export default function SubmitPage() {
             )}
 
             <div>
-              <label className="block font-serif">Recipient’s Name*</label>
+              <label className="block font-serif">Recipient's Name*</label>
               <input
                 type="text"
                 value={recipient}
@@ -313,7 +334,11 @@ export default function SubmitPage() {
               <label className="block font-serif">Select a Color (optional)</label>
               <select
                 value={color}
-                onChange={(e) => setColor(e.target.value)}
+                onChange={(e) => {
+                  setColor(e.target.value);
+                  // Automatically set fullBg to true for any color except default
+                  setFullBg(e.target.value !== "default");
+                }}
                 className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
               >
                 {colorOptions.map((o) => (

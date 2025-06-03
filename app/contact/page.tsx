@@ -41,10 +41,15 @@ export default function Contact() {
           </div>
           <div>
             <p className="text-[var(--text)] font-medium">Follow Us:</p>
-            <div className="flex gap-4 mt-2">
-              <a href="#" className="text-[var(--accent)] hover:underline">Twitter</a>
-              <a href="#" className="text-[var(--accent)] hover:underline">Instagram</a>
-              <a href="#" className="text-[var(--accent)] hover:underline">Facebook</a>
+            <div className="mt-2">
+              <a 
+                href="https://instagram.com/ifonlyisentthis" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-[var(--accent)] hover:underline"
+              >
+                Instagram
+              </a>
             </div>
           </div>
         </section>
