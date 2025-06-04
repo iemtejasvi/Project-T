@@ -20,7 +20,6 @@ interface Memory {
 export default function Memories() {
   const [memories, setMemories] = useState<Memory[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [announcement, setAnnouncement] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update current time every second
@@ -34,47 +33,9 @@ export default function Memories() {
 
   useEffect(() => {
     let isMounted = true;
-    let timeoutId: NodeJS.Timeout;
 
     async function fetchData() {
       try {
-        // Fetch announcement
-        const { data: announcementData, error: announcementError } = await supabase
-          .from("announcements")
-          .select("id, message, expires_at")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false })
-          .limit(1);
-
-        if (!isMounted) return;
-
-        if (announcementError) {
-          console.error("Error fetching announcement:", announcementError.message);
-        } else if (announcementData?.[0]) {
-          const expiryTime = new Date(announcementData[0].expires_at);
-          const now = new Date();
-          
-          // Check if announcement has expired
-          if (now >= expiryTime) {
-            // Deactivate expired announcement
-            await supabase
-              .from("announcements")
-              .update({ is_active: false })
-              .eq("id", announcementData[0].id);
-            if (isMounted) setAnnouncement(null);
-          } else {
-            if (isMounted) setAnnouncement(announcementData[0].message);
-            
-            // Schedule next check for this announcement
-            const timeUntilExpiry = expiryTime.getTime() - now.getTime();
-            timeoutId = setTimeout(() => {
-              if (isMounted) fetchData();
-            }, timeUntilExpiry);
-          }
-        } else {
-          if (isMounted) setAnnouncement(null);
-        }
-
         // Fetch memories
         const { data: memoriesData, error: memoriesError } = await supabase
           .from("memories")
@@ -128,7 +89,6 @@ export default function Memories() {
 
     return () => {
       isMounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [currentTime]); // Add currentTime as dependency
 
