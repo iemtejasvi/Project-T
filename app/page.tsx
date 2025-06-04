@@ -22,20 +22,45 @@ interface Memory {
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [announcement, setAnnouncement] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchMemories() {
-      const { data, error } = await supabase
-        .from("memories")
-        .select("*")
-        .eq("status", "approved")
-        .order("pinned", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(3);
-      if (error) console.error(error);
-      else setRecentMemories(data || []);
+    async function fetchData() {
+      try {
+        // Fetch announcement
+        const { data: announcementData, error: announcementError } = await supabase
+          .from("announcements")
+          .select("message")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (announcementError) {
+          console.error("Error fetching announcement:", announcementError.message);
+        } else {
+          setAnnouncement(announcementData?.[0]?.message || null);
+        }
+
+        // Fetch memories
+        const { data: memoriesData, error: memoriesError } = await supabase
+          .from("memories")
+          .select("*")
+          .eq("status", "approved")
+          .order("pinned", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(3);
+
+        if (memoriesError) {
+          console.error("Error fetching memories:", memoriesError.message);
+        } else {
+          setRecentMemories(memoriesData || []);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      }
     }
-    fetchMemories();
+
+    fetchData();
 
     if (!localStorage.getItem("hasVisited")) {
       setShowWelcome(true);
@@ -104,12 +129,20 @@ export default function Home() {
 
       <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
         <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
-          <TypingEffect />
+          {announcement ? (
+            <h2 className="text-xl sm:text-2xl font-semibold text-red-500">
+              📢 Admin Announcement — {announcement}
+            </h2>
+          ) : (
+            <TypingEffect />
+          )}
         </div>
       </section>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">Recent Memories</h2>
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">
+          Recent Memories
+        </h2>
         {recentMemories.length > 0 ? (
           recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
         ) : (
