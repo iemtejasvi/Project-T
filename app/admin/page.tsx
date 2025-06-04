@@ -259,13 +259,15 @@ export default function AdminPanel() {
                         Active Announcement
                       </p>
                     </div>
-                    <button
-                      onClick={handleRemoveAnnouncement}
-                      className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
-                    >
-                      <span>🗑️</span>
-                      <span>Remove</span>
-                    </button>
+                    <div className="flex flex-row items-center gap-2">
+                      <button
+                        onClick={handleRemoveAnnouncement}
+                        className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap"
+                      >
+                        <span>🗑️</span>
+                        <span>Remove</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -287,7 +289,7 @@ export default function AdminPanel() {
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="w-full sm:w-auto px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2 font-medium text-sm sm:text-base"
+                    className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2 font-medium text-sm sm:text-base whitespace-nowrap"
                   >
                     <span>📢</span>
                     <span>Post Announcement</span>
