@@ -304,6 +304,7 @@ export default function AdminPanel() {
             .update({ is_active: false })
             .eq("id", currentAnnouncement.id);
           setCurrentAnnouncement(null);
+          await fetchCurrentAnnouncement(); // Refresh announcement state
         }
       }
 
@@ -319,22 +320,25 @@ export default function AdminPanel() {
         return;
       }
 
+      let needsRefresh = false;
       for (const memory of pinnedMemories || []) {
         if (new Date(memory.pinned_until) <= currentTime) {
           await supabase
             .from("memories")
             .update({ pinned: false, pinned_until: null })
             .eq("id", memory.id);
+          needsRefresh = true;
         }
       }
 
-      // Refresh memories if we're on the approved tab
-      if (selectedTab === "approved") {
+      // Refresh memories if we're on the approved tab and any pins were updated
+      if (needsRefresh && selectedTab === "approved") {
         refreshMemories();
       }
     };
 
-    checkExpiredItems();
+    const interval = setInterval(checkExpiredItems, 1000); // Check every second
+    return () => clearInterval(interval);
   }, [currentTime, currentAnnouncement, selectedTab, refreshMemories]);
 
   if (!authChecked) {
