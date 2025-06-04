@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import PoeticText from "./PoeticText";
 
 interface Memory {
   id: string;
@@ -431,6 +432,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       case "handwritten":
         return (
           <HandwrittenText message={memory.message} textClass={textClass} />
+        );
+      case "poetic":
+        return (
+          <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
         );
       default:
         return (

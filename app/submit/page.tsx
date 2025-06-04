@@ -58,6 +58,7 @@ const specialEffectOptions = [
   { value: "", label: "None" },
   { value: "bleeding", label: "Bleeding Text Effect" },
   { value: "handwritten", label: "Handwritten Text Effect" },
+  { value: "poetic", label: "Poetic Fade Effect" }
 ];
 
 const limitMessages = [

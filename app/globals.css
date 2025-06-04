@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css?family=Beth+Ellen&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -181,6 +182,26 @@ body {
   font-family: 'Pacifico', cursive;
   font-size: 1.5rem;
   color: var(--text);
+}
+.poetic-text {
+  font-family: 'Beth Ellen', cursive;
+  background: transparent;
+}
+.poetic-text .letter {
+  opacity: 0;
+  display: inline-block;
+  background: transparent;
+  margin: 0 0.02em;
+}
+.poetic-text .word {
+  display: inline-block;
+  margin-right: 0.3em;
+  background: transparent;
+}
+.poetic-text .letter.visible {
+  opacity: 1;
+  transition: all 0.5s ease;
+  background: transparent;
 }
 
 /* Custom arrow */
