@@ -222,12 +222,12 @@ export default function AdminPanel() {
 
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex flex-wrap gap-2 sm:gap-4 border-b border-[var(--border)]">
+        <div className="flex justify-between border-b border-[var(--border)]">
           {(["pending", "approved", "banned", "announcements"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
-              className={`py-2 px-3 sm:px-4 text-sm sm:text-base font-semibold whitespace-nowrap ${
+              className={`py-2 px-2 sm:px-3 text-xs sm:text-sm font-semibold whitespace-nowrap ${
                 selectedTab === tab
                   ? "border-b-2 border-blue-600 text-gray-900"
                   : "text-gray-600"
