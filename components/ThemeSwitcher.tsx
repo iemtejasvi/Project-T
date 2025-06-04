@@ -36,26 +36,26 @@ export default function ThemeSwitcher() {
 
     // Set constant card color variables (they remain the same regardless of theme)
     const cardColors = {
-      default: { border: "#D9D9D9", bg: "#F8F8F0" },
+      plain: { border: "#D9D9D9", bg: "#F8F8F0" },
       mint: { border: "#98FF98", bg: "#E0FFE0" },
-      cherry: { border: "#FF4C4C", bg: "#FFD6D6" },
-      sapphire: { border: "#0F52BA", bg: "#DDEEFF" },
-      lavender: { border: "#B57EDC", bg: "#F0E6FF" },
+      ruby: { border: "#FF4C4C", bg: "#FFD6D6" },
+      azure: { border: "#0F52BA", bg: "#DDEEFF" },
+      lilac: { border: "#B57EDC", bg: "#F0E6FF" },
       coral: { border: "#FF7F50", bg: "#FFEFE6" },
       olive: { border: "#808000", bg: "#E6E6B3" },
-      turquoise: { border: "#40E0D0", bg: "#E0FFFF" },
-      amethyst: { border: "#9966CC", bg: "#F2E6FF" },
+      cyan: { border: "#40E0D0", bg: "#E0FFFF" },
+      pearl: { border: "#9966CC", bg: "#F2E6FF" },
       gold: { border: "#FFD700", bg: "#FFF9E6" },
-      midnight: { border: "#191970", bg: "#C0C0FF" },
-      emerald: { border: "#50C878", bg: "#E0FFE0" },
-      ruby: { border: "#E0115F", bg: "#FFD1DC" },
-      periwinkle: { border: "#CCCCFF", bg: "#E6E6FF" },
+      night: { border: "#191970", bg: "#C0C0FF" },
+      jade: { border: "#50C878", bg: "#E0FFE0" },
+      rouge: { border: "#E0115F", bg: "#FFD1DC" },
+      sky: { border: "#CCCCFF", bg: "#E6E6FF" },
       peach: { border: "#FFE5B4", bg: "#FFF5E6" },
-      sky: { border: "#87CEEB", bg: "#E0F7FF" },
-      lemon: { border: "#FFF44F", bg: "#FFFBE6" },
+      cloud: { border: "#87CEEB", bg: "#E0F7FF" },
+      sunny: { border: "#FFF44F", bg: "#FFFBE6" },
       aqua: { border: "#00FFFF", bg: "#E0FFFF" },
       berry: { border: "#8A2BE2", bg: "#E6D6FF" },
-      graphite: { border: "#383838", bg: "#D3D3D3" },
+      steel: { border: "#383838", bg: "#D3D3D3" }
     };
 
     for (const [color, values] of Object.entries(cardColors)) {
