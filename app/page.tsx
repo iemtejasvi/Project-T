@@ -23,6 +23,15 @@ export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [showWelcome, setShowWelcome] = useState(false);
   const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update current time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -30,31 +39,67 @@ export default function Home() {
         // Fetch announcement
         const { data: announcementData, error: announcementError } = await supabase
           .from("announcements")
-          .select("message")
+          .select("id, message, expires_at")
           .eq("is_active", true)
           .order("created_at", { ascending: false })
           .limit(1);
 
         if (announcementError) {
           console.error("Error fetching announcement:", announcementError.message);
+        } else if (announcementData?.[0]) {
+          // Check if announcement has expired
+          if (new Date(announcementData[0].expires_at) <= currentTime) {
+            // Deactivate expired announcement
+            await supabase
+              .from("announcements")
+              .update({ is_active: false })
+              .eq("id", announcementData[0].id);
+            setAnnouncement(null);
+          } else {
+            setAnnouncement(announcementData[0].message);
+          }
         } else {
-          setAnnouncement(announcementData?.[0]?.message || null);
+          setAnnouncement(null);
         }
 
         // Fetch memories
         const { data: memoriesData, error: memoriesError } = await supabase
-        .from("memories")
-        .select("*")
-        .eq("status", "approved")
+          .from("memories")
+          .select("*")
+          .eq("status", "approved")
           .order("pinned", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(3);
+          .order("created_at", { ascending: false })
+          .limit(3);
 
         if (memoriesError) {
           console.error("Error fetching memories:", memoriesError.message);
-        } else {
-          setRecentMemories(memoriesData || []);
-    }
+        } else if (memoriesData) {
+          // Check for expired pins
+          let needsUpdate = false;
+          for (const memory of memoriesData) {
+            if (memory.pinned && memory.pinned_until && new Date(memory.pinned_until) <= currentTime) {
+              await supabase
+                .from("memories")
+                .update({ pinned: false, pinned_until: null })
+                .eq("id", memory.id);
+              needsUpdate = true;
+            }
+          }
+          
+          // If any pins were updated, fetch memories again
+          if (needsUpdate) {
+            const { data: updatedMemories } = await supabase
+              .from("memories")
+              .select("*")
+              .eq("status", "approved")
+              .order("pinned", { ascending: false })
+              .order("created_at", { ascending: false })
+              .limit(3);
+            setRecentMemories(updatedMemories || []);
+          } else {
+            setRecentMemories(memoriesData);
+          }
+        }
       } catch (err) {
         console.error("Unexpected error:", err);
       }
@@ -66,7 +111,7 @@ export default function Home() {
       setShowWelcome(true);
       localStorage.setItem("hasVisited", "true");
     }
-  }, []);
+  }, [currentTime]); // Add currentTime as dependency
 
   const handleWelcomeClose = () => setShowWelcome(false);
 
