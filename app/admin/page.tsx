@@ -242,17 +242,17 @@ export default function AdminPanel() {
       {/* Content */}
       <main className="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {selectedTab === "announcements" ? (
-          <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-md">
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-2xl">📢</span>
-              <h2 className="text-2xl font-semibold text-[var(--text)]">Announcements</h2>
+          <div className="bg-[var(--card-bg)] p-4 sm:p-6 rounded-lg shadow-md">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
+              <span className="text-xl sm:text-2xl">📢</span>
+              <h2 className="text-xl sm:text-2xl font-semibold text-[var(--text)]">Announcements</h2>
             </div>
             {currentAnnouncement ? (
               <div className="space-y-4">
-                <div className="bg-[var(--bg)] p-6 rounded-lg border border-[var(--border)]">
-                  <div className="flex items-start justify-between">
+                <div className="bg-[var(--bg)] p-4 sm:p-6 rounded-lg border border-[var(--border)]">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div className="flex-1">
-                      <p className="text-lg text-[var(--text)] whitespace-pre-wrap break-words">
+                      <p className="text-base sm:text-lg text-[var(--text)] whitespace-pre-wrap break-words">
                         {currentAnnouncement}
                       </p>
                       <p className="text-sm text-gray-500 mt-2">
@@ -261,7 +261,7 @@ export default function AdminPanel() {
                     </div>
                     <button
                       onClick={handleRemoveAnnouncement}
-                      className="ml-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+                      className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
                     >
                       <span>🗑️</span>
                       <span>Remove</span>
@@ -270,16 +270,16 @@ export default function AdminPanel() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleAnnouncementSubmit} className="space-y-6">
+              <form onSubmit={handleAnnouncementSubmit} className="space-y-4 sm:space-y-6">
                 <div>
-                  <label htmlFor="announcement" className="block text-[var(--text)] mb-3 font-medium">
+                  <label htmlFor="announcement" className="block text-[var(--text)] mb-2 sm:mb-3 font-medium">
                     Create New Announcement
                   </label>
                   <textarea
                     id="announcement"
                     value={announcement}
                     onChange={(e) => setAnnouncement(e.target.value)}
-                    className="w-full p-4 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full p-3 sm:p-4 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     rows={4}
                     placeholder="Type your announcement here..."
                   />
@@ -287,7 +287,7 @@ export default function AdminPanel() {
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-2 font-medium"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2 font-medium"
                   >
                     <span>📢</span>
                     <span>Post Announcement</span>
