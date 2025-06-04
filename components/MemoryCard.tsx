@@ -396,8 +396,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     const isShortOrExact = wordCount <= 30;
     // Premium sizing and spacing classes
     const textClass = isShortOrExact
-      ? "text-lg tracking-wide leading-snug break-words hyphens-none"
-      : "text-base tracking-wide leading-snug break-words hyphens-none";
+      ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
+      : "text-lg tracking-wide leading-snug break-words hyphens-none";
     switch (memory.animation) {
       case "bleeding":
         return (
@@ -428,7 +428,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       >
         <div>
           <div className="flex justify-between items-start">
-            <h3 className="text-xl font-bold text-[var(--text)]">
+            <h3 className="text-2xl font-bold text-[var(--text)]">
               {memory.animation && (
                 <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                   ★
@@ -440,7 +440,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               <span className="text-yellow-500 text-xl">📌</span>
             )}
           </div>
-          {memory.sender && <p className="mt-1 text-sm italic text-[var(--text)]">From: {memory.sender}</p>}
+          {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
           <hr className="my-2 border-[var(--border)]" />
         </div>
         <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-2">
@@ -493,7 +493,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                   <span className="text-yellow-500 text-xl">📌</span>
                 )}
               </div>
-              {memory.sender && <p className="mt-1 text-sm italic text-[var(--text)]">From: {memory.sender}</p>}
+              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
               <hr className="my-2 border-[var(--border)]" />
             </div>
             <div className="text-xs text-[var(--text)] text-center font-normal">
@@ -506,7 +506,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180"
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <h3 className="text-base italic text-[var(--text)] text-center">if only i sent this</h3>
+            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
             <hr className="my-2 border-[var(--border)]" />
             <ScrollableMessage
               style={
