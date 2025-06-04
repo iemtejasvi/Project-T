@@ -28,99 +28,53 @@ export default function Home() {
   // Update current time every second
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date());
+      const now = new Date();
+      setCurrentTime(now);
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Check for expired items and refresh data
   useEffect(() => {
-    const checkExpiredItems = async () => {
-      // Check expired announcements
-      const { data: announcementData, error: announcementError } = await supabase
-        .from("announcements")
-        .select("id, message, expires_at")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(1);
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
 
-      if (announcementError) {
-        console.error("Error fetching announcement:", announcementError.message);
-      } else if (announcementData?.[0]) {
-        if (new Date(announcementData[0].expires_at) <= currentTime) {
-          // Deactivate expired announcement
-          await supabase
-            .from("announcements")
-            .update({ is_active: false })
-            .eq("id", announcementData[0].id);
-          setAnnouncement(null);
-        } else {
-          setAnnouncement(announcementData[0].message);
-        }
-      } else {
-        setAnnouncement(null);
-      }
-
-      // Check expired pins
-      const { data: pinnedMemories, error: pinsError } = await supabase
-        .from("memories")
-        .select("id, pinned_until")
-        .eq("pinned", true)
-        .not("pinned_until", "is", null);
-
-      if (pinsError) {
-        console.error("Error checking expired pins:", pinsError);
-        return;
-      }
-
-      let needsRefresh = false;
-      for (const memory of pinnedMemories || []) {
-        if (new Date(memory.pinned_until) <= currentTime) {
-          await supabase
-            .from("memories")
-            .update({ pinned: false, pinned_until: null })
-            .eq("id", memory.id);
-          needsRefresh = true;
-        }
-      }
-
-      // Refresh memories if any pins were updated
-      if (needsRefresh) {
-        const { data: memoriesData, error: memoriesError } = await supabase
-          .from("memories")
-          .select("*")
-          .eq("status", "approved")
-          .order("pinned", { ascending: false })
-          .order("created_at", { ascending: false })
-          .limit(3);
-
-        if (memoriesError) {
-          console.error("Error fetching memories:", memoriesError.message);
-        } else {
-          setRecentMemories(memoriesData || []);
-        }
-      }
-    };
-
-    const interval = setInterval(checkExpiredItems, 1000);
-    return () => clearInterval(interval);
-  }, [currentTime]);
-
-  useEffect(() => {
     async function fetchData() {
       try {
         // Fetch announcement
         const { data: announcementData, error: announcementError } = await supabase
           .from("announcements")
-          .select("message")
+          .select("id, message, expires_at")
           .eq("is_active", true)
           .order("created_at", { ascending: false })
           .limit(1);
 
+        if (!isMounted) return;
+
         if (announcementError) {
           console.error("Error fetching announcement:", announcementError.message);
+        } else if (announcementData?.[0]) {
+          const expiryTime = new Date(announcementData[0].expires_at);
+          const now = new Date();
+          
+          // Check if announcement has expired
+          if (now >= expiryTime) {
+            // Deactivate expired announcement
+            await supabase
+              .from("announcements")
+              .update({ is_active: false })
+              .eq("id", announcementData[0].id);
+            if (isMounted) setAnnouncement(null);
+          } else {
+            if (isMounted) setAnnouncement(announcementData[0].message);
+            
+            // Schedule next check for this announcement
+            const timeUntilExpiry = expiryTime.getTime() - now.getTime();
+            timeoutId = setTimeout(() => {
+              if (isMounted) fetchData();
+            }, timeUntilExpiry);
+          }
         } else {
-          setAnnouncement(announcementData?.[0]?.message || null);
+          if (isMounted) setAnnouncement(null);
         }
 
         // Fetch memories
@@ -132,10 +86,42 @@ export default function Home() {
           .order("created_at", { ascending: false })
           .limit(3);
 
+        if (!isMounted) return;
+
         if (memoriesError) {
           console.error("Error fetching memories:", memoriesError.message);
         } else {
-          setRecentMemories(memoriesData || []);
+          // Check for expired pins
+          const updatedMemories = memoriesData || [];
+          let needsUpdate = false;
+          const now = new Date();
+
+          for (const memory of updatedMemories) {
+            if (memory.pinned && memory.pinned_until) {
+              const pinExpiry = new Date(memory.pinned_until);
+              if (now >= pinExpiry) {
+                await supabase
+                  .from("memories")
+                  .update({ pinned: false, pinned_until: null })
+                  .eq("id", memory.id);
+                needsUpdate = true;
+              }
+            }
+          }
+
+          // If any pins were updated, fetch memories again
+          if (needsUpdate) {
+            const { data: refreshedMemories } = await supabase
+              .from("memories")
+              .select("*")
+              .eq("status", "approved")
+              .order("pinned", { ascending: false })
+              .order("created_at", { ascending: false })
+              .limit(3);
+            if (isMounted) setRecentMemories(refreshedMemories || []);
+          } else {
+            if (isMounted) setRecentMemories(updatedMemories);
+          }
         }
       } catch (err) {
         console.error("Unexpected error:", err);
@@ -148,7 +134,12 @@ export default function Home() {
       setShowWelcome(true);
       localStorage.setItem("hasVisited", "true");
     }
-  }, []);
+
+    return () => {
+      isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [currentTime]); // Add currentTime as dependency
 
   const handleWelcomeClose = () => setShowWelcome(false);
 

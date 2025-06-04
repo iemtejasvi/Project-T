@@ -428,14 +428,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       >
         <div>
           <div className="flex justify-between items-start">
-            <h3 className="text-2xl font-bold text-[var(--text)]">
-              {memory.animation && (
-                <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                  ★
-                </span>
-              )}
-              To: {memory.recipient}
-            </h3>
+          <h3 className="text-2xl font-bold text-[var(--text)]">
+            {memory.animation && (
+              <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                ★
+              </span>
+            )}
+            To: {memory.recipient}
+          </h3>
             {memory.pinned && (
               <span className="text-yellow-500 text-xl">📌</span>
             )}
@@ -481,14 +481,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           >
             <div>
               <div className="flex justify-between items-start">
-                <h3 className="text-xl font-bold text-[var(--text)]">
-                  {memory.animation && (
-                    <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                      ★
-                    </span>
-                  )}
-                  To: {memory.recipient}
-                </h3>
+              <h3 className="text-xl font-bold text-[var(--text)]">
+                {memory.animation && (
+                  <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                    ★
+                  </span>
+                )}
+                To: {memory.recipient}
+              </h3>
                 {memory.pinned && (
                   <span className="text-yellow-500 text-xl">📌</span>
                 )}
