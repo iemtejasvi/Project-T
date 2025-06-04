@@ -447,7 +447,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           {renderMessage(memory)}
         </div>
         <hr className="my-2 border-[var(--border)]" />
-        <div className="text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap">
+        <div className="text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap font-normal">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
         </div>
       </motion.div>
@@ -496,7 +496,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
               <hr className="my-2 border-[var(--border)]" />
             </div>
-            <div className="text-xs text-[var(--text)] text-center">
+            <div className="text-xs text-[var(--text)] text-center font-normal">
               {dateStr} | {dayStr}
             </div>
             <TypewriterPrompt />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -15,6 +15,7 @@ interface Memory {
   country?: string;
   animation?: string;
   pinned?: boolean;
+  pinned_until?: string;
 }
 
 type Tab = "pending" | "approved" | "banned" | "announcements";
@@ -25,7 +26,30 @@ export default function AdminPanel() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [announcement, setAnnouncement] = useState("");
-  const [currentAnnouncement, setCurrentAnnouncement] = useState<string | null>(null);
+  const [announcementTimer, setAnnouncementTimer] = useState({
+    days: "",
+    hours: "",
+    minutes: "",
+    seconds: ""
+  });
+  const [currentAnnouncement, setCurrentAnnouncement] = useState<{ id: string; message: string; expires_at: string } | null>(null);
+  const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Memoize refreshMemories to prevent infinite loops
+  const refreshMemories = useCallback(() => {
+    if (!isAuthorized) return;
+    supabase
+      .from("memories")
+      .select("*")
+      .order("pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+      .eq("status", selectedTab)
+      .then(({ data, error }) => {
+        if (error) console.error(error);
+        else setMemories(data || []);
+      });
+  }, [isAuthorized, selectedTab]);
 
   // Check for admin secret from query string
   useEffect(() => {
@@ -67,7 +91,7 @@ export default function AdminPanel() {
     try {
       const { data, error } = await supabase
         .from("announcements")
-        .select("message")
+        .select("id, message, expires_at")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(1);
@@ -77,15 +101,73 @@ export default function AdminPanel() {
         return;
       }
 
-      setCurrentAnnouncement(data?.[0]?.message || null);
+      if (data?.[0]) {
+        // Check if announcement has expired
+        if (new Date(data[0].expires_at) < new Date()) {
+          // Deactivate expired announcement
+          await supabase
+            .from("announcements")
+            .update({ is_active: false })
+            .eq("id", data[0].id);
+          setCurrentAnnouncement(null);
+        } else {
+          setCurrentAnnouncement(data[0]);
+        }
+      } else {
+        setCurrentAnnouncement(null);
+      }
     } catch (err) {
       console.error("Unexpected error fetching announcement:", err);
     }
   };
 
+  // Update current time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Helper function to calculate total seconds from timer object
+  const calculateTotalSeconds = (timer: { days: string; hours: string; minutes: string; seconds: string }) => {
+    const days = parseInt(timer.days) || 0;
+    const hours = parseInt(timer.hours) || 0;
+    const minutes = parseInt(timer.minutes) || 0;
+    const seconds = parseInt(timer.seconds) || 0;
+    return days * 86400 + hours * 3600 + minutes * 60 + seconds;
+  };
+
+  // Helper function to format remaining time
+  const formatRemainingTime = (expiresAt: string) => {
+    const expiry = new Date(expiresAt);
+    const diff = expiry.getTime() - currentTime.getTime();
+    
+    if (diff <= 0) return "Expired";
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (seconds > 0) parts.push(`${seconds}s`);
+    
+    return parts.join(" ") || "Expired";
+  };
+
   const handleAnnouncementSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!announcement.trim()) return;
+
+    const totalSeconds = calculateTotalSeconds(announcementTimer);
+    if (totalSeconds <= 0) return;
+
+    const expiresAt = new Date();
+    expiresAt.setSeconds(expiresAt.getSeconds() + totalSeconds);
 
     // Deactivate all current announcements
     await supabase
@@ -94,15 +176,22 @@ export default function AdminPanel() {
       .eq("is_active", true);
 
     // Create new announcement
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("announcements")
-      .insert([{ message: announcement, is_active: true }]);
+      .insert([{ 
+        message: announcement, 
+        is_active: true,
+        expires_at: expiresAt.toISOString()
+      }])
+      .select()
+      .single();
 
     if (error) {
       console.error("Error creating announcement:", error);
-    } else {
+    } else if (data) {
       setAnnouncement("");
-      fetchCurrentAnnouncement();
+      setAnnouncementTimer({ days: "", hours: "", minutes: "", seconds: "" });
+      setCurrentAnnouncement(data);
     }
   };
 
@@ -168,27 +257,85 @@ export default function AdminPanel() {
   }
 
   async function togglePin(memory: Memory) {
+    if (memory.pinned) {
+      // If already pinned, just unpin it
+      const { error } = await supabase
+        .from("memories")
+        .update({ 
+          pinned: false,
+          pinned_until: null
+        })
+        .eq("id", memory.id);
+      if (error) console.error(error);
+      refreshMemories();
+      return;
+    }
+
+    // For pinning, check timer
+    const timer = pinTimers[memory.id];
+    if (!timer) return;
+    
+    const totalSeconds = calculateTotalSeconds(timer);
+    if (totalSeconds <= 0) return;
+
+    const pinnedUntil = new Date();
+    pinnedUntil.setSeconds(pinnedUntil.getSeconds() + totalSeconds);
+
     const { error } = await supabase
       .from("memories")
-      .update({ pinned: !memory.pinned })
+      .update({ 
+        pinned: true,
+        pinned_until: pinnedUntil.toISOString()
+      })
       .eq("id", memory.id);
     if (error) console.error(error);
     refreshMemories();
   }
 
-  function refreshMemories() {
-    if (!isAuthorized) return;
-    supabase
-      .from("memories")
-      .select("*")
-      .order("pinned", { ascending: false })
-      .order("created_at", { ascending: false })
-      .eq("status", selectedTab)
-      .then(({ data, error }) => {
-        if (error) console.error(error);
-        else setMemories(data || []);
-      });
-  }
+  // Add interval for checking expired items
+  useEffect(() => {
+    const checkExpiredItems = async () => {
+      // Check expired announcements
+      if (currentAnnouncement) {
+        const expiry = new Date(currentAnnouncement.expires_at);
+        if (currentTime >= expiry) {
+          await supabase
+            .from("announcements")
+            .update({ is_active: false })
+            .eq("id", currentAnnouncement.id);
+          setCurrentAnnouncement(null);
+        }
+      }
+
+      // Check expired pins
+      const { data: pinnedMemories, error } = await supabase
+        .from("memories")
+        .select("id, pinned_until")
+        .eq("pinned", true)
+        .not("pinned_until", "is", null);
+
+      if (error) {
+        console.error("Error checking expired pins:", error);
+        return;
+      }
+
+      for (const memory of pinnedMemories || []) {
+        if (new Date(memory.pinned_until) <= currentTime) {
+          await supabase
+            .from("memories")
+            .update({ pinned: false, pinned_until: null })
+            .eq("id", memory.id);
+        }
+      }
+
+      // Refresh memories if we're on the approved tab
+      if (selectedTab === "approved") {
+        refreshMemories();
+      }
+    };
+
+    checkExpiredItems();
+  }, [currentTime, currentAnnouncement, selectedTab, refreshMemories]);
 
   if (!authChecked) {
     return (
@@ -253,10 +400,10 @@ export default function AdminPanel() {
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm sm:text-base md:text-lg text-[var(--text)] whitespace-pre-wrap break-words">
-                        {currentAnnouncement}
+                        {currentAnnouncement.message}
                       </p>
                       <p className="text-xs sm:text-sm text-gray-500 mt-2">
-                        Active Announcement
+                        Active Announcement • Expires in: {formatRemainingTime(currentAnnouncement.expires_at)}
                       </p>
                     </div>
                     <div className="flex flex-row items-center gap-2">
@@ -286,10 +433,62 @@ export default function AdminPanel() {
                     placeholder="Type your announcement here..."
                   />
                 </div>
-                <div className="flex justify-end">
+                <div className="flex flex-col sm:flex-row gap-4 items-end">
+                  <div className="w-full sm:w-auto">
+                    <div className="grid grid-cols-4 gap-1 sm:gap-2">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Days</label>
+                        <input
+                          type="number"
+                          value={announcementTimer.days}
+                          onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, days: e.target.value }))}
+                          min="0"
+                          className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Hours</label>
+                        <input
+                          type="number"
+                          value={announcementTimer.hours}
+                          onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, hours: e.target.value }))}
+                          min="0"
+                          max="23"
+                          className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Mins</label>
+                        <input
+                          type="number"
+                          value={announcementTimer.minutes}
+                          onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, minutes: e.target.value }))}
+                          min="0"
+                          max="59"
+                          className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">Secs</label>
+                        <input
+                          type="number"
+                          value={announcementTimer.seconds}
+                          onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, seconds: e.target.value }))}
+                          min="0"
+                          max="59"
+                          className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2 font-medium text-sm sm:text-base whitespace-nowrap"
+                    className="w-full sm:w-auto px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2 font-medium text-sm whitespace-nowrap"
+                    disabled={!announcement.trim() || calculateTotalSeconds(announcementTimer) <= 0}
                   >
                     <span>📢</span>
                     <span>Post Announcement</span>
@@ -355,20 +554,81 @@ export default function AdminPanel() {
                     <>
                       <button
                         onClick={() => deleteMemory(memory.id)}
-                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                        className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
                       >
                         Delete
                       </button>
-                      <button
-                        onClick={() => togglePin(memory)}
-                        className={`px-4 py-2 ${
-                          memory.pinned 
-                            ? "bg-yellow-500 hover:bg-yellow-600" 
-                            : "bg-gray-500 hover:bg-gray-600"
-                        } text-white rounded transition-colors`}
-                      >
-                        {memory.pinned ? "Unpin" : "Pin"}
-                      </button>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        {memory.pinned && memory.pinned_until && (
+                          <div className="text-sm text-gray-500">
+                            Unpins in: {formatRemainingTime(memory.pinned_until)}
+                          </div>
+                        )}
+                        {!memory.pinned && (
+                          <div className="w-full sm:w-auto">
+                            <div className="grid grid-cols-4 gap-1">
+                              <input
+                                type="number"
+                                value={pinTimers[memory.id]?.days ?? ""}
+                                onChange={(e) => setPinTimers(prev => ({
+                                  ...prev,
+                                  [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), days: e.target.value }
+                                }))}
+                                min="0"
+                                className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                placeholder="D"
+                              />
+                              <input
+                                type="number"
+                                value={pinTimers[memory.id]?.hours ?? ""}
+                                onChange={(e) => setPinTimers(prev => ({
+                                  ...prev,
+                                  [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), hours: e.target.value }
+                                }))}
+                                min="0"
+                                max="23"
+                                className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                placeholder="H"
+                              />
+                              <input
+                                type="number"
+                                value={pinTimers[memory.id]?.minutes ?? ""}
+                                onChange={(e) => setPinTimers(prev => ({
+                                  ...prev,
+                                  [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), minutes: e.target.value }
+                                }))}
+                                min="0"
+                                max="59"
+                                className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                placeholder="M"
+                              />
+                              <input
+                                type="number"
+                                value={pinTimers[memory.id]?.seconds ?? ""}
+                                onChange={(e) => setPinTimers(prev => ({
+                                  ...prev,
+                                  [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), seconds: e.target.value }
+                                }))}
+                                min="0"
+                                max="59"
+                                className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                placeholder="S"
+                              />
+                            </div>
+                          </div>
+                        )}
+                        <button
+                          onClick={() => togglePin(memory)}
+                          className={`w-full sm:w-auto px-3 sm:px-4 py-2 ${
+                            memory.pinned 
+                              ? "bg-yellow-500 hover:bg-yellow-600" 
+                              : "bg-gray-500 hover:bg-gray-600"
+                          } text-white rounded transition-colors text-sm`}
+                          disabled={!memory.pinned && (!pinTimers[memory.id] || calculateTotalSeconds(pinTimers[memory.id]) <= 0)}
+                        >
+                          {memory.pinned ? "Unpin" : "Pin"}
+                        </button>
+                      </div>
                     </>
                   )}
                   {selectedTab === "banned" && (

@@ -43,18 +43,18 @@ export default function Home() {
 
         // Fetch memories
         const { data: memoriesData, error: memoriesError } = await supabase
-          .from("memories")
-          .select("*")
-          .eq("status", "approved")
+        .from("memories")
+        .select("*")
+        .eq("status", "approved")
           .order("pinned", { ascending: false })
-          .order("created_at", { ascending: false })
-          .limit(3);
+        .order("created_at", { ascending: false })
+        .limit(3);
 
         if (memoriesError) {
           console.error("Error fetching memories:", memoriesError.message);
         } else {
           setRecentMemories(memoriesData || []);
-        }
+    }
       } catch (err) {
         console.error("Unexpected error:", err);
       }
@@ -134,7 +134,7 @@ export default function Home() {
               📢 Admin Announcement — {announcement}
             </h2>
           ) : (
-            <TypingEffect />
+          <TypingEffect />
           )}
         </div>
       </section>
