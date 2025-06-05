@@ -28,7 +28,7 @@ const PoeticText: React.FC<PoeticTextProps> = ({ message, textClass, effectiveCo
   }, [message, effectiveColor]);
 
   return (
-    <div className="poetic-text pl-[0.1rem] antialiased space-y-2">
+    <div className="poetic-text pl-[0.25rem] antialiased space-y-2">
       <p className={textClass} ref={containerRef}>
         {message.split(' ').map((word, wordIdx) => (
           <span key={wordIdx} className="word">
