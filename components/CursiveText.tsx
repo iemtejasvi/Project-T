@@ -55,8 +55,8 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
     };
 
     // Function to melt a character
-    const meltCharacter = (char: Element, index: number) => {
-      const meltDistance = 3 + Math.random() * 4 + (index % 4); // More variation
+    const meltCharacter = (char: Element) => {
+      const meltDistance = 3 + Math.random() * 4; // More variation
       char.setAttribute('style', `--melt-distance: ${meltDistance}px`);
       
       // Start melting with a slight delay
@@ -65,7 +65,7 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
         
         // Create drips after melting starts
         setTimeout(() => {
-          createDrip(char, index);
+          createDrip(char, 0);
         }, 300);
 
         // Complete melting after a longer delay
@@ -81,7 +81,7 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
       const baseDelay = index * (800 + Math.random() * 1200); // Longer delays between characters
       const randomOffset = Math.random() * 500; // Random offset for more natural feel
       setTimeout(() => {
-        meltCharacter(char, index);
+        meltCharacter(char);
       }, baseDelay + randomOffset);
     });
 
