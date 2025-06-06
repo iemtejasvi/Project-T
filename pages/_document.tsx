@@ -14,7 +14,7 @@ export default function Document() {
           rel="stylesheet"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Beth+Ellen&display=swap"
           rel="stylesheet"
         />
       </Head>

@@ -86,7 +86,7 @@ export default function HowItWorks() {
           </h3>
           <ul className="list-disc list-inside text-base sm:text-lg text-[var(--text)] mb-4">
             <li>
-              <strong>Create Memories:</strong> Write messages, pick colors, and add effects like bleeding or handwritten text.
+              <strong>Create Memories:</strong> Write messages, pick colors, and add effects like bleeding text or poetic fade.
             </li>
             <li>
               <strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.

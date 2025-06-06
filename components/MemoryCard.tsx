@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import PoeticText from "./PoeticText";
+import CursiveText from './CursiveText';
 
 interface Memory {
   id: string;
@@ -429,13 +430,17 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <p className={textClass}>{memory.message}</p>
           </div>
         );
-      case "handwritten":
-        return (
-          <HandwrittenText message={memory.message} textClass={textClass} />
-        );
       case "poetic":
         return (
           <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
+        );
+      case "cursive":
+        return (
+          <CursiveText
+            message={memory.message}
+            textClass={textClass}
+            effectiveColor={effectiveColor}
+          />
         );
       default:
         return (
@@ -552,16 +557,5 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     </div>
   );
 };
-
-interface HandwrittenTextProps {
-  message: string;
-  textClass: string;
-}
-
-const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, textClass }) => (
-  <div className="handwritten-text pl-[0.1rem] antialiased space-y-2">
-    <p className={textClass}>{message}</p>
-  </div>
-);
 
 export default MemoryCard;

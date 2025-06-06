@@ -31,7 +31,7 @@ const PoeticText: React.FC<PoeticTextProps> = ({ message, textClass, effectiveCo
     <div className="poetic-text pl-[0.25rem] antialiased space-y-2">
       <p className={textClass} ref={containerRef}>
         {message.split(' ').map((word, wordIdx) => (
-          <span key={wordIdx} className="word">
+          <span key={wordIdx} className="word inline-block mr-2">
             {word.split('').map((char, charIdx) => (
               <span key={`${wordIdx}-${charIdx}`} className="letter">
                 {char}

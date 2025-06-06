@@ -54,11 +54,11 @@ const colorOptions = [
   { value: "wine", label: "Wine" }
 ];
 
-const specialEffectOptions = [
-  { value: "", label: "None" },
-  { value: "bleeding", label: "Bleeding Text Effect" },
-  { value: "handwritten", label: "Handwritten Text Effect" },
-  { value: "poetic", label: "Poetic Fade Effect" }
+const specialEffects = [
+  { value: "none", label: "None" },
+  { value: "bleeding", label: "Bleeding Text" },
+  { value: "poetic", label: "Poetic Fade" },
+  { value: "cursive", label: "Melting Text" },
 ];
 
 const limitMessages = [
@@ -359,7 +359,7 @@ export default function SubmitPage() {
                 disabled={!isSpecialAllowed}
                 className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50"
               >
-                {specialEffectOptions.map((o) => (
+                {specialEffects.map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>

@@ -178,11 +178,7 @@ body {
   font-family: 'Architects Daughter', cursive;
   color: var(--accent);
 }
-.handwritten-text p {
-  font-family: 'Pacifico', cursive;
-  font-size: 1.5rem;
-  color: var(--text);
-}
+
 .poetic-text {
   font-family: 'Beth Ellen', cursive;
   background: transparent;
@@ -250,4 +246,238 @@ body {
 }
 input, textarea {
   user-select: text;
+}
+
+
+
+#LongWalks { 
+  width: 100%; 
+}
+
+.LongWalks.One { 
+  stroke-dasharray: 470; 
+  animation: longwrite1 2.6s linear infinite; 
+}
+.LongWalks.Two { 
+  stroke-dasharray: 300;  
+  animation: longwrite2 2.6s linear infinite; 
+}
+.LongWalks.Three { 
+  stroke-dasharray: 330; 
+  animation: longwrite3 2.6s linear infinite; 
+}
+.LongWalks.Four { 
+  stroke-dasharray: 220; 
+  animation: longwrite4 2.6s linear infinite; 
+}
+.LongWalks.Five { 
+  stroke-dasharray: 310; 
+  animation: longwrite5 2.6s linear infinite; 
+}
+.LongWalks.Six { 
+  stroke-dasharray: 60; 
+  animation: longwrite6 2.6s linear infinite; 
+}
+.LongWalks.Seven { 
+  stroke-dasharray: 240; 
+  animation: longwrite7 2.6s linear infinite; 
+}
+
+@keyframes longwrite1 {
+  0% { opacity: 0; stroke-dasharray: 0 470; }
+  0.1% { opacity: 1; }
+  20% { stroke-dasharray: 470 0; }
+}
+@keyframes longwrite2 {
+  0%,23% { opacity: 0; stroke-dasharray: 0 300; }
+  23.1% { opacity: 1; }
+  38% { stroke-dasharray: 300 0; }
+}
+@keyframes longwrite3 {
+  0%,39% { opacity: 0; stroke-dasharray: 0 330; }
+  39.1% { opacity: 1; }
+  51% { stroke-dasharray: 330 0; }
+}
+@keyframes longwrite4 {
+  0%,53% { opacity: 0; stroke-dasharray: 0 220; }
+  53.1% { opacity: 1; }
+  63% { stroke-dasharray: 220 0; }
+}
+@keyframes longwrite5 {
+  0%,65% { opacity: 0; stroke-dasharray: 0 310; }
+  65.1% { opacity: 1; }
+  78% { stroke-dasharray: 310 0; }
+}
+@keyframes longwrite6 {
+  0%,79% { opacity: 0; stroke-dasharray: 0 60; }
+  79.1% { opacity: 1; }
+  83% { stroke-dasharray: 60 0; }
+}
+@keyframes longwrite7 {
+  0%,84% { opacity: 0; stroke-dasharray: 0 240; }
+  84.1% { opacity: 1; }
+  100% { stroke-dasharray: 240 0; }
+}
+
+/* Enhanced Dramatic Cursive Text Effect */
+.cursive-text {
+  font-size: 24px;
+  line-height: 1.5;
+  letter-spacing: 0.025em;
+  position: relative;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.cursive-text p {
+  opacity: 0;
+  animation: cursiveReveal 2s ease-out forwards;
+  margin: 0;
+  padding: 0;
+}
+
+.cursive-line {
+  display: block;
+  position: relative;
+  overflow: visible;
+  margin-bottom: 0.5em;
+}
+
+.cursive-char {
+  display: inline-block;
+  position: relative;
+  transform-origin: center bottom;
+  animation: none;
+  transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cursive-char::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 0;
+  background: linear-gradient(180deg, currentColor 0%, transparent 100%);
+  opacity: 0;
+  filter: blur(2px);
+  transform-origin: top;
+  transition: height 1s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 1s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cursive-char::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 0;
+  background: linear-gradient(180deg, currentColor 0%, transparent 100%);
+  opacity: 0;
+  filter: blur(4px);
+  transform-origin: top;
+  transition: height 1.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cursive-char.melting {
+  filter: blur(0.5px);
+}
+
+.cursive-char.melting::before {
+  height: 25px;
+  opacity: 0.4;
+  transform: scaleY(1.1);
+}
+
+.cursive-char.melting::after {
+  height: 35px;
+  opacity: 0.2;
+  transform: scaleY(1.2);
+}
+
+.cursive-char.melted {
+  transform: translateY(var(--melt-distance, 4px)) scale(0.92);
+  opacity: 0.7;
+  filter: blur(1px);
+}
+
+.cursive-drip {
+  position: absolute;
+  width: 1px;
+  background: currentColor;
+  filter: blur(1px);
+  opacity: 0;
+  transform-origin: top;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cursive-char-drip {
+  position: absolute;
+  width: 1px;
+  background: currentColor;
+  filter: blur(0.8px);
+  opacity: 0;
+  transform-origin: top;
+  left: 50%;
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+              height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cursive-char-drip.active {
+  opacity: 0.6;
+  height: var(--drip-height);
+  transform: translateY(calc(var(--drip-height) * 0.3));
+}
+
+@keyframes cursiveReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  30% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dripAnimation {
+  0% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  30% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes charDripAnimation {
+  0% {
+    opacity: 0;
+    height: 0;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 0.3;
+    height: var(--drip-height);
+  }
+  100% {
+    opacity: 0;
+    height: var(--drip-height);
+    transform: translateY(calc(var(--drip-height) * 1.2));
+  }
 }
