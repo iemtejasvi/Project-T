@@ -113,7 +113,7 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
   }, [message]);
 
   return (
-    <div ref={containerRef} className="cursive-text pl-[0.05rem] antialiased space-y-2">
+    <div ref={containerRef} className="cursive-text px-[0.05rem] sm:px-[0.05rem] antialiased space-y-2">
       <p 
         className={`${textClass} ${pacifico.className}`}
         style={{ 
@@ -125,7 +125,7 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
         {message.split('\n').map((line, index) => (
           <span key={index} className="cursive-line block relative">
             {line.split(' ').map((word, wordIndex) => (
-              <span key={wordIndex} className="inline-block mr-2">
+              <span key={wordIndex} className="inline-block mr-2 sm:mr-2">
                 {word.split('').map((char, charIndex) => (
                   <span key={charIndex} className="cursive-char relative inline-block">
                     {char}
