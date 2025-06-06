@@ -220,15 +220,19 @@ body {
   0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-@keyframes fade-in {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .animate-slide-up {
   animation: slide-up 0.5s ease-out;
 }
 .animate-fade-in {
-  animation: fade-in 0.5s ease-out;
+  animation: fadeIn 0.15s ease-out forwards;
 }
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
@@ -479,5 +483,173 @@ input, textarea {
     opacity: 0;
     height: var(--drip-height);
     transform: translateY(calc(var(--drip-height) * 1.2));
+  }
+}
+
+/* Dropping Text Effect */
+.dropping-char {
+  transform: translateY(-80px);
+  transition: all 0.8s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+  opacity: 0;
+  display: inline-block;
+  transform-origin: center bottom;
+  filter: blur(1px);
+  text-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.dropping-char::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, 
+    rgba(255, 255, 255, 0.8) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.dropping-char.dropped {
+  animation: charDrop 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 1;
+}
+
+.dropping-char.dropped::before {
+  animation: charGlow 1.4s ease-out forwards;
+}
+
+@keyframes charDrop {
+  0% {
+    transform: translateY(-80px) rotate(-5deg) scale(0.8);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  15% {
+    transform: translateY(25px) rotate(3deg) scale(1.2);
+    opacity: 1;
+    filter: blur(0.5px);
+  }
+  30% {
+    transform: translateY(-15px) rotate(-2deg) scale(0.9);
+  }
+  45% {
+    transform: translateY(10px) rotate(2deg) scale(1.1);
+  }
+  60% {
+    transform: translateY(-6px) rotate(-1deg) scale(0.95);
+  }
+  75% {
+    transform: translateY(3px) rotate(1deg) scale(1.05);
+  }
+  90% {
+    transform: translateY(-2px) rotate(-0.5deg) scale(0.98);
+  }
+  100% {
+    transform: translateY(0) rotate(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes charGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  20% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  40% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.dropping-line {
+  position: relative;
+  overflow: visible;
+}
+
+.dropping-line::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  transform: scaleX(0);
+  transition: transform 0.6s ease-out;
+}
+
+.dropping-line.complete::before {
+  transform: scaleX(1);
+}
+
+/* Particle Effect */
+.particle {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(45deg, 
+    var(--color-default-border) 0%,
+    var(--color-default-bg) 40%,
+    var(--color-default-border) 60%,
+    var(--color-default-bg) 100%
+  );
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1000;
+  filter: blur(1.5px);
+  animation: particleExplode 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  box-shadow: 
+    0 0 6px var(--color-default-border),
+    0 0 12px var(--color-default-bg),
+    0 0 20px var(--color-default-border);
+  opacity: 0;
+}
+
+@keyframes particleExplode {
+  0% {
+    transform: scale(0.5) translate(0, 0);
+    opacity: 0;
+  }
+  10% {
+    transform: scale(1.2) translate(0, 0);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.8) translate(
+      calc(var(--x) * 15px),
+      calc(var(--y) * 15px)
+    );
+    opacity: 0.9;
+  }
+  60% {
+    transform: scale(1.2) translate(
+      calc(var(--x) * 60px),
+      calc(var(--y) * 60px)
+    );
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(0.8) translate(
+      calc(var(--x) * 120px),
+      calc(var(--y) * 120px)
+    );
+    opacity: 0;
   }
 }

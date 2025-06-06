@@ -59,6 +59,7 @@ const specialEffects = [
   { value: "bleeding", label: "Bleeding Text" },
   { value: "poetic", label: "Poetic Fade" },
   { value: "cursive", label: "Melting Text" },
+  { value: "dropping", label: "Dropping Text" },
 ];
 
 const limitMessages = [

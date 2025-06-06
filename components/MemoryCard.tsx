@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
+import DroppingText from './DroppingText';
 
 interface Memory {
   id: string;
@@ -316,6 +317,8 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showEffect, setShowEffect] = useState(true);
 
   const allowedColors = new Set([
     "default",
@@ -412,17 +415,28 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const handleCardClick = () => {
     if (!detail) {
+      setShowEffect(false);
+      setIsAnimating(true);
       setFlipped(!flipped);
+      
+      // Start showing effect slightly before flip completes
+      setTimeout(() => {
+        setShowEffect(true);
+        // Mark animation as complete after effect starts
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 50);
+      }, 400); // Reduced from 500ms to 400ms
     }
   };
 
   const renderMessage = (memory: Memory) => {
     const wordCount = memory.message.split(/\s+/).length;
     const isShortOrExact = wordCount <= 30;
-    // Premium sizing and spacing classes
     const textClass = isShortOrExact
       ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
       : "text-lg tracking-wide leading-snug break-words hyphens-none";
+    
     switch (memory.animation) {
       case "bleeding":
         return (
@@ -441,6 +455,24 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             textClass={textClass}
             effectiveColor={effectiveColor}
           />
+        );
+      case "dropping":
+        return (
+          <div className="relative">
+            {showEffect ? (
+              <div className="animate-fade-in">
+                <DroppingText
+                  message={memory.message}
+                  textClass={textClass}
+                  effectiveColor={effectiveColor}
+                />
+              </div>
+            ) : (
+              <div className="opacity-0">
+                <p className={textClass}>{memory.message}</p>
+              </div>
+            )}
+          </div>
         );
       default:
         return (
