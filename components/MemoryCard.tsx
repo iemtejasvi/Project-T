@@ -426,7 +426,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     switch (memory.animation) {
       case "bleeding":
         return (
-          <div className="bleeding-text pl-2 antialiased space-y-2" style={{ color: effectiveColor === "default" ? "#F8F8F0" : `var(--color-${effectiveColor}-bg)`, textShadow: 'none' }}>
+          <div className="bleeding-text pl-2 antialiased space-y-2">
             <p className={textClass}>{memory.message}</p>
           </div>
         );
