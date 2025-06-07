@@ -316,7 +316,6 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
-  const [showEffect, setShowEffect] = useState(true);
 
   const allowedColors = new Set([
     "default",
@@ -413,13 +412,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
   const handleCardClick = () => {
     if (!detail) {
-      setShowEffect(false);
       setFlipped(!flipped);
-      
-      // Start showing effect slightly before flip completes
-      setTimeout(() => {
-        setShowEffect(true);
-      }, 400); // Reduced from 500ms to 400ms
     }
   };
 
