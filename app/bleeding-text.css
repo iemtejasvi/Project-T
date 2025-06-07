@@ -1,0 +1,106 @@
+.bleeding-text {
+  font-family: 'Architects Daughter', cursive;
+  color: var(--accent);
+  text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+    0 0 0.1em rgb(0%, 100%, 0%),
+    0 0 0.2em rgb(100%, 10%, 10%),
+    0 0 0.3em rgb(100%, 0%, 0%),
+    0 0 0.4em rgb(0%, 0%, 100%);
+  animation: pulse 2s infinite;
+  background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: blur(1px);
+}
+
+@keyframes pulse {
+  0% {
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+  }
+  50% {
+    text-shadow: 0 0 0.1em rgb(0%, 0%, 100%),
+      0 0 0.2em rgb(0%, 100%, 0%),
+      0 0 0.3em rgb(100%, 10%, 10%),
+      0 0 0.4em rgb(100%, 0%, 0%),
+      0 0 0.5em rgb(0%, 0%, 100%);
+  }
+  100% {
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+  }
+}
+
+@media (max-width: 480px) {
+  .bleeding-text {
+    font-family: 'Architects Daughter', cursive;
+    color: var(--accent);
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+    animation: pulse 2s infinite;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: blur(1px);
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .bleeding-text {
+    font-family: 'Architects Daughter', cursive;
+    color: var(--accent);
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+    animation: pulse 2s infinite;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: blur(1px);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .bleeding-text {
+    font-family: 'Architects Daughter', cursive;
+    color: var(--accent);
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+    animation: pulse 2s infinite;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: blur(1px);
+  }
+}
+
+@media (min-width: 1025px) {
+  .bleeding-text {
+    font-family: 'Architects Daughter', cursive;
+    color: var(--accent);
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+    animation: pulse 2s infinite;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: blur(1px);
+  }
+} 

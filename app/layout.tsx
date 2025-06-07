@@ -1,5 +1,6 @@
 import "./globals.css";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import './bleeding-text.css';
 
 export const metadata = {
   title: "If Only I Sent This",
