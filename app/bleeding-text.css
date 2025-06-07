@@ -16,9 +16,16 @@
   transform: translateZ(0) !important;
   backface-visibility: hidden !important;
   perspective: 1000 !important;
-  font-size: 1.5rem !important;
+  font-size: clamp(1.25rem, 4vw, 1.5rem) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.05em !important;
+  font-display: swap !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-text-size-adjust: 100% !important;
+  -moz-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
 }
 
 @keyframes pulse {
