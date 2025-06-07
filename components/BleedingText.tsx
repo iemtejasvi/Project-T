@@ -7,7 +7,7 @@ interface BleedingTextProps {
 
 const BleedingText: React.FC<BleedingTextProps> = ({ message, textClass }) => {
   return (
-    <div className="bleeding-text pl-2 antialiased space-y-2">
+    <div className="bleeding-text pl-2 pr-[0.125rem] antialiased space-y-2">
       <p className={textClass}>{message}</p>
     </div>
   );
