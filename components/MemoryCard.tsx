@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
+import BleedingText from './BleedingText';
 
 interface Memory {
   id: string;
@@ -424,12 +425,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       : "text-lg tracking-wide leading-snug break-words hyphens-none";
     
     switch (memory.animation) {
-      case "bleeding":
-        return (
-          <div className="bleeding-text pl-2 antialiased space-y-2">
-            <p className={textClass}>{memory.message}</p>
-          </div>
-        );
       case "poetic":
         return (
           <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
@@ -442,6 +437,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             effectiveColor={effectiveColor}
           />
         );
+      case "bleeding":
+        return <BleedingText message={memory.message} textClass={textClass} />;
       default:
         return (
           <div className="space-y-2">
