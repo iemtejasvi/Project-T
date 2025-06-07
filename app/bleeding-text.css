@@ -1,16 +1,24 @@
 .bleeding-text {
-  font-family: 'Architects Daughter', cursive;
-  color: var(--accent);
+  font-family: 'Permanent Marker', cursive !important;
+  color: var(--accent) !important;
   text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
     0 0 0.1em rgb(0%, 100%, 0%),
     0 0 0.2em rgb(100%, 10%, 10%),
     0 0 0.3em rgb(100%, 0%, 0%),
-    0 0 0.4em rgb(0%, 0%, 100%);
-  animation: pulse 2s infinite;
-  background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
-  -webkit-background-clip: text;
-  background-clip: text;
-  filter: blur(1px);
+    0 0 0.4em rgb(0%, 0%, 100%) !important;
+  animation: pulse 2s infinite !important;
+  background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  filter: blur(1px) !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  perspective: 1000 !important;
+  font-size: 1.5rem !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.05em !important;
 }
 
 @keyframes pulse {
