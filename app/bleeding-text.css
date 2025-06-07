@@ -25,7 +25,7 @@
   mix-blend-mode: multiply !important;
 }
 
-/* Mobile specific styles for Permanent Marker font */
+/* Mobile specific styles for Permanent Marker font - EXTREME VERSION */
 @media (max-width: 768px) {
   .bleeding-text {
     font-family: 'Permanent Marker', cursive !important;
@@ -35,9 +35,16 @@
       0 0 0.2em rgb(100%, 10%, 10%),
       0 0 0.3em rgb(100%, 0%, 0%),
       0 0 0.4em rgb(0%, 0%, 100%),
-      0 0 0.5em rgba(255, 0, 0, 0.5) !important;
-    animation: pulse 2s infinite !important;
-    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5)) !important;
+      0 0 0.5em rgba(255, 0, 0, 0.5),
+      0 0 0.6em rgba(255, 0, 0, 0.6),
+      0 0 0.7em rgba(255, 0, 0, 0.7) !important;
+    animation: extremePulse 1.8s infinite !important;
+    background: linear-gradient(to bottom, 
+      transparent,
+      rgba(255, 0, 0, 0.3),
+      rgba(255, 0, 0, 0.5),
+      rgba(255, 0, 0, 0.7)
+    ) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     filter: blur(1px) !important;
@@ -50,13 +57,16 @@
     line-height: 1.4 !important;
     letter-spacing: 0.05em !important;
     text-rendering: optimizeLegibility !important;
-    -webkit-text-stroke: 0.5px rgba(255, 0, 0, 0.3) !important;
+    -webkit-text-stroke: 0.8px rgba(255, 0, 0, 0.4) !important;
     mix-blend-mode: multiply !important;
     /* Additional mobile-specific optimizations for Permanent Marker */
     transform-origin: center !important;
     will-change: transform, text-shadow !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
     transform: translate3d(0, 0, 0) !important;
+    text-transform: none !important;
+    font-weight: normal !important;
+    font-style: normal !important;
   }
 }
 
@@ -84,6 +94,39 @@
       0 0 0.3em rgb(100%, 0%, 0%),
       0 0 0.4em rgb(0%, 0%, 100%),
       0 0 0.5em rgba(255, 0, 0, 0.5);
+  }
+}
+
+@keyframes extremePulse {
+  0% {
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%),
+      0 0 0.5em rgba(255, 0, 0, 0.5),
+      0 0 0.6em rgba(255, 0, 0, 0.6),
+      0 0 0.7em rgba(255, 0, 0, 0.7);
+  }
+  50% {
+    text-shadow: 0 0 0.1em rgb(0%, 0%, 100%),
+      0 0 0.2em rgb(0%, 100%, 0%),
+      0 0 0.3em rgb(100%, 10%, 10%),
+      0 0 0.4em rgb(100%, 0%, 0%),
+      0 0 0.5em rgb(0%, 0%, 100%),
+      0 0 0.6em rgba(255, 0, 0, 0.6),
+      0 0 0.7em rgba(255, 0, 0, 0.7),
+      0 0 0.8em rgba(255, 0, 0, 0.8);
+  }
+  100% {
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%),
+      0 0 0.5em rgba(255, 0, 0, 0.5),
+      0 0 0.6em rgba(255, 0, 0, 0.6),
+      0 0 0.7em rgba(255, 0, 0, 0.7);
   }
 }
 
