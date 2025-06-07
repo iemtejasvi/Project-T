@@ -1,10 +1,16 @@
 import "./globals.css";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
 import './bleeding-text.css';
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 export const metadata = {
   title: "If Only I Sent This",
   description: "A modern archive for unsent memories and heartfelt messages.",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
   keywords: [
     "unsent messages",
     "unsent letters",
@@ -621,13 +627,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body>
+      <body className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
         <ThemeSwitcher />
         {children}
       </body>
