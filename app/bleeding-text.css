@@ -19,23 +19,40 @@
   font-size: 1.5rem !important;
   line-height: 1.4 !important;
   letter-spacing: 0.05em !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-text-stroke: 0.5px rgba(255, 0, 0, 0.3) !important;
 }
 
-/* Mobile and small screen specific styles */
+/* Mobile specific styles for Permanent Marker font */
 @media (max-width: 768px) {
   .bleeding-text {
     font-family: 'Permanent Marker', cursive !important;
-    font-size: 1.2rem !important;
-    line-height: 1.3 !important;
-    letter-spacing: 0.03em !important;
-    text-shadow: 0 0 0.08em rgb(0%, 0%, 100%),
-      0 0 0.15em rgb(0%, 100%, 0%),
-      0 0 0.25em rgb(100%, 10%, 10%),
-      0 0 0.35em rgb(100%, 0%, 0%),
-      0 0 0.45em rgb(0%, 0%, 100%) !important;
-    filter: blur(0.8px) !important;
-    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.6)) !important;
-    animation: mobilePulse 1.8s infinite !important;
+    color: var(--accent) !important;
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%) !important;
+    animation: pulse 2s infinite !important;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    filter: blur(1px) !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    transform: translateZ(0) !important;
+    backface-visibility: hidden !important;
+    perspective: 1000 !important;
+    font-size: 1.5rem !important;
+    line-height: 1.4 !important;
+    letter-spacing: 0.05em !important;
+    text-rendering: optimizeLegibility !important;
+    -webkit-text-stroke: 0.5px rgba(255, 0, 0, 0.3) !important;
+    /* Additional mobile-specific optimizations for Permanent Marker */
+    transform-origin: center !important;
+    will-change: transform, text-shadow !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    transform: translate3d(0, 0, 0) !important;
   }
 }
 
