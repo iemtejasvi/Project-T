@@ -4,7 +4,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
-import DroppingText from './DroppingText';
 
 interface Memory {
   id: string;
@@ -449,24 +448,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             textClass={textClass}
             effectiveColor={effectiveColor}
           />
-        );
-      case "dropping":
-        return (
-          <div className="relative">
-            {showEffect ? (
-              <div className="animate-fade-in">
-                <DroppingText
-                  message={memory.message}
-                  textClass={textClass}
-                  effectiveColor={effectiveColor}
-                />
-              </div>
-            ) : (
-              <div className="opacity-0">
-                <p className={textClass}>{memory.message}</p>
-              </div>
-            )}
-          </div>
         );
       default:
         return (
