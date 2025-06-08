@@ -1,15 +1,30 @@
 import "./globals.css";
 import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import Script from 'next/script';
 
 export const metadata = {
   title: "If Only I Sent This",
-  description: "A modern archive for unsent memories and heartfelt messages.",
+  description: "A modern archive for unsent memories and heartfelt messages. Share your unsent thoughts, love letters, and emotional confessions anonymously.",
   viewport: {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 1,
     userScalable: false,
+  },
+  verification: {
+    google: '-3cysNzrb6ZgU44DFdsfeiwU61zydgZWRMyXebgmsUM',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   keywords: [
     "unsent messages",
@@ -583,18 +598,17 @@ export const metadata = {
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
     ],
-    apple: '/apple-touch-icon.png',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
     other: [
       {
-        rel: 'android-chrome-192x192',
-        url: '/android-chrome-192x192.png',
-      },
-      {
-        rel: 'android-chrome-512x512',
-        url: '/android-chrome-512x512.png',
+        rel: 'mask-icon',
+        url: '/safari-pinned-tab.svg',
+        color: '#5bbad5',
       },
     ],
   },
@@ -604,22 +618,32 @@ export const metadata = {
     description: 'A modern archive for unsent memories and heartfelt messages.',
     url: 'https://ifonlyisentthis.com',
     siteName: 'If Only I Sent This',
-    images: [
-      {
-        url: '/opengraph-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'If Only I Sent This - A modern archive for unsent memories',
-      },
-    ],
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: 'https://ifonlyisentthis.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'If Only I Sent This',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'If Only I Sent This',
     description: 'A modern archive for unsent memories and heartfelt messages.',
-    images: ['/opengraph-image.png'],
+    images: ['https://ifonlyisentthis.com/og-image.png'],
+  },
+  alternates: {
+    canonical: 'https://ifonlyisentthis.com',
+    languages: {
+      'en-US': 'https://ifonlyisentthis.com',
+    },
+  },
+  other: {
+    'color-scheme': 'light dark',
+    'referrer': 'no-referrer-when-downgrade',
   },
 };
 
@@ -627,13 +651,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <meta name="msapplication-TileColor" content="#ffffff" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-32x32.png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         <meta name="msapplication-TileImage" content="/mstile-150x150.png" />
-        <script
+        <Script
+          id="structured-data"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
@@ -661,6 +684,42 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </style>
         <link rel="manifest" href="/site.webmanifest" />
+        <link rel="alternate" hrefLang="en" href="https://ifonlyisentthis.com/" />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-LLWRNWWS0H');
+            `
+          }}
+        />
+        <Script
+          id="service-worker"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                  }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                  });
+                });
+              }
+            `
+          }}
+        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
