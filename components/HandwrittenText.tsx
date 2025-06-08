@@ -3,10 +3,9 @@ import React from 'react';
 
 interface HandwrittenTextProps {
   message: string;
-  textClass: string;
 }
 
-const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, textClass }) => {
+const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message }) => {
   const wordCount = message.split(/\s+/).length;
   const isShortOrExact = wordCount <= 30;
   const finalTextClass = isShortOrExact
