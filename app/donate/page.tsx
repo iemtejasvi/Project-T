@@ -6,9 +6,9 @@ import { useState } from "react";
 export default function Donate() {
   const [copied, setCopied] = useState<string | null>(null);
 
-  const copyToClipboard = async (text: string, id: string) => {
+  const copyToClipboard = (text: string, id: string) => {
     try {
-      await navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(text);
       setCopied(id);
       setTimeout(() => setCopied(null), 2000);
     } catch (err) {
