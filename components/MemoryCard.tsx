@@ -471,12 +471,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             )}
           </div>
           {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-          <hr className="my-2 border-[#B0B0B0]" />
+          <hr className="my-2 border-[#999999]" />
         </div>
         <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-2">
           {renderMessage(memory)}
         </div>
-        <hr className="my-2 border-[#B0B0B0]" />
+        <hr className="my-2 border-[#999999]" />
         <div className="text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap font-normal">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
         </div>
@@ -524,7 +524,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                 )}
               </div>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
-              <hr className="my-2 border-[#B0B0B0]" />
+              <hr className="my-2 border-[#999999]" />
             </div>
             <div className="text-xs text-[var(--text)] text-center font-normal">
               {dateStr} | {dayStr}
@@ -537,16 +537,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             style={{ ...bgStyle, ...borderStyle }}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
-            <hr className="my-2 h-[2px] rounded-full opacity-80 transition-all duration-500 hover:opacity-100" 
-                style={{ 
-                  background: `linear-gradient(90deg, 
-                    transparent 0%, 
-                    var(--color-${effectiveColor}-border) 20%, 
-                    var(--color-${effectiveColor}-border) 80%, 
-                    transparent 100%)`,
-                  boxShadow: `0 0 8px var(--color-${effectiveColor}-border)`
-                }} 
-            />
+            <hr className="my-2 border-[#999999]" />
             <ScrollableMessage
               style={
                 {
