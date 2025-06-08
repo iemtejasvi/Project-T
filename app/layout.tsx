@@ -637,7 +637,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+      <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
         {children}
       </body>

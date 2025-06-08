@@ -537,7 +537,16 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             style={{ ...bgStyle, ...borderStyle }}
           >
             <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
-            <hr className="my-2 border-[var(--border)]" />
+            <hr className="my-2 h-[2px] rounded-full opacity-80 transition-all duration-500 hover:opacity-100" 
+                style={{ 
+                  background: `linear-gradient(90deg, 
+                    transparent 0%, 
+                    var(--color-${effectiveColor}-border) 20%, 
+                    var(--color-${effectiveColor}-border) 80%, 
+                    transparent 100%)`,
+                  boxShadow: `0 0 8px var(--color-${effectiveColor}-border)`
+                }} 
+            />
             <ScrollableMessage
               style={
                 {
