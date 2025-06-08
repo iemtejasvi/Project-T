@@ -633,6 +633,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="msapplication-TileImage" content="/mstile-150x150.png" />
+        <meta name="google-site-verification" content="-3cysNzrb6ZgU44DFdsfeiwU61zydgZWRMyXebgmsUM" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H"></script>
         <script
           dangerouslySetInnerHTML={{
