@@ -58,9 +58,31 @@ const nextConfig = {
       }
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/index',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/privacy',
+        destination: '/privacy-policy',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     domains: ['www.ifonlyisentthis.com'],
   },
+  poweredByHeader: false,
+  compress: true,
+  reactStrictMode: true,
 };
 
 module.exports = nextConfig;
