@@ -476,7 +476,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-2">
           {renderMessage(memory)}
         </div>
-        <hr className="my-2 border-[var(--border)]" />
+        <hr className="my-2 border-[#B0B0B0]" />
         <div className="text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap font-normal">
           <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
         </div>
