@@ -471,7 +471,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             )}
           </div>
           {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
-          <hr className="my-2 border-[var(--border)]" />
+          <hr className="my-2 border-[#B0B0B0]" />
         </div>
         <div className="flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-2">
           {renderMessage(memory)}
@@ -524,7 +524,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                 )}
               </div>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
-              <hr className="my-2 border-[var(--border)]" />
+              <hr className="my-2 border-[#B0B0B0]" />
             </div>
             <div className="text-xs text-[var(--text)] text-center font-normal">
               {dateStr} | {dayStr}
