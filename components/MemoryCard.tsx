@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
+import HandwrittenText from './HandwrittenText';
 
 interface Memory {
   id: string;
@@ -439,6 +440,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         );
       case "bleeding":
         return <BleedingText message={memory.message} textClass={textClass} />;
+      case "handwritten":
+        return <HandwrittenText message={memory.message} textClass={textClass} />;
       default:
         return (
           <div className="space-y-2">

@@ -57,8 +57,9 @@ const colorOptions = [
 const specialEffects = [
   { value: "none", label: "None" },
   { value: "bleeding", label: "Bleeding Text" },
-  { value: "poetic", label: "Poetic Fade" },
+  { value: "handwritten", label: "Handwritten Text" },
   { value: "cursive", label: "Melting Text" },
+  { value: "poetic", label: "Poetic Fade" }
 ];
 
 const limitMessages = [
