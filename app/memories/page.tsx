@@ -140,7 +140,11 @@ export default function Memories() {
           />
         </div>
         {memories.length > 0 ? (
-          memories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+          memories
+            .filter(memory => 
+              memory.recipient.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .map((memory) => <MemoryCard key={memory.id} memory={memory} />)
         ) : (
           <p className="text-[var(--text)]">No memories found.</p>
         )}
