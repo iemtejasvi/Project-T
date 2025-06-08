@@ -441,7 +441,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       case "bleeding":
         return <BleedingText message={memory.message} textClass={textClass} />;
       case "handwritten":
-        return <HandwrittenText message={memory.message} textClass={textClass} />;
+        return <HandwrittenText message={memory.message} />;
       default:
         return (
           <div className="space-y-2">
