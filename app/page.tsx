@@ -204,7 +204,7 @@ export default function Home() {
         <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
           {announcement ? (
             <h2 className="text-xl sm:text-2xl font-semibold text-red-500">
-              📢 Admin Announcement — {announcement}
+              📢 Announcement — {announcement}
             </h2>
           ) : (
           <TypingEffect />

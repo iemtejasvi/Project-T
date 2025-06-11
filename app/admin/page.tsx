@@ -35,6 +35,7 @@ export default function AdminPanel() {
   const [currentAnnouncement, setCurrentAnnouncement] = useState<{ id: string; message: string; expires_at: string } | null>(null);
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [bannedIps, setBannedIps] = useState<{ ip: string; country?: string }[]>([]);
 
   // Memoize refreshMemories to prevent infinite loops
   const refreshMemories = useCallback(() => {
@@ -229,29 +230,55 @@ export default function AdminPanel() {
   }
 
   async function banMemory(memory: Memory) {
-    const { error } = await supabase
+    const password = prompt("Please enter the ban password:");
+    if (password !== "2000@") {
+      alert("Incorrect password. Ban aborted.");
+      return;
+    }
+    // First delete the memory
+    const { error: deleteError } = await supabase
       .from("memories")
-      .update({ status: "banned" })
+      .delete()
       .eq("id", memory.id);
-    if (error) console.error(error);
+    
+    if (deleteError) {
+      console.error("Error deleting memory:", deleteError);
+      return;
+    }
+
+    // Then ban the IP if it exists
     if (memory.ip) {
-      await supabase
+      const { error: banError } = await supabase
         .from("banned_ips")
         .insert([{ ip: memory.ip, country: memory.country }]);
+      
+      if (banError) {
+        console.error("Error banning IP:", banError);
+      }
     }
+    
     setSelectedTab("pending");
     refreshMemories();
   }
 
   async function unbanMemory(memory: Memory) {
-    const { error } = await supabase
-      .from("memories")
-      .update({ status: "approved" })
-      .eq("id", memory.id);
-    if (error) console.error(error);
-    if (memory.ip) {
-      await supabase.from("banned_ips").delete().eq("ip", memory.ip);
+    const password = prompt("Please enter the unban password:");
+    if (password !== "2000@") {
+      alert("Incorrect password. Unban aborted.");
+      return;
     }
+    // Only unban the IP, since the message is already deleted
+    if (memory.ip) {
+      const { error } = await supabase
+        .from("banned_ips")
+        .delete()
+        .eq("ip", memory.ip);
+      
+      if (error) {
+        console.error("Error unbanning IP:", error);
+      }
+    }
+    
     setSelectedTab("banned");
     refreshMemories();
   }
@@ -340,6 +367,19 @@ export default function AdminPanel() {
     const interval = setInterval(checkExpiredItems, 1000); // Check every second
     return () => clearInterval(interval);
   }, [currentTime, currentAnnouncement, selectedTab, refreshMemories]);
+
+  // Fetch banned IPs when banned tab is selected
+  useEffect(() => {
+    if (selectedTab === "banned") {
+      supabase
+        .from("banned_ips")
+        .select("ip, country")
+        .then(({ data, error }) => {
+          if (error) console.error(error);
+          else setBannedIps(data || []);
+        });
+    }
+  }, [selectedTab]);
 
   if (!authChecked) {
     return (
@@ -657,6 +697,42 @@ export default function AdminPanel() {
           ) : (
             <p className="text-gray-700">No {selectedTab} memories found.</p>
           )
+        )}
+        {selectedTab === "banned" && bannedIps.length > 0 && (
+          <div className="bg-white/90 shadow rounded-lg p-6 border-l-4 border-red-600 w-full mb-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">Banned IPs</h3>
+            <ul className="divide-y divide-gray-200">
+              {bannedIps.map((ipObj) => (
+                <li key={ipObj.ip} className="py-2 flex items-center justify-between">
+                  <span>
+                    <span className="font-mono">{ipObj.ip}</span>
+                    {ipObj.country && <span className="ml-2 text-gray-500">({ipObj.country})</span>}
+                  </span>
+                  <button
+                    onClick={async () => {
+                      const password = prompt("Please enter the unban password:");
+                      if (password !== "2000@") {
+                        alert("Incorrect password. Unban aborted.");
+                        return;
+                      }
+                      const { error } = await supabase
+                        .from("banned_ips")
+                        .delete()
+                        .eq("ip", ipObj.ip);
+                      if (error) {
+                        alert("Failed to unban IP");
+                      } else {
+                        setBannedIps((prev) => prev.filter((b) => b.ip !== ipObj.ip));
+                      }
+                    }}
+                    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+                  >
+                    Unban
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </main>
 
