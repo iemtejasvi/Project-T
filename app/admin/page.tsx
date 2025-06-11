@@ -702,12 +702,22 @@ export default function AdminPanel() {
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Banned Users</h3>
             <ul className="divide-y divide-gray-200">
               {bannedUsers.map((user, idx) => (
-                <li key={user.ip || user.uuid || idx} className="py-2 flex items-center justify-between">
-                  <span>
-                    {user.ip && <span className="font-mono">IP: {user.ip}</span>}
-                    {user.uuid && <span className="ml-2 font-mono">UUID: {user.uuid}</span>}
-                    {user.country && <span className="ml-2 text-gray-500">({user.country})</span>}
-                  </span>
+                <li key={user.ip || user.uuid || idx} className="py-3 flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    {user.ip && (
+                      <span className="inline-block bg-red-100 text-red-700 text-xs font-mono px-2 py-1 rounded mr-2 border border-red-300">
+                        IP: {user.ip}
+                      </span>
+                    )}
+                    {user.uuid && (
+                      <span className="inline-block bg-blue-100 text-blue-700 text-xs font-mono px-2 py-1 rounded border border-blue-300">
+                        UUID: {user.uuid}
+                      </span>
+                    )}
+                    {user.country && (
+                      <span className="ml-2 text-gray-500 text-xs">({user.country})</span>
+                    )}
+                  </div>
                   <button
                     onClick={async () => {
                       const password = prompt("Please enter the unban password:");
