@@ -1,6 +1,7 @@
 import "./globals.css";
 import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import UuidInitializer from "@/components/UuidInitializer";
 
 export const metadata = {
   title: "If Only I Sent This",
@@ -730,6 +731,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
+        <UuidInitializer />
         {children}
         <script
           dangerouslySetInnerHTML={{

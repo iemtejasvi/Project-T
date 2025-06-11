@@ -171,13 +171,24 @@ export default function SubmitPage() {
       return;
     }
 
-    if (ipData?.ip) {
-      const { data: banned, error: banErr } = await supabase
-        .from("banned_ips")
-        .select("*")
-        .eq("ip", ipData.ip);
-      if (banErr) console.error("Error checking banned IPs:", banErr);
-      if (banned && banned.length > 0) {
+    // Get UUID from localStorage
+    let uuid = null;
+    if (typeof window !== 'undefined') {
+      uuid = localStorage.getItem('user_uuid');
+    }
+
+    // Check if banned by IP or UUID
+    let banned = [];
+    if (ipData?.ip || uuid) {
+      const { data: banData, error: banErr } = await supabase
+        .from("banned_users")
+        .select("id")
+        .or([
+          ipData?.ip ? `ip.eq.${ipData.ip}` : null,
+          uuid ? `uuid.eq.${uuid}` : null
+        ].filter(Boolean).join(","));
+      if (banErr) console.error("Error checking banned users:", banErr);
+      if (banData && banData.length > 0) {
         setError("You are banned from submitting memories.");
         return;
       }
@@ -193,6 +204,7 @@ export default function SubmitPage() {
       animation: specialEffect,
       ip: ipData?.ip || null,
       country: ipData?.country || null,
+      uuid: uuid || null,
     };
 
     const { error: insertErr } = await supabase

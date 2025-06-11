@@ -16,6 +16,7 @@ interface Memory {
   animation?: string;
   pinned?: boolean;
   pinned_until?: string;
+  uuid?: string;
 }
 
 type Tab = "pending" | "approved" | "banned" | "announcements";
@@ -35,7 +36,7 @@ export default function AdminPanel() {
   const [currentAnnouncement, setCurrentAnnouncement] = useState<{ id: string; message: string; expires_at: string } | null>(null);
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [bannedIps, setBannedIps] = useState<{ ip: string; country?: string }[]>([]);
+  const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
 
   // Memoize refreshMemories to prevent infinite loops
   const refreshMemories = useCallback(() => {
@@ -246,14 +247,17 @@ export default function AdminPanel() {
       return;
     }
 
-    // Then ban the IP if it exists
-    if (memory.ip) {
+    // Ban IP and UUID if available
+    const banEntry: { ip?: string; uuid?: string; country?: string } = {};
+    if (memory.ip) banEntry.ip = memory.ip;
+    if (memory.uuid) banEntry.uuid = memory.uuid;
+    if (memory.country) banEntry.country = memory.country;
+    if (banEntry.ip || banEntry.uuid) {
       const { error: banError } = await supabase
-        .from("banned_ips")
-        .insert([{ ip: memory.ip, country: memory.country }]);
-      
+        .from("banned_users")
+        .insert([banEntry]);
       if (banError) {
-        console.error("Error banning IP:", banError);
+        console.error("Error banning user:", banError);
       }
     }
     
@@ -267,18 +271,13 @@ export default function AdminPanel() {
       alert("Incorrect password. Unban aborted.");
       return;
     }
-    // Only unban the IP, since the message is already deleted
+    // Unban by IP and UUID
     if (memory.ip) {
-      const { error } = await supabase
-        .from("banned_ips")
-        .delete()
-        .eq("ip", memory.ip);
-      
-      if (error) {
-        console.error("Error unbanning IP:", error);
-      }
+      await supabase.from("banned_users").delete().eq("ip", memory.ip);
     }
-    
+    if (memory.uuid) {
+      await supabase.from("banned_users").delete().eq("uuid", memory.uuid);
+    }
     setSelectedTab("banned");
     refreshMemories();
   }
@@ -368,15 +367,15 @@ export default function AdminPanel() {
     return () => clearInterval(interval);
   }, [currentTime, currentAnnouncement, selectedTab, refreshMemories]);
 
-  // Fetch banned IPs when banned tab is selected
+  // Fetch banned users when banned tab is selected
   useEffect(() => {
     if (selectedTab === "banned") {
       supabase
-        .from("banned_ips")
-        .select("ip, country")
+        .from("banned_users")
+        .select("ip, uuid, country")
         .then(({ data, error }) => {
           if (error) console.error(error);
-          else setBannedIps(data || []);
+          else setBannedUsers(data || []);
         });
     }
   }, [selectedTab]);
@@ -698,15 +697,16 @@ export default function AdminPanel() {
             <p className="text-gray-700">No {selectedTab} memories found.</p>
           )
         )}
-        {selectedTab === "banned" && bannedIps.length > 0 && (
+        {selectedTab === "banned" && bannedUsers.length > 0 && (
           <div className="bg-white/90 shadow rounded-lg p-6 border-l-4 border-red-600 w-full mb-6">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Banned IPs</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">Banned Users</h3>
             <ul className="divide-y divide-gray-200">
-              {bannedIps.map((ipObj) => (
-                <li key={ipObj.ip} className="py-2 flex items-center justify-between">
+              {bannedUsers.map((user, idx) => (
+                <li key={user.ip || user.uuid || idx} className="py-2 flex items-center justify-between">
                   <span>
-                    <span className="font-mono">{ipObj.ip}</span>
-                    {ipObj.country && <span className="ml-2 text-gray-500">({ipObj.country})</span>}
+                    {user.ip && <span className="font-mono">IP: {user.ip}</span>}
+                    {user.uuid && <span className="ml-2 font-mono">UUID: {user.uuid}</span>}
+                    {user.country && <span className="ml-2 text-gray-500">({user.country})</span>}
                   </span>
                   <button
                     onClick={async () => {
@@ -715,15 +715,13 @@ export default function AdminPanel() {
                         alert("Incorrect password. Unban aborted.");
                         return;
                       }
-                      const { error } = await supabase
-                        .from("banned_ips")
-                        .delete()
-                        .eq("ip", ipObj.ip);
-                      if (error) {
-                        alert("Failed to unban IP");
-                      } else {
-                        setBannedIps((prev) => prev.filter((b) => b.ip !== ipObj.ip));
+                      if (user.ip) {
+                        await supabase.from("banned_users").delete().eq("ip", user.ip);
                       }
+                      if (user.uuid) {
+                        await supabase.from("banned_users").delete().eq("uuid", user.uuid);
+                      }
+                      setBannedUsers((prev) => prev.filter((b) => b !== user));
                     }}
                     className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
                   >
