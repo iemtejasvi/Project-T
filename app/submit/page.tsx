@@ -104,6 +104,29 @@ const limitMessages = [
   "We came for heartbreak, not homework.",
 ];
 
+const twoMemoryLimitMessages = [
+  "Only 2 memories allowed. That's the limit, that's the rule.",
+  "Only 2 memories allowed. No more chapters in this story.",
+  "Only 2 memories allowed. Two goodbyes, that's all you get.",
+  "Only 2 memories allowed. Two chances to say what's left.",
+  "Only 2 memories allowed. Two moments, then it's done.",
+  "Only 2 memories allowed. Two memories, then move on.",
+  "Only 2 memories allowed. Two words, then let it go.",
+  "Only 2 memories allowed. Two memories, that's the show.",
+  "Only 2 memories allowed. Two memories, then goodbye.",
+  "Only 2 memories allowed. Two memories, that's the limit.",
+  "Only 2 memories allowed. Two memories, that's the deal.",
+  "Only 2 memories allowed. Two memories, that's the seal.",
+  "Only 2 memories allowed. Two memories, that's the end.",
+  "Only 2 memories allowed. Two memories, that's the trend.",
+  "Only 2 memories allowed. Two memories, that's the cap.",
+  "Only 2 memories allowed. Two memories, that's the wrap.",
+  "Only 2 memories allowed. Two memories, that's the max.",
+  "Only 2 memories allowed. Two memories, that's the facts.",
+  "Only 2 memories allowed. Two memories, that's the law.",
+  "Only 2 memories allowed. Two memories, that's the draw."
+];
+
 export default function SubmitPage() {
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
@@ -204,7 +227,7 @@ export default function SubmitPage() {
         ].filter(Boolean).join(","));
       if (memErr) console.error("Error checking submission count:", memErr);
       if (count && count >= 2) {
-        setError("You can only submit a maximum of 2 memories.");
+        setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
         return;
       }
     }
