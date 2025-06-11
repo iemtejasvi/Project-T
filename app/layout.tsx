@@ -3,15 +3,17 @@ import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
   title: "If Only I Sent This",
   description: "A modern archive for unsent memories and heartfelt messages.",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   keywords: [
     "unsent messages",
     "unsent letters",
@@ -601,25 +603,21 @@ export const metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: 'If Only I Sent This',
-    description: 'A modern archive for unsent memories and heartfelt messages.',
-    url: 'https://www.ifonlyisentthis.com',
-    siteName: 'If Only I Sent This',
+    title: "If Only I Sent This",
+    description: "A modern archive for unsent memories and heartfelt messages.",
     images: [
       {
         url: '/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'If Only I Sent This - A modern archive for unsent memories',
+        alt: 'If Only I Sent This',
       },
     ],
-    locale: 'en_US',
-    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'If Only I Sent This',
-    description: 'A modern archive for unsent memories and heartfelt messages.',
+    title: "If Only I Sent This",
+    description: "A modern archive for unsent memories and heartfelt messages.",
     images: ['/opengraph-image.png'],
   },
 };
@@ -653,7 +651,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="If Only I Sent This" />
         <meta name="twitter:description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
-        <meta name="twitter:image" content="https://www.ifonlyisentthis.com/opengraph.png" />
+        <meta name="twitter:image" content="https://www.ifonlyisentthis.com/opengraph-image.png" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H"></script>
         <script
           dangerouslySetInnerHTML={{

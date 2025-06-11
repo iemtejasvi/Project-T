@@ -12,7 +12,7 @@ const urlsToCache = [
   '/favicon-16x16.png',
   '/apple-touch-icon.png',
   '/site.webmanifest',
-  '/opengraph.png'
+  '/opengraph-image.png'
 ];
 
 self.addEventListener('install', event => {
