@@ -178,7 +178,6 @@ export default function SubmitPage() {
     }
 
     // Check if banned by IP or UUID
-    let banned = [];
     if (ipData?.ip || uuid) {
       const { data: banData, error: banErr } = await supabase
         .from("banned_users")
