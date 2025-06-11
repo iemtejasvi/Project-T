@@ -302,8 +302,7 @@ export default function SubmitPage() {
         {!submitted && (
           <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8">
             <p className="text-center italic font-medium">
-              This is for your final message—the one you never sent. Keep it honest,
-              heartfelt, and within theme. <strong>Submissions not aligned with this purpose will be rejected.</strong>
+              Share your unsent message. Keep it honest, heartfelt, and in English only. <strong>Off-topic submissions will be rejected.</strong>
             </p>
           </div>
         )}
