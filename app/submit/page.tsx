@@ -193,6 +193,22 @@ export default function SubmitPage() {
       }
     }
 
+    // Check if user has already submitted 2 memories (by IP or UUID)
+    if (ipData?.ip || uuid) {
+      const { count, error: memErr } = await supabase
+        .from("memories")
+        .select("*", { count: "exact" })
+        .or([
+          ipData?.ip ? `ip.eq.${ipData.ip}` : null,
+          uuid ? `uuid.eq.${uuid}` : null
+        ].filter(Boolean).join(","));
+      if (memErr) console.error("Error checking submission count:", memErr);
+      if (count && count >= 2) {
+        setError("You can only submit a maximum of 2 memories.");
+        return;
+      }
+    }
+
     const submission = {
       recipient,
       message,
