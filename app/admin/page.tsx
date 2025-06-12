@@ -197,12 +197,10 @@ export default function AdminPanel() {
   };
 
   const handleRemoveAnnouncement = async () => {
-    if (!currentAnnouncement) return;
-    
+    // Delete all announcements
     const { error } = await supabase
       .from("announcements")
-      .delete()
-      .eq("id", currentAnnouncement.id);
+      .delete();
 
     if (error) {
       console.error("Error removing announcement:", error);
