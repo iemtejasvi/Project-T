@@ -171,11 +171,10 @@ export default function AdminPanel() {
     const expiresAt = new Date();
     expiresAt.setSeconds(expiresAt.getSeconds() + totalSeconds);
 
-    // Delete all current announcements
+    // Delete all announcements
     await supabase
       .from("announcements")
-      .delete()
-      .eq("is_active", true);
+      .delete();
 
     // Create new announcement
     const { data, error } = await supabase
