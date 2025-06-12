@@ -323,29 +323,15 @@ export default function AdminPanel() {
   useEffect(() => {
     const checkExpiredItems = async () => {
       // Check expired announcements
-      const { data: announcements, error: announcementsError } = await supabase
-        .from("announcements")
-        .select("id, expires_at")
-        .eq("is_active", true);
-
-      if (announcementsError) {
-        console.error("Error checking expired announcements:", announcementsError);
-        return;
-      }
-
-      // Delete any expired announcements
-      for (const announcement of announcements || []) {
-        if (new Date(announcement.expires_at) <= currentTime) {
+      if (currentAnnouncement) {
+        const expiry = new Date(currentAnnouncement.expires_at);
+        if (currentTime >= expiry) {
           await supabase
             .from("announcements")
             .delete()
-            .eq("id", announcement.id);
-          
-          // If this was the current announcement, update the state
-          if (currentAnnouncement?.id === announcement.id) {
-            setCurrentAnnouncement(null);
-            await fetchCurrentAnnouncement(); // Refresh announcement state
-          }
+            .eq("id", currentAnnouncement.id);
+          setCurrentAnnouncement(null);
+          await fetchCurrentAnnouncement(); // Refresh announcement state
         }
       }
 
