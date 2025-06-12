@@ -327,7 +327,7 @@ export default function AdminPanel() {
         if (currentTime >= expiry) {
           await supabase
             .from("announcements")
-            .update({ is_active: false })
+            .delete()
             .eq("id", currentAnnouncement.id);
           setCurrentAnnouncement(null);
           await fetchCurrentAnnouncement(); // Refresh announcement state
