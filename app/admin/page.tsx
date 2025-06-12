@@ -171,7 +171,7 @@ export default function AdminPanel() {
     const expiresAt = new Date();
     expiresAt.setSeconds(expiresAt.getSeconds() + totalSeconds);
 
-    // Delete all current announcements
+    // Delete all current announcements instead of just deactivating them
     await supabase
       .from("announcements")
       .delete()
@@ -198,6 +198,7 @@ export default function AdminPanel() {
   };
 
   const handleRemoveAnnouncement = async () => {
+    // Delete the current announcement instead of just deactivating it
     const { error } = await supabase
       .from("announcements")
       .delete()
@@ -327,7 +328,7 @@ export default function AdminPanel() {
         if (currentTime >= expiry) {
           await supabase
             .from("announcements")
-            .delete()
+            .update({ is_active: false })
             .eq("id", currentAnnouncement.id);
           setCurrentAnnouncement(null);
           await fetchCurrentAnnouncement(); // Refresh announcement state
