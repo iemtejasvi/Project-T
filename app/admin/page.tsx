@@ -106,10 +106,10 @@ export default function AdminPanel() {
       if (data?.[0]) {
         // Check if announcement has expired
         if (new Date(data[0].expires_at) < new Date()) {
-          // Deactivate expired announcement
+          // Delete expired announcement instead of deactivating it
           await supabase
             .from("announcements")
-            .update({ is_active: false })
+            .delete()
             .eq("id", data[0].id);
           setCurrentAnnouncement(null);
         } else {
@@ -328,7 +328,7 @@ export default function AdminPanel() {
         if (currentTime >= expiry) {
           await supabase
             .from("announcements")
-            .update({ is_active: false })
+            .delete()
             .eq("id", currentAnnouncement.id);
           setCurrentAnnouncement(null);
           await fetchCurrentAnnouncement(); // Refresh announcement state
