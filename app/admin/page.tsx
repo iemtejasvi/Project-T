@@ -106,7 +106,7 @@ export default function AdminPanel() {
       if (data?.[0]) {
         // Check if announcement has expired
         if (new Date(data[0].expires_at) < new Date()) {
-          // Delete expired announcement instead of deactivating it
+          // Delete expired announcement
           await supabase
             .from("announcements")
             .delete()
@@ -171,7 +171,7 @@ export default function AdminPanel() {
     const expiresAt = new Date();
     expiresAt.setSeconds(expiresAt.getSeconds() + totalSeconds);
 
-    // Delete all current announcements instead of just deactivating them
+    // Delete all current announcements
     await supabase
       .from("announcements")
       .delete()
@@ -198,7 +198,6 @@ export default function AdminPanel() {
   };
 
   const handleRemoveAnnouncement = async () => {
-    // Delete the current announcement instead of just deactivating it
     const { error } = await supabase
       .from("announcements")
       .delete()
@@ -328,7 +327,7 @@ export default function AdminPanel() {
         if (currentTime >= expiry) {
           await supabase
             .from("announcements")
-            .delete()
+            .update({ is_active: false })
             .eq("id", currentAnnouncement.id);
           setCurrentAnnouncement(null);
           await fetchCurrentAnnouncement(); // Refresh announcement state

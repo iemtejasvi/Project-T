@@ -58,7 +58,7 @@ export default function Home() {
           
           // Check if announcement has expired
           if (now >= expiryTime) {
-            // Delete expired announcement instead of just deactivating it
+            // Delete expired announcement
             await supabase
               .from("announcements")
               .delete()
