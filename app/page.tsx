@@ -58,10 +58,10 @@ export default function Home() {
           
           // Check if announcement has expired
           if (now >= expiryTime) {
-            // Deactivate expired announcement
+            // Delete expired announcement
             await supabase
               .from("announcements")
-              .update({ is_active: false })
+              .delete()
               .eq("id", announcementData[0].id);
             if (isMounted) setAnnouncement(null);
           } else {
