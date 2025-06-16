@@ -620,6 +620,9 @@ export const metadata = {
     description: "A modern archive for unsent memories and heartfelt messages.",
     images: ['/opengraph-image.png'],
   },
+  alternates: {
+    canonical: '/',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

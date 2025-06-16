@@ -47,13 +47,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: currentDate,
       changeFrequency: 'monthly' as const,
       priority: 0.4,
-    },
-    // Add any additional pages that might be missing
-    {
-      url: `${baseUrl}/admin`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.3,
     }
   ]
 

@@ -5,12 +5,23 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: [
+          '/',
+          '/memories',
+          '/submit',
+          '/how-it-works',
+          '/donate',
+          '/contact',
+          '/privacy-policy'
+        ],
         disallow: [
-          '/admin/',
-          '/api/',
-          '/_next/',
-          '/static/',
+          '/admin',
+          '/api',
+          '/_next',
+          '/static',
+          '/*.json$',
+          '/*.xml$',
+          '/*.txt$'
         ],
       },
     ],
