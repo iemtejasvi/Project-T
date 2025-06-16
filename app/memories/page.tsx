@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
-import { Metadata } from 'next'
 
 interface Memory {
   id: string;
@@ -17,14 +16,6 @@ interface Memory {
   letter_style: string;
   animation?: string;
 }
-
-export const metadata: Metadata = {
-  title: 'Memories - If Only I Sent This',
-  description: 'Browse through heartfelt unsent messages and memories shared by people around the world.',
-  alternates: {
-    canonical: '/memories',
-  },
-};
 
 export default function Memories() {
   const [memories, setMemories] = useState<Memory[]>([]);
