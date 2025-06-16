@@ -6,6 +6,9 @@ Allow: /apple-touch-icon.png
 Allow: /android-chrome-*.png
 Allow: /site.webmanifest
 Allow: /mstile-*.png
+Allow: /_next/static/*
+Allow: /_next/image/*
+Allow: /_next/data/*
 Disallow: /admin
 Disallow: /api
 
