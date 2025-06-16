@@ -61,21 +61,17 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/index',
-        destination: '/',
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.ifonlyisentthis.com',
+          },
+        ],
+        destination: 'https://ifonlyisentthis.com/:path*',
         permanent: true,
       },
-      {
-        source: '/home',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/privacy',
-        destination: '/privacy-policy',
-        permanent: true,
-      },
-    ];
+    ]
   },
   images: {
     domains: ['www.ifonlyisentthis.com'],

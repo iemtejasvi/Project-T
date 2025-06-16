@@ -11,15 +11,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Handle www to non-www redirect
-  if (host.startsWith('www.')) {
-    const newHost = host.replace('www.', '')
-    return NextResponse.redirect(
-      new URL(path, `https://${newHost}`),
-      { status: 301 }
-    )
-  }
-
   // Handle trailing slashes
   if (path !== '/' && path.endsWith('/')) {
     return NextResponse.redirect(
