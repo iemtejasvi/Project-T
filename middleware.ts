@@ -5,6 +5,11 @@ export function middleware(request: NextRequest) {
   // Get the pathname of the request
   const path = request.nextUrl.pathname
 
+  // Skip middleware for sitemap.xml
+  if (path === '/sitemap.xml') {
+    return NextResponse.next()
+  }
+
   // Handle www to non-www redirect
   if (request.headers.get('host')?.startsWith('www.')) {
     return NextResponse.redirect(
