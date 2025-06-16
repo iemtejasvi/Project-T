@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
@@ -91,7 +90,7 @@ export default function Memories() {
     return () => {
       isMounted = false;
     };
-  }, [currentTime]);
+  }, [currentTime]); // Add currentTime as dependency
 
   return (
     <div className="min-h-screen flex flex-col">
