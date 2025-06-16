@@ -194,10 +194,10 @@ export default function SubmitPage() {
       return;
     }
 
-    // Get UUID from localStorage
+    // Get UUID from localStorage or cookie
     let uuid = null;
     if (typeof window !== 'undefined') {
-      uuid = localStorage.getItem('user_uuid');
+      uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
     }
 
     // Check if banned by IP or UUID
@@ -255,6 +255,16 @@ export default function SubmitPage() {
       setSubmitted(true);
     }
   };
+
+  // Helper function to get cookie value
+  function getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(';').shift() || null;
+    }
+    return null;
+  }
 
   const resetForm = () => {
     setSubmitted(false);
