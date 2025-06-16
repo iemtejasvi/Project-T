@@ -90,7 +90,7 @@ export default function Memories() {
     return () => {
       isMounted = false;
     };
-  }, [currentTime]); // Add currentTime as dependency
+  }, [currentTime]);
 
   return (
     <div className="min-h-screen flex flex-col">
