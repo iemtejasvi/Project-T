@@ -154,6 +154,10 @@ export default function Home() {
               <Link href="/how-it-works" className="text-[var(--accent)] hover:underline whitespace-nowrap">
                 How It Works
               </Link>
+              {" "}or{" "}
+              <Link href="/donate" className="text-[var(--accent)] hover:underline whitespace-nowrap">
+                Support Us
+              </Link>
               .
             </p>
             <button
