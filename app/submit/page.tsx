@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { Metadata } from 'next'
 
 interface IPData {
   ip?: string;
@@ -126,6 +127,14 @@ const twoMemoryLimitMessages = [
   "Only 2 memories allowed. Two memories, that's the law.",
   "Only 2 memories allowed. Two memories, that's the draw."
 ];
+
+export const metadata: Metadata = {
+  title: 'Submit a Memory - If Only I Sent This',
+  description: 'Share your unsent message. Keep it honest, heartfelt, and in English only.',
+  alternates: {
+    canonical: '/submit',
+  },
+};
 
 export default function SubmitPage() {
   const [recipient, setRecipient] = useState("");
