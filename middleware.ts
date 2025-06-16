@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   // Get the pathname of the request
   const path = request.nextUrl.pathname
+  const host = request.headers.get('host') || ''
 
   // Skip middleware for sitemap.xml
   if (path === '/sitemap.xml') {
@@ -11,9 +12,10 @@ export function middleware(request: NextRequest) {
   }
 
   // Handle www to non-www redirect
-  if (request.headers.get('host')?.startsWith('www.')) {
+  if (host.startsWith('www.')) {
+    const newHost = host.replace('www.', '')
     return NextResponse.redirect(
-      new URL(request.nextUrl.pathname, `https://ifonlyisentthis.com`),
+      new URL(path, `https://${newHost}`),
       { status: 301 }
     )
   }
@@ -29,7 +31,7 @@ export function middleware(request: NextRequest) {
   // Handle HTTP to HTTPS redirect
   if (request.headers.get('x-forwarded-proto') === 'http') {
     return NextResponse.redirect(
-      new URL(request.nextUrl.pathname, `https://${request.headers.get('host')}`),
+      new URL(request.nextUrl.pathname, `https://${host}`),
       { status: 301 }
     )
   }
