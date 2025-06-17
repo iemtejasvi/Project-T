@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { supabase, supabase2, getAllMemories } from "@/lib/supabaseClient";
+import { supabase, supabase2 } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 
 interface Memory {
@@ -56,6 +56,8 @@ export default function MemoryDetail() {
         } else {
           // If not found in either database
           setError("Memory not found");
+          if (error1) console.error("Error from first database:", error1);
+          if (error2) console.error("Error from second database:", error2);
         }
       } catch (error) {
         console.error("Error fetching memory:", error);

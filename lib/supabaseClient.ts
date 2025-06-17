@@ -21,8 +21,30 @@ export function getNextMemoryDb() {
   return dbCounter === 0 ? supabase : supabase2;
 }
 
+interface Memory {
+  id: string;
+  recipient: string;
+  message: string;
+  sender?: string;
+  created_at: string;
+  status: string;
+  color: string;
+  full_bg: boolean;
+  letter_style: string;
+  animation?: string;
+  pinned?: boolean;
+  pinned_until?: string;
+}
+
+interface QueryParams {
+  status?: string;
+  ip?: string;
+  uuid?: string;
+  [key: string]: string | undefined;
+}
+
 // Function to get all memories from both databases
-export async function getAllMemories(query: any = {}) {
+export async function getAllMemories(query: QueryParams = {}) {
   try {
     // Fetch from both databases
     const [result1, result2] = await Promise.all([
@@ -62,7 +84,7 @@ export async function getAllMemories(query: any = {}) {
 }
 
 // Function to get memory count from both databases
-export async function getMemoryCount(query: any) {
+export async function getMemoryCount(query: QueryParams) {
   const [result1, result2] = await Promise.all([
     supabase.from('memories').select('*', { count: 'exact' }).match(query),
     supabase2.from('memories').select('*', { count: 'exact' }).match(query)
