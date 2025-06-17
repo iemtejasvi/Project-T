@@ -291,21 +291,16 @@ export default function SubmitPage() {
     };
 
     // Use alternating database for memories
-    try {
-      const memoryDb = await getNextMemoryDb();
-      const { error: insertErr } = await memoryDb
-        .from("memories")
-        .insert([submission]);
-      if (insertErr) {
-        console.error(insertErr);
-        throw insertErr;
-      }
-      setSubmitted(true);
-    } catch (err) {
-      console.error("Error submitting your memory:", err);
+    const memoryDb = getNextMemoryDb();
+    const { error: insertErr } = await memoryDb
+      .from("memories")
+      .insert([submission]);
+    if (insertErr) {
+      console.error(insertErr);
       setError("Error submitting your memory.");
-    } finally {
       setIsSubmitting(false);
+    } else {
+      setSubmitted(true);
     }
   };
 
