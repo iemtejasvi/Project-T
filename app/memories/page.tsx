@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase, supabase2, getAllMemories } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
+import TypingEffect from "@/components/TypingEffect";
 
 interface Memory {
   id: string;
@@ -19,7 +20,7 @@ interface Memory {
 
 export default function Memories() {
   const [memories, setMemories] = useState<Memory[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [announcement, setAnnouncement] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update current time every second
@@ -31,15 +32,77 @@ export default function Memories() {
     return () => clearInterval(timer);
   }, []);
 
+  // Initial fetch of memories
   useEffect(() => {
     let isMounted = true;
 
+    async function fetchMemories() {
+      try {
+        const query = { status: "approved" };
+        const memoriesData = await getAllMemories(query);
+        if (isMounted && memoriesData) {
+          setMemories(memoriesData);
+        }
+      } catch (err) {
+        console.error("Error fetching memories:", err);
+      }
+    }
+
+    fetchMemories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Handle announcement and pin updates
+  useEffect(() => {
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
+
     async function fetchData() {
       try {
+        // Fetch announcement
+        const { data: announcementData, error: announcementError } = await supabase
+          .from("announcements")
+          .select("id, message, expires_at")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (!isMounted) return;
+
+        if (announcementError) {
+          console.error("Error fetching announcement:", announcementError.message);
+        } else if (announcementData?.[0]) {
+          const expiryTime = new Date(announcementData[0].expires_at);
+          const now = new Date();
+          
+          // Check if announcement has expired
+          if (now >= expiryTime) {
+            // Delete expired announcement
+            await supabase
+              .from("announcements")
+              .delete()
+              .eq("id", announcementData[0].id);
+            if (isMounted) setAnnouncement(null);
+          } else {
+            if (isMounted) setAnnouncement(announcementData[0].message);
+            
+            // Schedule next check for this announcement
+            const timeUntilExpiry = expiryTime.getTime() - now.getTime();
+            timeoutId = setTimeout(() => {
+              if (isMounted) fetchData();
+            }, timeUntilExpiry);
+          }
+        } else {
+          if (isMounted) setAnnouncement(null);
+        }
+
         // Fetch memories
         const query = { status: "approved" };
         const memoriesData = await getAllMemories(query);
-
+        
         if (!isMounted) return;
 
         if (memoriesData) {
@@ -85,37 +148,37 @@ export default function Memories() {
 
     return () => {
       isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [currentTime]);
+  }, [currentTime]); // Add currentTime as dependency
 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">Memories</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
               <li>
-                <Link
-                  href="/"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
-                >
+                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Home
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/submit"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
-                >
+                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                  Memories
+                </Link>
+              </li>
+              <li>
+                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
                   Submit
                 </Link>
               </li>
               <li>
                 <Link
                   href="/how-it-works"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
                 >
                   How It Works
                 </Link>
@@ -125,24 +188,26 @@ export default function Memories() {
         </div>
       </header>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Search by recipient name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
-          />
+      <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
+        <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+          {announcement ? (
+            <h2 className="text-xl sm:text-2xl font-semibold text-red-500">
+              📢 Announcement — {announcement}
+            </h2>
+          ) : (
+          <TypingEffect />
+          )}
         </div>
+      </section>
+
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">
+          All Memories
+        </h2>
         {memories.length > 0 ? (
-          memories
-            .filter(memory => 
-              memory.recipient.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-            .map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+          memories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
         ) : (
-          <p className="text-[var(--text)]">No memories found.</p>
+          <p className="text-[var(--text)]">No memories yet.</p>
         )}
       </main>
 
