@@ -305,20 +305,6 @@ export default function SubmitPage() {
     return null;
   }
 
-  const resetForm = () => {
-    setSubmitted(false);
-    setError("");
-    setRecipient("");
-    setMessage("");
-    setSender("");
-    setColor("default");
-    setSpecialEffect("");
-    setFullBg(false);
-    setLimitMsg("");
-    setSpecialEffectVisible(false);
-    setHasCrossed(false);
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)]">
       <header className="bg-[var(--card-bg)] shadow-lg">
