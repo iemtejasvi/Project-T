@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, supabase2, getAllMemories } from "@/lib/supabaseClient";
 
 interface Memory {
   id: string;
@@ -36,21 +36,23 @@ export default function AdminPanel() {
   const [currentAnnouncement, setCurrentAnnouncement] = useState<{ id: string; message: string; expires_at: string } | null>(null);
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
+  const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string }[]>([]);
 
   // Memoize refreshMemories to prevent infinite loops
-  const refreshMemories = useCallback(() => {
+  const refreshMemories = useCallback(async () => {
     if (!isAuthorized) return;
-    supabase
-      .from("memories")
-      .select("*")
-      .order("pinned", { ascending: false })
-      .order("created_at", { ascending: false })
-      .eq("status", selectedTab)
-      .then(({ data, error }) => {
-        if (error) console.error(error);
-        else setMemories(data || []);
+    try {
+      const query = { status: selectedTab };
+      const memories = await getAllMemories(query);
+      // Sort by pinned status and creation date
+      const sortedMemories = memories.sort((a, b) => {
+        if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
+      setMemories(sortedMemories);
+    } catch (error) {
+      console.error("Error fetching memories:", error);
+    }
   }, [isAuthorized, selectedTab]);
 
   // Check for admin secret from query string
@@ -62,26 +64,10 @@ export default function AdminPanel() {
     setAuthChecked(true);
   }, []);
 
+  // Fetch memories when tab changes or authorization changes
   useEffect(() => {
     if (isAuthorized) {
-      async function fetchMemories() {
-        let query = supabase
-          .from("memories")
-          .select("*")
-          .order("pinned", { ascending: false })
-          .order("created_at", { ascending: false });
-
-        if (selectedTab !== "pending") {
-          query = query.eq("status", selectedTab);
-        } else {
-          query = query.eq("status", "pending");
-        }
-
-        const { data, error } = await query;
-        if (error) console.error(error);
-        else setMemories(data || []);
-      }
-      fetchMemories();
+      refreshMemories();
     }
   }, [isAuthorized, selectedTab]);
 
@@ -212,11 +198,12 @@ export default function AdminPanel() {
   };
 
   async function updateMemoryStatus(id: string, newStatus: string) {
-    const { error } = await supabase
-      .from("memories")
-      .update({ status: newStatus })
-      .eq("id", id);
-    if (error) console.error(error);
+    // Try both databases
+    const [result1, result2] = await Promise.all([
+      supabase.from("memories").update({ status: newStatus }).eq("id", id),
+      supabase2.from("memories").update({ status: newStatus }).eq("id", id)
+    ]);
+    if (result1.error && result2.error) console.error("Error updating memory status");
     refreshMemories();
   }
 
@@ -226,8 +213,12 @@ export default function AdminPanel() {
       alert("Incorrect password. Delete aborted.");
       return;
     }
-    const { error } = await supabase.from("memories").delete().eq("id", id);
-    if (error) console.error(error);
+    // Try both databases
+    const [result1, result2] = await Promise.all([
+      supabase.from("memories").delete().eq("id", id),
+      supabase2.from("memories").delete().eq("id", id)
+    ]);
+    if (result1.error && result2.error) console.error("Error deleting memory");
     refreshMemories();
   }
 
@@ -237,63 +228,93 @@ export default function AdminPanel() {
       alert("Incorrect password. Ban aborted.");
       return;
     }
-    // First delete the memory
-    const { error: deleteError } = await supabase
+
+    // Try both databases for deletion
+    const [deleteResult1, deleteResult2] = await Promise.all([
+      supabase
+        .from("memories")
+        .delete()
+        .eq("id", memory.id),
+      supabase2
       .from("memories")
       .delete()
-      .eq("id", memory.id);
+        .eq("id", memory.id)
+    ]);
     
-    if (deleteError) {
-      console.error("Error deleting memory:", deleteError);
+    if (deleteResult1.error && deleteResult2.error) {
+      console.error("Error deleting memory during ban");
       return;
     }
 
-    // Ban IP and UUID if available
-    const banEntry: { ip?: string; uuid?: string; country?: string } = {};
-    if (memory.ip) banEntry.ip = memory.ip;
-    if (memory.uuid) banEntry.uuid = memory.uuid;
-    if (memory.country) banEntry.country = memory.country;
-    if (banEntry.ip || banEntry.uuid) {
-      const { error: banError } = await supabase
+    // Add to banned users in both databases
+    const [banResult1, banResult2] = await Promise.all([
+      supabase
         .from("banned_users")
-        .insert([banEntry]);
-      if (banError) {
-        console.error("Error banning user:", banError);
-      }
-    }
-    
-    setSelectedTab("pending");
+        .insert([{ 
+          ip: memory.ip,
+          uuid: memory.uuid,
+          banned_at: new Date().toISOString()
+        }]),
+      supabase2
+        .from("banned_users")
+        .insert([{ 
+          ip: memory.ip,
+          uuid: memory.uuid,
+          banned_at: new Date().toISOString()
+        }])
+    ]);
+
+    if (banResult1.error && banResult2.error) {
+      console.error("Error banning user");
+    } else {
     refreshMemories();
+    }
   }
 
-  async function unbanMemory(memory: Memory) {
+  async function unbanMemory(user: { ip?: string; uuid?: string }) {
     const password = prompt("Please enter the unban password:");
     if (password !== "2000@") {
       alert("Incorrect password. Unban aborted.");
       return;
     }
-    // Unban by IP and UUID
-    if (memory.ip) {
-      await supabase.from("banned_users").delete().eq("ip", memory.ip);
+
+    // Remove from banned users in both databases
+    const [unbanResult1, unbanResult2] = await Promise.all([
+      supabase
+        .from("banned_users")
+        .delete()
+        .or(`ip.eq.${user.ip},uuid.eq.${user.uuid}`),
+      supabase2
+        .from("banned_users")
+        .delete()
+        .or(`ip.eq.${user.ip},uuid.eq.${user.uuid}`)
+    ]);
+
+    if (unbanResult1.error && unbanResult2.error) {
+      console.error("Error unbanning user");
+    } else {
+      // Update the banned users list
+      setBannedUsers(prev => prev.filter(b => 
+        b.ip !== user.ip && b.uuid !== user.uuid
+      ));
+      refreshMemories();
     }
-    if (memory.uuid) {
-      await supabase.from("banned_users").delete().eq("uuid", memory.uuid);
-    }
-    setSelectedTab("banned");
-    refreshMemories();
   }
 
   async function togglePin(memory: Memory) {
     if (memory.pinned) {
       // If already pinned, just unpin it
-      const { error } = await supabase
-        .from("memories")
-        .update({ 
+      const [result1, result2] = await Promise.all([
+        supabase.from("memories").update({ 
           pinned: false,
           pinned_until: null
-        })
-        .eq("id", memory.id);
-      if (error) console.error(error);
+        }).eq("id", memory.id),
+        supabase2.from("memories").update({ 
+          pinned: false,
+          pinned_until: null
+        }).eq("id", memory.id)
+      ]);
+      if (result1.error && result2.error) console.error("Error unpinning memory");
       refreshMemories();
       return;
     }
@@ -308,14 +329,17 @@ export default function AdminPanel() {
     const pinnedUntil = new Date();
     pinnedUntil.setSeconds(pinnedUntil.getSeconds() + totalSeconds);
 
-    const { error } = await supabase
-      .from("memories")
-      .update({ 
+    const [result1, result2] = await Promise.all([
+      supabase.from("memories").update({ 
         pinned: true,
         pinned_until: pinnedUntil.toISOString()
-      })
-      .eq("id", memory.id);
-    if (error) console.error(error);
+      }).eq("id", memory.id),
+      supabase2.from("memories").update({ 
+        pinned: true,
+        pinned_until: pinnedUntil.toISOString()
+      }).eq("id", memory.id)
+    ]);
+    if (result1.error && result2.error) console.error("Error pinning memory");
     refreshMemories();
   }
 
@@ -373,7 +397,7 @@ export default function AdminPanel() {
     if (selectedTab === "banned") {
       supabase
         .from("banned_users")
-        .select("ip, uuid, country")
+        .select("ip, uuid")
         .then(({ data, error }) => {
           if (error) console.error(error);
           else setBannedUsers(data || []);
@@ -566,7 +590,7 @@ export default function AdminPanel() {
                 )}
                 <div className="mt-3 text-sm text-gray-500 break-words">
                   <p>IP: {memory.ip}</p>
-                  <p>Country: {memory.country}</p>
+                  <p>UUID: {memory.uuid}</p>
                 </div>
                 <small className="block mt-3 text-gray-500">
                   {new Date(memory.created_at).toLocaleString()}
@@ -703,7 +727,7 @@ export default function AdminPanel() {
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Banned Users</h3>
             <ul className="divide-y divide-gray-200">
               {bannedUsers.map((user, idx) => (
-                <li key={user.ip || user.uuid || idx} className="py-3 flex items-center justify-between">
+                <li key={`${user.ip || ''}-${user.uuid || ''}-${idx}`} className="py-3 flex items-center justify-between">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     {user.ip && (
                       <span className="inline-block bg-red-100 text-red-700 text-xs font-mono px-2 py-1 rounded mr-2 border border-red-300">
@@ -715,25 +739,9 @@ export default function AdminPanel() {
                         UUID: {user.uuid}
                       </span>
                     )}
-                    {user.country && (
-                      <span className="ml-2 text-gray-500 text-xs">({user.country})</span>
-                    )}
                   </div>
                   <button
-                    onClick={async () => {
-                      const password = prompt("Please enter the unban password:");
-                      if (password !== "2000@") {
-                        alert("Incorrect password. Unban aborted.");
-                        return;
-                      }
-                      if (user.ip) {
-                        await supabase.from("banned_users").delete().eq("ip", user.ip);
-                      }
-                      if (user.uuid) {
-                        await supabase.from("banned_users").delete().eq("uuid", user.uuid);
-                      }
-                      setBannedUsers((prev) => prev.filter((b) => b !== user));
-                    }}
+                    onClick={() => unbanMemory(user)}
                     className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
                   >
                     Unban

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, supabase2, getNextMemoryDb, getMemoryCount } from "@/lib/supabaseClient";
 import Link from "next/link";
 
 interface IPData {
@@ -192,16 +192,13 @@ export default function SubmitPage() {
       }
 
       if (ipData?.ip || uuid) {
-        const { count, error: memErr } = await supabase
-          .from("memories")
-          .select("*", { count: "exact" })
-          .or([
-            ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-            uuid ? `uuid.eq.${uuid}` : null
-          ].filter(Boolean).join(","));
+        const query = {
+          ...(ipData?.ip ? { ip: ipData.ip } : {}),
+          ...(uuid ? { uuid: uuid } : {})
+        };
         
-        if (memErr) console.error("Error checking submission count:", memErr);
-        if (count && count >= 2) {
+        const count = await getMemoryCount(query);
+        if (count >= 2) {
           setHasReachedLimit(true);
           setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
         }
@@ -237,15 +234,27 @@ export default function SubmitPage() {
 
     // Check if banned by IP or UUID
     if (ipData?.ip || uuid) {
-      const { data: banData, error: banErr } = await supabase
-        .from("banned_users")
-        .select("id")
-        .or([
-          ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-          uuid ? `uuid.eq.${uuid}` : null
-        ].filter(Boolean).join(","));
-      if (banErr) console.error("Error checking banned users:", banErr);
-      if (banData && banData.length > 0) {
+      const [banData1, banData2] = await Promise.all([
+        supabase
+          .from("banned_users")
+          .select("id")
+          .or([
+            ipData?.ip ? `ip.eq.${ipData.ip}` : null,
+            uuid ? `uuid.eq.${uuid}` : null
+          ].filter(Boolean).join(",")),
+        supabase2
+          .from("banned_users")
+          .select("id")
+          .or([
+            ipData?.ip ? `ip.eq.${ipData.ip}` : null,
+            uuid ? `uuid.eq.${uuid}` : null
+          ].filter(Boolean).join(","))
+      ]);
+
+      if (banData1.error) console.error("Error checking banned users in DB1:", banData1.error);
+      if (banData2.error) console.error("Error checking banned users in DB2:", banData2.error);
+
+      if ((banData1.data && banData1.data.length > 0) || (banData2.data && banData2.data.length > 0)) {
         setError("You are banned from submitting memories.");
         setIsSubmitting(false);
         return;
@@ -254,15 +263,13 @@ export default function SubmitPage() {
 
     // Check if user has already submitted 2 memories (by IP or UUID)
     if (ipData?.ip || uuid) {
-      const { count, error: memErr } = await supabase
-        .from("memories")
-        .select("*", { count: "exact" })
-        .or([
-          ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-          uuid ? `uuid.eq.${uuid}` : null
-        ].filter(Boolean).join(","));
-      if (memErr) console.error("Error checking submission count:", memErr);
-      if (count && count >= 2) {
+      const query = {
+        ...(ipData?.ip ? { ip: ipData.ip } : {}),
+        ...(uuid ? { uuid: uuid } : {})
+      };
+      
+      const count = await getMemoryCount(query);
+      if (count >= 2) {
         setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
         setHasReachedLimit(true);
         setIsSubmitting(false);
@@ -283,7 +290,9 @@ export default function SubmitPage() {
       uuid: uuid || null,
     };
 
-    const { error: insertErr } = await supabase
+    // Use alternating database for memories
+    const memoryDb = getNextMemoryDb();
+    const { error: insertErr } = await memoryDb
       .from("memories")
       .insert([submission]);
     if (insertErr) {
