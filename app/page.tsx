@@ -34,30 +34,6 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Initial fetch of memories
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchMemories() {
-      try {
-        const query = { status: "approved" };
-        const memoriesData = await getAllMemories(query);
-        if (isMounted && memoriesData) {
-          setRecentMemories(memoriesData.slice(0, 3));
-        }
-      } catch (err) {
-        console.error("Error fetching memories:", err);
-      }
-    }
-
-    fetchMemories();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // Handle announcement and pin updates
   useEffect(() => {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout;

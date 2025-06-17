@@ -48,17 +48,24 @@ export interface QueryParams {
 // Function to get all memories from both databases
 export async function getAllMemories(params: QueryParams = {}) {
   try {
+    // Create query builders for both databases
+    let query1 = supabase.from("memories").select("*");
+    let query2 = supabase2.from("memories").select("*");
+
+    // Apply filters if they exist
+    if (params.status) {
+      query1 = query1.eq("status", params.status);
+      query2 = query2.eq("status", params.status);
+    }
+    if (params.pinned !== undefined) {
+      query1 = query1.eq("pinned", params.pinned);
+      query2 = query2.eq("pinned", params.pinned);
+    }
+
+    // Execute queries
     const [result1, result2] = await Promise.all([
-      supabase
-        .from("memories")
-        .select("*")
-        .match(params)
-        .order("created_at", { ascending: false }),
-      supabase2
-        .from("memories")
-        .select("*")
-        .match(params)
-        .order("created_at", { ascending: false }),
+      query1.order("created_at", { ascending: false }),
+      query2.order("created_at", { ascending: false }),
     ]);
 
     if (result1.error) throw result1.error;
@@ -79,10 +86,21 @@ export async function getAllMemories(params: QueryParams = {}) {
 // Function to get memory count from both databases
 export async function getMemoryCount(params: QueryParams = {}) {
   try {
-    const [count1, count2] = await Promise.all([
-      supabase.from("memories").select("*", { count: "exact", head: true }).match(params),
-      supabase2.from("memories").select("*", { count: "exact", head: true }).match(params),
-    ]);
+    // Create query builders for both databases
+    let query1 = supabase.from("memories").select("*", { count: "exact", head: true });
+    let query2 = supabase2.from("memories").select("*", { count: "exact", head: true });
+
+    // Apply filters if they exist
+    if (params.status) {
+      query1 = query1.eq("status", params.status);
+      query2 = query2.eq("status", params.status);
+    }
+    if (params.pinned !== undefined) {
+      query1 = query1.eq("pinned", params.pinned);
+      query2 = query2.eq("pinned", params.pinned);
+    }
+
+    const [count1, count2] = await Promise.all([query1, query2]);
 
     if (count1.error) throw count1.error;
     if (count2.error) throw count2.error;
