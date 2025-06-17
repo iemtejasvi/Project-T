@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { supabase, supabase2, getAllMemories } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 
@@ -78,14 +78,21 @@ export default function Home() {
         }
 
         // Fetch memories
-        const query = { status: "approved" };
-        const memoriesData = await getAllMemories(query);
-        
+        const { data: memoriesData, error: memoriesError } = await supabase
+          .from("memories")
+          .select("*")
+          .eq("status", "approved")
+          .order("pinned", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(3);
+
         if (!isMounted) return;
 
-        if (memoriesData) {
+        if (memoriesError) {
+          console.error("Error fetching memories:", memoriesError.message);
+        } else {
           // Check for expired pins
-          const updatedMemories = memoriesData;
+          const updatedMemories = memoriesData || [];
           let needsUpdate = false;
           const now = new Date();
 
@@ -93,17 +100,10 @@ export default function Home() {
             if (memory.pinned && memory.pinned_until) {
               const pinExpiry = new Date(memory.pinned_until);
               if (now >= pinExpiry) {
-                // Try both databases
-                await Promise.all([
-                  supabase
-                    .from("memories")
-                    .update({ pinned: false, pinned_until: null })
-                    .eq("id", memory.id),
-                  supabase2
-                    .from("memories")
-                    .update({ pinned: false, pinned_until: null })
-                    .eq("id", memory.id)
-                ]);
+                await supabase
+                  .from("memories")
+                  .update({ pinned: false, pinned_until: null })
+                  .eq("id", memory.id);
                 needsUpdate = true;
               }
             }
@@ -111,10 +111,16 @@ export default function Home() {
 
           // If any pins were updated, fetch memories again
           if (needsUpdate) {
-            const refreshedMemories = await getAllMemories(query);
-            if (isMounted) setRecentMemories(refreshedMemories.slice(0, 3));
+            const { data: refreshedMemories } = await supabase
+              .from("memories")
+              .select("*")
+              .eq("status", "approved")
+              .order("pinned", { ascending: false })
+              .order("created_at", { ascending: false })
+              .limit(3);
+            if (isMounted) setRecentMemories(refreshedMemories || []);
           } else {
-            if (isMounted) setRecentMemories(updatedMemories.slice(0, 3));
+            if (isMounted) setRecentMemories(updatedMemories);
           }
         }
       } catch (err) {
