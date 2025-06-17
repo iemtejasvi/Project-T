@@ -64,12 +64,12 @@ const specialEffects = [
 
 const limitMessages = [
   "You're typing like they still care. Shorten it.",
-  "100 words max. If they didn't read your texts, they won't read your novel.",
+  "50 words max. If they didn't read your texts, they won't read your novel.",
   "Unsent message, not an autobiography. Edit that trauma.",
-  "This ain't your therapist. Keep it under 100, Shakespeare.",
+  "This ain't your therapist. Keep it under 50, Shakespeare.",
   "They ghosted you, not gave you a book deal. Trim it.",
   "Nobody's ex read this much. Why should we?",
-  "100 words or less. You're not auditioning for heartbreak Netflix.",
+  "50 words or less. You're not auditioning for heartbreak Netflix.",
   "Less is more. Oversharing is out.",
   "Unsent doesn't mean unpublished, Hemingway.",
   "Writing a saga? Nah. This ain't 'Lord of the Goodbyes'.",
@@ -81,16 +81,16 @@ const limitMessages = [
   "It's 'Unsent,' not 'Unhinged.' Chill.",
   "Typing like you're pitching to a publisher. Relax.",
   "You lost them, not the plot. Tighten it up.",
-  "This ain't a TED Talk. Drop the mic in 100.",
+  "This ain't a TED Talk. Drop the mic in 50.",
   "Keep the mystery. Oversharing is a red flag.",
   "We said unsent, not unlimited.",
   "Heartbreak's poetic, not academic.",
-  "If it takes more than 100 words to hurt, you've healed.",
+  "If it takes more than 50 words to hurt, you've healed.",
   "Save it for your therapist. They get paid to read that much.",
   "Ever heard of a 'read more' button? No? Exactly.",
   "This ain't Medium. Don't medium dump.",
   "If they didn't reply to a text, why drop a chapter?",
-  "100 max. Anything else is just emotional spam.",
+  "50 max. Anything else is just emotional spam.",
   "Word vomit isn't romantic. Edit that heartbreak.",
   "Oversharing? In this economy?",
   "Tell us how you *feel*, not your life story.",
@@ -99,7 +99,7 @@ const limitMessages = [
   "Pain should punch. Not drone.",
   "Keep it sharp. This ain't 'War & Peace'.",
   "They left you on read. You giving them a sequel?",
-  "100 max, heal artistically, not endlessly.",
+  "50 max, heal artistically, not endlessly.",
   "Emotional dumping isn't aesthetic. It's exhausting.",
   "We came for heartbreak, not homework.",
 ];
@@ -137,6 +137,8 @@ export default function SubmitPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasReachedLimit, setHasReachedLimit] = useState(false);
 
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
@@ -157,8 +159,8 @@ export default function SubmitPage() {
 
   const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
   const isSpecialAllowed = wordCount <= 30;
-  const percent = Math.min((wordCount / 100) * 100, 100).toFixed(0);
-  const overLimit = wordCount > 100;
+  const percent = Math.min((wordCount / 50) * 100, 100).toFixed(0);
+  const overLimit = wordCount > 50;
 
   // Trigger special-effect warning and disable existing effect when crossing 30-word threshold
   useEffect(() => {
@@ -172,7 +174,7 @@ export default function SubmitPage() {
     }
   }, [wordCount, hasCrossed]);
 
-  // Random message when exceeding 100 words
+  // Random message when exceeding 50 words
   useEffect(() => {
     if (overLimit) {
       setLimitMsg(
@@ -181,16 +183,49 @@ export default function SubmitPage() {
     }
   }, [overLimit]);
 
+  // Check memory limit on component mount and when IP/UUID changes
+  useEffect(() => {
+    async function checkMemoryLimit() {
+      let uuid = null;
+      if (typeof window !== 'undefined') {
+        uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
+      }
+
+      if (ipData?.ip || uuid) {
+        const { count, error: memErr } = await supabase
+          .from("memories")
+          .select("*", { count: "exact" })
+          .or([
+            ipData?.ip ? `ip.eq.${ipData.ip}` : null,
+            uuid ? `uuid.eq.${uuid}` : null
+          ].filter(Boolean).join(","));
+        
+        if (memErr) console.error("Error checking submission count:", memErr);
+        if (count && count >= 2) {
+          setHasReachedLimit(true);
+          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+        }
+      }
+    }
+
+    if (ipData) {
+      checkMemoryLimit();
+    }
+  }, [ipData]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsSubmitting(true);
 
     if (overLimit) {
-      setError("Submission not allowed. Maximum word limit is 100.");
+      setError("Submission not allowed. Maximum word limit is 50.");
+      setIsSubmitting(false);
       return;
     }
     if (!recipient || !message) {
       setError("Please fill in all required fields.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -212,6 +247,7 @@ export default function SubmitPage() {
       if (banErr) console.error("Error checking banned users:", banErr);
       if (banData && banData.length > 0) {
         setError("You are banned from submitting memories.");
+        setIsSubmitting(false);
         return;
       }
     }
@@ -228,6 +264,8 @@ export default function SubmitPage() {
       if (memErr) console.error("Error checking submission count:", memErr);
       if (count && count >= 2) {
         setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+        setHasReachedLimit(true);
+        setIsSubmitting(false);
         return;
       }
     }
@@ -251,6 +289,7 @@ export default function SubmitPage() {
     if (insertErr) {
       console.error(insertErr);
       setError("Error submitting your memory.");
+      setIsSubmitting(false);
     } else {
       setSubmitted(true);
     }
@@ -349,7 +388,7 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif">Message* (max 100 words)</label>
+              <label className="block font-serif">Message* (max 50 words)</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -362,7 +401,7 @@ export default function SubmitPage() {
                   className={`h-full rounded-full transition-all duration-300 ${
                     wordCount <= 30
                       ? "bg-[var(--accent)]"
-                      : wordCount <= 100
+                      : wordCount <= 50
                       ? "bg-[var(--secondary)]"
                       : "bg-red-500"
                   }`}
@@ -370,7 +409,7 @@ export default function SubmitPage() {
                 />
               </div>
               <div className="flex justify-between text-xs mt-1">
-                <span>{wordCount} / 100</span>
+                <span>{wordCount} / 50</span>
                 {wordCount > 30 && specialEffectVisible && (
                   <span className="text-red-500">
                     Special effects disabled beyond 30 words.
@@ -443,9 +482,14 @@ export default function SubmitPage() {
             <div className="text-center">
               <button
                 type="submit"
-                className="px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
+                disabled={isSubmitting || hasReachedLimit}
+                className={`px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg transition-transform ${
+                  isSubmitting || hasReachedLimit 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:scale-105'
+                }`}
               >
-                Submit Memory
+                {isSubmitting ? 'Submitting...' : 'Submit Memory'}
               </button>
             </div>
           </form>

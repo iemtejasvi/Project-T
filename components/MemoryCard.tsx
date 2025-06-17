@@ -6,6 +6,7 @@ import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
+import "../app/globals.css";
 
 interface Memory {
   id: string;
@@ -469,9 +470,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             )}
             To: {memory.recipient}
           </h3>
-            {memory.pinned && (
-              <span className="text-yellow-500 text-xl">📌</span>
-            )}
           </div>
           {memory.sender && <p className="mt-1 text-lg italic text-[var(--text)]">From: {memory.sender}</p>}
           <hr className="my-2 border-[#999999]" />
@@ -514,16 +512,52 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           >
             <div>
               <div className="flex justify-between items-start">
-              <h3 className="text-xl font-bold text-[var(--text)]">
-                {memory.animation && (
-                  <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                    ★
-                  </span>
-                )}
-                To: {memory.recipient}
-              </h3>
+                <h3 className="text-xl font-bold text-[var(--text)]">
+                  {memory.animation && (
+                    <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                      ★
+                    </span>
+                  )}
+                  To: {memory.recipient}
+                </h3>
                 {memory.pinned && (
-                  <span className="text-yellow-500 text-xl">📌</span>
+                  <span
+                    className="relative inline-block animate-pin-pop"
+                    style={{
+                      display: 'inline-block',
+                      transform: 'rotate(-15deg)',
+                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.10))',
+                      verticalAlign: 'middle',
+                    }}
+                    title="Pinned"
+                  >
+                    <span
+                      className="absolute inset-0 rounded-full border border-yellow-200 shadow-sm"
+                      style={{
+                        background: effectiveColor !== 'default'
+                          ? `var(--color-${effectiveColor}-bg)`
+                          : 'radial-gradient(circle, #fffbe6 60%, #ffe066 100%)',
+                        zIndex: 0,
+                        width: '1.6em',
+                        height: '1.6em',
+                        left: '-0.32em',
+                        top: '-0.32em',
+                        opacity: 0.85,
+                        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.08)',
+                      }}
+                      aria-hidden="true"
+                    />
+                    <span
+                      className="relative z-10 text-yellow-500"
+                      style={{
+                        fontSize: '1.28em',
+                        textShadow: '0 1px 3px #fffbe6, 0 1px 2px #ffe066',
+                        lineHeight: 1,
+                      }}
+                    >
+                      📌
+                    </span>
+                  </span>
                 )}
               </div>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}

@@ -596,3 +596,12 @@ input::placeholder, textarea::placeholder {
 @media (max-width: 768px) {
   /* Remove the commented bleeding-text block */
 }
+
+@keyframes pin-pop {
+  0% { transform: scale(0.7) rotate(-15deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(-15deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-15deg); opacity: 1; }
+}
+.animate-pin-pop {
+  animation: pin-pop 0.5s cubic-bezier(.5,1.8,.7,1) both;
+}
