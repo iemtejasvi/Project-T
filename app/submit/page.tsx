@@ -105,26 +105,26 @@ const limitMessages = [
 ];
 
 const twoMemoryLimitMessages = [
-  "Only 2 memories allowed. That's the limit, that's the rule.",
-  "Only 2 memories allowed. No more chapters in this story.",
-  "Only 2 memories allowed. Two goodbyes, that's all you get.",
-  "Only 2 memories allowed. Two chances to say what's left.",
-  "Only 2 memories allowed. Two moments, then it's done.",
-  "Only 2 memories allowed. Two memories, then move on.",
-  "Only 2 memories allowed. Two words, then let it go.",
-  "Only 2 memories allowed. Two memories, that's the show.",
-  "Only 2 memories allowed. Two memories, then goodbye.",
-  "Only 2 memories allowed. Two memories, that's the limit.",
-  "Only 2 memories allowed. Two memories, that's the deal.",
-  "Only 2 memories allowed. Two memories, that's the seal.",
-  "Only 2 memories allowed. Two memories, that's the end.",
-  "Only 2 memories allowed. Two memories, that's the trend.",
-  "Only 2 memories allowed. Two memories, that's the cap.",
-  "Only 2 memories allowed. Two memories, that's the wrap.",
-  "Only 2 memories allowed. Two memories, that's the max.",
-  "Only 2 memories allowed. Two memories, that's the facts.",
-  "Only 2 memories allowed. Two memories, that's the law.",
-  "Only 2 memories allowed. Two memories, that's the draw."
+  "Only 2 memories allowed. Some goodbyes must stay in your heart.",
+  "Only 2 memories allowed. Two pieces of your story, that's all we can hold.",
+  "Only 2 memories allowed. Two moments of love, the rest stays with you.",
+  "Only 2 memories allowed. Two fragments of forever, the rest is yours.",
+  "Only 2 memories allowed. Two echoes of your heart, the rest remains.",
+  "Only 2 memories allowed. Two pieces of your truth, the rest is private.",
+  "Only 2 memories allowed. Two moments of courage, the rest is strength.",
+  "Only 2 memories allowed. Two pieces of your soul, the rest is sacred.",
+  "Only 2 memories allowed. Two echoes of love, the rest is yours.",
+  "Only 2 memories allowed. Two pieces of your story, the rest is poetry.",
+  "Only 2 memories allowed. Two glimpses of forever, the rest is dream.",
+  "Only 2 memories allowed. Two moments of heart, the rest is prayer.",
+  "Only 2 memories allowed. Two pieces of truth, the rest is space.",
+  "Only 2 memories allowed. Two echoes of soul, the rest is light.",
+  "Only 2 memories allowed. Two pieces of love, the rest is song.",
+  "Only 2 memories allowed. Two moments of story, the rest is verse.",
+  "Only 2 memories allowed. Two pieces of heart, the rest is dream.",
+  "Only 2 memories allowed. Two echoes of truth, the rest is yours.",
+  "Only 2 memories allowed. Two moments of soul, the rest is sacred.",
+  "Only 2 memories allowed. Two pieces of love, the rest is private."
 ];
 
 export default function SubmitPage() {
@@ -346,6 +346,12 @@ export default function SubmitPage() {
           <div className="max-w-2xl w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
             <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
             <p className="mb-6">Your memory is pending approval. Please wait while we review it.</p>
+            <Link 
+              href="/"
+              className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
+            >
+              Return Home
+            </Link>
           </div>
         ) : (
           <form
