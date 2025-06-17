@@ -359,13 +359,7 @@ export default function SubmitPage() {
         {submitted ? (
           <div className="max-w-2xl w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
             <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
-            <p className="mb-6">Thank you! Your memory is pending approval.</p>
-            <button
-              onClick={resetForm}
-              className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
-            >
-              Share Another
-            </button>
+            <p className="mb-6">Your memory is pending approval. Please wait while we review it.</p>
           </div>
         ) : (
           <form
