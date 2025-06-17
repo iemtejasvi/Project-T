@@ -11,27 +11,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Second Supabase instance
 export const supabase2 = createClient(supabaseUrl2, supabaseAnonKey2);
 
-// Counter to track which database to use next
-let dbCounter = 0;
-
-// Function to get the next database instance for memories
-export async function getNextMemoryDb() {
-  try {
-    const [count1, count2] = await Promise.all([
-      supabase.from("memories").select("*", { count: "exact", head: true }),
-      supabase2.from("memories").select("*", { count: "exact", head: true }),
-    ]);
-
-    if (count1.error) throw count1.error;
-    if (count2.error) throw count2.error;
-
-    return (count1.count || 0) <= (count2.count || 0) ? supabase : supabase2;
-  } catch (error) {
-    console.error("Error getting next memory db:", error);
-    return supabase;
-  }
-}
-
 export interface Memory {
   id: string;
   recipient: string;
@@ -99,5 +78,22 @@ export async function getMemoryCount(params: QueryParams = {}) {
   } catch (error) {
     console.error("Error getting memory count:", error);
     return 0;
+  }
+}
+
+export async function getNextMemoryDb() {
+  try {
+    const [count1, count2] = await Promise.all([
+      supabase.from("memories").select("*", { count: "exact", head: true }),
+      supabase2.from("memories").select("*", { count: "exact", head: true }),
+    ]);
+
+    if (count1.error) throw count1.error;
+    if (count2.error) throw count2.error;
+
+    return (count1.count || 0) <= (count2.count || 0) ? supabase : supabase2;
+  } catch (error) {
+    console.error("Error getting next memory db:", error);
+    return supabase;
   }
 } 
