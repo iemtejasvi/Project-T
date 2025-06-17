@@ -1,27 +1,38 @@
 import { createClient } from '@supabase/supabase-js';
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl2 = process.env.NEXT_PUBLIC_SUPABASE_URL2!;
+const supabaseAnonKey2 = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY2!;
+
 // First Supabase instance
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Second Supabase instance
-export const supabase2 = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL_2!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_2!
-);
+export const supabase2 = createClient(supabaseUrl2, supabaseAnonKey2);
 
 // Counter to track which database to use next
 let dbCounter = 0;
 
 // Function to get the next database instance for memories
-export function getNextMemoryDb() {
-  dbCounter = (dbCounter + 1) % 2;
-  return dbCounter === 0 ? supabase : supabase2;
+export async function getNextMemoryDb() {
+  try {
+    const [count1, count2] = await Promise.all([
+      supabase.from("memories").select("*", { count: "exact", head: true }),
+      supabase2.from("memories").select("*", { count: "exact", head: true }),
+    ]);
+
+    if (count1.error) throw count1.error;
+    if (count2.error) throw count2.error;
+
+    return (count1.count || 0) <= (count2.count || 0) ? supabase : supabase2;
+  } catch (error) {
+    console.error("Error getting next memory db:", error);
+    return supabase;
+  }
 }
 
-interface Memory {
+export interface Memory {
   id: string;
   recipient: string;
   message: string;
@@ -36,45 +47,35 @@ interface Memory {
   pinned_until?: string;
 }
 
-interface QueryParams {
+export interface QueryParams {
   status?: string;
-  ip?: string;
-  uuid?: string;
-  [key: string]: string | undefined;
+  pinned?: boolean;
+  [key: string]: string | boolean | undefined;
 }
 
 // Function to get all memories from both databases
-export async function getAllMemories(query: QueryParams = {}) {
+export async function getAllMemories(params: QueryParams = {}) {
   try {
-    // Fetch from both databases
     const [result1, result2] = await Promise.all([
       supabase
         .from("memories")
         .select("*")
-        .match(query)
-        .order("pinned", { ascending: false })
+        .match(params)
         .order("created_at", { ascending: false }),
       supabase2
         .from("memories")
         .select("*")
-        .match(query)
-        .order("pinned", { ascending: false })
-        .order("created_at", { ascending: false })
+        .match(params)
+        .order("created_at", { ascending: false }),
     ]);
 
-    // Combine and deduplicate results
-    const allMemories = [...(result1.data || []), ...(result2.data || [])];
-    const uniqueMemories = Array.from(
-      new Map(allMemories.map(memory => [memory.id, memory])).values()
-    );
+    if (result1.error) throw result1.error;
+    if (result2.error) throw result2.error;
 
-    // Sort combined results
-    return uniqueMemories.sort((a, b) => {
-      // First sort by pinned status
+    const allMemories = [...(result1.data || []), ...(result2.data || [])];
+    return allMemories.sort((a, b) => {
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
-      
-      // Then by creation date
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
   } catch (error) {
@@ -84,14 +85,19 @@ export async function getAllMemories(query: QueryParams = {}) {
 }
 
 // Function to get memory count from both databases
-export async function getMemoryCount(query: QueryParams) {
-  const [result1, result2] = await Promise.all([
-    supabase.from('memories').select('*', { count: 'exact' }).match(query),
-    supabase2.from('memories').select('*', { count: 'exact' }).match(query)
-  ]);
+export async function getMemoryCount(params: QueryParams = {}) {
+  try {
+    const [count1, count2] = await Promise.all([
+      supabase.from("memories").select("*", { count: "exact", head: true }).match(params),
+      supabase2.from("memories").select("*", { count: "exact", head: true }).match(params),
+    ]);
 
-  if (result1.error) throw result1.error;
-  if (result2.error) throw result2.error;
+    if (count1.error) throw count1.error;
+    if (count2.error) throw count2.error;
 
-  return (result1.count || 0) + (result2.count || 0);
+    return (count1.count || 0) + (count2.count || 0);
+  } catch (error) {
+    console.error("Error getting memory count:", error);
+    return 0;
+  }
 } 
