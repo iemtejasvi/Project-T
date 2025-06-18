@@ -630,10 +630,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   let canonicalUrl = 'https://www.ifonlyisentthis.com/';
   // Use usePathname only in client components
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
     canonicalUrl = 'https://www.ifonlyisentthis.com' + pathname;
-  } catch (e) {
+  } catch {
     // fallback to root
   }
   return (
