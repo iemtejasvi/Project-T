@@ -156,7 +156,7 @@ const TypewriterPrompt: React.FC = () => {
       "I stayed soft in a world you made hard.",
       "I kept your goodbye framed like art I can’t afford to throw away.",
       "I listened to everyone but myself, and you still left.",
-      "I wrote you out of my life, but you bled through every sentence."
+      "I wrote you out of my life, but you bled through every sentence.",
       "You left the part of me that loved."
     ],
     []
