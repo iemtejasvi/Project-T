@@ -2,64 +2,45 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import useSWR from 'swr';
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 
-const recentMemoriesFetcher = async () => {
-  const { data, error } = await supabase
-    .from("memories")
-    .select("*")
-    .eq("status", "approved")
-    .order("pinned", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(3);
-
-  if (error) throw error;
-  if (!data) return [];
-
-  const now = new Date();
-  const expiredPinIds = data
-    .filter(memory => memory.pinned && memory.pinned_until && new Date(memory.pinned_until) < now)
-    .map(memory => memory.id);
-
-  if (expiredPinIds.length > 0) {
-    await supabase
-      .from("memories")
-      .update({ pinned: false, pinned_until: null })
-      .in("id", expiredPinIds);
-    
-    // Re-fetch to get the correct top 3 after unpinning
-    const { data: freshData, error: freshError } = await supabase
-      .from("memories")
-      .select("*")
-      .eq("status", "approved")
-      .order("pinned", { ascending: false })
-      .order("created_at", { ascending: false })
-      .limit(3);
-    
-    if (freshError) throw freshError;
-    return freshData || [];
-  }
-  
-  return data;
-};
+interface Memory {
+  id: string;
+  recipient: string;
+  message: string;
+  sender?: string;
+  created_at: string;
+  status: string;
+  color: string;
+  full_bg: boolean;
+  letter_style: string;
+  animation?: string;
+}
 
 export default function Home() {
-  const { data: recentMemories = [] } = useSWR('memories-recent', recentMemoriesFetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [showWelcome, setShowWelcome] = useState(false);
   const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update current time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(now);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout;
 
-    async function fetchAnnouncement() {
+    async function fetchData() {
       try {
+        // Fetch announcement
         const { data: announcementData, error: announcementError } = await supabase
           .from("announcements")
           .select("id, message, expires_at")
@@ -75,7 +56,9 @@ export default function Home() {
           const expiryTime = new Date(announcementData[0].expires_at);
           const now = new Date();
           
+          // Check if announcement has expired
           if (now >= expiryTime) {
+            // Delete expired announcement
             await supabase
               .from("announcements")
               .delete()
@@ -84,20 +67,68 @@ export default function Home() {
           } else {
             if (isMounted) setAnnouncement(announcementData[0].message);
             
+            // Schedule next check for this announcement
             const timeUntilExpiry = expiryTime.getTime() - now.getTime();
             timeoutId = setTimeout(() => {
-              if (isMounted) fetchAnnouncement();
+              if (isMounted) fetchData();
             }, timeUntilExpiry);
           }
         } else {
           if (isMounted) setAnnouncement(null);
         }
+
+        // Fetch memories
+        const { data: memoriesData, error: memoriesError } = await supabase
+          .from("memories")
+          .select("*")
+          .eq("status", "approved")
+          .order("pinned", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(3);
+
+        if (!isMounted) return;
+
+        if (memoriesError) {
+          console.error("Error fetching memories:", memoriesError.message);
+        } else {
+          // Check for expired pins
+          const updatedMemories = memoriesData || [];
+          let needsUpdate = false;
+          const now = new Date();
+
+          for (const memory of updatedMemories) {
+            if (memory.pinned && memory.pinned_until) {
+              const pinExpiry = new Date(memory.pinned_until);
+              if (now >= pinExpiry) {
+                await supabase
+                  .from("memories")
+                  .update({ pinned: false, pinned_until: null })
+                  .eq("id", memory.id);
+                needsUpdate = true;
+              }
+            }
+          }
+
+          // If any pins were updated, fetch memories again
+          if (needsUpdate) {
+            const { data: refreshedMemories } = await supabase
+              .from("memories")
+              .select("*")
+              .eq("status", "approved")
+              .order("pinned", { ascending: false })
+              .order("created_at", { ascending: false })
+              .limit(3);
+            if (isMounted) setRecentMemories(refreshedMemories || []);
+          } else {
+            if (isMounted) setRecentMemories(updatedMemories);
+          }
+        }
       } catch (err) {
-        console.error("Unexpected error fetching announcement:", err);
+        console.error("Unexpected error:", err);
       }
     }
 
-    fetchAnnouncement();
+    fetchData();
 
     if (!localStorage.getItem("hasVisited")) {
       setShowWelcome(true);
@@ -108,7 +139,7 @@ export default function Home() {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, []);
+  }, [currentTime]); // Add currentTime as dependency
 
   const handleWelcomeClose = () => setShowWelcome(false);
 

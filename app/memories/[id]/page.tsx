@@ -1,32 +1,43 @@
 "use client";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import useSWR from 'swr';
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 
-const singleMemoryFetcher = async (key: string) => {
-  const [, id] = key.split('/');
-  const { data, error } = await supabase
-    .from("memories")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    console.error(error);
-    throw error;
-  }
-  return data;
-};
+interface Memory {
+  id: string;
+  recipient: string;
+  message: string;
+  sender?: string;
+  created_at: string;
+  status: string;
+  color: string;
+  full_bg: boolean;
+  letter_style: string;
+  animation?: string;
+}
 
 export default function MemoryDetail() {
   const params = useParams();
   const id = params?.id as string;
-  const { data: memory } = useSWR(id ? `memory/${id}` : null, singleMemoryFetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const [memory, setMemory] = useState<Memory | null>(null);
+
+  useEffect(() => {
+    async function fetchMemory() {
+      const { data, error } = await supabase
+        .from("memories")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (error) {
+        console.error(error);
+      } else {
+        setMemory(data);
+      }
+    }
+    fetchMemory();
+  }, [id]);
 
   if (!memory) return <p className="p-6 text-center text-[var(--text)]">Loading...</p>;
 
