@@ -172,29 +172,29 @@ export default function Home() {
 
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">If Only I Sent This</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] home-desktop-heading">If Only I Sent This</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
+            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>
-                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link">
                   Memories
                 </Link>
               </li>
               <li>
-                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200">
+                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link">
                   Submit
                 </Link>
               </li>
               <li>
                 <Link
                   href="/how-it-works"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
                 >
                   How It Works
                 </Link>

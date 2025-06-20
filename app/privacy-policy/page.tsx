@@ -8,14 +8,14 @@ export default function PrivacyPolicy() {
           <h1 className="text-3xl font-bold text-[var(--text)]">Privacy Policy</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex justify-center gap-4">
+            <ul className="flex justify-center gap-4 desktop-nav-list">
               <li>
-                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors">
+                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors desktop-nav-link">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors">
+                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors desktop-nav-link">
                   How It Works
                 </Link>
               </li>
