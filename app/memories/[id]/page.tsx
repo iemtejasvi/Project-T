@@ -1,25 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import useSWR from 'swr';
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  letter_style: string;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-}
 
 const singleMemoryFetcher = async (key: string) => {
   const [, id] = key.split('/');

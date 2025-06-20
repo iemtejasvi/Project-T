@@ -7,21 +7,6 @@ import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  letter_style: string;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-}
-
 const recentMemoriesFetcher = async () => {
   const { data, error } = await supabase
     .from("memories")
