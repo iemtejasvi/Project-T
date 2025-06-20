@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import useSWR from 'swr';
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 
@@ -15,82 +16,55 @@ interface Memory {
   full_bg: boolean;
   letter_style: string;
   animation?: string;
+  pinned?: boolean;
+  pinned_until?: string;
 }
 
+const memoriesFetcher = async () => {
+  const { data, error } = await supabase
+    .from("memories")
+    .select("*")
+    .eq("status", "approved")
+    .order("pinned", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching memories:", error.message);
+    throw error;
+  }
+  if (!data) return [];
+
+  const now = new Date();
+  const expiredPinIds = data
+    .filter(memory => memory.pinned && memory.pinned_until && new Date(memory.pinned_until) < now)
+    .map(memory => memory.id);
+
+  if (expiredPinIds.length > 0) {
+    await supabase
+      .from("memories")
+      .update({ pinned: false, pinned_until: null })
+      .in("id", expiredPinIds);
+    
+    const updatedData = data.map(m => 
+      expiredPinIds.includes(m.id) ? { ...m, pinned: false, pinned_until: null } : m
+    );
+    
+    return updatedData.sort((a,b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }
+
+  return data;
+};
+
 export default function Memories() {
-  const [memories, setMemories] = useState<Memory[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  // Update current time every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(now);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchData() {
-      try {
-        // Fetch memories
-        const { data: memoriesData, error: memoriesError } = await supabase
-          .from("memories")
-          .select("*")
-          .eq("status", "approved")
-          .order("pinned", { ascending: false })
-          .order("created_at", { ascending: false });
-
-        if (!isMounted) return;
-
-        if (memoriesError) {
-          console.error("Error fetching memories:", memoriesError.message);
-        } else {
-          // Check for expired pins
-          const updatedMemories = memoriesData || [];
-          let needsUpdate = false;
-          const now = new Date();
-
-          for (const memory of updatedMemories) {
-            if (memory.pinned && memory.pinned_until) {
-              const pinExpiry = new Date(memory.pinned_until);
-              if (now >= pinExpiry) {
-                await supabase
-                  .from("memories")
-                  .update({ pinned: false, pinned_until: null })
-                  .eq("id", memory.id);
-                needsUpdate = true;
-              }
-            }
-          }
-
-          // If any pins were updated, fetch memories again
-          if (needsUpdate) {
-            const { data: refreshedMemories } = await supabase
-              .from("memories")
-              .select("*")
-              .eq("status", "approved")
-              .order("pinned", { ascending: false })
-              .order("created_at", { ascending: false });
-            if (isMounted) setMemories(refreshedMemories || []);
-          } else {
-            if (isMounted) setMemories(updatedMemories);
-          }
-        }
-      } catch (err) {
-        console.error("Unexpected error:", err);
-      }
-    }
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [currentTime]); // Add currentTime as dependency
+  const { data: memories = [] } = useSWR('memories-all', memoriesFetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
