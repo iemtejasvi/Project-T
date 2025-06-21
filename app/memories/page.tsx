@@ -231,6 +231,13 @@ export default function Memories() {
           </div>
         ) : displayedMemories.length > 0 ? (
           <>
+            <div className="mb-4 text-sm text-[var(--text)] opacity-75">
+              {searchTerm ? (
+                <span>Showing {displayedMemories.length} of {filteredMemories.length} search results</span>
+              ) : (
+                <span>Showing {displayedMemories.length} of {allMemories.length} memories</span>
+              )}
+            </div>
             {displayedMemories.map((memory) => (
               <MemoryCard key={memory.id} memory={memory} />
             ))}
