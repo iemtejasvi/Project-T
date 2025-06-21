@@ -99,11 +99,11 @@ export default function Memories() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">Memories</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
+            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
               <li>
                 <Link
                   href="/"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
                 >
                   Home
                 </Link>
@@ -111,7 +111,7 @@ export default function Memories() {
               <li>
                 <Link
                   href="/submit"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
                 >
                   Submit
                 </Link>
@@ -119,7 +119,7 @@ export default function Memories() {
               <li>
                 <Link
                   href="/how-it-works"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200"
                 >
                   How It Works
                 </Link>

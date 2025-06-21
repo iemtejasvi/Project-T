@@ -312,19 +312,19 @@ export default function SubmitPage() {
           <h1 className="text-4xl font-serif">Submit a Memory</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex justify-center gap-6 desktop-nav-list">
+            <ul className="flex justify-center gap-6">
               <li>
-                <Link href="/" className="hover:text-[var(--accent)] transition desktop-nav-link">
+                <Link href="/" className="hover:text-[var(--accent)] transition">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-[var(--accent)] transition desktop-nav-link">
+                <Link href="/memories" className="hover:text-[var(--accent)] transition">
                   Memories
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition desktop-nav-link">
+                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition">
                   How It Works
                 </Link>
               </li>

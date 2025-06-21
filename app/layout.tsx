@@ -1,4 +1,3 @@
-import React from 'react';
 import "./globals.css";
 import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
@@ -627,14 +626,6 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  let canonicalUrl = 'https://www.ifonlyisentthis.com/';
-  // Use usePathname only in client components
-  try {
-    const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-    canonicalUrl = 'https://www.ifonlyisentthis.com' + pathname;
-  } catch {
-    // fallback to root
-  }
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -649,7 +640,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
         <meta name="referrer" content="no-referrer-when-downgrade" />
-        <link rel="canonical" href={canonicalUrl} />
+        <link rel="canonical" href="https://www.ifonlyisentthis.com/" />
         <link rel="alternate" hrefLang="en" href="https://www.ifonlyisentthis.com/" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
