@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
@@ -15,27 +15,64 @@ interface Memory {
   full_bg: boolean;
   letter_style: string;
   animation?: string;
+  pinned?: boolean;
+  pinned_until?: string;
 }
 
 export default function Memories() {
-  const [memories, setMemories] = useState<Memory[]>([]);
+  const [allMemories, setAllMemories] = useState<Memory[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [displayCount, setDisplayCount] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
 
-  // Update current time every second
+  // Memoized filtered memories to prevent unnecessary recalculations
+  const filteredMemories = useMemo(() => {
+    return allMemories.filter(memory => 
+      memory.recipient.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allMemories, searchTerm]);
+
+  // Memoized displayed memories
+  const displayedMemories = useMemo(() => {
+    return filteredMemories.slice(0, displayCount);
+  }, [filteredMemories, displayCount]);
+
+  // Memoized hasMore calculation
+  const hasMoreMemories = useMemo(() => {
+    return filteredMemories.length > displayCount;
+  }, [filteredMemories.length, displayCount]);
+
+  // Check if there are any ACTIVE pinned memories (not expired)
+  const hasActivePinnedMemories = useMemo(() => {
+    const now = new Date();
+    return allMemories.some(memory => 
+      memory.pinned && 
+      memory.pinned_until && 
+      new Date(memory.pinned_until) > now
+    );
+  }, [allMemories]);
+
+  // Update current time every second ONLY if there are ACTIVE pinned memories
   useEffect(() => {
+    if (!hasActivePinnedMemories) return;
+
     const timer = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(now);
+      setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [hasActivePinnedMemories]);
 
+  // Initial data fetch - only runs once
   useEffect(() => {
     let isMounted = true;
 
     async function fetchData() {
       try {
+        setInitialLoading(true);
+        
         // Fetch memories
         const { data: memoriesData, error: memoriesError } = await supabase
           .from("memories")
@@ -49,39 +86,16 @@ export default function Memories() {
         if (memoriesError) {
           console.error("Error fetching memories:", memoriesError.message);
         } else {
-          // Check for expired pins
-          const updatedMemories = memoriesData || [];
-          let needsUpdate = false;
-          const now = new Date();
-
-          for (const memory of updatedMemories) {
-            if (memory.pinned && memory.pinned_until) {
-              const pinExpiry = new Date(memory.pinned_until);
-              if (now >= pinExpiry) {
-                await supabase
-                  .from("memories")
-                  .update({ pinned: false, pinned_until: null })
-                  .eq("id", memory.id);
-                needsUpdate = true;
-              }
-            }
-          }
-
-          // If any pins were updated, fetch memories again
-          if (needsUpdate) {
-            const { data: refreshedMemories } = await supabase
-              .from("memories")
-              .select("*")
-              .eq("status", "approved")
-              .order("pinned", { ascending: false })
-              .order("created_at", { ascending: false });
-            if (isMounted) setMemories(refreshedMemories || []);
-          } else {
-            if (isMounted) setMemories(updatedMemories);
+          if (isMounted) {
+            setAllMemories(memoriesData || []);
           }
         }
       } catch (err) {
         console.error("Unexpected error:", err);
+      } finally {
+        if (isMounted) {
+          setInitialLoading(false);
+        }
       }
     }
 
@@ -90,7 +104,78 @@ export default function Memories() {
     return () => {
       isMounted = false;
     };
-  }, [currentTime]); // Add currentTime as dependency
+  }, []);
+
+  // Check expired pins only when there are ACTIVE pinned memories
+  useEffect(() => {
+    if (!hasActivePinnedMemories) return;
+
+    const now = new Date();
+    const expiredPins = allMemories.filter(memory => 
+      memory.pinned && 
+      memory.pinned_until && 
+      new Date(memory.pinned_until) <= now
+    );
+
+    if (expiredPins.length === 0) return;
+
+    let isMounted = true;
+
+    async function updateExpiredPins() {
+      try {
+        const expiredPinIds = expiredPins.map(memory => memory.id);
+
+        // Update expired pins in database
+        for (const id of expiredPinIds) {
+          await supabase
+            .from("memories")
+            .update({ pinned: false, pinned_until: null })
+            .eq("id", id);
+        }
+
+        // Update local state without refetching
+        if (isMounted) {
+          setAllMemories(prevMemories => 
+            prevMemories.map(memory => 
+              expiredPinIds.includes(memory.id) 
+                ? { ...memory, pinned: false, pinned_until: undefined }
+                : memory
+            )
+          );
+        }
+      } catch (err) {
+        console.error("Error updating expired pins:", err);
+      }
+    }
+
+    updateExpiredPins();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentTime, hasActivePinnedMemories]);
+
+  // Reset display count when search changes
+  useEffect(() => {
+    setDisplayCount(10);
+  }, [searchTerm]);
+
+  // Update hasMore when filtered memories change
+  useEffect(() => {
+    setHasMore(hasMoreMemories);
+  }, [hasMoreMemories]);
+
+  const handleLoadMore = useCallback(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setDisplayCount(prev => prev + 10);
+      setLoading(false);
+    }, 300); // Reduced delay for better UX
+  }, []);
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -135,18 +220,36 @@ export default function Memories() {
             type="text"
             placeholder="Search by recipient name..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             className="w-full p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
           />
         </div>
-        {memories.length > 0 ? (
-          memories
-            .filter(memory => 
-              memory.recipient.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-            .map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+        
+        {initialLoading ? (
+          <div className="text-center py-8">
+            <p className="text-[var(--text)]">Loading memories...</p>
+          </div>
+        ) : displayedMemories.length > 0 ? (
+          <>
+            {displayedMemories.map((memory) => (
+              <MemoryCard key={memory.id} memory={memory} />
+            ))}
+            {hasMore && (
+              <div className="text-center mt-6">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loading}
+                  className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Loading..." : "Load More"}
+                </button>
+              </div>
+            )}
+          </>
         ) : (
-          <p className="text-[var(--text)]">No memories found.</p>
+          <p className="text-[var(--text)]">
+            {searchTerm ? "No memories found matching your search." : "No memories found."}
+          </p>
         )}
       </main>
 
