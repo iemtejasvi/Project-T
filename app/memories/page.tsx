@@ -257,7 +257,7 @@ export default function Memories() {
           </>
         ) : (
           <p className="text-[var(--text)]">
-            {searchTerm ? "No memories found." : "No memories found."}
+            {searchTerm ? "No memories found matching your search." : "No memories found."}
           </p>
         )}
       </main>
