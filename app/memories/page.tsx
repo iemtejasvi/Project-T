@@ -225,6 +225,15 @@ export default function Memories() {
           />
         </div>
         
+        {/* Memory count display */}
+        <div className="mb-4 text-sm text-[var(--text)] opacity-75">
+          {searchTerm ? (
+            <span>Found {filteredMemories.length} {filteredMemories.length === 1 ? 'memory' : 'memories'} matching "{searchTerm}"</span>
+          ) : (
+            <span>Total memories: {allMemories.length}</span>
+          )}
+        </div>
+        
         {initialLoading ? (
           <div className="text-center py-8">
             <p className="text-[var(--text)]">Loading memories...</p>
@@ -239,7 +248,7 @@ export default function Memories() {
                 <button
                   onClick={handleLoadMore}
                   disabled={loading}
-                  className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-lg hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
                 >
                   {loading ? "Loading..." : "Load More"}
                 </button>
@@ -248,7 +257,7 @@ export default function Memories() {
           </>
         ) : (
           <p className="text-[var(--text)]">
-            {searchTerm ? "No memories found matching your search." : "No memories found."}
+            {searchTerm ? "No memories found." : "No memories found."}
           </p>
         )}
       </main>
