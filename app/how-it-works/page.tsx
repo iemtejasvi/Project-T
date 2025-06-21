@@ -14,11 +14,11 @@ export default function HowItWorks() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">How It Works</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6">
+            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>
                 <Link
                   href="/"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
                 >
                   Home
                 </Link>
@@ -26,7 +26,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/memories"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
                 >
                   Memories
                 </Link>
@@ -34,7 +34,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/submit"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
                 >
                   Submit
                 </Link>
@@ -42,7 +42,7 @@ export default function HowItWorks() {
               <li className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
                 >
                   More Options ▼
                 </button>

@@ -605,3 +605,24 @@ input::placeholder, textarea::placeholder {
 .animate-pin-pop {
   animation: pin-pop 0.5s cubic-bezier(.5,1.8,.7,1) both;
 }
+
+/* --- Desktop premium polish for Home & Memories nav/buttons/headings --- */
+@media (min-width: 1024px) {
+  /* Home & Memories main heading */
+  .home-desktop-heading, .memories-desktop-heading {
+    font-size: 2.75rem !important; /* was 2.25rem (text-3xl), now ~44px */
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  /* Home & Memories nav buttons */
+  .desktop-nav-link {
+    font-size: 1.18rem !important; /* was 1rem, now ~19px */
+    padding: 0.55rem 1.15rem !important;
+    border-radius: 0.7rem;
+    font-weight: 500;
+  }
+  /* Tighten nav gap just a bit */
+  .desktop-nav-list {
+    gap: 0 !important; /* no space between buttons */
+  }
+}
