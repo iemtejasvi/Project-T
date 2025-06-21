@@ -225,15 +225,6 @@ export default function Memories() {
           />
         </div>
         
-        {/* Memory count display */}
-        <div className="mb-4 text-sm text-[var(--text)] opacity-75">
-          {searchTerm ? (
-            <span>Found {filteredMemories.length} {filteredMemories.length === 1 ? 'memory' : 'memories'} matching "{searchTerm}"</span>
-          ) : (
-            <span>Total memories: {allMemories.length}</span>
-          )}
-        </div>
-        
         {initialLoading ? (
           <div className="text-center py-8">
             <p className="text-[var(--text)]">Loading memories...</p>
