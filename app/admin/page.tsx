@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -37,6 +37,34 @@ export default function AdminPanel() {
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
   const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
+
+  // Check if there are any active pinned memories or announcements that need monitoring
+  const hasActiveItems = useMemo(() => {
+    const now = new Date();
+    
+    // Check for active pinned memories
+    const hasActivePinnedMemories = memories.some(memory => 
+      memory.pinned && 
+      memory.pinned_until && 
+      new Date(memory.pinned_until) > now
+    );
+    
+    // Check for active announcement
+    const hasActiveAnnouncement = currentAnnouncement && 
+      new Date(currentAnnouncement.expires_at) > now;
+    
+    return hasActivePinnedMemories || hasActiveAnnouncement;
+  }, [memories, currentAnnouncement]);
+
+  // Update current time every second ONLY if there are active items
+  useEffect(() => {
+    if (!hasActiveItems) return;
+
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [hasActiveItems]);
 
   // Memoize refreshMemories to prevent infinite loops
   const refreshMemories = useCallback(() => {
@@ -122,14 +150,6 @@ export default function AdminPanel() {
       console.error("Unexpected error fetching announcement:", err);
     }
   };
-
-  // Update current time every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   // Helper function to calculate total seconds from timer object
   const calculateTotalSeconds = (timer: { days: string; hours: string; minutes: string; seconds: string }) => {
@@ -319,8 +339,10 @@ export default function AdminPanel() {
     refreshMemories();
   }
 
-  // Add interval for checking expired items
+  // Add interval for checking expired items ONLY when there are active items
   useEffect(() => {
+    if (!hasActiveItems) return;
+
     const checkExpiredItems = async () => {
       // Check expired announcements
       if (currentAnnouncement) {
@@ -366,7 +388,7 @@ export default function AdminPanel() {
 
     const interval = setInterval(checkExpiredItems, 1000); // Check every second
     return () => clearInterval(interval);
-  }, [currentTime, currentAnnouncement, selectedTab, refreshMemories]);
+  }, [currentTime, hasActiveItems, selectedTab, refreshMemories]);
 
   // Fetch banned users when banned tab is selected
   useEffect(() => {

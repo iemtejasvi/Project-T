@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
@@ -17,6 +17,8 @@ interface Memory {
   full_bg: boolean;
   letter_style: string;
   animation?: string;
+  pinned?: boolean;
+  pinned_until?: string;
 }
 
 export default function Home() {
@@ -25,14 +27,32 @@ export default function Home() {
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Update current time every second
+  // Check if there are any active pinned memories or announcements that need monitoring
+  const hasActiveItems = useMemo(() => {
+    const now = new Date();
+    
+    // Check for active pinned memories
+    const hasActivePinnedMemories = recentMemories.some(memory => 
+      memory.pinned && 
+      memory.pinned_until && 
+      new Date(memory.pinned_until) > now
+    );
+    
+    // Check for active announcement
+    const hasActiveAnnouncement = announcement !== null;
+    
+    return hasActivePinnedMemories || hasActiveAnnouncement;
+  }, [recentMemories, announcement]);
+
+  // Update current time every second ONLY if there are active items
   useEffect(() => {
+    if (!hasActiveItems) return;
+
     const timer = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(now);
+      setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [hasActiveItems]);
 
   useEffect(() => {
     let isMounted = true;
@@ -91,37 +111,7 @@ export default function Home() {
         if (memoriesError) {
           console.error("Error fetching memories:", memoriesError.message);
         } else {
-          // Check for expired pins
-          const updatedMemories = memoriesData || [];
-          let needsUpdate = false;
-          const now = new Date();
-
-          for (const memory of updatedMemories) {
-            if (memory.pinned && memory.pinned_until) {
-              const pinExpiry = new Date(memory.pinned_until);
-              if (now >= pinExpiry) {
-                await supabase
-                  .from("memories")
-                  .update({ pinned: false, pinned_until: null })
-                  .eq("id", memory.id);
-                needsUpdate = true;
-              }
-            }
-          }
-
-          // If any pins were updated, fetch memories again
-          if (needsUpdate) {
-            const { data: refreshedMemories } = await supabase
-              .from("memories")
-              .select("*")
-              .eq("status", "approved")
-              .order("pinned", { ascending: false })
-              .order("created_at", { ascending: false })
-              .limit(3);
-            if (isMounted) setRecentMemories(refreshedMemories || []);
-          } else {
-            if (isMounted) setRecentMemories(updatedMemories);
-          }
+          if (isMounted) setRecentMemories(memoriesData || []);
         }
       } catch (err) {
         console.error("Unexpected error:", err);
@@ -139,7 +129,56 @@ export default function Home() {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [currentTime]); // Add currentTime as dependency
+  }, []); // Remove currentTime dependency
+
+  // Check expired pins only when there are active items
+  useEffect(() => {
+    if (!hasActiveItems) return;
+
+    const now = new Date();
+    const expiredPins = recentMemories.filter(memory => 
+      memory.pinned && 
+      memory.pinned_until && 
+      new Date(memory.pinned_until) <= now
+    );
+
+    if (expiredPins.length === 0) return;
+
+    let isMounted = true;
+
+    async function updateExpiredPins() {
+      try {
+        const expiredPinIds = expiredPins.map(memory => memory.id);
+
+        // Update expired pins in database
+        for (const id of expiredPinIds) {
+          await supabase
+            .from("memories")
+            .update({ pinned: false, pinned_until: null })
+            .eq("id", id);
+        }
+
+        // Update local state without refetching
+        if (isMounted) {
+          setRecentMemories(prevMemories => 
+            prevMemories.map(memory => 
+              expiredPinIds.includes(memory.id) 
+                ? { ...memory, pinned: false, pinned_until: undefined }
+                : memory
+            )
+          );
+        }
+      } catch (err) {
+        console.error("Error updating expired pins:", err);
+      }
+    }
+
+    updateExpiredPins();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentTime, hasActiveItems]);
 
   const handleWelcomeClose = () => setShowWelcome(false);
 
