@@ -37,6 +37,9 @@ export default function AdminPanel() {
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
   const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [displayCount, setDisplayCount] = useState(10);
+  const [loading, setLoading] = useState(false);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -65,6 +68,46 @@ export default function AdminPanel() {
     }, 1000);
     return () => clearInterval(timer);
   }, [hasActiveItems]);
+
+  // Memoized filtered memories for approved tab only
+  const filteredMemories = useMemo(() => {
+    if (selectedTab !== "approved") return memories;
+    
+    return memories.filter(memory => 
+      memory.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      memory.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (memory.sender && memory.sender.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [memories, searchTerm, selectedTab]);
+
+  // Memoized displayed memories
+  const displayedMemories = useMemo(() => {
+    if (selectedTab !== "approved") return memories;
+    return filteredMemories.slice(0, displayCount);
+  }, [filteredMemories, displayCount, selectedTab, memories]);
+
+  // Memoized hasMore calculation
+  const hasMoreMemories = useMemo(() => {
+    if (selectedTab !== "approved") return false;
+    return filteredMemories.length > displayCount;
+  }, [filteredMemories.length, displayCount, selectedTab]);
+
+  // Reset display count when search changes or tab changes
+  useEffect(() => {
+    setDisplayCount(10);
+  }, [searchTerm, selectedTab]);
+
+  const handleLoadMore = useCallback(() => {
+    setLoading(true);
+    setTimeout(() => {
+      setDisplayCount(prev => prev + 10);
+      setLoading(false);
+    }, 300);
+  }, []);
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, []);
 
   // Memoize refreshMemories to prevent infinite loops
   const refreshMemories = useCallback(() => {
@@ -564,161 +607,200 @@ export default function AdminPanel() {
             )}
           </div>
         ) : (
-          memories.length > 0 ? (
-            memories.map((memory) => (
-              <div
-                key={memory.id}
-                className={`bg-white/90 shadow rounded-lg p-6 border-l-4 break-words w-full ${
-                  selectedTab === "pending"
-                    ? "border-yellow-400"
-                    : selectedTab === "approved"
-                    ? "border-green-400"
-                    : "border-red-600"
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
-                  {memory.pinned && (
-                    <span className="text-yellow-500 text-xl">📌</span>
-                  )}
-                </div>
-                <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">{memory.message}</p>
-                {memory.sender && (
-                  <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
-                )}
-                <div className="mt-3 text-sm text-gray-500 break-words">
-                  <p>IP: {memory.ip}</p>
-                  <p>Country: {memory.country}</p>
-                </div>
-                <small className="block mt-3 text-gray-500">
-                  {new Date(memory.created_at).toLocaleString()}
-                </small>
-                <div className="mt-4 flex flex-wrap gap-4">
-                  {selectedTab === "pending" && (
-                    <>
-                      <button
-                        onClick={() => updateMemoryStatus(memory.id, "approved")}
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => deleteMemory(memory.id)}
-                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                      >
-                        Reject
-                      </button>
-                      <button
-                        onClick={() => banMemory(memory)}
-                        className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors"
-                      >
-                        Ban
-                      </button>
-                    </>
-                  )}
-                  {selectedTab === "approved" && (
-                    <>
-                      <button
-                        onClick={() => deleteMemory(memory.id)}
-                        className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
-                      >
-                        Delete
-                      </button>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                        {memory.pinned && memory.pinned_until && (
-                          <div className="text-sm text-gray-500">
-                            Unpins in: {formatRemainingTime(memory.pinned_until)}
-                          </div>
-                        )}
-                        {!memory.pinned && (
-                          <div className="w-full sm:w-auto">
-                            <div className="grid grid-cols-4 gap-1">
-                              <input
-                                type="number"
-                                value={pinTimers[memory.id]?.days ?? ""}
-                                onChange={(e) => setPinTimers(prev => ({
-                                  ...prev,
-                                  [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), days: e.target.value }
-                                }))}
-                                min="0"
-                                className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                                placeholder="D"
-                              />
-                              <input
-                                type="number"
-                                value={pinTimers[memory.id]?.hours ?? ""}
-                                onChange={(e) => setPinTimers(prev => ({
-                                  ...prev,
-                                  [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), hours: e.target.value }
-                                }))}
-                                min="0"
-                                max="23"
-                                className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                                placeholder="H"
-                              />
-                              <input
-                                type="number"
-                                value={pinTimers[memory.id]?.minutes ?? ""}
-                                onChange={(e) => setPinTimers(prev => ({
-                                  ...prev,
-                                  [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), minutes: e.target.value }
-                                }))}
-                                min="0"
-                                max="59"
-                                className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                                placeholder="M"
-                              />
-                              <input
-                                type="number"
-                                value={pinTimers[memory.id]?.seconds ?? ""}
-                                onChange={(e) => setPinTimers(prev => ({
-                                  ...prev,
-                                  [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), seconds: e.target.value }
-                                }))}
-                                min="0"
-                                max="59"
-                                className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                                placeholder="S"
-                              />
-                            </div>
-                          </div>
-                        )}
-                        <button
-                          onClick={() => togglePin(memory)}
-                          className={`w-full sm:w-auto px-3 sm:px-4 py-2 ${
-                            memory.pinned 
-                              ? "bg-yellow-500 hover:bg-yellow-600" 
-                              : "bg-gray-500 hover:bg-gray-600"
-                          } text-white rounded transition-colors text-sm`}
-                          disabled={!memory.pinned && (!pinTimers[memory.id] || calculateTotalSeconds(pinTimers[memory.id]) <= 0)}
-                        >
-                          {memory.pinned ? "Unpin" : "Pin"}
-                        </button>
-                      </div>
-                    </>
-                  )}
-                  {selectedTab === "banned" && (
-                    <>
-                      <button
-                        onClick={() => unbanMemory(memory)}
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                      >
-                        Unban
-                      </button>
-                      <button
-                        onClick={() => deleteMemory(memory.id)}
-                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </div>
+          <>
+            {selectedTab === "approved" && (
+              <div className="mb-6">
+                <input
+                  type="text"
+                  placeholder="Search by recipient, message, or sender..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="w-full p-3 sm:p-3.5 text-base sm:text-lg border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] bg-white shadow-sm transition-all duration-200"
+                  autoComplete="off"
+                  inputMode="search"
+                />
               </div>
-            ))
-          ) : (
-            <p className="text-gray-700">No {selectedTab} memories found.</p>
-          )
+            )}
+            {displayedMemories.length > 0 ? (
+              <>
+                {selectedTab === "approved" && (
+                  <div className="mb-4 text-sm text-[var(--text)] opacity-75">
+                    {searchTerm ? (
+                      <span>Showing {displayedMemories.length} of {filteredMemories.length} search results</span>
+                    ) : (
+                      <span>Showing {displayedMemories.length} of {memories.length} memories</span>
+                    )}
+                  </div>
+                )}
+                {displayedMemories.map((memory) => (
+                  <div
+                    key={memory.id}
+                    className={`bg-white/90 shadow rounded-lg p-6 border-l-4 break-words w-full ${
+                      selectedTab === "pending"
+                        ? "border-yellow-400"
+                        : selectedTab === "approved"
+                        ? "border-green-400"
+                        : "border-red-600"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+                      {memory.pinned && (
+                        <span className="text-yellow-500 text-xl">📌</span>
+                      )}
+                    </div>
+                    <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">{memory.message}</p>
+                    {memory.sender && (
+                      <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
+                    )}
+                    <div className="mt-3 text-sm text-gray-500 break-words">
+                      <p>IP: {memory.ip}</p>
+                      <p>Country: {memory.country}</p>
+                    </div>
+                    <small className="block mt-3 text-gray-500">
+                      {new Date(memory.created_at).toLocaleString()}
+                    </small>
+                    <div className="mt-4 flex flex-wrap gap-4">
+                      {selectedTab === "pending" && (
+                        <>
+                          <button
+                            onClick={() => updateMemoryStatus(memory.id, "approved")}
+                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => deleteMemory(memory.id)}
+                            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                          >
+                            Reject
+                          </button>
+                          <button
+                            onClick={() => banMemory(memory)}
+                            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors"
+                          >
+                            Ban
+                          </button>
+                        </>
+                      )}
+                      {selectedTab === "approved" && (
+                        <>
+                          <button
+                            onClick={() => deleteMemory(memory.id)}
+                            className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
+                          >
+                            Delete
+                          </button>
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            {memory.pinned && memory.pinned_until && (
+                              <div className="text-sm text-gray-500">
+                                Unpins in: {formatRemainingTime(memory.pinned_until)}
+                              </div>
+                            )}
+                            {!memory.pinned && (
+                              <div className="w-full sm:w-auto">
+                                <div className="grid grid-cols-4 gap-1">
+                                  <input
+                                    type="number"
+                                    value={pinTimers[memory.id]?.days ?? ""}
+                                    onChange={(e) => setPinTimers(prev => ({
+                                      ...prev,
+                                      [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), days: e.target.value }
+                                    }))}
+                                    min="0"
+                                    className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    placeholder="D"
+                                  />
+                                  <input
+                                    type="number"
+                                    value={pinTimers[memory.id]?.hours ?? ""}
+                                    onChange={(e) => setPinTimers(prev => ({
+                                      ...prev,
+                                      [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), hours: e.target.value }
+                                    }))}
+                                    min="0"
+                                    max="23"
+                                    className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    placeholder="H"
+                                  />
+                                  <input
+                                    type="number"
+                                    value={pinTimers[memory.id]?.minutes ?? ""}
+                                    onChange={(e) => setPinTimers(prev => ({
+                                      ...prev,
+                                      [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), minutes: e.target.value }
+                                    }))}
+                                    min="0"
+                                    max="59"
+                                    className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    placeholder="M"
+                                  />
+                                  <input
+                                    type="number"
+                                    value={pinTimers[memory.id]?.seconds ?? ""}
+                                    onChange={(e) => setPinTimers(prev => ({
+                                      ...prev,
+                                      [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), seconds: e.target.value }
+                                    }))}
+                                    min="0"
+                                    max="59"
+                                    className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    placeholder="S"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            <button
+                              onClick={() => togglePin(memory)}
+                              className={`w-full sm:w-auto px-3 sm:px-4 py-2 ${
+                                memory.pinned 
+                                  ? "bg-yellow-500 hover:bg-yellow-600" 
+                                  : "bg-gray-500 hover:bg-gray-600"
+                              } text-white rounded transition-colors text-sm`}
+                              disabled={!memory.pinned && (!pinTimers[memory.id] || calculateTotalSeconds(pinTimers[memory.id]) <= 0)}
+                            >
+                              {memory.pinned ? "Unpin" : "Pin"}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                      {selectedTab === "banned" && (
+                        <>
+                          <button
+                            onClick={() => unbanMemory(memory)}
+                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                          >
+                            Unban
+                          </button>
+                          <button
+                            onClick={() => deleteMemory(memory.id)}
+                            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {selectedTab === "approved" && hasMoreMemories && (
+                  <div className="text-center mt-6">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loading}
+                      className="px-6 py-3 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-lg hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
+                    >
+                      {loading ? "Loading..." : "Load More"}
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-gray-700">
+                {searchTerm ? "No memories found matching your search." : `No ${selectedTab} memories found.`}
+              </p>
+            )}
+          </>
         )}
         {selectedTab === "banned" && bannedUsers.length > 0 && (
           <div className="bg-white/90 shadow rounded-lg p-6 border-l-4 border-red-600 w-full mb-6">
