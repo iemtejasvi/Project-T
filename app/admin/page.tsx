@@ -797,7 +797,7 @@ export default function AdminPanel() {
               </>
             ) : (
               <p className="text-gray-700">
-                {searchTerm ? "No memories found matching your search." : `No ${selectedTab} memories found.`}
+                {selectedTab === "approved" && searchTerm ? "No memories found matching your search." : `No ${selectedTab} memories found.`}
               </p>
             )}
           </>
