@@ -24,6 +24,9 @@ type Tab = "pending" | "approved" | "banned" | "announcements";
 export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
   const [memories, setMemories] = useState<Memory[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [displayCount, setDisplayCount] = useState(10);
+  const [loading, setLoading] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -37,6 +40,23 @@ export default function AdminPanel() {
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
   const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
+
+  // Memoized filtered memories to prevent unnecessary recalculations
+  const filteredMemories = useMemo(() => {
+    return memories.filter(memory => 
+      memory.recipient.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [memories, searchTerm]);
+
+  // Memoized displayed memories
+  const displayedMemories = useMemo(() => {
+    return filteredMemories.slice(0, displayCount);
+  }, [filteredMemories, displayCount]);
+
+  // Memoized hasMore calculation
+  const hasMoreMemories = useMemo(() => {
+    return filteredMemories.length > displayCount;
+  }, [filteredMemories.length, displayCount]);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -89,6 +109,12 @@ export default function AdminPanel() {
     setIsAuthorized(secret === ADMIN_SECRET);
     setAuthChecked(true);
   }, []);
+
+  // Reset display count and search when switching tabs
+  useEffect(() => {
+    setDisplayCount(10);
+    setSearchTerm("");
+  }, [selectedTab]);
 
   useEffect(() => {
     if (isAuthorized) {
@@ -454,6 +480,40 @@ export default function AdminPanel() {
 
       {/* Content */}
       <main className="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
+        {/* Search and Memory Count - Only show for memory tabs */}
+        {(selectedTab === "pending" || selectedTab === "approved") && (
+          <div className="space-y-4">
+            {/* Search Input */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by recipient name..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setDisplayCount(10); // Reset to first 10 when searching
+                }}
+                className="w-full p-3 pl-10 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base"
+              />
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+            </div>
+            
+            {/* Memory Count */}
+            <div className="text-sm text-gray-600">
+              {searchTerm ? (
+                <>
+                  Showing {displayedMemories.length} of {filteredMemories.length} {filteredMemories.length === 1 ? 'memory' : 'memories'} 
+                  {filteredMemories.length !== memories.length && ` (filtered from ${memories.length} total)`}
+                </>
+              ) : (
+                <>
+                  Showing {displayedMemories.length} of {memories.length} {memories.length === 1 ? 'memory' : 'memories'}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {selectedTab === "announcements" ? (
           <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
             <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
@@ -565,7 +625,7 @@ export default function AdminPanel() {
           </div>
         ) : (
           memories.length > 0 ? (
-            memories.map((memory) => (
+            displayedMemories.map((memory) => (
               <div
                 key={memory.id}
                 className={`bg-white/90 shadow rounded-lg p-6 border-l-4 break-words w-full ${
@@ -717,9 +777,24 @@ export default function AdminPanel() {
               </div>
             ))
           ) : (
-            <p className="text-gray-700">No {selectedTab} memories found.</p>
+            selectedTab === "banned" ? null : (
+              <p className="text-gray-700">No {selectedTab} memories found.</p>
+            )
           )
         )}
+
+        {/* Load More Button - Only show for memory tabs */}
+        {(selectedTab === "pending" || selectedTab === "approved") && hasMoreMemories && (
+          <div className="flex justify-center">
+            <button
+              onClick={() => setDisplayCount(prev => prev + 10)}
+              className="px-6 py-3 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors font-medium text-sm border border-[var(--border)] shadow-sm hover:shadow-md"
+            >
+              Load More Memories
+            </button>
+          </div>
+        )}
+
         {selectedTab === "banned" && bannedUsers.length > 0 && (
           <div className="bg-white/90 shadow rounded-lg p-6 border-l-4 border-red-600 w-full mb-6">
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Banned Users</h3>
