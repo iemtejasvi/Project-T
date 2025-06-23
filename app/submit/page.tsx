@@ -375,6 +375,12 @@ export default function SubmitPage() {
       </header>
 
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 lg:py-16 relative z-10">
+        {/* Info box: always visible on mobile, hidden on desktop */}
+        <div className="w-full max-w-xl mx-auto bg-[var(--card-bg)]/80 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-xl mb-8 animate-fade-in border border-[var(--accent)]/10 lg:hidden">
+          <p className="text-center italic font-semibold text-lg sm:text-xl text-[var(--text)]">
+            Share your unsent message. Keep it honest, heartfelt, and in English only. <strong>Off-topic submissions will be rejected.</strong>
+          </p>
+        </div>
         <div className="w-full max-w-5xl mx-auto lg:grid lg:grid-cols-[1fr_32px_1.2fr] lg:gap-0 lg:items-stretch relative">
           {/* Info/Quote Panel (Desktop only) */}
           <aside className="hidden lg:flex flex-col justify-center bg-[var(--card-bg)]/80 rounded-3xl shadow-2xl p-12 mr-0 animate-fade-in backdrop-blur-xl border border-[var(--accent)]/10">
@@ -401,14 +407,6 @@ export default function SubmitPage() {
           </div>
           {/* Form Card */}
           <div className="w-full flex flex-col justify-center">
-            {!submitted && (
-              <div className="w-full max-w-xl mx-auto bg-[var(--card-bg)]/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl mb-10 animate-fade-in border border-[var(--accent)]/10 lg:hidden">
-                <p className="text-center italic font-semibold text-xl text-[var(--text)]">
-                  Share your unsent message. Keep it honest, heartfelt, and in English only. <strong>Off-topic submissions will be rejected.</strong>
-                </p>
-              </div>
-            )}
-
             {submitted ? (
               <div className="w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
                 <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
