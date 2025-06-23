@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import { FaPenNib } from "react-icons/fa";
+import { FaPenNib, FaCrow, FaDove } from "react-icons/fa";
 
 interface IPData {
   ip?: string;
@@ -298,36 +298,56 @@ export default function SubmitPage() {
 
   // Helper function to get cookie value
   function getCookie(name: string): string | null {
+    if (typeof document === 'undefined') return null;
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) {
-      return parts.pop()?.split(';').shift() || null;
-    }
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
     return null;
   }
 
-  // Dynamic quill color based on time of day and theme
-  const getQuillColor = () => {
-    const hour = new Date().getHours();
-    let theme = typeof window !== 'undefined' && document.documentElement.getAttribute('data-theme');
-    if (!theme) theme = 'light';
-    if (theme === 'dark') {
-      if (hour < 10) return '#4A90E2'; // deep blue morning
-      if (hour < 18) return '#FFB347'; // orange afternoon
-      return '#B39DDB'; // purple night
-    } else {
-      if (hour < 10) return '#AEDFF7'; // soft blue morning
-      if (hour < 18) return '#FFD700'; // gold afternoon
-      return '#F8BBD0'; // pink night
+  const getDryLeafColor = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    
+    // Default theme for SSR
+    let theme = 'light';
+    
+    // Only access document on client side
+    if (typeof window !== 'undefined') {
+      theme = document.documentElement.getAttribute('data-theme') || 'light';
     }
+    
+    // Time-based colors - dry leaf tones
+    let timeColor = '#8B7355'; // Default brown
+    if (hour >= 5 && hour < 12) {
+      timeColor = '#A0522D'; // Morning sienna
+    } else if (hour >= 12 && hour < 17) {
+      timeColor = '#6B4423'; // Afternoon dark brown
+    } else {
+      timeColor = '#5D4037'; // Night darker brown
+    }
+    
+    // Theme-based adjustments
+    if (theme === 'dark') {
+      return '#4A4A4A'; // Dark gray for dark theme
+    } else if (theme === 'sepia') {
+      return '#8B7355'; // Brown for sepia theme
+    }
+    
+    return timeColor;
   };
-  const quillColor = useMemo(getQuillColor, []);
+
+  const [dryLeafColor, setDryLeafColor] = useState('#8B7355'); // Default color
+
+  useEffect(() => {
+    setDryLeafColor(getDryLeafColor());
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] lg:bg-gradient-to-br lg:from-[var(--background)] lg:to-[var(--card-bg)] lg:via-[var(--secondary)]/30 relative overflow-x-hidden">
-      {/* Floating quill accent (desktop only) */}
-      <div className="hidden lg:block absolute left-[-120px] top-1/3 z-0 opacity-30 pointer-events-none select-none">
-        <FaPenNib size={220} style={{ color: quillColor }} className="drop-shadow-2xl blur-[2px]" />
+      {/* Floating dry leaf accent (desktop only) */}
+      <div className="hidden lg:block absolute left-[-120px] top-1/3 z-0 opacity-20 pointer-events-none select-none">
+        <span style={{ color: dryLeafColor }} className="text-[180px] drop-shadow-2xl blur-[3px] transform -rotate-12">🍂</span>
       </div>
       <header className="bg-[var(--card-bg)] shadow-lg">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
