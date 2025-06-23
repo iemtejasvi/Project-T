@@ -21,7 +21,8 @@ interface Memory {
 export default function MemoryDetail() {
   const params = useParams();
   const id = params?.id as string;
-  const [memory, setMemory] = useState<Memory | null>(null);
+  const [memory, setMemory] = useState<Memory | null | false>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchMemory() {
@@ -30,16 +31,18 @@ export default function MemoryDetail() {
         .select("*")
         .eq("id", id)
         .single();
-      if (error) {
-        console.error(error);
+      if (error || !data) {
+        setMemory(false);
       } else {
         setMemory(data);
       }
+      setLoading(false);
     }
     fetchMemory();
   }, [id]);
 
-  if (!memory) return <p className="p-6 text-center text-[var(--text)]">Loading...</p>;
+  if (loading) return <p className="p-6 text-center text-[var(--text)]">Loading...</p>;
+  if (memory === false) return <p className="p-6 text-center text-[var(--text)] text-xl font-semibold">Memory not found.</p>;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -71,7 +74,7 @@ export default function MemoryDetail() {
       </header>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <MemoryCard memory={memory} detail />
+        {memory && <MemoryCard memory={memory} detail />}
       </main>
 
       <footer className="bg-[var(--card-bg)] shadow-md">

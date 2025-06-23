@@ -178,10 +178,11 @@ body {
     transition: background-color 0.3s;
   }
   .cute_scroll {
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
   }
   .cute_scroll:hover, .cute_scroll:focus {
-    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb, #e91e63) var(--scroll-track, #f8bbd0);
   }
   .footer-copyright {
     font-size: 1.15rem !important;
@@ -623,18 +624,65 @@ input::placeholder, textarea::placeholder {
 /* --- Desktop premium polish for Home & Memories nav/buttons/headings --- */
 @media (min-width: 1024px) {
   /* Home & Memories main heading */
-  .home-desktop-heading, .memories-desktop-heading {
-    font-size: 2.75rem !important; /* was 2.25rem (text-3xl), now ~44px */
+  .home-desktop-heading, .memories-desktop-heading, .desktop-heading {
+    font-size: 3.5rem !important; /* was 2.75rem, now ~56px */
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* All page headings (h1) */
+  h1.text-3xl, h1.text-4xl {
+    font-size: 3.25rem !important; /* ~52px */
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    font-weight: 700;
+  }
+  
+  /* Section headings (h2) */
+  h2.text-2xl, h2.text-3xl {
+    font-size: 2.5rem !important; /* ~40px */
     letter-spacing: -0.01em;
     line-height: 1.1;
+    font-weight: 600;
   }
+  
+  /* Subsection headings (h3) */
+  h3.text-xl, h3.text-2xl {
+    font-size: 1.875rem !important; /* ~30px */
+    letter-spacing: -0.005em;
+    line-height: 1.15;
+    font-weight: 600;
+  }
+  
   /* Home & Memories nav buttons */
   .desktop-nav-link {
-    font-size: 1.18rem !important; /* was 1rem, now ~19px */
-    padding: 0.55rem 1.15rem !important;
-    border-radius: 0.7rem;
+    font-size: 1.25rem !important; /* was 1.18rem, now ~20px */
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 0.875rem;
     font-weight: 500;
+    letter-spacing: 0.01em;
   }
+  
+  /* All buttons - make them more premium */
+  button, .btn {
+    font-size: 1.125rem !important; /* ~18px */
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  
+  /* Large buttons (submit, etc.) */
+  button.px-10, button.px-6, .btn-large {
+    font-size: 1.25rem !important; /* ~20px */
+    padding: 1rem 2rem !important;
+    border-radius: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  
   /* Tighten nav gap just a bit */
   .desktop-nav-list {
     gap: 0 !important; /* no space between buttons */

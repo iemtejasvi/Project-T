@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
+import { FaFeatherAlt } from "react-icons/fa";
 
 interface Memory {
   id: string;
@@ -191,8 +192,24 @@ export default function Home() {
 
   const handleWelcomeClose = () => setShowWelcome(false);
 
+  const featherColor = useMemo(() => {
+    let theme = typeof window !== 'undefined' && document.documentElement.getAttribute('data-theme');
+    if (!theme) theme = 'light';
+    if (theme === 'dark') return '#F8BBD0'; // soft pink for dark
+    if (theme === 'sepia') return '#FFD700'; // gold for sepia/custom
+    return '#B39DDB'; // purple for light
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+      {/* Floating feather accents (desktop only) */}
+      <div className="hidden lg:block absolute left-[-100px] top-1/4 z-0 opacity-30 pointer-events-none select-none">
+        <FaFeatherAlt size={180} style={{ color: featherColor }} className="drop-shadow-2xl blur-[2px]" />
+      </div>
+      <div className="hidden lg:block absolute right-[-80px] bottom-1/4 z-0 opacity-20 pointer-events-none select-none rotate-[25deg]">
+        <FaFeatherAlt size={120} style={{ color: featherColor }} className="drop-shadow-2xl blur-[1.5px]" />
+      </div>
+
       {showWelcome && (
         <div className="fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 p-4">
           <div className="bg-[var(--card-bg)] p-6 rounded-lg shadow-lg max-w-sm w-full animate-fade-in">

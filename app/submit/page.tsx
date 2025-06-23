@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { FaPenNib } from "react-icons/fa";
 
 interface IPData {
   ip?: string;
@@ -305,11 +306,32 @@ export default function SubmitPage() {
     return null;
   }
 
+  // Dynamic quill color based on time of day and theme
+  const getQuillColor = () => {
+    const hour = new Date().getHours();
+    let theme = typeof window !== 'undefined' && document.documentElement.getAttribute('data-theme');
+    if (!theme) theme = 'light';
+    if (theme === 'dark') {
+      if (hour < 10) return '#4A90E2'; // deep blue morning
+      if (hour < 18) return '#FFB347'; // orange afternoon
+      return '#B39DDB'; // purple night
+    } else {
+      if (hour < 10) return '#AEDFF7'; // soft blue morning
+      if (hour < 18) return '#FFD700'; // gold afternoon
+      return '#F8BBD0'; // pink night
+    }
+  };
+  const quillColor = useMemo(getQuillColor, []);
+
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)]">
+    <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] lg:bg-gradient-to-br lg:from-[var(--background)] lg:to-[var(--card-bg)] lg:via-[var(--secondary)]/30 relative overflow-x-hidden">
+      {/* Floating quill accent (desktop only) */}
+      <div className="hidden lg:block absolute left-[-120px] top-1/3 z-0 opacity-30 pointer-events-none select-none">
+        <FaPenNib size={220} style={{ color: quillColor }} className="drop-shadow-2xl blur-[2px]" />
+      </div>
       <header className="bg-[var(--card-bg)] shadow-lg">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-          <h1 className="text-4xl font-serif">Submit a Memory</h1>
+          <h1 className="text-4xl font-serif desktop-heading">Submit a Memory</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex justify-center gap-6 desktop-nav-list">
@@ -333,153 +355,182 @@ export default function SubmitPage() {
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8">
-        {!submitted && (
-          <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8">
-            <p className="text-center italic font-medium">
-              Share your unsent message. Keep it honest, heartfelt, and in English only. <strong>Off-topic submissions will be rejected.</strong>
-            </p>
+      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 lg:py-16 relative z-10">
+        <div className="w-full max-w-5xl mx-auto lg:grid lg:grid-cols-[1fr_32px_1.2fr] lg:gap-0 lg:items-stretch relative">
+          {/* Info/Quote Panel (Desktop only) */}
+          <aside className="hidden lg:flex flex-col justify-center bg-[var(--card-bg)]/80 rounded-3xl shadow-2xl p-12 mr-0 animate-fade-in backdrop-blur-xl border border-[var(--accent)]/10">
+            <div className="mb-8">
+              <blockquote className="text-2xl font-serif italic text-[var(--accent)] mb-6 leading-snug drop-shadow-sm">“Some words are too heavy to send, but too important to keep.”</blockquote>
+              <h2 className="text-3xl font-serif font-bold mb-4 text-[var(--text)]">Why Unsent?</h2>
+              <p className="text-lg font-normal leading-relaxed text-[var(--text)] opacity-90">
+                A place for the messages you never sent, but never forgot.
+              </p>
+            </div>
+            <div className="mt-1 text-base text-[var(--text)] opacity-80">
+              <ul className="list-disc pl-5 space-y-2">
+                <li>Max 50 words. Short, sharp, honest.</li>
+                <li>English only. No hate, spam, or off-topic.</li>
+                <li>Special effects for short messages (&le;30 words).</li>
+                <li>2 memories per person. Make them count.</li>
+              </ul>
+            </div>
+          </aside>
+          {/* Decorative divider */}
+          <div className="hidden lg:flex flex-col items-center justify-center">
+            <div className="h-2/3 w-[2px] bg-gradient-to-b from-[var(--accent)]/0 via-[var(--accent)]/40 to-[var(--accent)]/0 rounded-full relative">
+            </div>
           </div>
-        )}
-
-        {submitted ? (
-          <div className="max-w-2xl w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
-            <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
-            <p className="mb-6">Your memory is pending approval. Please wait while we review it.</p>
-            <Link 
-              href="/"
-              className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
-            >
-              Return Home
-            </Link>
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="w-full max-w-2xl bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-70 p-8 rounded-2xl shadow-2xl space-y-6"
-          >
-            {error && (
-              <p className="text-red-500 text-center font-medium">{error}</p>
+          {/* Form Card */}
+          <div className="w-full flex flex-col justify-center">
+            {!submitted && (
+              <div className="w-full max-w-xl mx-auto bg-[var(--card-bg)]/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl mb-10 animate-fade-in border border-[var(--accent)]/10 lg:hidden">
+                <p className="text-center italic font-semibold text-xl text-[var(--text)]">
+                  Share your unsent message. Keep it honest, heartfelt, and in English only. <strong>Off-topic submissions will be rejected.</strong>
+                </p>
+              </div>
             )}
 
-            <div>
-              <label className="block font-serif">Recipient&apos;s Name</label>
-              <input
-                type="text"
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-                required
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
-              />
-            </div>
-
-            <div>
-              <label className="block font-serif">Message (max 50 words)</label>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                required
-                rows={5}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
-              />
-              <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    wordCount <= 30
-                      ? "bg-[var(--accent)]"
-                      : wordCount <= 50
-                      ? "bg-[var(--secondary)]"
-                      : "bg-red-500"
-                  }`}
-                  style={{ width: `${percent}%` }}
-                />
+            {submitted ? (
+              <div className="w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
+                <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
+                <p className="mb-6">Your memory is pending approval. Please wait while we review it.</p>
+                <Link 
+                  href="/"
+                  className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
+                >
+                  Return Home
+                </Link>
               </div>
-              <div className="flex justify-between text-xs mt-1">
-                <span>{wordCount} / 50</span>
-                {wordCount > 30 && specialEffectVisible && (
-                  <span className="text-red-500">
-                    Special effects disabled beyond 30 words.
-                  </span>
-                )}
-                {overLimit && (
-                  <span className="text-red-500">{limitMsg}</span>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-serif">Your Name (optional)</label>
-              <input
-                type="text"
-                value={sender}
-                onChange={(e) => setSender(e.target.value)}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
-              />
-            </div>
-
-            <div>
-              <label className="block font-serif">Select a Color (optional)</label>
-              <select
-                value={color}
-                onChange={(e) => {
-                  setColor(e.target.value);
-                  // Automatically set fullBg to true for any color except default
-                  setFullBg(e.target.value !== "default");
-                }}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition"
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                className="w-full bg-[var(--card-bg)]/80 backdrop-blur-2xl p-10 rounded-3xl shadow-2xl space-y-6 animate-fade-in border border-[var(--accent)]/10 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0 lg:items-start lg:shadow-3xl lg:transition-transform lg:duration-300"
               >
-                {colorOptions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block font-serif text-lg mb-1">Recipient&apos;s Name</label>
+                    <input
+                      type="text"
+                      value={recipient}
+                      onChange={(e) => setRecipient(e.target.value)}
+                      required
+                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
+                    />
+                  </div>
 
-            <div>
-              <label className="block font-serif">Special Effect</label>
-              <select
-                value={specialEffect}
-                onChange={(e) => setSpecialEffect(e.target.value)}
-                disabled={!isSpecialAllowed}
-                className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50"
-              >
-                {specialEffects.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+                  <div>
+                    <label className="block font-serif text-lg mb-1">Your Name (optional)</label>
+                    <input
+                      type="text"
+                      value={sender}
+                      onChange={(e) => setSender(e.target.value)}
+                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
+                    />
+                  </div>
 
-            <div className="flex items-center space-x-2">
-              <input
-                id="fullBg"
-                type="checkbox"
-                checked={fullBg}
-                onChange={(e) => setFullBg(e.target.checked)}
-                className="h-5 w-5 accent-[var(--accent)]"
-              />
-              <label htmlFor="fullBg" className="font-serif">
-                Apply color to full card background
-              </label>
-            </div>
+                  <div>
+                    <label className="block font-serif text-lg mb-1">Select a Color (optional)</label>
+                    <select
+                      value={color}
+                      onChange={(e) => {
+                        setColor(e.target.value);
+                        setFullBg(e.target.value !== "default");
+                      }}
+                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
+                    >
+                      {colorOptions.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-            <div className="text-center">
-              <button
-                type="submit"
-                disabled={isSubmitting || hasReachedLimit}
-                className={`px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg transition-transform ${
-                  isSubmitting || hasReachedLimit 
-                    ? 'opacity-50 cursor-not-allowed' 
-                    : 'hover:scale-105'
-                }`}
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Memory'}
-              </button>
-            </div>
-          </form>
-        )}
+                  <div>
+                    <label className="block font-serif text-lg mb-1">Special Effect</label>
+                    <select
+                      value={specialEffect}
+                      onChange={(e) => setSpecialEffect(e.target.value)}
+                      disabled={!isSpecialAllowed}
+                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5 disabled:opacity-50"
+                    >
+                      {specialEffects.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex items-center space-x-2 mt-2">
+                    <input
+                      id="fullBg"
+                      type="checkbox"
+                      checked={fullBg}
+                      onChange={(e) => setFullBg(e.target.checked)}
+                      className="h-5 w-5 accent-[var(--accent)] rounded-xl border-2 border-[var(--accent)]/30 focus:ring-2 focus:ring-[var(--accent)]/40"
+                    />
+                    <label htmlFor="fullBg" className="font-serif text-base">
+                      Apply color to full card background
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex flex-col justify-between h-full space-y-6">
+                  {error && (
+                    <p className="text-red-500 text-center font-medium text-lg mb-2">{error}</p>
+                  )}
+                  <div>
+                    <label className="block font-serif text-lg mb-1">Message (max 50 words)</label>
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      required
+                      rows={7}
+                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5 resize-none"
+                    />
+                    <div className="relative h-3 w-full bg-[var(--border)] rounded-full overflow-hidden mt-3 shadow-sm">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          wordCount <= 30
+                            ? "bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)]"
+                            : wordCount <= 50
+                            ? "bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)]"
+                            : "bg-gradient-to-r from-red-400 to-red-600"
+                        } animate-pulse-[0.8s]`}
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs mt-1">
+                      <span className="font-mono tracking-wide">{wordCount} / 50</span>
+                      {wordCount > 30 && specialEffectVisible && (
+                        <span className="text-red-500 font-medium">
+                          Special effects disabled beyond 30 words.
+                        </span>
+                      )}
+                      {overLimit && (
+                        <span className="text-red-500 font-medium">{limitMsg}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex-1 flex items-end">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || hasReachedLimit}
+                      className={`w-full px-10 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-3xl shadow-xl text-xl transition-transform duration-200 focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-2xl ${
+                        isSubmitting || hasReachedLimit 
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : 'hover:scale-[1.04] hover:shadow-2xl'
+                      }`}
+                    >
+                      {isSubmitting ? 'Submitting...' : 'Submit Memory'}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
       </main>
 
       <footer className="bg-[var(--card-bg)] shadow-inner">
