@@ -24,6 +24,7 @@ interface Memory {
 interface DesktopMemoryCardProps {
   memory: Memory;
   detail?: boolean;
+  large?: boolean;
 }
 
 const allowedColors = new Set([
@@ -83,7 +84,7 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
   const wordCount = memory.message.split(/\s+/).length;
   const isShortOrExact = wordCount <= 30;
   const textClass = isShortOrExact
-    ? "text-3xl tracking-wide leading-snug break-words hyphens-none"
+    ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
     : "text-2xl tracking-wide leading-snug break-words hyphens-none";
   switch (memory.animation) {
     case "poetic":
@@ -154,7 +155,7 @@ const TypewriterPrompt: React.FC = () => {
   );
 };
 
-const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
+const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) => {
   const [flipped, setFlipped] = useState(false);
   let effectiveColor = memory.color;
   if (!allowedColors.has(memory.color)) {
@@ -185,17 +186,17 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
   };
 
   return (
-    <div className="relative group my-6">
+    <div className={`relative group ${large ? 'my-2' : 'my-6'}`}>
       <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
         <Link href={`/memories/${memory.id}`} className="desktop-arrow-link">
-          <span className="arrow-icon text-2xl" style={arrowStyle}>➜</span>
+          <span className={`arrow-icon ${large ? 'text-4xl' : 'text-2xl'}`} style={arrowStyle}>➜</span>
         </Link>
       </div>
       <motion.div
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flip-card w-full max-w-[340px] h-[400px] perspective-1000 cursor-pointer rounded-xl hover:shadow-2xl mx-auto"
+        className={`flip-card ${large ? 'max-w-[320px] w-[320px] h-[420px]' : 'w-full max-w-[340px] h-[400px]'} perspective-1000 cursor-pointer rounded-xl hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -206,7 +207,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
         >
           {/* FRONT */}
           <div
-            className="flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md p-6 flex flex-col justify-between"
+            className={`flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md ${large ? 'p-10' : 'p-6'} flex flex-col justify-between`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             {memory.pinned && (
@@ -249,7 +250,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
               </span>
             )}
             <div>
-              <h3 className="text-3xl font-bold text-[var(--text)] flex items-center gap-2">
+              <h3 className={`${large ? 'text-5xl' : 'text-3xl'} font-bold text-[var(--text)] flex items-center gap-2`}>
                 {memory.animation && (
                   <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                     ★
@@ -257,26 +258,26 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
                 )}
                 To: {memory.recipient}
               </h3>
-              {memory.sender && <p className="mt-1 text-2xl italic text-[var(--text)]">From: {memory.sender}</p>}
+              {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)]`}>From: {memory.sender}</p>}
               <hr className="my-2 border-[#999999]" />
             </div>
-            <div className="text-xl text-[var(--text)] text-center font-normal">
+            <div className={`${large ? 'text-2xl' : 'text-xl'} text-[var(--text)] text-center font-normal`}>
               {dateStr} | {dayStr}
             </div>
-            <div className="mt-2 text-xl font-serif text-center text-[var(--text)] min-h-[2.5em]">
+            <div className={`mt-2 ${large ? 'text-2xl min-h-[3em]' : 'text-xl min-h-[2.5em]'} font-serif text-center text-[var(--text)]`}>
               <TypewriterPrompt />
             </div>
           </div>
           {/* BACK */}
           <div
-            className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-6 flex flex-col justify-start rotate-y-180"
+            className={`flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md ${large ? 'p-10' : 'p-6'} flex flex-col justify-start rotate-y-180`}
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <h3 className="text-xl italic text-[var(--text)] text-center font-semibold">if only i sent this</h3>
+            <h3 className={`${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal`}>if only i sent this</h3>
             <hr className="my-2 border-[#999999]" />
             <ScrollableMessage
               style={{
-                fontSize: '1.25rem', // text-xl
+                fontSize: memory.message.split(/\s+/).length <= 30 ? '2rem' : '1.25rem',
                 "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                 "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
               } as React.CSSProperties}

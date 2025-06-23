@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
+import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
 
 interface Memory {
   id: string;
@@ -26,6 +27,7 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -104,7 +106,7 @@ export default function Home() {
           .eq("status", "approved")
           .order("pinned", { ascending: false })
           .order("created_at", { ascending: false })
-          .limit(3);
+          .limit(4);
 
         if (!isMounted) return;
 
@@ -179,6 +181,13 @@ export default function Home() {
       isMounted = false;
     };
   }, [currentTime, hasActiveItems]);
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
 
   const handleWelcomeClose = () => setShowWelcome(false);
 
@@ -256,11 +265,15 @@ export default function Home() {
       </section>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)]">
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] sm:text-left sm:ml-8 text-center ml-0">
           Recent Memories
         </h2>
         {recentMemories.length > 0 ? (
-          recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+          isDesktop ? (
+            <HomeDesktopMemoryGrid memories={recentMemories} />
+          ) : (
+            recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+          )
         ) : (
           <p className="text-[var(--text)]">No memories yet.</p>
         )}
@@ -272,7 +285,7 @@ export default function Home() {
       </main>
 
       <footer className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
