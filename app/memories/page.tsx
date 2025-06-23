@@ -24,9 +24,7 @@ export default function Memories() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [displayCount, setDisplayCount] = useState(10);
-  const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
   const pageSize = 10;
 
@@ -168,11 +166,6 @@ export default function Memories() {
   useEffect(() => {
     setDisplayCount(10);
   }, [searchTerm]);
-
-  // Update hasMore when filtered memories change
-  useEffect(() => {
-    setHasMore(hasMoreMemories);
-  }, [hasMoreMemories]);
 
   // Reset page when search changes
   useEffect(() => {
