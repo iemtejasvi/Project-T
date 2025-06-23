@@ -112,20 +112,20 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
 }
 
 const TypewriterPrompt: React.FC = () => {
-  const prompts = [
+  const prompts = React.useMemo(() => [
     "I wish you missed me half as much.",
     "I replay your last words every single day.",
     "I blamed clocks more than you at times.",
     "I wanted one more moment more than closure.",
     // ... (add more prompts as needed)
-  ];
+  ], []);
   const [currentIndex, setCurrentIndex] = useState(Math.floor(Math.random() * prompts.length));
   const [displayedText, setDisplayedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
   useEffect(() => {
     const currentPrompt = prompts[currentIndex];
-    let delay = isDeleting ? 50 : 100;
+    const delay = isDeleting ? 50 : 100;
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setDisplayedText(currentPrompt.substring(0, charIndex + 1));
