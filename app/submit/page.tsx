@@ -379,7 +379,7 @@ export default function SubmitPage() {
           {/* Info/Quote Panel (Desktop only) */}
           <aside className="hidden lg:flex flex-col justify-center bg-[var(--card-bg)]/80 rounded-3xl shadow-2xl p-12 mr-0 animate-fade-in backdrop-blur-xl border border-[var(--accent)]/10">
             <div className="mb-8">
-              <blockquote className="text-2xl font-serif italic text-[var(--accent)] mb-6 leading-snug drop-shadow-sm">“Some words are too heavy to send, but too important to keep.”</blockquote>
+              <blockquote className="text-2xl font-serif italic text-[var(--accent)] mb-6 leading-snug drop-shadow-sm">"Some words are too heavy to send, but too important to keep."</blockquote>
               <h2 className="text-3xl font-serif font-bold mb-4 text-[var(--text)]">Why Unsent?</h2>
               <p className="text-lg font-normal leading-relaxed text-[var(--text)] opacity-90">
                 A place for the messages you never sent, but never forgot.
@@ -423,128 +423,126 @@ export default function SubmitPage() {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="w-full bg-[var(--card-bg)]/80 backdrop-blur-2xl p-10 rounded-3xl shadow-2xl space-y-6 animate-fade-in border border-[var(--accent)]/10 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0 lg:items-start lg:shadow-3xl lg:transition-transform lg:duration-300"
+                className="w-full max-w-2xl bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-70 p-8 rounded-2xl shadow-2xl space-y-6 lg:max-w-xl lg:bg-[var(--card-bg)]/80 lg:backdrop-blur-2xl lg:p-10 lg:rounded-3xl lg:shadow-3xl lg:border lg:border-[var(--accent)]/10"
               >
-                <div className="space-y-6">
-                  <div>
-                    <label className="block font-serif text-lg mb-1">Recipient&apos;s Name</label>
-                    <input
-                      type="text"
-                      value={recipient}
-                      onChange={(e) => setRecipient(e.target.value)}
-                      required
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
+                {error && (
+                  <p className="text-red-500 text-center font-medium">{error}</p>
+                )}
+
+                <div>
+                  <label className="block font-serif">Recipient&apos;s Name*</label>
+                  <input
+                    type="text"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    required
+                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-serif">Message* (max 50 words)</label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
+                    rows={5}
+                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg lg:resize-none"
+                  />
+                  <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2 lg:h-3 lg:shadow-sm">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        wordCount <= 30
+                          ? "bg-[var(--accent)]"
+                          : wordCount <= 50
+                          ? "bg-[var(--secondary)]"
+                          : "bg-red-500"
+                      } lg:animate-pulse-[0.8s]`}
+                      style={{ width: `${percent}%` }}
                     />
                   </div>
-
-                  <div>
-                    <label className="block font-serif text-lg mb-1">Your Name (optional)</label>
-                    <input
-                      type="text"
-                      value={sender}
-                      onChange={(e) => setSender(e.target.value)}
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-serif text-lg mb-1">Select a Color (optional)</label>
-                    <select
-                      value={color}
-                      onChange={(e) => {
-                        setColor(e.target.value);
-                        setFullBg(e.target.value !== "default");
-                      }}
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
-                    >
-                      {colorOptions.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-serif text-lg mb-1">Special Effect</label>
-                    <select
-                      value={specialEffect}
-                      onChange={(e) => setSpecialEffect(e.target.value)}
-                      disabled={!isSpecialAllowed}
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5 disabled:opacity-50"
-                    >
-                      {specialEffects.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex items-center space-x-2 mt-2">
-                    <input
-                      id="fullBg"
-                      type="checkbox"
-                      checked={fullBg}
-                      onChange={(e) => setFullBg(e.target.checked)}
-                      className="h-5 w-5 accent-[var(--accent)] rounded-xl border-2 border-[var(--accent)]/30 focus:ring-2 focus:ring-[var(--accent)]/40"
-                    />
-                    <label htmlFor="fullBg" className="font-serif text-base">
-                      Apply color to full card background
-                    </label>
+                  <div className="flex justify-between text-xs mt-1 lg:text-sm">
+                    <span className="lg:font-mono lg:tracking-wide">{wordCount} / 50</span>
+                    {wordCount > 30 && specialEffectVisible && (
+                      <span className="text-red-500 lg:font-medium">
+                        Special effects disabled beyond 30 words.
+                      </span>
+                    )}
+                    {overLimit && (
+                      <span className="text-red-500 lg:font-medium">{limitMsg}</span>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-between h-full space-y-6">
-                  {error && (
-                    <p className="text-red-500 text-center font-medium text-lg mb-2">{error}</p>
-                  )}
-                  <div>
-                    <label className="block font-serif text-lg mb-1">Message (max 50 words)</label>
-                    <textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      required
-                      rows={7}
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5 resize-none"
-                    />
-                    <div className="relative h-3 w-full bg-[var(--border)] rounded-full overflow-hidden mt-3 shadow-sm">
-                      <div
-                        className={`h-full rounded-full transition-all duration-300 ${
-                          wordCount <= 30
-                            ? "bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)]"
-                            : wordCount <= 50
-                            ? "bg-gradient-to-r from-[var(--secondary)] to-[var(--accent)]"
-                            : "bg-gradient-to-r from-red-400 to-red-600"
-                        } animate-pulse-[0.8s]`}
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs mt-1">
-                      <span className="font-mono tracking-wide">{wordCount} / 50</span>
-                      {wordCount > 30 && specialEffectVisible && (
-                        <span className="text-red-500 font-medium">
-                          Special effects disabled beyond 30 words.
-                        </span>
-                      )}
-                      {overLimit && (
-                        <span className="text-red-500 font-medium">{limitMsg}</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex-1 flex items-end">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting || hasReachedLimit}
-                      className={`w-full px-10 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-3xl shadow-xl text-xl transition-transform duration-200 focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-2xl ${
-                        isSubmitting || hasReachedLimit 
-                          ? 'opacity-50 cursor-not-allowed' 
-                          : 'hover:scale-[1.04] hover:shadow-2xl'
-                      }`}
-                    >
-                      {isSubmitting ? 'Submitting...' : 'Submit Memory'}
-                    </button>
-                  </div>
+                <div>
+                  <label className="block font-serif">Your Name (optional)</label>
+                  <input
+                    type="text"
+                    value={sender}
+                    onChange={(e) => setSender(e.target.value)}
+                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-serif">Select a Color (optional)</label>
+                  <select
+                    value={color}
+                    onChange={(e) => {
+                      setColor(e.target.value);
+                      setFullBg(e.target.value !== "default");
+                    }}
+                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                  >
+                    {colorOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-serif">Special Effect</label>
+                  <select
+                    value={specialEffect}
+                    onChange={(e) => setSpecialEffect(e.target.value)}
+                    disabled={!isSpecialAllowed}
+                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50 lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                  >
+                    {specialEffects.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center space-x-2 lg:mt-2">
+                  <input
+                    id="fullBg"
+                    type="checkbox"
+                    checked={fullBg}
+                    onChange={(e) => setFullBg(e.target.checked)}
+                    className="h-5 w-5 accent-[var(--accent)] lg:rounded-xl lg:border-2 lg:border-[var(--accent)]/30 lg:focus:ring-2 lg:focus:ring-[var(--accent)]/40"
+                  />
+                  <label htmlFor="fullBg" className="font-serif lg:text-base">
+                    Apply color to full card background
+                  </label>
+                </div>
+
+                <div className="text-center lg:flex-1 lg:flex lg:items-end">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || hasReachedLimit}
+                    className={`w-full px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg transition-transform lg:px-10 lg:py-4 lg:rounded-3xl lg:shadow-xl lg:text-xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-2xl ${
+                      isSubmitting || hasReachedLimit 
+                        ? 'opacity-50 cursor-not-allowed' 
+                        : 'hover:scale-105 lg:hover:scale-[1.04] lg:hover:shadow-2xl'
+                    }`}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Memory'}
+                  </button>
                 </div>
               </form>
             )}
@@ -553,7 +551,7 @@ export default function SubmitPage() {
       </main>
 
       <footer className="bg-[var(--card-bg)] shadow-inner">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
+        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>

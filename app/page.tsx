@@ -298,10 +298,9 @@ export default function Home() {
             <p className="text-[var(--text)] opacity-70 text-lg">No memories yet.</p>
           </div>
         )}
-        <div className="text-center mt-12">
-          <Link href="/memories" className="inline-flex items-center text-[var(--accent)] hover:text-[var(--text)] transition-colors duration-300 text-lg font-light tracking-wide">
-            See All Memories
-            <span className="ml-2 text-xl">→</span>
+        <div className="text-right mt-4">
+          <Link href="/memories" className="text-[var(--accent)] hover:underline">
+            See All →
           </Link>
         </div>
       </main>
