@@ -23,7 +23,6 @@ export default function Memories() {
   const [allMemories, setAllMemories] = useState<Memory[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [displayCount, setDisplayCount] = useState(10);
   const [initialLoading, setInitialLoading] = useState(true);
   const [page, setPage] = useState(0);
   const pageSize = 10;
@@ -156,11 +155,6 @@ export default function Memories() {
       isMounted = false;
     };
   }, [currentTime, hasActivePinnedMemories, allMemories]);
-
-  // Reset display count when search changes
-  useEffect(() => {
-    setDisplayCount(10);
-  }, [searchTerm]);
 
   // Reset page when search changes
   useEffect(() => {
