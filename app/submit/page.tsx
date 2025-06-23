@@ -363,7 +363,7 @@ export default function SubmitPage() {
             )}
 
             <div>
-              <label className="block font-serif">Recipient&apos;s Name*</label>
+              <label className="block font-serif">Recipient&apos;s Name</label>
               <input
                 type="text"
                 value={recipient}
@@ -374,7 +374,7 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block font-serif">Message* (max 50 words)</label>
+              <label className="block font-serif">Message (max 50 words)</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}

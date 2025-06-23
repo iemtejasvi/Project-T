@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
+import GridMemoryList from "@/components/GridMemoryList";
 
 interface Memory {
   id: string;
@@ -25,7 +26,15 @@ export default function Memories() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [initialLoading, setInitialLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const pageSize = 10;
+  // Responsive check for desktop
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
+  const pageSize = isDesktop ? 20 : 10;
 
   // Memoized filtered memories to prevent unnecessary recalculations
   const filteredMemories = useMemo(() => {
@@ -203,16 +212,15 @@ export default function Memories() {
       </header>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
+        <div className="w-full flex justify-center mb-6">
           <input
             type="text"
             placeholder="Search by recipient name..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="w-full p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
+            className="w-full sm:w-[400px] max-w-full mx-auto block p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
           />
         </div>
-        
         {initialLoading ? (
           <div className="text-center py-8">
             <p className="text-[var(--text)]">Loading memories...</p>
@@ -225,43 +233,45 @@ export default function Memories() {
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={!hasPrevious}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#f8f6f1] text-[#6b5b47] font-semibold rounded-full border border-[#d4c4a8] shadow-md hover:bg-[#f0ede4] hover:border-[#c4b498] hover:shadow-lg active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-lg tracking-wide"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-transparent text-[var(--text)] font-medium rounded-full border border-[var(--border)] shadow-sm hover:bg-[var(--card-bg)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base"
                 >
-                  <span className="text-xl">←</span> Load Prev.
+                  <span className="text-lg">←</span> Load Prev.
                 </button>
               </div>
             )}
-            <div className="mb-4 text-sm text-[var(--text)] opacity-75">
-              {searchTerm ? (
-                <span>
-                  Showing {(Math.min((page + 1) * pageSize, filteredMemories.length))} of {filteredMemories.length} search results
-                </span>
-              ) : (
-                <span>
-                  Showing {(Math.min((page + 1) * pageSize, allMemories.length))} of {allMemories.length} memories
-                </span>
-              )}
+            <div className="mb-4 opacity-75 text-center">
+              <span className="block text-base sm:text-lg font-medium text-[var(--text)]">
+                {searchTerm
+                  ? `Showing ${(Math.min((page + 1) * pageSize, filteredMemories.length))} of ${filteredMemories.length} search results`
+                  : `Showing ${(Math.min((page + 1) * pageSize, allMemories.length))} of ${allMemories.length} memories`}
+              </span>
             </div>
-            {displayedMemories.map((memory) => (
-              <MemoryCard key={memory.id} memory={memory} />
-            ))}
+            {isDesktop ? (
+              <GridMemoryList memories={displayedMemories} />
+            ) : (
+              displayedMemories.map((memory) => (
+                <MemoryCard key={memory.id} memory={memory} />
+              ))
+            )}
             {/* Load More Button */}
             {hasNext && (
               <div className="text-center mt-6">
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={!hasNext}
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#f8f6f1] text-[#6b5b47] font-semibold rounded-full border border-[#d4c4a8] shadow-md hover:bg-[#f0ede4] hover:border-[#c4b498] hover:shadow-lg active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-lg tracking-wide"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-transparent text-[var(--text)] font-medium rounded-full border border-[var(--border)] shadow-sm hover:bg-[var(--card-bg)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base"
                 >
-                  Load More <span className="text-xl">→</span>
+                  Load More <span className="text-lg">→</span>
                 </button>
               </div>
             )}
           </>
         ) : (
-          <p className="text-[var(--text)]">
-            {searchTerm ? "No memories found matching your search." : "No memories found."}
-          </p>
+          <div className="w-full flex justify-center">
+            <p className="text-[var(--text)]">
+              {searchTerm ? "No memories found matching your search." : "No memories found."}
+            </p>
+          </div>
         )}
       </main>
 

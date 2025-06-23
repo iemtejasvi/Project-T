@@ -1,12 +1,10 @@
-"use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
-import "../app/globals.css";
 
 interface Memory {
   id: string;
@@ -20,12 +18,41 @@ interface Memory {
   letter_style: string;
   animation?: string;
   pinned?: boolean;
+  pinned_until?: string;
 }
 
-interface MemoryCardProps {
+interface DesktopMemoryCardProps {
   memory: Memory;
   detail?: boolean;
 }
+
+const allowedColors = new Set([
+  "default", "aqua", "azure", "berry", "brass", "bronze", "clay", "cloud", "copper", "coral", "cream", "cyan", "dune", "garnet", "gold", "honey", "ice", "ivory", "jade", "lilac", "mint", "moss", "night", "ocean", "olive", "peach", "pearl", "pine", "plum", "rose", "rouge", "ruby", "sage", "sand", "sepia", "sky", "slate", "steel", "sunny", "teal", "wine"
+]);
+const colorMapping: Record<string, string> = {
+  plain: "default",
+  cherry: "ruby",
+  sapphire: "azure",
+  lavender: "lilac",
+  turquoise: "cyan",
+  amethyst: "pearl",
+  midnight: "night",
+  emerald: "jade",
+  periwinkle: "sky",
+  lemon: "sunny",
+  graphite: "steel",
+  "dusty-rose": "rose",
+  "vintage-blue": "ice",
+  terracotta: "clay",
+  mustard: "honey",
+  parchment: "ivory",
+  burgundy: "wine",
+  "antique-brass": "brass",
+  "forest-green": "pine",
+  maroon: "garnet",
+  navy: "ocean",
+  khaki: "sand"
+};
 
 const TypewriterPrompt: React.FC = () => {
   const prompts = useMemo(
@@ -376,7 +403,7 @@ const TypewriterPrompt: React.FC = () => {
   }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
+    <div className="min-h-[2rem] overflow-hidden text-center text-xl text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
       {displayedText}
     </div>
   );
@@ -407,86 +434,88 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   );
 };
 
-const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
-  const [flipped, setFlipped] = useState(false);
+function renderMessage(memory: Memory, effectiveColor: string) {
+  const wordCount = memory.message.split(/\s+/).length;
+  const isShortOrExact = wordCount <= 30;
+  const textClass = isShortOrExact
+    ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
+    : "text-lg tracking-wide leading-snug break-words hyphens-none";
+  switch (memory.animation) {
+    case "poetic":
+      return (
+        <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
+      );
+    case "cursive":
+      return (
+        <CursiveText
+          message={memory.message}
+          textClass={textClass}
+          effectiveColor={effectiveColor}
+        />
+      );
+    case "bleeding":
+      return <BleedingText message={memory.message} textClass={textClass} />;
+    case "handwritten":
+      return <HandwrittenText message={memory.message} />;
+    default:
+      return (
+        <div className="space-y-2">
+          <p className={textClass}>{memory.message}</p>
+        </div>
+      );
+  }
+}
 
-  const allowedColors = new Set([
-    "default",
-    "aqua",
-    "azure",
-    "berry",
-    "brass",
-    "bronze",
-    "clay",
-    "cloud",
-    "copper",
-    "coral",
-    "cream",
-    "cyan",
-    "dune",
-    "garnet",
-    "gold",
-    "honey",
-    "ice",
-    "ivory",
-    "jade",
-    "lilac",
-    "mint",
-    "moss",
-    "night",
-    "ocean",
-    "olive",
-    "peach",
-    "pearl",
-    "pine",
-    "plum",
-    "rose",
-    "rouge",
-    "ruby",
-    "sage",
-    "sand",
-    "sepia",
-    "sky",
-    "slate",
-    "steel",
-    "sunny",
-    "teal",
-    "wine"
-  ]);
-  const colorMapping: Record<string, string> = { 
-    plain: "default",
-    cherry: "ruby",
-    sapphire: "azure",
-    lavender: "lilac",
-    turquoise: "cyan",
-    amethyst: "pearl",
-    midnight: "night",
-    emerald: "jade",
-    periwinkle: "sky",
-    lemon: "sunny",
-    graphite: "steel",
-    "dusty-rose": "rose",
-    "vintage-blue": "ice",
-    terracotta: "clay",
-    mustard: "honey",
-    parchment: "ivory",
-    burgundy: "wine",
-    "antique-brass": "brass",
-    "forest-green": "pine",
-    maroon: "garnet",
-    navy: "ocean",
-    khaki: "sand"
-  };
+const TypewriterPromptWrapper: React.FC = () => (
+  <div className="mt-2">
+    <div className="text-xl font-serif text-center text-[var(--text)]">
+      <TypewriterPrompt />
+    </div>
+  </div>
+);
+
+function renderMessageLarge(memory: Memory, effectiveColor: string) {
+  const wordCount = memory.message.split(/\s+/).length;
+  const isShortOrExact = wordCount <= 30;
+  const textClass = isShortOrExact
+    ? "text-3xl tracking-wide leading-snug break-words hyphens-none"
+    : "text-2xl tracking-wide leading-snug break-words hyphens-none";
+  switch (memory.animation) {
+    case "poetic":
+      return (
+        <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
+      );
+    case "cursive":
+      return (
+        <CursiveText
+          message={memory.message}
+          textClass={textClass}
+          effectiveColor={effectiveColor}
+        />
+      );
+    case "bleeding":
+      return <BleedingText message={memory.message} textClass={textClass} />;
+    case "handwritten":
+      return <HandwrittenText message={memory.message} textClass={textClass} />;
+    default:
+      return (
+        <div className="space-y-2">
+          <p className={textClass}>{memory.message}</p>
+        </div>
+      );
+  }
+}
+
+const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
+  const [flipped, setFlipped] = useState(false);
   let effectiveColor = memory.color;
   if (!allowedColors.has(memory.color)) {
     effectiveColor = colorMapping[memory.color] || "default";
   }
-
   const borderStyle =
     effectiveColor === "default"
       ? { borderColor: "#D9D9D9" }
       : { borderColor: `var(--color-${effectiveColor}-border)` };
-
   const bgStyle =
     effectiveColor === "default"
       ? { backgroundColor: "#F8F8F0" }
@@ -494,229 +523,79 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       ? { backgroundColor: `var(--color-${effectiveColor}-bg)` }
       : {};
 
+  const dateStr = new Date(memory.created_at).toLocaleDateString();
+  const timeStr = new Date(memory.created_at).toLocaleTimeString();
+  const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
   const arrowStyle =
     effectiveColor === "default"
       ? { color: "#D9D9D9" }
       : { color: `var(--color-${effectiveColor}-border)` };
-
-  const dateStr = new Date(memory.created_at).toLocaleDateString();
-  const timeStr = new Date(memory.created_at).toLocaleTimeString();
-  const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
-
-  const handleCardClick = () => {
-    if (!detail) {
-      setFlipped(!flipped);
-    }
+  // Prevent flip when clicking the arrow
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest(".desktop-arrow-link")) return;
+    setFlipped((f) => !f);
   };
-
-  const renderMessage = (memory: Memory) => {
-    const wordCount = memory.message.split(/\s+/).length;
-    const isShortOrExact = wordCount <= 30;
-    const textClass = isShortOrExact
-      ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
-      : "text-lg tracking-wide leading-snug break-words hyphens-none";
-    
-    switch (memory.animation) {
-      case "poetic":
-        return (
-          <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
-        );
-      case "cursive":
-        return (
-          <CursiveText
-            message={memory.message}
-            textClass={textClass}
-            effectiveColor={effectiveColor}
-          />
-        );
-      case "bleeding":
-        return <BleedingText message={memory.message} textClass={textClass} />;
-      case "handwritten":
-        return <HandwrittenText message={memory.message} />;
-      default:
-        return (
-          <div className="space-y-2">
-            <p className={textClass}>{memory.message}</p>
-          </div>
-        );
-    }
-  };
-
-  if (detail) {
-    const [isDesktop, setIsDesktop] = useState(false);
-    useEffect(() => {
-      const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
-      checkDesktop();
-      window.addEventListener("resize", checkDesktop);
-      return () => window.removeEventListener("resize", checkDesktop);
-    }, []);
-    // Large message renderer for detail desktop
-    function renderMessageLargeDetail(memory: Memory) {
-      const wordCount = memory.message.split(/\s+/).length;
-      const isShortOrExact = wordCount <= 30;
-      const textClass = isShortOrExact
-        ? "text-5xl tracking-wide leading-snug break-words hyphens-none"
-        : "text-4xl tracking-wide leading-snug break-words hyphens-none";
-      switch (memory.animation) {
-        case "poetic":
-          return (
-            <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
-          );
-        case "cursive":
-          return (
-            <CursiveText
-              message={memory.message}
-              textClass={textClass}
-              effectiveColor={effectiveColor}
-            />
-          );
-        case "bleeding":
-          return <BleedingText message={memory.message} textClass={textClass} />;
-        case "handwritten":
-          return <HandwrittenText message={memory.message} textClass={textClass} />;
-        default:
-          return (
-            <div className="space-y-2">
-              <p className={textClass}>{memory.message}</p>
-            </div>
-          );
-      }
-    }
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={
-          isDesktop
-            ? "w-full max-w-[500px] min-h-[400px] mx-auto my-10 p-10 border-2 rounded-xl shadow-md flex flex-col"
-            : "w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 border-2 rounded-xl shadow-md flex flex-col min-h-[300px]"
-        }
-        style={{ ...bgStyle, ...borderStyle }}
-      >
-        <div>
-          <div className="flex justify-between items-start">
-            <h3 className={isDesktop ? "text-4xl font-bold text-[var(--text)]" : "text-2xl font-bold text-[var(--text)]"}>
-              {memory.animation && (
-                <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                  ★
-                </span>
-              )}
-              To: {memory.recipient}
-            </h3>
-          </div>
-          {memory.sender && <p className={isDesktop ? "mt-1 text-3xl italic text-[var(--text)]" : "mt-1 text-lg italic text-[var(--text)]"}>From: {memory.sender}</p>}
-          <hr className="my-2 border-[#999999]" />
-        </div>
-        <div className={isDesktop ? "flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-4" : "flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-2"}>
-          {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory)}
-        </div>
-        <hr className="my-2 border-[#999999]" />
-        <div className={isDesktop ? "text-xl text-[var(--text)] flex justify-center gap-4 whitespace-nowrap font-normal" : "text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap font-normal"}>
-          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
-        </div>
-      </motion.div>
-    );
-  }
 
   return (
     <div className="relative group my-6">
       <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
-        <Link href={`/memories/${memory.id}`}>
-          <span className="arrow-icon" style={arrowStyle}>➜</span>
+        <Link href={`/memories/${memory.id}`} className="desktop-arrow-link">
+          <span className="arrow-icon text-2xl" style={arrowStyle}>➜</span>
         </Link>
       </div>
       <motion.div
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
+        className="flip-card w-full max-w-[340px] h-[400px] perspective-1000 cursor-pointer rounded-xl hover:shadow-2xl mx-auto"
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <motion.div 
+        <motion.div
           className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
         >
           {/* FRONT */}
           <div
-            className="flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-between"
+            className="flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md p-6 flex flex-col justify-between"
             style={{ ...bgStyle, ...borderStyle }}
           >
             <div>
-              <div className="flex justify-between items-start">
-                <h3 className="text-xl font-bold text-[var(--text)]">
-                  {memory.animation && (
-                    <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                      ★
-                    </span>
-                  )}
-                  To: {memory.recipient}
-                </h3>
-                {memory.pinned && (
-                  <span
-                    className="relative inline-block animate-pin-pop"
-                    style={{
-                      display: 'inline-block',
-                      transform: 'rotate(-15deg)',
-                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.10))',
-                      verticalAlign: 'middle',
-                    }}
-                    title="Pinned"
-                  >
-                    <span
-                      className="absolute inset-0 rounded-full border border-yellow-200 shadow-sm"
-                      style={{
-                        background: effectiveColor !== 'default'
-                          ? `var(--color-${effectiveColor}-bg)`
-                          : 'radial-gradient(circle, #fffbe6 60%, #ffe066 100%)',
-                        zIndex: 0,
-                        width: '1.6em',
-                        height: '1.6em',
-                        left: '-0.32em',
-                        top: '-0.32em',
-                        opacity: 0.85,
-                        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.08)',
-                      }}
-                      aria-hidden="true"
-                    />
-                    <span
-                      className="relative z-10 text-yellow-500"
-                      style={{
-                        fontSize: '1.28em',
-                        textShadow: '0 1px 3px #fffbe6, 0 1px 2px #ffe066',
-                        lineHeight: 1,
-                      }}
-                    >
-                      📌
-                    </span>
+              <h3 className="text-3xl font-bold text-[var(--text)]">
+                {memory.animation && (
+                  <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
+                    ★
                   </span>
                 )}
-              </div>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
+                To: {memory.recipient}
+              </h3>
+              {memory.sender && <p className="mt-1 text-2xl italic text-[var(--text)]">From: {memory.sender}</p>}
               <hr className="my-2 border-[#999999]" />
             </div>
-            <div className="text-xs text-[var(--text)] text-center font-normal">
+            <div className="text-xl text-[var(--text)] text-center font-normal">
               {dateStr} | {dayStr}
             </div>
-            <TypewriterPrompt />
+            <div className="mt-2 text-xl font-serif text-center text-[var(--text)] min-h-[2.5em]">
+              <TypewriterPrompt />
+            </div>
           </div>
           {/* BACK */}
           <div
-            className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-4 flex flex-col justify-start rotate-y-180"
+            className="flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md p-6 flex flex-col justify-start rotate-y-180"
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
+            <h3 className="text-xl italic text-[var(--text)] text-center font-semibold">if only i sent this</h3>
             <hr className="my-2 border-[#999999]" />
             <ScrollableMessage
-              style={
-                {
-                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
-                } as React.CSSProperties
-              }
+              style={{
+                fontSize: '1.25rem', // text-xl
+                "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
+                "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+              } as React.CSSProperties}
             >
-              {renderMessage(memory)}
+              {renderMessageLarge(memory, effectiveColor)}
             </ScrollableMessage>
           </div>
         </motion.div>
@@ -725,4 +604,4 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   );
 };
 
-export default MemoryCard;
+export default DesktopMemoryCard; 
