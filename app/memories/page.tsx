@@ -162,7 +162,7 @@ export default function Memories() {
     return () => {
       isMounted = false;
     };
-  }, [currentTime, hasActivePinnedMemories]);
+  }, [currentTime, hasActivePinnedMemories, allMemories]);
 
   // Reset display count when search changes
   useEffect(() => {
@@ -178,14 +178,6 @@ export default function Memories() {
   useEffect(() => {
     setPage(0);
   }, [searchTerm]);
-
-  const handleLoadMore = useCallback(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setDisplayCount(prev => prev + 10);
-      setLoading(false);
-    }, 300); // Reduced delay for better UX
-  }, []);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
