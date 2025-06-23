@@ -212,13 +212,13 @@ export default function Memories() {
       </header>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <div className="w-full mb-6">
+        <div className="w-full flex justify-center mb-6">
           <input
             type="text"
             placeholder="Search by recipient name..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="w-full min-w-[220px] max-w-xl mx-auto block p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
+            className="w-full sm:w-[400px] max-w-full max-w-[95vw] mx-auto block p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
           />
         </div>
         {initialLoading ? (
