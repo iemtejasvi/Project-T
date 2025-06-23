@@ -699,13 +699,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
               <hr className="my-2 border-[#999999]" />
             </div>
-            <div className="flex flex-col items-center min-h-[3.5em] justify-start">
-              <div className="text-xs text-[var(--text)] text-center font-normal">
-                {dateStr} | {dayStr}
-              </div>
-              <div className="w-full">
-                <TypewriterPrompt />
-              </div>
+            <div className="text-xs text-[var(--text)] text-center font-normal">
+              {dateStr} | {dayStr}
+            </div>
+            <div className="min-h-[2.5em] w-full">
+              <TypewriterPrompt />
             </div>
           </div>
           {/* BACK */}
