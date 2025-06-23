@@ -423,7 +423,7 @@ export default function SubmitPage() {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="w-full bg-[var(--card-bg)]/80 backdrop-blur-2xl p-10 rounded-3xl shadow-2xl space-y-6 animate-fade-in border border-[var(--accent)]/10 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0 lg:items-start lg:shadow-3xl lg:transition-transform lg:duration-300"
+                className="w-full bg-[var(--card-bg)]/80 backdrop-blur-2xl p-6 sm:p-8 lg:p-10 rounded-2xl lg:rounded-3xl shadow-xl lg:shadow-2xl space-y-6 animate-fade-in border border-[var(--accent)]/10 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0 lg:items-start"
               >
                 <div className="space-y-6">
                   <div>
@@ -433,7 +433,7 @@ export default function SubmitPage() {
                       value={recipient}
                       onChange={(e) => setRecipient(e.target.value)}
                       required
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
+                      className="w-full mt-2 p-3 sm:p-4 border border-[var(--border)] rounded-2xl lg:rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg"
                     />
                   </div>
 
@@ -443,7 +443,7 @@ export default function SubmitPage() {
                       type="text"
                       value={sender}
                       onChange={(e) => setSender(e.target.value)}
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
+                      className="w-full mt-2 p-3 sm:p-4 border border-[var(--border)] rounded-2xl lg:rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg"
                     />
                   </div>
 
@@ -455,7 +455,7 @@ export default function SubmitPage() {
                         setColor(e.target.value);
                         setFullBg(e.target.value !== "default");
                       }}
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5"
+                      className="w-full mt-2 p-3 sm:p-4 border border-[var(--border)] rounded-2xl lg:rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg"
                     >
                       {colorOptions.map((o) => (
                         <option key={o.value} value={o.value}>
@@ -471,7 +471,7 @@ export default function SubmitPage() {
                       value={specialEffect}
                       onChange={(e) => setSpecialEffect(e.target.value)}
                       disabled={!isSpecialAllowed}
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5 disabled:opacity-50"
+                      className="w-full mt-2 p-3 sm:p-4 border border-[var(--border)] rounded-2xl lg:rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg disabled:opacity-50"
                     >
                       {specialEffects.map((o) => (
                         <option key={o.value} value={o.value}>
@@ -506,7 +506,7 @@ export default function SubmitPage() {
                       onChange={(e) => setMessage(e.target.value)}
                       required
                       rows={7}
-                      className="w-full mt-2 p-4 border border-[var(--border)] rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg lg:p-5 resize-none"
+                      className="w-full mt-2 p-3 sm:p-4 border border-[var(--border)] rounded-2xl lg:rounded-3xl focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-lg transition text-base lg:text-lg resize-none"
                     />
                     <div className="relative h-3 w-full bg-[var(--border)] rounded-full overflow-hidden mt-3 shadow-sm">
                       <div
@@ -536,10 +536,10 @@ export default function SubmitPage() {
                     <button
                       type="submit"
                       disabled={isSubmitting || hasReachedLimit}
-                      className={`w-full px-10 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-3xl shadow-xl text-xl transition-transform duration-200 focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-2xl ${
+                      className={`w-full px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl lg:rounded-3xl shadow-lg lg:shadow-xl text-lg lg:text-xl transition-transform duration-200 focus:ring-4 focus:ring-[var(--accent)]/30 focus:shadow-xl lg:focus:shadow-2xl ${
                         isSubmitting || hasReachedLimit 
                           ? 'opacity-50 cursor-not-allowed' 
-                          : 'hover:scale-[1.04] hover:shadow-2xl'
+                          : 'hover:scale-[1.02] lg:hover:scale-[1.04] hover:shadow-xl lg:hover:shadow-2xl'
                       }`}
                     >
                       {isSubmitting ? 'Submitting...' : 'Submit Memory'}
