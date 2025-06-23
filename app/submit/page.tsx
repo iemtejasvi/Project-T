@@ -379,7 +379,7 @@ export default function SubmitPage() {
           {/* Info/Quote Panel (Desktop only) */}
           <aside className="hidden lg:flex flex-col justify-center bg-[var(--card-bg)]/80 rounded-3xl shadow-2xl p-12 mr-0 animate-fade-in backdrop-blur-xl border border-[var(--accent)]/10">
             <div className="mb-8">
-              <blockquote className="text-2xl font-serif italic text-[var(--accent)] mb-6 leading-snug drop-shadow-sm">"Some words are too heavy to send, but too important to keep."</blockquote>
+              <blockquote className="text-2xl font-serif italic text-[var(--accent)] mb-6 leading-snug drop-shadow-sm">&ldquo;Some words are too heavy to send, but too important to keep.&rdquo;</blockquote>
               <h2 className="text-3xl font-serif font-bold mb-4 text-[var(--text)]">Why Unsent?</h2>
               <p className="text-lg font-normal leading-relaxed text-[var(--text)] opacity-90">
                 A place for the messages you never sent, but never forgot.
