@@ -27,18 +27,27 @@ export default function Memories() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const pageSize = 10;
 
   // Memoized filtered memories to prevent unnecessary recalculations
   const filteredMemories = useMemo(() => {
+    const trimmedSearch = searchTerm.trim();
     return allMemories.filter(memory => 
-      memory.recipient.toLowerCase().includes(searchTerm.toLowerCase())
+      memory.recipient.toLowerCase().includes(trimmedSearch.toLowerCase())
     );
   }, [allMemories, searchTerm]);
 
   // Memoized displayed memories
   const displayedMemories = useMemo(() => {
-    return filteredMemories.slice(0, displayCount);
-  }, [filteredMemories, displayCount]);
+    const start = page * pageSize;
+    const end = start + pageSize;
+    return filteredMemories.slice(start, end);
+  }, [filteredMemories, page]);
+
+  const totalPages = Math.ceil(filteredMemories.length / pageSize);
+  const hasPrevious = page > 0;
+  const hasNext = page < totalPages - 1;
 
   // Memoized hasMore calculation
   const hasMoreMemories = useMemo(() => {
@@ -165,6 +174,11 @@ export default function Memories() {
     setHasMore(hasMoreMemories);
   }, [hasMoreMemories]);
 
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm]);
+
   const handleLoadMore = useCallback(() => {
     setLoading(true);
     setTimeout(() => {
@@ -231,24 +245,41 @@ export default function Memories() {
           </div>
         ) : displayedMemories.length > 0 ? (
           <>
+            {/* Load Previous Button */}
+            {hasPrevious && (
+              <div className="text-center mb-6">
+                <button
+                  onClick={() => setPage(page - 1)}
+                  disabled={!hasPrevious}
+                  className="px-6 py-3 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-lg hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
+                >
+                  Load Prev.
+                </button>
+              </div>
+            )}
             <div className="mb-4 text-sm text-[var(--text)] opacity-75">
               {searchTerm ? (
-                <span>Showing {displayedMemories.length} of {filteredMemories.length} search results</span>
+                <span>
+                  Showing {(Math.min((page + 1) * pageSize, filteredMemories.length))} of {filteredMemories.length} search results
+                </span>
               ) : (
-                <span>Showing {displayedMemories.length} of {allMemories.length} memories</span>
+                <span>
+                  Showing {(Math.min((page + 1) * pageSize, allMemories.length))} of {allMemories.length} memories
+                </span>
               )}
             </div>
             {displayedMemories.map((memory) => (
               <MemoryCard key={memory.id} memory={memory} />
             ))}
-            {hasMore && (
+            {/* Load More Button */}
+            {hasNext && (
               <div className="text-center mt-6">
                 <button
-                  onClick={handleLoadMore}
-                  disabled={loading}
+                  onClick={() => setPage(page + 1)}
+                  disabled={!hasNext}
                   className="px-6 py-3 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-lg hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
                 >
-                  {loading ? "Loading..." : "Load More"}
+                  Load More
                 </button>
               </div>
             )}
