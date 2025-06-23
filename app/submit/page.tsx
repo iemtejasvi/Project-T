@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import { FaPenNib, FaCrow, FaDove } from "react-icons/fa";
 
 interface IPData {
   ip?: string;
