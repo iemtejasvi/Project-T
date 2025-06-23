@@ -111,6 +111,49 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
   }
 }
 
+const TypewriterPrompt: React.FC = () => {
+  const prompts = [
+    "I wish you missed me half as much.",
+    "I replay your last words every single day.",
+    "I blamed clocks more than you at times.",
+    "I wanted one more moment more than closure.",
+    // ... (add more prompts as needed)
+  ];
+  const [currentIndex, setCurrentIndex] = useState(Math.floor(Math.random() * prompts.length));
+  const [displayedText, setDisplayedText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [charIndex, setCharIndex] = useState(0);
+  useEffect(() => {
+    const currentPrompt = prompts[currentIndex];
+    let delay = isDeleting ? 50 : 100;
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        setDisplayedText(currentPrompt.substring(0, charIndex + 1));
+        if (charIndex + 1 === currentPrompt.length) {
+          setTimeout(() => setIsDeleting(true), 2000);
+        } else {
+          setCharIndex(charIndex + 1);
+        }
+      } else {
+        setDisplayedText(currentPrompt.substring(0, charIndex - 1));
+        if (charIndex - 1 === 0) {
+          setIsDeleting(false);
+          setCurrentIndex(Math.floor(Math.random() * prompts.length));
+          setCharIndex(0);
+        } else {
+          setCharIndex(charIndex - 1);
+        }
+      }
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [charIndex, isDeleting, currentIndex, prompts]);
+  return (
+    <div className="min-h-[2rem] overflow-hidden text-center text-xl text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
+      {displayedText}
+    </div>
+  );
+};
+
 const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
   const [flipped, setFlipped] = useState(false);
   let effectiveColor = memory.color;
@@ -180,6 +223,9 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
             </div>
             <div className="text-xl text-[var(--text)] text-center font-normal">
               {dateStr} | {dayStr}
+            </div>
+            <div className="mt-2 text-xl font-serif text-center text-[var(--text)] min-h-[2.5em]">
+              <TypewriterPrompt />
             </div>
           </div>
           {/* BACK */}
