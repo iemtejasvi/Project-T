@@ -409,6 +409,16 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => {
+      window.removeEventListener("resize", checkDesktop);
+    };
+  }, []);
 
   const allowedColors = new Set([
     "default",
@@ -543,13 +553,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   };
 
   if (detail) {
-    const [isDesktop, setIsDesktop] = useState(false);
-    useEffect(() => {
-      const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
-      checkDesktop();
-      window.addEventListener("resize", checkDesktop);
-      return () => window.removeEventListener("resize", checkDesktop);
-    }, []);
     // Large message renderer for detail desktop
     function renderMessageLargeDetail(memory: Memory) {
       const wordCount = memory.message.split(/\s+/).length;

@@ -524,7 +524,6 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory }) => {
       : {};
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
-  const timeStr = new Date(memory.created_at).toLocaleTimeString();
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
   const arrowStyle =
     effectiveColor === "default"
