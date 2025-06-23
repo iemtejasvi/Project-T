@@ -272,7 +272,7 @@ export default function Home() {
           isDesktop ? (
             <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
-            recentMemories.map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+            recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} />)
           )
         ) : (
           <p className="text-[var(--text)]">No memories yet.</p>
