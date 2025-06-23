@@ -259,7 +259,9 @@ export default function Home() {
               📢 Announcement — {announcement}
             </h2>
           ) : (
-          <TypingEffect />
+            <div className="min-h-[3.5em] flex items-center justify-center w-full">
+              <TypingEffect />
+            </div>
           )}
         </div>
       </section>
