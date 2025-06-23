@@ -402,8 +402,8 @@ export default function SubmitPage() {
           {/* Form Card */}
           <div className="w-full flex flex-col justify-center">
             {!submitted && (
-              <div className="w-full max-w-xl mx-auto bg-[var(--card-bg)]/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl mb-10 animate-fade-in border border-[var(--accent)]/10 lg:hidden">
-                <p className="text-center italic font-semibold text-xl text-[var(--text)]">
+              <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8 lg:hidden">
+                <p className="text-center italic font-medium">
                   Share your unsent message. Keep it honest, heartfelt, and in English only. <strong>Off-topic submissions will be rejected.</strong>
                 </p>
               </div>
