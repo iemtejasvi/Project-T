@@ -47,11 +47,6 @@ export default function Memories() {
   const hasPrevious = page > 0;
   const hasNext = page < totalPages - 1;
 
-  // Memoized hasMore calculation
-  const hasMoreMemories = useMemo(() => {
-    return filteredMemories.length > displayCount;
-  }, [filteredMemories.length, displayCount]);
-
   // Check if there are any ACTIVE pinned memories (not expired)
   const hasActivePinnedMemories = useMemo(() => {
     const now = new Date();
