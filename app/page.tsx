@@ -281,22 +281,30 @@ export default function Home() {
         </div>
       </section>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] sm:text-left sm:ml-8 text-center ml-0">
-          Recent Memories
-        </h2>
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-12">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-light text-[var(--text)] mb-2 tracking-wide">
+            Recent Memories
+          </h2>
+          <div className="w-16 h-px bg-[var(--accent)] mx-auto opacity-60"></div>
+        </div>
         {recentMemories.length > 0 ? (
           isDesktop ? (
             <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
-            recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} />)
+            <div className="space-y-8">
+              {recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} />)}
+            </div>
           )
         ) : (
-          <p className="text-[var(--text)]">No memories yet.</p>
+          <div className="text-center py-16">
+            <p className="text-[var(--text)] opacity-70 text-lg">No memories yet.</p>
+          </div>
         )}
-        <div className="text-right mt-4">
-          <Link href="/memories" className="text-[var(--accent)] hover:underline">
-            See All →
+        <div className="text-center mt-12">
+          <Link href="/memories" className="inline-flex items-center text-[var(--accent)] hover:text-[var(--text)] transition-colors duration-300 text-lg font-light tracking-wide">
+            See All Memories
+            <span className="ml-2 text-xl">→</span>
           </Link>
         </div>
       </main>
