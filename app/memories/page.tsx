@@ -225,9 +225,9 @@ export default function Memories() {
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={!hasPrevious}
-                  className="px-6 py-3 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-lg hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#f8f6f1] text-[#6b5b47] font-semibold rounded-full border border-[#d4c4a8] shadow-md hover:bg-[#f0ede4] hover:border-[#c4b498] hover:shadow-lg active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-lg tracking-wide"
                 >
-                  Load Prev.
+                  <span className="text-xl">←</span> Load Prev.
                 </button>
               </div>
             )}
@@ -251,9 +251,9 @@ export default function Memories() {
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={!hasNext}
-                  className="px-6 py-3 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-lg hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#f8f6f1] text-[#6b5b47] font-semibold rounded-full border border-[#d4c4a8] shadow-md hover:bg-[#f0ede4] hover:border-[#c4b498] hover:shadow-lg active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-lg tracking-wide"
                 >
-                  Load More
+                  Load More <span className="text-xl">→</span>
                 </button>
               </div>
             )}
