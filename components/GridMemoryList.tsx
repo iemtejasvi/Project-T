@@ -33,9 +33,9 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
   if (isDesktop) {
     return (
       <div className="grid grid-cols-2 gap-x-20 gap-y-2 w-full px-8 max-w-screen-xl mx-auto items-start"
-           style={{ gridTemplateColumns: 'repeat(2, minmax(350px, 1fr))' }}>
-        {memories.map((memory, idx) => (
-          <div key={memory.id} className={idx % 2 === 0 ? 'mr-8' : ''}>
+           style={{ gridTemplateColumns: 'repeat(2, 350px)' }}>
+        {memories.map((memory) => (
+          <div key={memory.id}>
             <DesktopMemoryCard memory={memory} />
           </div>
         ))}
