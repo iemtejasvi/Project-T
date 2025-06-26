@@ -550,7 +550,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             )}
             <div>
               <h3 className={`${large ? 'text-5xl' : 'text-3xl'} font-bold text-[var(--text)] flex items-center gap-2`}>
-                {memory.animation && (
+                {memory.animation && memory.animation !== "none" && (
                   <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                     ★
                   </span>

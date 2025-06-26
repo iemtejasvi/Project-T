@@ -599,7 +599,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         <div>
           <div className="flex justify-between items-start">
             <h3 className={isDesktop ? "text-4xl font-bold text-[var(--text)]" : "text-2xl font-bold text-[var(--text)]"}>
-              {memory.animation && (
+              {memory.animation && memory.animation !== "none" && (
                 <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                   ★
                 </span>
@@ -649,7 +649,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             <div>
               <div className="flex justify-between items-start">
                 <h3 className="text-xl font-bold text-[var(--text)]">
-                  {memory.animation && (
+                  {memory.animation && memory.animation !== "none" && (
                     <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                       ★
                     </span>
