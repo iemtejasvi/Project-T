@@ -237,8 +237,8 @@ export default function Home() {
 
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] home-desktop-heading mb-2">If Only I Sent This</h1>
-          <hr className="my-3 border-[var(--border)] opacity-40" />
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] home-desktop-heading">If Only I Sent This</h1>
+          <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>
@@ -269,51 +269,39 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="my-4 px-4 sm:px-6 max-w-5xl mx-auto">
-        <div className="bg-[var(--card-bg)] p-4 rounded-2xl shadow-lg text-center" style={{ boxShadow: '0 4px 24px 0 rgba(0,0,0,0.07)' }}>
+      <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
+        <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
           {announcement ? (
-            <h2 className="text-xl sm:text-2xl font-semibold text-red-500 mb-0">
+            <h2 className="text-xl sm:text-2xl font-semibold text-red-500">
               📢 Announcement — {announcement}
             </h2>
           ) : (
-            <TypingEffect />
+          <TypingEffect />
           )}
         </div>
       </section>
 
-      <hr className="my-6 border-[var(--border)] opacity-30 max-w-5xl mx-auto" />
-
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-6">
-        <div className="flex flex-col items-center">
-          {isDesktop ? (
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)] text-center">
-              Recent Memories
-            </h2>
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] sm:text-left sm:ml-8 text-center ml-0">
+          Recent Memories
+        </h2>
+        {recentMemories.length > 0 ? (
+          isDesktop ? (
+            <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-[var(--text)] text-left">
-              Recent Memories
-            </h2>
-          )}
-          {recentMemories.length > 0 ? (
-            isDesktop ? (
-              <div className="w-full">
-                <HomeDesktopMemoryGrid memories={recentMemories} />
-              </div>
-            ) : (
-              <div className="space-y-8 w-full">
-                {recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} />)}
-              </div>
-            )
-          ) : (
-            <div className="text-center py-16">
-              <p className="text-[var(--text)] opacity-70 text-lg">No memories yet.</p>
+            <div className="space-y-8">
+              {recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} />)}
             </div>
-          )}
-          <div className="text-right mt-4 w-full">
-            <Link href="/memories" className="text-[var(--accent)] hover:underline">
-              See All →
-            </Link>
+          )
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-[var(--text)] opacity-70 text-lg">No memories yet.</p>
           </div>
+        )}
+        <div className="text-right mt-4">
+          <Link href="/memories" className="text-[var(--accent)] hover:underline">
+            See All →
+          </Link>
         </div>
       </main>
 
