@@ -285,7 +285,10 @@ export default function Home() {
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex flex-col items-center">
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)] text-center">
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)] text-center hidden lg:block">
+            Recent Memories
+          </h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] sm:text-left sm:ml-8 text-center ml-0 block lg:hidden">
             Recent Memories
           </h2>
           {recentMemories.length > 0 ? (
