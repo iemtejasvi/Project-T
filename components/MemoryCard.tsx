@@ -591,31 +591,31 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         animate={{ opacity: 1, y: 0 }}
         className={
           isDesktop
-            ? "w-full max-w-[500px] min-h-[400px] mx-auto my-10 p-10 border-2 rounded-xl shadow-md flex flex-col"
-            : "w-full max-w-xs sm:max-w-sm mx-auto my-6 p-6 border-2 rounded-xl shadow-md flex flex-col min-h-[300px]"
+            ? "w-full max-w-xl min-h-[420px] mx-auto my-16 p-12 rounded-3xl shadow-2xl border border-[var(--border)]/40 bg-[var(--card-bg)]/80 backdrop-blur-xl flex flex-col items-center justify-center"
+            : "w-full max-w-sm mx-auto my-8 p-6 rounded-3xl shadow-xl border border-[var(--border)]/40 bg-[var(--card-bg)]/90 backdrop-blur-md flex flex-col items-center justify-center"
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <div>
-          <div className="flex justify-between items-start">
-            <h3 className={isDesktop ? "text-4xl font-bold text-[var(--text)]" : "text-2xl font-bold text-[var(--text)]"}>
-              {memory.animation && memory.animation !== "none" && (
-                <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                  ★
-                </span>
-              )}
-              To: {memory.recipient}
-            </h3>
+        <div className="w-full flex flex-col items-center">
+          <h3 className={isDesktop ? "text-4xl font-bold text-[var(--text)] mb-2 flex items-center justify-center gap-2" : "text-2xl font-bold text-[var(--text)] mb-2 flex items-center justify-center gap-2"}>
+            {memory.animation && memory.animation !== "none" && (
+              <span style={{ fontSize: "1.2rem", ...arrowStyle, marginRight: "4px" }}>★</span>
+            )}
+            To: {memory.recipient}
+          </h3>
+          {memory.sender && <p className={isDesktop ? "text-lg italic text-[var(--text)] opacity-70 mb-2" : "text-md italic text-[var(--text)] opacity-70 mb-2"}>From: {memory.sender}</p>}
+          <hr className="my-2 border-[#999999] w-full" />
+        </div>
+        <div className="w-full flex-1 flex flex-col justify-center items-center my-6">
+          <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none"}>
+            {renderMessageLargeDetail(memory)}
           </div>
-          {memory.sender && <p className={isDesktop ? "mt-1 text-3xl italic text-[var(--text)]" : "mt-1 text-lg italic text-[var(--text)]"}>From: {memory.sender}</p>}
-          <hr className="my-2 border-[#999999]" />
         </div>
-        <div className={isDesktop ? "flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-4" : "flex-grow text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto pt-2"}>
-          {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory)}
-        </div>
-        <hr className="my-2 border-[#999999]" />
-        <div className={isDesktop ? "text-xl text-[var(--text)] flex justify-center gap-4 whitespace-nowrap font-normal" : "text-xs text-[var(--text)] flex justify-center gap-2 whitespace-nowrap font-normal"}>
-          <span>{dateStr}</span> | <span>{dayStr}</span> | <span>{timeStr}</span> | <span>{effectiveColor}</span>
+        <hr className="my-2 border-[#999999] w-full" />
+        <div className="w-full flex flex-col items-center mt-2">
+          <span className={isDesktop ? "text-base text-[var(--text)] opacity-60 font-normal text-center" : "text-xs text-[var(--text)] opacity-60 font-normal text-center"}>
+            {dateStr} &mdash; {dayStr} &mdash; {timeStr} &mdash; {effectiveColor}
+          </span>
         </div>
       </motion.div>
     );
