@@ -137,7 +137,7 @@ function isDesktopWidth() {
   return window.innerWidth >= 1024;
 }
 
-export default function SubmitPage(props: any) {
+export default function SubmitPage() {
   const [showDesktopSite, setShowDesktopSite] = useState(false);
   useEffect(() => {
     setShowDesktopSite(isMobileDevice() && isDesktopWidth());
