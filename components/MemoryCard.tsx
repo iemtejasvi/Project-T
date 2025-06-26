@@ -607,8 +607,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           <hr className="my-2 border-[#999999] w-full" />
         </div>
         <div className="w-full flex-1 flex flex-col justify-center items-center my-6">
-          <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-lg font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none"}>
-            {renderMessageLargeDetail(memory)}
+          <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-lg tracking-wide leading-snug break-words hyphens-none font-serif text-center text-[var(--text)]"}>
+            {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory)}
           </div>
         </div>
         <hr className="my-2 border-[#999999] w-full" />
