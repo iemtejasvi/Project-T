@@ -288,7 +288,7 @@ export default function Home() {
           <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)] text-center hidden lg:block">
             Recent Memories
           </h2>
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] sm:text-left sm:ml-8 text-center ml-0 block lg:hidden">
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-[var(--text)] text-left block lg:hidden">
             Recent Memories
           </h2>
           {recentMemories.length > 0 ? (
