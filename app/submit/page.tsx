@@ -343,7 +343,7 @@ export default function SubmitPage() {
   }, []);
 
   return (
-    <div className="submit-center-desktop-site">
+    <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] lg:bg-gradient-to-br lg:from-[var(--background)] lg:to-[var(--card-bg)] lg:via-[var(--secondary)]/30 relative overflow-x-hidden">
       {/* Floating dry leaf accent (desktop only) */}
       <div className="hidden lg:block absolute left-[-120px] top-1/3 z-0 opacity-20 pointer-events-none select-none">
         <span style={{ color: dryLeafColor }} className="text-[180px] drop-shadow-2xl blur-[3px] transform -rotate-12">🍂</span>

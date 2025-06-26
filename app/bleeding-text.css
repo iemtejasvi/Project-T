@@ -203,14 +203,4 @@
     background-clip: text;
     filter: blur(1px);
   }
-}
-
-/* Center content for Desktop Site mode on submit page */
-.submit-center-desktop-site {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--background);
 } 

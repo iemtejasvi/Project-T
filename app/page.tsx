@@ -5,7 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
-import { HomeDesktopMemoryGrid, HomeMobileDesktopSiteModeGrid } from "@/components/GridMemoryList";
+import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
 import { FaFeatherAlt } from "react-icons/fa";
 
 interface Memory {
@@ -29,8 +29,6 @@ export default function Home() {
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDesktop, setIsDesktop] = useState(false);
-  const [desktopSiteMode, setDesktopSiteMode] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -192,13 +190,6 @@ export default function Home() {
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
   const handleWelcomeClose = () => setShowWelcome(false);
 
   const featherColor = useMemo(() => {
@@ -208,18 +199,6 @@ export default function Home() {
     if (theme === 'sepia') return '#FFD700'; // gold for sepia/custom
     return '#B39DDB'; // purple for light
   }, []);
-
-  // Optionally, you can persist this in localStorage or use a more robust detection
-  const handleDesktopSiteClick = () => setDesktopSiteMode(true);
-
-  if (isMobile && desktopSiteMode) {
-    return (
-      <div>
-        <button onClick={() => setDesktopSiteMode(false)} className="mb-4 px-4 py-2 bg-gray-200 rounded">Exit Desktop Site</button>
-        <HomeMobileDesktopSiteModeGrid memories={recentMemories} />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
@@ -331,10 +310,6 @@ export default function Home() {
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
-
-      {isMobile && (
-        <button onClick={handleDesktopSiteClick} className="mb-4 px-4 py-2 bg-gray-200 rounded">Desktop site</button>
-      )}
     </div>
   );
 }
