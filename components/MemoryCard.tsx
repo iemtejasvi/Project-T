@@ -519,12 +519,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     }
   };
 
-  const renderMessage = (memory: Memory) => {
+  const renderMessage = (memory: Memory, forceLarge?: boolean) => {
     const wordCount = memory.message.split(/\s+/).length;
     const isShortOrExact = wordCount <= 30;
-    const textClass = isShortOrExact
-      ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
-      : "text-lg tracking-wide leading-snug break-words hyphens-none";
+    const textClass = forceLarge
+      ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
+      : isShortOrExact
+        ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
+        : "text-lg tracking-wide leading-snug break-words hyphens-none";
     
     switch (memory.animation) {
       case "poetic":
@@ -608,7 +610,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </div>
         <div className="w-full flex-1 flex flex-col justify-center items-center my-6">
           <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-4xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none"}>
-            {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory)}
+            {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
           </div>
         </div>
         <hr className="my-2 border-[#999999] w-full" />
