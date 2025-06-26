@@ -607,35 +607,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           <hr className="my-2 border-[#999999] w-full" />
         </div>
         <div className="w-full flex-1 flex flex-col justify-center items-center my-6">
-          {isDesktop ? (
-            <div className="text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none">
-              {renderMessageLargeDetail(memory)}
-            </div>
-          ) : (
-            (() => {
-              const wordCount = memory.message.split(/\s+/).length;
-              const isShortOrExact = wordCount <= 30;
-              const textClass = isShortOrExact
-                ? "text-2xl tracking-wide leading-snug break-words hyphens-none font-serif text-center text-[var(--text)]"
-                : "text-lg tracking-wide leading-snug break-words hyphens-none font-serif text-center text-[var(--text)]";
-              switch (memory.animation) {
-                case "poetic":
-                  return <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />;
-                case "cursive":
-                  return <CursiveText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />;
-                case "bleeding":
-                  return <BleedingText message={memory.message} textClass={textClass} />;
-                case "handwritten":
-                  return <HandwrittenText message={memory.message} textClass={textClass} />;
-                default:
-                  return (
-                    <div className="space-y-2">
-                      <p className={textClass}>{memory.message}</p>
-                    </div>
-                  );
-              }
-            })()
-          )}
+          <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-2xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none"}>
+            {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory)}
+          </div>
         </div>
         <hr className="my-2 border-[#999999] w-full" />
         <div className="w-full flex flex-col items-center mt-2">
