@@ -597,17 +597,17 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         style={{ ...bgStyle, ...borderStyle }}
       >
         <div className="w-full flex flex-col items-center">
-          <h3 className={isDesktop ? "text-4xl font-bold text-[var(--text)] mb-2 flex items-center justify-center gap-2" : "text-xl font-bold text-[var(--text)] mb-2 flex items-center justify-center gap-2"}>
+          <h3 className={isDesktop ? "text-4xl font-bold text-[var(--text)] mb-2 flex items-center justify-center gap-2" : "text-2xl font-bold text-[var(--text)] mb-2 flex items-center justify-center gap-2"}>
             {memory.animation && memory.animation !== "none" && (
               <span style={{ fontSize: "1.2rem", ...arrowStyle, marginRight: "4px" }}>★</span>
             )}
             To: {memory.recipient}
           </h3>
-          {memory.sender && <p className={isDesktop ? "text-lg italic text-[var(--text)] opacity-70 mb-2" : "text-sm italic text-[var(--text)] opacity-70 mb-2"}>From: {memory.sender}</p>}
+          {memory.sender && <p className={isDesktop ? "text-lg italic text-[var(--text)] opacity-70 mb-2" : "text-md italic text-[var(--text)] opacity-70 mb-2"}>From: {memory.sender}</p>}
           <hr className="my-2 border-[#999999] w-full" />
         </div>
         <div className="w-full flex-1 flex flex-col justify-center items-center my-6">
-          <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-base font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none"}>
+          <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-lg font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none"}>
             {renderMessageLargeDetail(memory)}
           </div>
         </div>
