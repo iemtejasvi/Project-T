@@ -67,4 +67,15 @@ export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memori
   );
 };
 
+// Mobile 'Desktop site' mode grid for home page (5 cards in a column)
+export const HomeMobileDesktopSiteModeGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
+  return (
+    <div className="flex flex-col gap-8 w-full max-w-md mx-auto">
+      {memories.slice(0, 5).map((memory) => (
+        <MemoryCard key={memory.id} memory={memory} />
+      ))}
+    </div>
+  );
+};
+
 export default GridMemoryList; 
