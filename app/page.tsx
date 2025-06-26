@@ -289,7 +289,7 @@ export default function Home() {
           isDesktop ? (
             <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="space-y-4">
               {recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} />)}
             </div>
           )
