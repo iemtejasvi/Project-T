@@ -523,7 +523,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     const wordCount = memory.message.split(/\s+/).length;
     const isShortOrExact = wordCount <= 30;
     const textClass = forceLarge
-      ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
+      ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
       : isShortOrExact
         ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
         : "text-lg tracking-wide leading-snug break-words hyphens-none";
@@ -544,7 +544,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       case "bleeding":
         return <BleedingText message={memory.message} textClass={textClass} />;
       case "handwritten":
-        return <HandwrittenText message={memory.message} />;
+        return <HandwrittenText message={memory.message} textClass={textClass} />;
       default:
         return (
           <div className="space-y-2">
@@ -609,7 +609,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           <hr className="my-2 border-[#999999] w-full" />
         </div>
         <div className="w-full flex-1 flex flex-col justify-center items-center my-6">
-          <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-4xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none"}>
+          <div className={isDesktop ? "text-3xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none" : "text-2xl font-serif text-center text-[var(--text)] leading-snug break-words hyphens-none"}>
             {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
           </div>
         </div>
