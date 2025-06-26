@@ -7,6 +7,7 @@ import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
 import { FaFeatherAlt } from "react-icons/fa";
+import { DesktopSiteHomeGrid } from "../components/DesktopSiteHomeGrid";
 
 interface Memory {
   id: string;
@@ -21,6 +22,15 @@ interface Memory {
   animation?: string;
   pinned?: boolean;
   pinned_until?: string;
+}
+
+function isMobileDevice() {
+  if (typeof navigator === 'undefined') return false;
+  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+function isDesktopWidth() {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth >= 1024;
 }
 
 export default function Home() {
@@ -199,6 +209,10 @@ export default function Home() {
     if (theme === 'sepia') return '#FFD700'; // gold for sepia/custom
     return '#B39DDB'; // purple for light
   }, []);
+
+  if (typeof window !== 'undefined' && isMobileDevice() && isDesktopWidth()) {
+    return <DesktopSiteHomeGrid memories={recentMemories} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">

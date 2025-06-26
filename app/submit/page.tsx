@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { DesktopSiteSubmitPage } from "../../components/DesktopSiteSubmitPage";
 
 interface IPData {
   ip?: string;
@@ -127,7 +128,20 @@ const twoMemoryLimitMessages = [
   "Only 2 memories allowed. Two pieces of love, the rest is private."
 ];
 
-export default function SubmitPage() {
+function isMobileDevice() {
+  if (typeof navigator === 'undefined') return false;
+  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+function isDesktopWidth() {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth >= 1024;
+}
+
+export default function SubmitPage(props) {
+  if (typeof window !== 'undefined' && isMobileDevice() && isDesktopWidth()) {
+    return <DesktopSiteSubmitPage />;
+  }
+
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
