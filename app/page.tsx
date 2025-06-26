@@ -269,7 +269,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="my-4 px-4 sm:px-6 max-w-5xl mx-auto">
+      <section className="my-2 mb-2 px-4 sm:px-6 max-w-5xl mx-auto">
         <div className="bg-[var(--card-bg)] p-4 rounded-2xl shadow-lg text-center" style={{ boxShadow: '0 4px 24px 0 rgba(0,0,0,0.07)' }}>
           {announcement ? (
             <h2 className="text-xl sm:text-2xl font-semibold text-red-500 mb-0">
@@ -288,7 +288,7 @@ export default function Home() {
           <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)] text-center hidden lg:block">
             Recent Memories
           </h2>
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)] text-left block lg:hidden">
+          <h2 className="text-2xl sm:text-3xl font-semibold mt-0 mb-2 text-[var(--text)] text-left block lg:hidden">
             Recent Memories
           </h2>
           {recentMemories.length > 0 ? (
