@@ -39,6 +39,7 @@ export default function Home() {
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDesktop, setIsDesktop] = useState(false);
+  const [showDesktopSite, setShowDesktopSite] = useState(false);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -200,6 +201,13 @@ export default function Home() {
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
+  useEffect(() => {
+    setShowDesktopSite(isMobileDevice() && isDesktopWidth());
+    const onResize = () => setShowDesktopSite(isMobileDevice() && isDesktopWidth());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const handleWelcomeClose = () => setShowWelcome(false);
 
   const featherColor = useMemo(() => {
@@ -210,7 +218,7 @@ export default function Home() {
     return '#B39DDB'; // purple for light
   }, []);
 
-  if (typeof window !== 'undefined' && isMobileDevice() && isDesktopWidth()) {
+  if (showDesktopSite) {
     return <DesktopSiteHomeGrid memories={recentMemories} />;
   }
 

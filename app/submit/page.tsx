@@ -137,10 +137,14 @@ function isDesktopWidth() {
   return window.innerWidth >= 1024;
 }
 
-export default function SubmitPage(props) {
-  if (typeof window !== 'undefined' && isMobileDevice() && isDesktopWidth()) {
-    return <DesktopSiteSubmitPage />;
-  }
+export default function SubmitPage(props: any) {
+  const [showDesktopSite, setShowDesktopSite] = useState(false);
+  useEffect(() => {
+    setShowDesktopSite(isMobileDevice() && isDesktopWidth());
+    const onResize = () => setShowDesktopSite(isMobileDevice() && isDesktopWidth());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
@@ -355,6 +359,10 @@ export default function SubmitPage(props) {
   useEffect(() => {
     setDryLeafColor(getDryLeafColor());
   }, []);
+
+  if (showDesktopSite) {
+    return <DesktopSiteSubmitPage />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] lg:bg-gradient-to-br lg:from-[var(--background)] lg:to-[var(--card-bg)] lg:via-[var(--secondary)]/30 relative overflow-x-hidden">
