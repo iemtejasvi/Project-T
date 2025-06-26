@@ -495,7 +495,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`flip-card w-full h-[400px] perspective-1000 cursor-pointer rounded-xl hover:shadow-2xl mx-auto`}
+        className={`flip-card w-full h-[420px] perspective-1000 cursor-pointer rounded-3xl hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -506,7 +506,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         >
           {/* FRONT */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden rounded-xl shadow-md ${large ? 'p-10' : 'p-6'} flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden rounded-3xl shadow-md ${large ? 'p-10' : 'p-6'} flex flex-col justify-between`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             {memory.pinned && (
@@ -569,7 +569,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
           </div>
           {/* BACK */}
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden rounded-xl shadow-md ${large ? 'p-10' : 'p-6'} flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden rounded-3xl shadow-md ${large ? 'p-10' : 'p-6'} flex flex-col justify-start rotate-y-180`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal`}>if only i sent this</p>
