@@ -560,10 +560,10 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)]`}>From: {memory.sender}</p>}
               <hr className="my-2 border-[#999999]" />
             </div>
-            <div className={`${large ? 'text-2xl' : 'text-xl'} text-[var(--text)] text-center font-normal`}>
+            <div className="text-xl text-[var(--text)] text-center font-normal">
               {dateStr} | {dayStr}
             </div>
-            <div className={`mt-2 ${large ? 'text-2xl min-h-[3em]' : 'text-xl min-h-[2.5em]'} font-serif text-center text-[var(--text)]`}>
+            <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)]">
               <TypewriterPrompt />
             </div>
           </div>

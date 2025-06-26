@@ -55,11 +55,11 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
 export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
   return (
     <div
-      className="grid grid-cols-2 gap-x-20 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start"
-      style={{ gridTemplateColumns: 'repeat(2, minmax(350px, 1fr))' }}
+      className="grid grid-cols-2 gap-x-32 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start"
+      style={{ gridTemplateColumns: 'repeat(2, 350px)' }}
     >
-      {memories.slice(0, 4).map((memory, idx) => (
-        <div key={memory.id} className={idx % 2 === 0 ? 'mr-8' : ''}>
+      {memories.slice(0, 4).map((memory) => (
+        <div key={memory.id}>
           <DesktopMemoryCard memory={memory} large />
         </div>
       ))}
