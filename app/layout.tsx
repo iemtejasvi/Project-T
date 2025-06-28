@@ -748,12 +748,42 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                  navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
                     console.log('ServiceWorker registration successful');
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                      const newWorker = registration.installing;
+                      newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                          // New content is available, prompt user to refresh
+                          if (confirm('New version available! Refresh to update?')) {
+                            window.location.reload();
+                          }
+                        }
+                      });
+                    });
+                    
+                    // Handle service worker updates
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                      window.location.reload();
+                    });
+                    
                   }, function(err) {
                     console.log('ServiceWorker registration failed: ', err);
                   });
                 });
+                
+                // Add cache clearing on page load for development
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                  if ('caches' in window) {
+                    caches.keys().then(names => {
+                      names.forEach(name => {
+                        caches.delete(name);
+                      });
+                    });
+                  }
+                }
               }
             `
           }}

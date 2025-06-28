@@ -28,6 +28,39 @@ export default function UuidInitializer() {
         expirationDate.setFullYear(expirationDate.getFullYear() + 1);
         document.cookie = `user_uuid=${storedUuid}; expires=${expirationDate.toUTCString()}; path=/`;
       }
+
+      // Cache management for development
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        // Clear service worker cache on development
+        if ('serviceWorker' in navigator && 'caches' in window) {
+          caches.keys().then(names => {
+            names.forEach(name => {
+              caches.delete(name);
+            });
+          });
+        }
+      }
+
+      // Add cache refresh on version change
+      const currentVersion = '1.1'; // Increment this when deploying
+      const storedVersion = localStorage.getItem('app_version');
+      
+      if (storedVersion !== currentVersion) {
+        // Clear all caches when version changes
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            names.forEach(name => {
+              caches.delete(name);
+            });
+          });
+        }
+        localStorage.setItem('app_version', currentVersion);
+        
+        // Force reload if version changed
+        if (storedVersion) {
+          window.location.reload();
+        }
+      }
     }
   }, []);
   return null;
