@@ -32,6 +32,8 @@ self.addEventListener('install', event => {
         return cache.addAll(urlsWithTimestamp);
       })
   );
+  // Skip waiting to activate immediately
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', event => {
@@ -87,6 +89,9 @@ self.addEventListener('activate', event => {
           }
         })
       );
+    }).then(() => {
+      // Claim all clients immediately
+      return self.clients.claim();
     })
   );
 });
