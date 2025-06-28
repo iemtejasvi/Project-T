@@ -86,40 +86,23 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
   const textClass = isShortOrExact
     ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
     : "text-2xl tracking-wide leading-snug break-words hyphens-none";
-  
-  // Add left padding for special effects
-  const hasSpecialEffect = memory.animation && memory.animation !== "none";
-  const paddingClass = hasSpecialEffect ? "pl-3" : "";
-  
   switch (memory.animation) {
     case "poetic":
       return (
-        <div className={paddingClass}>
-          <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
-        </div>
+        <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
       );
     case "cursive":
       return (
-        <div className={paddingClass}>
-          <CursiveText
-            message={memory.message}
-            textClass={textClass}
-            effectiveColor={effectiveColor}
-          />
-        </div>
+        <CursiveText
+          message={memory.message}
+          textClass={textClass}
+          effectiveColor={effectiveColor}
+        />
       );
     case "bleeding":
-      return (
-        <div className={paddingClass}>
-          <BleedingText message={memory.message} textClass={textClass} />
-        </div>
-      );
+      return <BleedingText message={memory.message} textClass={textClass} />;
     case "handwritten":
-      return (
-        <div className={paddingClass}>
-          <HandwrittenText message={memory.message} textClass={textClass} />
-        </div>
-      );
+      return <HandwrittenText message={memory.message} textClass={textClass} />;
     default:
       return (
         <div className="space-y-2">
