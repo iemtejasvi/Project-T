@@ -89,7 +89,7 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
   
   // Add left padding for special effects
   const hasSpecialEffect = memory.animation && memory.animation !== "none";
-  const paddingClass = hasSpecialEffect ? "pl-2" : "";
+  const paddingClass = hasSpecialEffect ? "pl-3" : "";
   
   switch (memory.animation) {
     case "poetic":
