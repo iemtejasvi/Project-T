@@ -528,23 +528,39 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
         : "text-lg tracking-wide leading-snug break-words hyphens-none";
     
+    // Add left padding for special effects
+    const hasSpecialEffect = memory.animation && memory.animation !== "none";
+    const paddingClass = hasSpecialEffect ? "pl-2" : "";
+    
     switch (memory.animation) {
       case "poetic":
         return (
-          <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
+          <div className={paddingClass}>
+            <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
+          </div>
         );
       case "cursive":
         return (
-          <CursiveText
-            message={memory.message}
-            textClass={textClass}
-            effectiveColor={effectiveColor}
-          />
+          <div className={paddingClass}>
+            <CursiveText
+              message={memory.message}
+              textClass={textClass}
+              effectiveColor={effectiveColor}
+            />
+          </div>
         );
       case "bleeding":
-        return <BleedingText message={memory.message} textClass={textClass} />;
+        return (
+          <div className={paddingClass}>
+            <BleedingText message={memory.message} textClass={textClass} />
+          </div>
+        );
       case "handwritten":
-        return <HandwrittenText message={memory.message} textClass={textClass} />;
+        return (
+          <div className={paddingClass}>
+            <HandwrittenText message={memory.message} textClass={textClass} />
+          </div>
+        );
       default:
         return (
           <div className="space-y-2">
@@ -562,23 +578,40 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       const textClass = isShortOrExact
         ? "text-5xl tracking-wide leading-snug break-words hyphens-none"
         : "text-4xl tracking-wide leading-snug break-words hyphens-none";
+      
+      // Add left padding for special effects
+      const hasSpecialEffect = memory.animation && memory.animation !== "none";
+      const paddingClass = hasSpecialEffect ? "pl-2" : "";
+      
       switch (memory.animation) {
         case "poetic":
           return (
-            <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
+            <div className={paddingClass}>
+              <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
+            </div>
           );
         case "cursive":
           return (
-            <CursiveText
-              message={memory.message}
-              textClass={textClass}
-              effectiveColor={effectiveColor}
-            />
+            <div className={paddingClass}>
+              <CursiveText
+                message={memory.message}
+                textClass={textClass}
+                effectiveColor={effectiveColor}
+              />
+            </div>
           );
         case "bleeding":
-          return <BleedingText message={memory.message} textClass={textClass} />;
+          return (
+            <div className={paddingClass}>
+              <BleedingText message={memory.message} textClass={textClass} />
+            </div>
+          );
         case "handwritten":
-          return <HandwrittenText message={memory.message} textClass={textClass} />;
+          return (
+            <div className={paddingClass}>
+              <HandwrittenText message={memory.message} textClass={textClass} />
+            </div>
+          );
         default:
           return (
             <div className="space-y-2">
