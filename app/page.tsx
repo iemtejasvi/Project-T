@@ -289,7 +289,7 @@ export default function Home() {
           isDesktop ? (
             <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
-            <div className="space-y-4">
+            <div>
               {recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} />)}
             </div>
           )
