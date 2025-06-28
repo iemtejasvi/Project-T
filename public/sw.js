@@ -94,23 +94,4 @@ self.addEventListener('activate', event => {
       return self.clients.claim();
     })
   );
-});
-
-// Listen for messages from the main thread to clear cache
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  
-  if (event.data && event.data.type === 'CLEAR_CACHE') {
-    event.waitUntil(
-      caches.keys().then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            return caches.delete(cacheName);
-          })
-        );
-      })
-    );
-  }
 }); 

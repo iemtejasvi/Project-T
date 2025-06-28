@@ -750,26 +750,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
                     console.log('ServiceWorker registration successful');
-                    
-                    // Check for updates silently
-                    registration.addEventListener('updatefound', () => {
-                      const newWorker = registration.installing;
-                      newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                          // Auto-update without prompting user
-                          newWorker.postMessage({type: 'SKIP_WAITING'});
-                        }
-                      });
-                    });
-                    
-                    // Handle service worker updates automatically
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                      // Only reload if it's a real update, not just registration
-                      if (registration.waiting) {
-                        window.location.reload();
-                      }
-                    });
-                    
                   }, function(err) {
                     console.log('ServiceWorker registration failed: ', err);
                   });
