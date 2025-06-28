@@ -191,7 +191,7 @@ export default function SubmitPage() {
         uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
       }
 
-      // Skip memory limit check for owner's IP (regardless of UUID)
+      // Owner exemption - skip limit check for owner IP
       if (ipData?.ip === '103.161.233.157') {
         return;
       }
@@ -259,8 +259,10 @@ export default function SubmitPage() {
 
     // Check if user has already submitted 2 memories (by IP or UUID)
     if (ipData?.ip || uuid) {
-      // Skip memory limit check for owner's IP (regardless of UUID)
-      if (ipData?.ip !== '103.161.233.157') {
+      // Owner exemption - skip limit check for owner IP
+      if (ipData?.ip === '103.161.233.157') {
+        // Skip limit check for owner
+      } else {
         const { count, error: memErr } = await supabase
           .from("memories")
           .select("*", { count: "exact" })
