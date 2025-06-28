@@ -191,6 +191,11 @@ export default function SubmitPage() {
         uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
       }
 
+      // Skip memory limit check for owner's IP (regardless of UUID)
+      if (ipData?.ip === '103.161.233.157') {
+        return;
+      }
+
       if (ipData?.ip || uuid) {
         const { count, error: memErr } = await supabase
           .from("memories")
@@ -254,19 +259,22 @@ export default function SubmitPage() {
 
     // Check if user has already submitted 2 memories (by IP or UUID)
     if (ipData?.ip || uuid) {
-      const { count, error: memErr } = await supabase
-        .from("memories")
-        .select("*", { count: "exact" })
-        .or([
-          ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-          uuid ? `uuid.eq.${uuid}` : null
-        ].filter(Boolean).join(","));
-      if (memErr) console.error("Error checking submission count:", memErr);
-      if (count && count >= 2) {
-        setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
-        setHasReachedLimit(true);
-        setIsSubmitting(false);
-        return;
+      // Skip memory limit check for owner's IP (regardless of UUID)
+      if (ipData?.ip !== '103.161.233.157') {
+        const { count, error: memErr } = await supabase
+          .from("memories")
+          .select("*", { count: "exact" })
+          .or([
+            ipData?.ip ? `ip.eq.${ipData.ip}` : null,
+            uuid ? `uuid.eq.${uuid}` : null
+          ].filter(Boolean).join(","));
+        if (memErr) console.error("Error checking submission count:", memErr);
+        if (count && count >= 2) {
+          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+          setHasReachedLimit(true);
+          setIsSubmitting(false);
+          return;
+        }
       }
     }
 
