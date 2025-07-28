@@ -4,6 +4,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
+import { FaFeatherAlt } from "react-icons/fa";
 
 interface Memory {
   id: string;
@@ -174,8 +175,23 @@ export default function Memories() {
     setSearchTerm(e.target.value);
   }, []);
 
+  const featherColor = useMemo(() => {
+    let theme = typeof window !== 'undefined' && document.documentElement.getAttribute('data-theme');
+    if (!theme) theme = 'light';
+    if (theme === 'dark') return '#F8BBD0'; // soft pink for dark
+    if (theme === 'sepia') return '#FFD700'; // gold for sepia/custom
+    return '#B39DDB'; // purple for light
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+      {/* Floating feather accents (desktop only) */}
+      <div className="hidden lg:block absolute left-[-100px] top-1/4 z-0 opacity-30 pointer-events-none select-none">
+        <FaFeatherAlt size={180} style={{ color: featherColor }} className="drop-shadow-2xl blur-[2px]" />
+      </div>
+      <div className="hidden lg:block absolute right-[-80px] bottom-1/4 z-0 opacity-20 pointer-events-none select-none rotate-[25deg]">
+        <FaFeatherAlt size={120} style={{ color: featherColor }} className="drop-shadow-2xl blur-[1.5px]" />
+      </div>
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading">Memories</h1>
