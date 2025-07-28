@@ -11,6 +11,7 @@
   background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5)) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
+  filter: blur(1px) !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
   transform: translateZ(0) !important;
@@ -46,6 +47,7 @@
     ) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
+    filter: blur(1px) !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
     transform: translateZ(0) !important;
@@ -165,6 +167,7 @@
     background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
     -webkit-background-clip: text;
     background-clip: text;
+    filter: blur(1px);
   }
 }
 
@@ -181,6 +184,7 @@
     background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
     -webkit-background-clip: text;
     background-clip: text;
+    filter: blur(1px);
   }
 }
 
@@ -197,5 +201,6 @@
     background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
     -webkit-background-clip: text;
     background-clip: text;
+    filter: blur(1px);
   }
 } 
