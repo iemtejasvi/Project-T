@@ -41,7 +41,6 @@ const BleedingText: React.FC<BleedingTextProps> = ({ message, textClass }) => {
           color: '#ff0000',
           WebkitFontSmoothing: 'antialiased',
           MozOsxFontSmoothing: 'grayscale',
-          textRendering: 'optimizeLegibility',
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden'
         }}
