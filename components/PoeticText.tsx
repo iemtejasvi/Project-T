@@ -1,5 +1,12 @@
 "use client";
 import React, { useEffect, useRef } from 'react';
+import { Pacifico } from 'next/font/google';
+
+const pacifico = Pacifico({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 interface PoeticTextProps {
   message: string;
@@ -29,7 +36,7 @@ const PoeticText: React.FC<PoeticTextProps> = ({ message, textClass, effectiveCo
 
   return (
     <div className="poetic-text pl-2 pr-[0.05rem] sm:pl-2 sm:pr-[0.05rem] antialiased space-y-2">
-      <p className={textClass} ref={containerRef}>
+      <p className={`${textClass} ${pacifico.className}`} ref={containerRef}>
         {message.split(' ').map((word, wordIdx) => (
           <span key={wordIdx} className="word inline-block mr-2 sm:mr-2">
             {word.split('').map((char, charIdx) => (

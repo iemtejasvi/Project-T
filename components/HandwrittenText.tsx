@@ -16,7 +16,7 @@ const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, textClass })
       : "text-lg tracking-wide leading-snug break-words hyphens-none";
   }
   return (
-    <div className="handwritten-text pl-1 pr-[0.05rem] sm:pl-1 sm:pr-[0.05rem] antialiased space-y-2">
+    <div className="handwritten-text pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased space-y-2">
       <p className={`${finalTextClass} la-belle-aurore-regular`}>{message}</p>
     </div>
   );
