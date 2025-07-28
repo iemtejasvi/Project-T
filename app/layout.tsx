@@ -1,5 +1,6 @@
 import React from 'react';
 import "./globals.css";
+import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 
