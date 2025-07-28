@@ -47,6 +47,7 @@
     ) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
+    filter: blur(1px) !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
     transform: translateZ(0) !important;

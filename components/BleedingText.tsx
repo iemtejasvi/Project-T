@@ -36,7 +36,7 @@ const BleedingText: React.FC<BleedingTextProps> = ({ message, textClass }) => {
         className={textClass} 
         style={{
           filter: 'url(#cracked)',
-          textShadow: '0 0 0.7px, 0 0 1.1px, 0 0 1.1px',
+          textShadow: '0 0 1px, 0 0 2px',
           fontWeight: 'bold',
           color: '#ff0000'
         }}
