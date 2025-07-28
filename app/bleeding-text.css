@@ -1,25 +1,16 @@
-/* Cracked effect SVG filter */
-.bleeding-text-container {
-  position: relative;
-  overflow: hidden;
-}
-
-.bleeding-text-container svg {
-  position: absolute;
-  top: -999em;
-}
-
-.bleeding-text-container filter {
-  color-interpolation-filters: sRGB;
-}
-
 .bleeding-text {
   font-family: 'Permanent Marker', cursive !important;
-  color: red !important;
-  text-shadow: 0 0 0.7px, 0 0 1.1px, 0 0 1.1px !important;
-  font-weight: bold !important;
-  text-align: center !important;
-  filter: url(#cracked) !important;
+  color: var(--accent) !important;
+  text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+    0 0 0.1em rgb(0%, 100%, 0%),
+    0 0 0.2em rgb(100%, 10%, 10%),
+    0 0 0.3em rgb(100%, 0%, 0%),
+    0 0 0.4em rgb(0%, 0%, 100%),
+    0 0 0.5em rgba(255, 0, 0, 0.5) !important;
+  animation: pulse 2s infinite !important;
+  background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
   transform: translateZ(0) !important;
@@ -29,21 +20,32 @@
   line-height: 1.4 !important;
   letter-spacing: 0.05em !important;
   text-rendering: optimizeLegibility !important;
+  -webkit-text-stroke: 0.5px rgba(255, 0, 0, 0.3) !important;
   mix-blend-mode: multiply !important;
-  overflow-wrap: break-word !important;
-  word-wrap: break-word !important;
-  max-width: 100% !important;
 }
 
 /* Mobile specific styles for Permanent Marker font - EXTREME VERSION */
 @media (max-width: 768px) {
   .bleeding-text {
     font-family: 'Permanent Marker', cursive !important;
-    color: red !important;
-    text-shadow: 0 0 0.7px, 0 0 1.1px, 0 0 1.1px !important;
-    font-weight: bold !important;
-    text-align: center !important;
-    filter: url(#cracked) !important;
+    color: var(--accent) !important;
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%),
+      0 0 0.5em rgba(255, 0, 0, 0.5),
+      0 0 0.6em rgba(255, 0, 0, 0.6),
+      0 0 0.7em rgba(255, 0, 0, 0.7) !important;
+    animation: extremePulse 1.8s infinite !important;
+    background: linear-gradient(to bottom, 
+      transparent,
+      rgba(255, 0, 0, 0.3),
+      rgba(255, 0, 0, 0.5),
+      rgba(255, 0, 0, 0.7)
+    ) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
     transform: translateZ(0) !important;
@@ -53,64 +55,147 @@
     line-height: 1.4 !important;
     letter-spacing: 0.05em !important;
     text-rendering: optimizeLegibility !important;
+    -webkit-text-stroke: 0.8px rgba(255, 0, 0, 0.4) !important;
     mix-blend-mode: multiply !important;
-    overflow-wrap: break-word !important;
-    word-wrap: break-word !important;
-    max-width: 100% !important;
     /* Additional mobile-specific optimizations for Permanent Marker */
     transform-origin: center !important;
     will-change: transform, text-shadow !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
     transform: translate3d(0, 0, 0) !important;
     text-transform: none !important;
+    font-weight: normal !important;
     font-style: normal !important;
   }
 }
 
+@keyframes pulse {
+  0% {
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%),
+      0 0 0.5em rgba(255, 0, 0, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 0.1em rgb(0%, 0%, 100%),
+      0 0 0.2em rgb(0%, 100%, 0%),
+      0 0 0.3em rgb(100%, 10%, 10%),
+      0 0 0.4em rgb(100%, 0%, 0%),
+      0 0 0.5em rgb(0%, 0%, 100%),
+      0 0 0.6em rgba(255, 0, 0, 0.6);
+  }
+  100% {
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%),
+      0 0 0.5em rgba(255, 0, 0, 0.5);
+  }
+}
 
+@keyframes extremePulse {
+  0% {
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%),
+      0 0 0.5em rgba(255, 0, 0, 0.5),
+      0 0 0.6em rgba(255, 0, 0, 0.6),
+      0 0 0.7em rgba(255, 0, 0, 0.7);
+  }
+  50% {
+    text-shadow: 0 0 0.1em rgb(0%, 0%, 100%),
+      0 0 0.2em rgb(0%, 100%, 0%),
+      0 0 0.3em rgb(100%, 10%, 10%),
+      0 0 0.4em rgb(100%, 0%, 0%),
+      0 0 0.5em rgb(0%, 0%, 100%),
+      0 0 0.6em rgba(255, 0, 0, 0.6),
+      0 0 0.7em rgba(255, 0, 0, 0.7),
+      0 0 0.8em rgba(255, 0, 0, 0.8);
+  }
+  100% {
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%),
+      0 0 0.5em rgba(255, 0, 0, 0.5),
+      0 0 0.6em rgba(255, 0, 0, 0.6),
+      0 0 0.7em rgba(255, 0, 0, 0.7);
+  }
+}
 
-
-
-
+@keyframes mobilePulse {
+  0% {
+    text-shadow: 0 0 0.08em rgb(0%, 0%, 100%),
+      0 0 0.15em rgb(0%, 100%, 0%),
+      0 0 0.25em rgb(100%, 10%, 10%),
+      0 0 0.35em rgb(100%, 0%, 0%),
+      0 0 0.45em rgb(0%, 0%, 100%);
+  }
+  50% {
+    text-shadow: 0 0 0.12em rgb(0%, 0%, 100%),
+      0 0 0.2em rgb(0%, 100%, 0%),
+      0 0 0.3em rgb(100%, 10%, 10%),
+      0 0 0.4em rgb(100%, 0%, 0%),
+      0 0 0.5em rgb(0%, 0%, 100%);
+  }
+  100% {
+    text-shadow: 0 0 0.08em rgb(0%, 0%, 100%),
+      0 0 0.15em rgb(0%, 100%, 0%),
+      0 0 0.25em rgb(100%, 10%, 10%),
+      0 0 0.35em rgb(100%, 0%, 0%),
+      0 0 0.45em rgb(0%, 0%, 100%);
+  }
+}
 
 @media (min-width: 481px) and (max-width: 768px) {
   .bleeding-text {
     font-family: 'Architects Daughter', cursive;
-    color: red;
-    text-shadow: 0 0 0.7px, 0 0 1.1px, 0 0 1.1px;
-    font-weight: bold;
-    text-align: center;
-    filter: url(#cracked);
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    max-width: 100%;
+    color: var(--accent);
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+    animation: pulse 2s infinite;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
+    -webkit-background-clip: text;
+    background-clip: text;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .bleeding-text {
     font-family: 'Architects Daughter', cursive;
-    color: red;
-    text-shadow: 0 0 0.7px, 0 0 1.1px, 0 0 1.1px;
-    font-weight: bold;
-    text-align: center;
-    filter: url(#cracked);
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    max-width: 100%;
+    color: var(--accent);
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+    animation: pulse 2s infinite;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
+    -webkit-background-clip: text;
+    background-clip: text;
   }
 }
 
 @media (min-width: 1025px) {
   .bleeding-text {
     font-family: 'Architects Daughter', cursive;
-    color: red;
-    text-shadow: 0 0 0.7px, 0 0 1.1px, 0 0 1.1px;
-    font-weight: bold;
-    text-align: center;
-    filter: url(#cracked);
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    max-width: 100%;
+    color: var(--accent);
+    text-shadow: 0 0 0.05em rgb(0%, 0%, 100%),
+      0 0 0.1em rgb(0%, 100%, 0%),
+      0 0 0.2em rgb(100%, 10%, 10%),
+      0 0 0.3em rgb(100%, 0%, 0%),
+      0 0 0.4em rgb(0%, 0%, 100%);
+    animation: pulse 2s infinite;
+    background: linear-gradient(to bottom, transparent, rgba(255, 0, 0, 0.5));
+    -webkit-background-clip: text;
+    background-clip: text;
   }
 } 
