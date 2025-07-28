@@ -10,23 +10,23 @@ const BleedingText: React.FC<BleedingTextProps> = ({ message, textClass }) => {
     <div className="bleeding-text pl-2 pr-[0.125rem] antialiased overflow-hidden">
       <svg style={{ position: 'absolute', top: '-999em' }}>
         <filter id="cracked">
-          <feGaussianBlur stdDeviation="0.5" in="SourceGraphic" result="B" />
-          <feTurbulence result="T" numOctaves="7" seed="488" baseFrequency="0.042" />
+          <feGaussianBlur stdDeviation="0.3" in="SourceGraphic" result="B" />
+          <feTurbulence result="T" numOctaves="3" seed="488" baseFrequency="0.08" />
           <feDisplacementMap in2="T" xChannelSelector="R" yChannelSelector="G" in="T" result="D" />
           <feComposite in2="D" operator="in" in="B" result="C" />
-          <feSpecularLighting in="C" specularExponent="65" specularConstant="2" result="S" surfaceScale="2">
-            <feDistantLight azimuth="225" elevation="62" />
+          <feSpecularLighting in="C" specularExponent="40" specularConstant="1.5" result="S" surfaceScale="1">
+            <feDistantLight azimuth="225" elevation="45" />
           </feSpecularLighting>
-          <feComposite in2="C" operator="arithmetic" k1="2.5" k2="-0.5" k3="1" in="S" result="C" />
+          <feComposite in2="C" operator="arithmetic" k1="2" k2="-0.3" k3="0.8" in="S" result="C" />
           <feBlend in2="C" mode="multiply" result="A" />
-          <feColorMatrix result="fC" in="A" values="1 0 0 -1 0 1 0 1 -1 0 1 0 0 -1 0 -2 -0.5 0 5 -2" />
-          <feGaussianBlur result="B" in="fC" stdDeviation="8" />
-          <feOffset in="B" dy="2" dx="2" />
-          <feSpecularLighting specularExponent="15" specularConstant="0.8" surfaceScale="4" result="S" in="B">
-            <fePointLight z="20000" y="-10000" x="-5000" />
+          <feColorMatrix result="fC" in="A" values="1 0 0 -0.8 0 1 0 0.8 -0.8 0 1 0 0 -0.8 0 -1.5 -0.3 0 3 -1.5" />
+          <feGaussianBlur result="B" in="fC" stdDeviation="4" />
+          <feOffset in="B" dy="1" dx="1" />
+          <feSpecularLighting specularExponent="10" specularConstant="0.6" surfaceScale="2" result="S" in="B">
+            <fePointLight z="10000" y="-5000" x="-2500" />
           </feSpecularLighting>
           <feComposite in2="fC" operator="in" in="S" result="C" />
-          <feComposite in2="C" operator="arithmetic" k2="2" k3="2" in="A" result="C" />
+          <feComposite in2="C" operator="arithmetic" k2="1.5" k3="1.5" in="A" result="C" />
           <feBlend in2="C" mode="darken" />
         </filter>
       </svg>
