@@ -8,9 +8,9 @@ interface BleedingTextProps {
 const BleedingText: React.FC<BleedingTextProps> = ({ message, textClass }) => {
   return (
     <div className="bleeding-text pl-2 pr-[0.125rem] antialiased space-y-2 overflow-hidden">
-      {/* Hidden SVG filter for cracked effect */}
-      <svg style={{ position: 'absolute', left: '-9999px', width: 0, height: 0 }}>
-        <filter id="cracked">
+      {/* Hidden SVG filter for cracked effect - desktop */}
+      <svg style={{ position: 'absolute', left: '-9999px', width: 0, height: 0 }} className="hidden lg:block">
+        <filter id="cracked-desktop">
           <feGaussianBlur stdDeviation="0.5" in="SourceGraphic" result="B" />
           <feTurbulence result="T" numOctaves="7" seed="488" baseFrequency="0.042" />
           <feDisplacementMap in2="T" xChannelSelector="R" yChannelSelector="G" in="T" result="D" />
@@ -31,18 +31,22 @@ const BleedingText: React.FC<BleedingTextProps> = ({ message, textClass }) => {
           <feBlend in2="C" mode="darken" />
         </filter>
       </svg>
+
+      {/* Simplified SVG filter for mobile */}
+      <svg style={{ position: 'absolute', left: '-9999px', width: 0, height: 0 }} className="lg:hidden">
+        <filter id="cracked-mobile">
+          <feTurbulence result="T" numOctaves="3" seed="488" baseFrequency="0.08" />
+          <feDisplacementMap in2="T" xChannelSelector="R" yChannelSelector="G" in="SourceGraphic" result="D" scale="2" />
+          <feComposite in2="D" operator="in" in="SourceGraphic" />
+        </filter>
+      </svg>
       
       <p 
-        className={textClass} 
+        className={`${textClass} lg:filter-[url(#cracked-desktop)] filter-[url(#cracked-mobile)]`}
         style={{
-          filter: 'url(#cracked)',
           textShadow: '0 0 0.7px, 0 0 1.1px, 0 0 1.1px',
           fontWeight: 'bold',
-          color: '#ff0000',
-          WebkitFontSmoothing: 'antialiased',
-          MozOsxFontSmoothing: 'grayscale',
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden'
+          color: '#ff0000'
         }}
       >
         {message}
