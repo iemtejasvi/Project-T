@@ -7,7 +7,7 @@ interface BleedingTextProps {
 
 const BleedingText: React.FC<BleedingTextProps> = ({ message, textClass }) => {
   return (
-    <div className="bleeding-text pl-2 pr-[0.125rem] antialiased space-y-2 overflow-hidden">
+    <div className="bleeding-text pl-2 pr-[0.125rem] antialiased overflow-hidden">
       <svg style={{ position: 'absolute', top: '-999em' }}>
         <filter id="cracked">
           <feGaussianBlur stdDeviation="0.5" in="SourceGraphic" result="B" />
