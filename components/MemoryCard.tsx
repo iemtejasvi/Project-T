@@ -164,7 +164,7 @@ const TypewriterPrompt: React.FC = () => {
       "even forever feels too short with you",
       "i wasn’t enough, was i? not even close",
       "you moved on like i was never real",
-      "will you notice me if i erase myself".
+      "will you notice me if i erase myself."
     ],
     []
   );
