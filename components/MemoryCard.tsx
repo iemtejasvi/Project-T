@@ -7,7 +7,7 @@ import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
 import "../app/globals.css";
-import { mobileTypewriterPrompts } from './typewriterPrompts';
+import { typewriterPromptsByTag, typewriterTags } from './typewriterPrompts';
 
 interface Memory {
   id: string;
@@ -21,6 +21,7 @@ interface Memory {
   letter_style: string;
   animation?: string;
   pinned?: boolean;
+  tag?: string;
 }
 
 interface MemoryCardProps {
@@ -28,8 +29,17 @@ interface MemoryCardProps {
   detail?: boolean;
 }
 
-const TypewriterPrompt: React.FC = () => {
-  const prompts = useMemo(() => mobileTypewriterPrompts, []);
+const pickStableTag = (seed: string) => {
+  const tags = typewriterTags;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return tags[hash % tags.length];
+};
+
+const TypewriterPrompt: React.FC<{ tag: string }> = ({ tag }) => {
+  const prompts = useMemo(() => typewriterPromptsByTag[tag] || typewriterPromptsByTag["Other"], [tag]);
 
   const randomOffset = useMemo(() => Math.random() * 1000, []);
   const [currentIndex, setCurrentIndex] = useState(
@@ -399,7 +409,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               {dateStr} | {dayStr}
             </div>
             <div className="min-h-[2.5em] w-full">
-              <TypewriterPrompt />
+              <TypewriterPrompt tag={memory.tag || pickStableTag(memory.id)} />
             </div>
           </div>
           {/* BACK */}

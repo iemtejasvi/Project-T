@@ -1,137 +1,110 @@
-export const mobileTypewriterPrompts: string[] = [
-	"I wish you missed me half as much.",
-	"did i really deserve to be forgotten",
-	"your goodbye felt like mercy in disguise",
-	"how do i grieve someone still alive?",
-	"should i bite my tongue or cut it out",
-	"you never wanted love, just an audience",
-	"how silent should i stay to be enough for you?",
-	"if i vanish, will you finally smile?",
-	"how broken is just broken enough?",
-	"every version of my future still had you in it",
-	"did you ever check if i made it home?",
-	"i loved you past the point of self",
-	"your name doesn’t hurt, it just feels cheap now",
-	"would you love me if i lost my face?",
-	"i forget how to be okay without you",
-	"i’d choose you in every version of time",
-	"i’m tired of surviving pain meant for two",
-	"how soft must i walk to not leave a mark?",
-	"is there a quieter way to hurt?",
-	"i don't want to heal, i just want it to stop",
-	"you were healing, i was poison in disguise",
-	"i swear i’ll be quiet, just let me near you",
-	"was i ever more than a backup plan?",
-	"i miss you so much, it’s started to rot me",
-	"how much of me do i need to lose",
-	"i don’t hate you, you’re just beneath memory",
-	"how wrong do i become to make you feel right?",
-	"why does growing up feel like goodbye?",
-	"you were never mine, just passing through",
-	"i regret nothing but meeting you early",
-	"if i lose everything, just let me keep you",
-	"how do i grieve someone still alive?",
-	"i find you in every version of my future",
-	"how blind do i go to keep seeing you right?",
-	"your smile makes the world shut up for a second",
-	"every time you reached for me, i pulled back",
-	"is disappearing the only way to stay",
-	"i stopped writing, but you’re still the ink",
-	"if karma’s real, you’ve got a show coming",
-	"you haunt me like i invited it",
-	"i’m not sad anymore, i’m just done",
-	"i’d tear down heaven if you asked me to stay",
-	"i’m scared you were the only real thing",
-	"how deep must the missing go to reach you",
-	"how loud should i cry without making a scene?",
-	"i didn’t lose you once, i lose you daily",
-	"how are you okay? how did you move on so fast?",
-	"i’d unlearn every scar just to love you better",
-	"being near you feels like finally breathing right",
-	"i hope someone breaks you beautifully",
-	"i don’t believe in magic, but you’re close enough",
-	"okay, i’m done, please just unblock me",
-	"i still talk to you in my head like you’re listening",
-	"i don’t cry anymore, it’s just a slow dying inside",
-	"do i apologize for breathing too loud?",
-	"you love me in ways i didn’t know were possible",
-	"why do i remember faces that forgot me?",
-	"was loving you a sentence or a choice",
-	"how many parts of me should i erase to fit?",
-	"i’d break myself just to feel you again",
-	"some nights i hate you, all nights i miss you",
-	"some nights i pray for nothing to wake me",
-	"i don’t miss you, i miss who i thought you were",
-	"i’m still here, but not for long",
-	"what’s the use of being seen, unloved?",
-	"you weren’t a chapter, just a typo",
-	"what if i was born just to fade?",
-	"do i need your permission to exist?",
-	"you showed up for me, i showed up for myself",
-	"how dead inside do i need to be?",
-	"if you left, it’s because i gave you every reason",
-	"breathing hurts, but stopping feels worse",
-	"i’m tired of pretending i don’t miss you",
-	"i miss you too much to pretend i’m okay",
-	"i don’t believe in forever, but i believe in you",
-	"i hope you smile tomorrow, even if i don’t see it",
-	"you were never home, just a long detour to nowhere",
-	"do you tell them i never mattered?",
-	"losing you was the kindest thing life did",
-	"did you replace me or just move on?",
-	"it’s not even about you anymore",
-	"i didn’t deserve you, and i proved it daily",
-	"am i easier to love when i’m less",
-	"i forgot how to be without needing you",
-	"do you reread our messages or just delete?",
-	"was i just someone to pass the time?",
-	"everything reminds me, and nothing helps",
-	"i answer questions like i’m still a person",
-	"how much less of me would be easier?",
-	"you taught me how easy love is to fake",
-	"you became the addiction i pray never fades",
-	"my world bends around your existence",
-	"did i disappoint you by being myself?",
-	"don’t flatter yourself, you were never hard to lose",
-	"i hope you’re sleeping well while i carry all this",
-	"what’s left of me that still bothers you?",
-	"i love you past reason, past sense, past self",
-	"i miss you so bad it makes me hate myself",
-	"how broken should i look to make you feel whole?",
-	"do you still carry me like i carry you",
-	"do broken homes echo louder at night?",
-	"should i fold or just burn this soul?",
-	"was i just someone to pass the time?",
-	"i’d unmeet you if i could—twice",
-	"some part of me has always been waiting for you",
-	"when you smile, time forgets how to move",
-	"how many total lines? when i smile, do you still feel it?",
-	"do i only matter when i’m gone?",
-	"how invisible must i be to feel safe?",
-	"i watched you fall apart and called it love",
-	"your voice feels like home in a world that doesn’t",
-	"how long can i fake being okay?",
-	"i know you don’t care anymore, but i still do",
-	"i still wait for a text i know won’t come",
-	"can you teach me how to not exist?",
-	"which parts of me should i erase first?",
-	"am i enough if i’m nothing at all?",
-	"if the universe resets, i’ll still look for you first",
-	"when did my reflection stop looking like me?",
-	"is missing someone just self-harm in disguise?",
-	"if i were you, i’d hate me too",
-	"do you sleep better now that i’m gone?",
-	"i’d wait lifetimes just to hold this moment",
-	"every day feels like waking up wrong",
-	"your hand in mine is the only plan i need",
-	"your heart begged me to stop, and i didn’t",
-	"please just say you never loved me, so i can stop",
-	"i made you question your worth to protect my ego",
-	"how soft must i speak to stay loved?",
-	"do i only matter when i’m gone?",
-	"would you love me if i lost my face?",
-	"even forever feels too short with you",
-	"i wasn’t enough, was i? not even close",
-	"you moved on like i was never real",
-	"will you notice me if i erase myself."
-]; 
+export const typewriterTags: string[] = [
+	"Anger",
+	"Apology",
+	"Blame",
+	"Confession",
+	"Forgiveness",
+	"Friendship",
+	"Goodbye",
+	"Happiness",
+	"Healing",
+	"Heartbreak",
+	"Hope",
+	"Loneliness",
+	"Longing",
+	"Love",
+	"Nostalgia",
+	"Regret",
+	"Sadness",
+	"Self-Blame",
+	"Uncertainty",
+	"Unconditional",
+	"Other"
+];
+
+export const typewriterPromptsByTag: Record<string, string[]> = {
+	Anger: [
+		"I swallowed storms for you; you called it silence.",
+		"You broke the rules and blamed the game."
+	],
+	Apology: [
+		"If sorry had weight, I’d sink to reach you.",
+		"I hurt you trying not to lose you."
+	],
+	Blame: [
+		"You taught me to bleed and called it love.",
+		"I learned to disappear where you stood brightest."
+	],
+	Confession: [
+		"I loved you in ways I didn’t have language for.",
+		"Every version of me still chooses you first."
+	],
+	Forgiveness: [
+		"I let go of what hurt so I could hold myself.",
+		"I forgive you; I’m still learning to forgive me."
+	],
+	Friendship: [
+		"You were the quiet safety no one noticed.",
+		"Some people are home. You were the hallway light."
+	],
+	Goodbye: [
+		"I’m leaving the door unlocked, not open.",
+		"We ended softly so the echo wouldn’t."
+	],
+	Happiness: [
+		"Your laugh taught my bones how to glow.",
+		"Some days fit like your favorite sweater."
+	],
+	Healing: [
+		"I stopped bleeding where your name used to live.",
+		"I grew new rooms in places I once boarded up."
+	],
+	Heartbreak: [
+		"I held the future until it cracked in my hands.",
+		"Your absence sits where air should be."
+	],
+	Hope: [
+		"I plant tomorrows even when the sky forgets rain.",
+		"If it’s meant, it will arrive without knocking."
+	],
+	Loneliness: [
+		"I keep a chair out for conversations that never arrive.",
+		"Even my shadow leaves early on hard days."
+	],
+	Longing: [
+		"I rehearse your name in rooms you never visit.",
+		"I keep the lights on like you’re just running late."
+	],
+	Love: [
+		"You make time forget its job around me.",
+		"If I had a forever, I’d spend it in your quiet."
+	],
+	Nostalgia: [
+		"We were a photograph that never learned to fade.",
+		"I remember the weather of us better than dates."
+	],
+	Regret: [
+		"I chose the right words and said them too late.",
+		"I kept the peace and lost the truth."
+	],
+	Sadness: [
+		"Some days I’m just rain without a storm.",
+		"I miss me most when I miss you."
+	],
+	"Self-Blame": [
+		"I forgave everyone but the mirror.",
+		"If I were kinder, would I still be here alone?"
+	],
+	Uncertainty: [
+		"Maybe is a place I’ve stayed too long in.",
+		"I keep plans small so the future won’t notice me."
+	],
+	Unconditional: [
+		"There’s no version of me that doesn’t love you.",
+		"Even the distance knows it can’t erase you."
+	],
+	Other: [
+		"I don’t have a word for this, but it feels true.",
+		"Some feelings don’t fit labels; they still fit us."
+	]
+}; 

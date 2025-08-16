@@ -5,7 +5,7 @@ import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
-import { mobileTypewriterPrompts } from './typewriterPrompts';
+import { typewriterPromptsByTag, typewriterTags } from './typewriterPrompts';
 
 interface Memory {
   id: string;
@@ -20,6 +20,7 @@ interface Memory {
   animation?: string;
   pinned?: boolean;
   pinned_until?: string;
+  tag?: string;
 }
 
 interface DesktopMemoryCardProps {
@@ -113,8 +114,17 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
   }
 }
 
-const TypewriterPrompt: React.FC = () => {
-  const prompts = React.useMemo(() => mobileTypewriterPrompts, []);
+const pickStableTag = (seed: string) => {
+  const tags = typewriterTags;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return tags[hash % tags.length];
+};
+
+const TypewriterPrompt: React.FC<{ tag: string }> = ({ tag }) => {
+  const prompts = React.useMemo(() => typewriterPromptsByTag[tag] || typewriterPromptsByTag["Other"], [tag]);
   const [currentIndex, setCurrentIndex] = useState(Math.floor(Math.random() * prompts.length));
   const [displayedText, setDisplayedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -260,7 +270,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               {dateStr} | {dayStr}
             </div>
             <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)]">
-              <TypewriterPrompt />
+              <TypewriterPrompt tag={memory.tag || pickStableTag(memory.id)} />
             </div>
           </div>
           {/* BACK */}

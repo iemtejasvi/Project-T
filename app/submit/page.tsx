@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { typewriterTags } from "@/components/typewriterPrompts";
 
 interface IPData {
   ip?: string;
@@ -139,6 +140,7 @@ export default function SubmitPage() {
   const [ipData, setIpData] = useState<IPData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
+  const [tag, setTag] = useState("");
 
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
@@ -228,7 +230,7 @@ export default function SubmitPage() {
       setIsSubmitting(false);
       return;
     }
-    if (!recipient || !message) {
+    if (!recipient || !message || !tag) {
       setError("Please fill in all required fields.");
       setIsSubmitting(false);
       return;
@@ -291,6 +293,7 @@ export default function SubmitPage() {
       ip: ipData?.ip || null,
       country: ipData?.country || null,
       uuid: uuid || null,
+      tag,
     };
 
     const { error: insertErr } = await supabase
@@ -524,6 +527,21 @@ export default function SubmitPage() {
                       <option key={o.value} value={o.value}>
                         {o.label}
                       </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-serif">Select a Tag* (personalizes typewriter text)</label>
+                  <select
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                    required
+                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                  >
+                    <option value="" disabled>Select a tag</option>
+                    {typewriterTags.map((t) => (
+                      <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
                 </div>
