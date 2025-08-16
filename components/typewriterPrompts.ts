@@ -24,87 +24,261 @@ export const typewriterTags: string[] = [
 
 export const typewriterPromptsByTag: Record<string, string[]> = {
 	Anger: [
-		"I swallowed storms for you; you called it silence.",
-		"You broke the rules and blamed the game."
+		"i swallowed storms for you; you called it silence.",
+		"you broke the rules and blamed the game.",
+		"i tore myself open, you just watched.",
+		"rage was the only language you understood.",
+		"you left me burning with questions unanswered.",
+		"every bruise had your name stitched inside.",
+		"you carved wounds and called it growth.",
+		"i screamed and you called it noise.",
+		"you set the fire and begged for warmth.",
+		"i held poison thinking it was water."
 	],
 	Apology: [
-		"If sorry had weight, I’d sink to reach you.",
-		"I hurt you trying not to lose you."
+		"if sorry had weight, i’d sink to reach you.",
+		"i hurt you trying not to lose you.",
+		"forgive me for being too much and not enough.",
+		"i stitched lies where truth should have lived.",
+		"if i could, i’d rewrite every moment with care.",
+		"my silence was louder than my apologies.",
+		"i wish i said it sooner, softer, truer.",
+		"i broke us trying to hold us steady.",
+		"my hands failed you when they should’ve held.",
+		"i’m sorry for the scars i left behind."
 	],
 	Blame: [
-		"You taught me to bleed and called it love.",
-		"I learned to disappear where you stood brightest."
+		"you taught me to bleed and called it love.",
+		"i learned to disappear where you stood brightest.",
+		"you carried fire, i carried ash.",
+		"your lies wore honesty’s skin.",
+		"you built cages and named them homes.",
+		"i held your sins like they were mine.",
+		"you made leaving look like salvation.",
+		"i blamed storms but it was your hands.",
+		"you smiled while cutting me open.",
+		"the mess you left still answers to me."
 	],
 	Confession: [
-		"I loved you in ways I didn’t have language for.",
-		"Every version of me still chooses you first."
+		"i loved you in ways i didn’t have language for.",
+		"every version of me still chooses you first.",
+		"i never stopped writing your name inside prayers.",
+		"you’re the secret i couldn’t keep quiet.",
+		"my chest aches with truths unspoken.",
+		"i dream of us in borrowed futures.",
+		"you were the wish i never admitted.",
+		"i loved you in silence more than in words.",
+		"every path i took circled back to you.",
+		"i still save you seats in my mind."
 	],
 	Forgiveness: [
-		"I let go of what hurt so I could hold myself.",
-		"I forgive you; I’m still learning to forgive me."
+		"i let go of what hurt so i could hold myself.",
+		"i forgive you; i’m still learning to forgive me.",
+		"some wounds heal once you stop pressing them.",
+		"i chose peace even when rage was easier.",
+		"forgiveness tastes bitter before it tastes free.",
+		"i release you so i can breathe again.",
+		"letting go was the hardest kindness.",
+		"i forgive you quietly, without returning.",
+		"my freedom began where blame ended.",
+		"peace isn’t forgetting; it’s forgiving anyway."
 	],
 	Friendship: [
-		"You were the quiet safety no one noticed.",
-		"Some people are home. You were the hallway light."
+		"you were the quiet safety no one noticed.",
+		"some people are home. you were the hallway light.",
+		"laughter with you made time softer.",
+		"you held my secrets like fragile glass.",
+		"we built worlds in conversations no one else heard.",
+		"friendship with you felt like breathing easier.",
+		"you stayed when storms didn’t.",
+		"our memories still feel like warm rooms.",
+		"you were the easy kind of love.",
+		"some friends leave, you carved roots."
 	],
 	Goodbye: [
-		"I’m leaving the door unlocked, not open.",
-		"We ended softly so the echo wouldn’t."
+		"i’m leaving the door unlocked, not open.",
+		"we ended softly so the noise wouldn’t.",
+		"goodbye lingered longer than love did.",
+		"our last glance held a thousand endings.",
+		"walking away hurt less than staying still.",
+		"i packed our memories but left the future.",
+		"our last word still echoes in silence.",
+		"leaving you was like cutting breath.",
+		"our goodbye was written before our hello.",
+		"farewell tasted like ashes on my tongue."
 	],
 	Happiness: [
-		"Your laugh taught my bones how to glow.",
-		"Some days fit like your favorite sweater."
+		"your laugh taught my bones how to glow.",
+		"some days fit like your favorite sweater.",
+		"joy spilled quietly, unnoticed but real.",
+		"your presence stitched smiles into me.",
+		"i carried sunshine in your name.",
+		"your happiness rubbed off like perfume.",
+		"small moments built the loudest joys.",
+		"love looked easiest in laughter.",
+		"you painted light where it was dim.",
+		"my heart danced without reason."
 	],
 	Healing: [
-		"I stopped bleeding where your name used to live.",
-		"I grew new rooms in places I once boarded up."
+		"i stopped bleeding where your name used to live.",
+		"i grew new rooms in places i once boarded up.",
+		"healing was slow, but it came anyway.",
+		"my scars became maps, not prisons.",
+		"every sunrise stitched me back together.",
+		"i chose to stay even when i ached.",
+		"healing felt like breathing underwater, then air.",
+		"i learned softness wasn’t weakness.",
+		"i found myself in quiet moments of repair.",
+		"recovery is messy, but it’s mine."
 	],
 	Heartbreak: [
-		"I held the future until it cracked in my hands.",
-		"Your absence sits where air should be."
+		"i held the future until it cracked in my hands.",
+		"your absence sits where air should be.",
+		"our story ended mid-sentence.",
+		"i sleep next to ghosts of us.",
+		"you left and time limps still.",
+		"my chest caves where you belonged.",
+		"the love letters now cut me open.",
+		"your silence rings louder than screams.",
+		"our love drowned before learning to swim.",
+		"i loved, you left, i break daily."
 	],
 	Hope: [
-		"I plant tomorrows even when the sky forgets rain.",
-		"If it’s meant, it will arrive without knocking."
+		"i plant tomorrows even when the sky forgets rain.",
+		"if it’s meant, it will arrive without knocking.",
+		"hope clings even when i loosen grip.",
+		"i still believe in gentle arrivals.",
+		"the future still whispers kindness.",
+		"faith survives where reason collapses.",
+		"i plant seeds, not knowing if they’ll bloom.",
+		"hope hides in smallest corners.",
+		"one day will look softer than today.",
+		"tomorrow still feels possible."
 	],
 	Loneliness: [
-		"I keep a chair out for conversations that never arrive.",
-		"Even my shadow leaves early on hard days."
+		"i keep a chair out for conversations that never arrive.",
+		"even the walls don’t answer anymore.",
+		"emptiness walks me to sleep.",
+		"the quiet tastes heavier at night.",
+		"solitude presses harder than hands.",
+		"rooms grow bigger when you’re gone.",
+		"loneliness teaches its lessons slowly.",
+		"i breathe into silence hoping it replies.",
+		"my phone lights up with no one.",
+		"the nights drag without meaning."
 	],
 	Longing: [
-		"I rehearse your name in rooms you never visit.",
-		"I keep the lights on like you’re just running late."
+		"i rehearse your name in rooms you never visit.",
+		"i keep the lights on like you’re just running late.",
+		"every thought still bends toward you.",
+		"i hunger for what never returns.",
+		"your absence writes itself across my days.",
+		"my arms ache with emptiness.",
+		"i still wait where you last stood.",
+		"longing tastes like unfinished sentences.",
+		"i miss futures that never existed.",
+		"waiting has become my second skin."
 	],
 	Love: [
-		"You make time forget its job around me.",
-		"If I had a forever, I’d spend it in your quiet."
+		"you make time forget its job around me.",
+		"if i had a forever, i’d spend it in your quiet.",
+		"love found me when i wasn’t looking.",
+		"you soften the weight of being alive.",
+		"i fall for you in every lifetime.",
+		"my heart chose you without asking permission.",
+		"you are the pause i needed.",
+		"with you, even silence feels full.",
+		"you turned ordinary into magic.",
+		"i love you in languages i don’t speak."
 	],
 	Nostalgia: [
-		"We were a photograph that never learned to fade.",
-		"I remember the weather of us better than dates."
+		"we were a photograph that never learned to fade.",
+		"i remember the weather of us better than dates.",
+		"our laughter still hangs in the air.",
+		"old songs bring you back too quickly.",
+		"my heart aches in past tense.",
+		"memories blur but feelings sharpen.",
+		"nostalgia stings like honey and glass.",
+		"i miss the us that no longer exists.",
+		"the past feels safer than the now.",
+		"some days, yesterday feels closer than today."
 	],
 	Regret: [
-		"I chose the right words and said them too late.",
-		"I kept the peace and lost the truth."
+		"i chose the right words and said them too late.",
+		"i kept the peace and lost the truth.",
+		"regret chews quietly, never full.",
+		"i should’ve stayed when i left.",
+		"my silence cost me everything.",
+		"truth unsaid feels heavier each day.",
+		"i regret not fighting harder for us.",
+		"if only i’d seen sooner.",
+		"the past is full of wrong doors.",
+		"i still ache at what i didn’t do."
 	],
 	Sadness: [
-		"Some days I’m just rain without a storm.",
-		"I miss me most when I miss you."
+		"some days i’m just rain without a storm.",
+		"i miss me most when i miss you.",
+		"tears stain even when unseen.",
+		"grief sits heavy in morning light.",
+		"the ache lingers, uninvited but constant.",
+		"i cry where no one listens.",
+		"my chest feels like collapsing sky.",
+		"sadness grows in silence.",
+		"loss hangs like smoke.",
+		"my smile doesn’t reach inside."
 	],
 	"Self-Blame": [
-		"I forgave everyone but the mirror.",
-		"If I were kinder, would I still be here alone?"
+		"i forgave everyone but the mirror.",
+		"if i were kinder, would i still be here alone?",
+		"my mistakes taste bitter daily.",
+		"i broke myself before anyone else could.",
+		"i wear guilt like clothing.",
+		"blame carves me sharper each day.",
+		"i ruined what could’ve been whole.",
+		"my choices haunt like old scars.",
+		"i dug my own collapse.",
+		"i let myself down first."
 	],
 	Uncertainty: [
-		"Maybe is a place I’ve stayed too long in.",
-		"I keep plans small so the future won’t notice me."
+		"maybe is a place i’ve stayed too long in.",
+		"i keep plans small so the future won’t notice me.",
+		"uncertainty feels like endless waiting rooms.",
+		"tomorrow doesn’t answer when i ask.",
+		"i wander through possibilities that never land.",
+		"not knowing weighs heavier than truth.",
+		"i tiptoe around my own future.",
+		"uncertainty blurs even the surest steps.",
+		"maybe tastes like delay.",
+		"i wait without knowing what for."
 	],
 	Unconditional: [
-		"There’s no version of me that doesn’t love you.",
-		"Even the distance knows it can’t erase you."
+		"there’s no version of me that doesn’t love you.",
+		"even the distance knows it can’t erase you.",
+		"my love doesn’t ask conditions.",
+		"i choose you every timeline.",
+		"forever isn’t enough with you.",
+		"you are my constant.",
+		"no ending stops my love.",
+		"i’d stay even if you left.",
+		"every heartbeat still finds you.",
+		"i love without limits."
 	],
 	Other: [
-		"I don’t have a word for this, but it feels true.",
-		"Some feelings don’t fit labels; they still fit us."
+		"i don’t have a word for this, but it feels true.",
+		"some feelings don’t fit labels; they still fit us.",
+		"hold and hope that we’ll find our way back in the end",
+		"we’ll find our way back in the end",
+		"only if i could hold you, tell you sorry i love you",
+		"may my eyes never recognise you ever again",
+		"do you think i’ve forgotten ?",
+		"may my hands never shiver when i see you",
+		"may you never cross my mind ever again",
+		"may my heart never yarn for you again",
+		"how small would you like me ?",
+		"i hope it rains the day we meet again",
+		"oh btw, you had the prettiest smile",
+		"don’t leave",
+		"it’s getting cold outside",
+		"i’m forgetting about you"
 	]
-}; 
+};
