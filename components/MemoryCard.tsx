@@ -7,7 +7,7 @@ import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
 import "../app/globals.css";
-import { typewriterTags, typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
+import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
 interface Memory {
   id: string;

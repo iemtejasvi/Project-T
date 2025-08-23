@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import { typewriterTags, typewriterSubTags, typewriterPromptsBySubTag } from "@/components/typewriterPrompts";
+import { typewriterTags, typewriterSubTags } from "@/components/typewriterPrompts";
 
 interface IPData {
   ip?: string;

@@ -5,7 +5,7 @@ import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
-import { typewriterTags, typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
+import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
 interface Memory {
   id: string;
