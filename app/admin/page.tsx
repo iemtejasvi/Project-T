@@ -17,6 +17,8 @@ interface Memory {
   pinned?: boolean;
   pinned_until?: string;
   uuid?: string;
+  tag?: string;
+  sub_tag?: string;
 }
 
 type Tab = "pending" | "approved" | "banned" | "announcements";

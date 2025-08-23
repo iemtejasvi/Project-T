@@ -7,7 +7,7 @@ import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
 import "../app/globals.css";
-import { typewriterPromptsByTag, typewriterTags } from './typewriterPrompts';
+import { typewriterTags, typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
 interface Memory {
   id: string;
@@ -22,6 +22,7 @@ interface Memory {
   animation?: string;
   pinned?: boolean;
   tag?: string;
+  sub_tag?: string;
 }
 
 interface MemoryCardProps {
@@ -38,8 +39,26 @@ const pickStableTag = (seed: string) => {
   return tags[hash % tags.length];
 };
 
-const TypewriterPrompt: React.FC<{ tag: string }> = ({ tag }) => {
-  const prompts = useMemo(() => typewriterPromptsByTag[tag] || typewriterPromptsByTag["Other"], [tag]);
+const TypewriterPrompt: React.FC<{ tag: string; subTag?: string }> = ({ tag, subTag }) => {
+  const prompts = useMemo(() => {
+    // If we have a specific subTag (short tag), use prompts from that subcategory
+    if (subTag && subTag !== "undefined" && subTag !== "null" && typewriterPromptsBySubTag[subTag]) {
+      return typewriterPromptsBySubTag[subTag];
+    }
+    
+    // Fallback to all prompts from the main tag
+    if (!tag || !typewriterSubTags[tag]) {
+      return typewriterPromptsBySubTag["other_feeling"] || [];
+    }
+    
+    const allPrompts: string[] = [];
+    typewriterSubTags[tag].forEach(subTag => {
+      const subPrompts = typewriterPromptsBySubTag[subTag] || [];
+      allPrompts.push(...subPrompts);
+    });
+    
+    return allPrompts.length > 0 ? allPrompts : typewriterPromptsBySubTag["other_feeling"] || [];
+  }, [tag, subTag]);
 
   const randomOffset = useMemo(() => Math.random() * 1000, []);
   const [currentIndex, setCurrentIndex] = useState(
@@ -409,7 +428,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               {dateStr} | {dayStr}
             </div>
             <div className="min-h-[2.5em] w-full">
-              <TypewriterPrompt tag={memory.tag || pickStableTag(memory.id)} />
+                              <TypewriterPrompt tag={memory.tag || pickStableTag(memory.id)} subTag={memory.sub_tag} />
             </div>
           </div>
           {/* BACK */}

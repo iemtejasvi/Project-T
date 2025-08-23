@@ -5,7 +5,7 @@ import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
 import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
-import { typewriterPromptsByTag, typewriterTags } from './typewriterPrompts';
+import { typewriterTags, typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
 interface Memory {
   id: string;
@@ -21,6 +21,7 @@ interface Memory {
   pinned?: boolean;
   pinned_until?: string;
   tag?: string;
+  sub_tag?: string;
 }
 
 interface DesktopMemoryCardProps {
@@ -123,13 +124,36 @@ const pickStableTag = (seed: string) => {
   return tags[hash % tags.length];
 };
 
-const TypewriterPrompt: React.FC<{ tag: string }> = ({ tag }) => {
-  const prompts = React.useMemo(() => typewriterPromptsByTag[tag] || typewriterPromptsByTag["Other"], [tag]);
+const TypewriterPrompt: React.FC<{ tag: string; subTag?: string }> = ({ tag, subTag }) => {
+  // Get all prompts for the given tag by combining all subcategory prompts
+  const prompts = React.useMemo(() => {
+    // If we have a specific subTag (short tag), use prompts from that subcategory
+    if (subTag && subTag !== "undefined" && subTag !== "null" && typewriterPromptsBySubTag[subTag]) {
+      return typewriterPromptsBySubTag[subTag];
+    }
+    
+    // Fallback to all prompts from the main tag
+    if (!tag || !typewriterSubTags[tag]) {
+      return typewriterPromptsBySubTag["other_feeling"] || [];
+    }
+    
+    const allPrompts: string[] = [];
+    typewriterSubTags[tag].forEach(subTag => {
+      const subPrompts = typewriterPromptsBySubTag[subTag] || [];
+      allPrompts.push(...subPrompts);
+    });
+    
+    return allPrompts.length > 0 ? allPrompts : typewriterPromptsBySubTag["other_feeling"] || [];
+  }, [tag, subTag]);
+  
   const [currentIndex, setCurrentIndex] = useState(Math.floor(Math.random() * prompts.length));
   const [displayedText, setDisplayedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
+  
   useEffect(() => {
+    if (prompts.length === 0) return;
+    
     const currentPrompt = prompts[currentIndex];
     const delay = isDeleting ? 50 : 100;
     const timeout = setTimeout(() => {
@@ -153,6 +177,9 @@ const TypewriterPrompt: React.FC<{ tag: string }> = ({ tag }) => {
     }, delay);
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, currentIndex, prompts]);
+  
+  if (prompts.length === 0) return null;
+  
   return (
     <div className="min-h-[2rem] overflow-hidden text-center text-xl text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
       {displayedText}
@@ -270,7 +297,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               {dateStr} | {dayStr}
             </div>
             <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)]">
-              <TypewriterPrompt tag={memory.tag || pickStableTag(memory.id)} />
+                              <TypewriterPrompt tag={memory.tag || pickStableTag(memory.id)} subTag={memory.sub_tag} />
             </div>
           </div>
           {/* BACK */}

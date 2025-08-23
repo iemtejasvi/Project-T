@@ -3,6 +3,9 @@ import { useEffect } from "react";
 
 export default function ThemeSwitcher() {
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     const hour = new Date().getHours();
     let theme = "morning";
     if (hour >= 12 && hour < 18) {

@@ -16,6 +16,8 @@ interface Memory {
   full_bg: boolean;
   letter_style: string;
   animation?: string;
+  tag?: string;
+  sub_tag?: string;
 }
 
 export default function MemoryDetail() {

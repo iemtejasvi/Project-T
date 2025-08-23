@@ -21,6 +21,8 @@ interface Memory {
   animation?: string;
   pinned?: boolean;
   pinned_until?: string;
+  tag?: string;
+  sub_tag?: string;
 }
 
 export default function Home() {

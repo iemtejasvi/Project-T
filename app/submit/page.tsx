@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import { typewriterTags } from "@/components/typewriterPrompts";
+import { typewriterTags, typewriterSubTags, typewriterPromptsBySubTag } from "@/components/typewriterPrompts";
 
 interface IPData {
   ip?: string;
@@ -141,6 +141,7 @@ export default function SubmitPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
   const [tag, setTag] = useState("");
+  const [subTag, setSubTag] = useState("");
 
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
@@ -220,6 +221,308 @@ export default function SubmitPage() {
     }
   }, [ipData]);
 
+  // Add getSubTags function
+  // Get sub-tags for a main tag (convert short tags to display text)
+  const getSubTags = (mainTag: string) => {
+    const shortTags = typewriterSubTags[mainTag] || [];
+    
+    // Convert short tags to display text
+    const shortToDisplayMap: Record<string, string> = {
+      // Love
+      "love_you": "i love you",
+      "dont_love_anymore": "i don't love you anymore",
+      "love_cant_be_together": "i love you but can't be with you",
+      "still_love": "i still love you",
+      "never_loved": "i never loved you",
+      
+      // Hate
+      "hate_you": "i hate you",
+      "hate_myself": "i hate myself",
+      "hate_what_we_became": "i hate what we became",
+      "dont_hate_anymore": "i don't hate you anymore",
+      
+      // Apology
+      "im_sorry": "i'm sorry",
+      "you_should_be_sorry": "you should be sorry",
+      "both_need_apologize": "we both need to apologize",
+      "im_not_sorry": "i'm not sorry",
+      
+      // Blame
+      "blame_you": "i blame you",
+      "blame_myself": "i blame myself",
+      "both_to_blame": "we're both to blame",
+      "no_one_to_blame": "no one's to blame",
+      
+      // Confession
+      "have_to_tell_you": "i have to tell you",
+      "keep_secret": "i'll keep this secret",
+      "i_was_wrong": "i was wrong",
+      "you_were_wrong": "you were wrong",
+      "both_made_mistakes": "we both made mistakes",
+      
+      // Fear
+      "afraid_losing_you": "i'm afraid of losing you",
+      "afraid_commitment": "i'm afraid of commitment",
+      "afraid_future": "i'm afraid of the future",
+      "not_afraid_anymore": "i'm not afraid anymore",
+      
+      // Forgiveness
+      "asking_forgiveness": "i'm asking for forgiveness",
+      "forgive_you": "i forgive you",
+      "cant_forgive": "i can't forgive you",
+      "forgive_myself": "i forgive myself",
+      "need_forgive_each_other": "we need to forgive each other",
+      
+      // Goodbye
+      "goodbye_forever": "goodbye forever",
+      "see_you_again": "see you again",
+      "im_leaving": "i'm leaving",
+      "dont_leave": "don't leave",
+      "need_part_ways": "we need to part ways",
+      
+      // Gratitude
+      "thank_everything": "thank you for everything",
+      "thank_lessons": "thank you for the lessons",
+      "grateful_us": "i'm grateful for us",
+      "grateful_pain": "i'm grateful for the pain",
+      
+      // Guilt
+      "feel_guilty": "i feel guilty",
+      "innocent": "i'm innocent",
+      "you_should_guilty": "you should feel guilty",
+      "no_one_guilty": "no one's guilty",
+      "both_guilty": "we both feel guilty",
+      
+      // Heartbreak
+      "you_broke_heart": "you broke my heart",
+      "broke_own_heart": "i broke my own heart",
+      "broke_each_other": "we broke each other",
+      "heart_healing": "my heart is healing",
+      
+      // Jealousy
+      "jealous_of_you": "i'm jealous of you",
+      "jealous_of_others": "i'm jealous of others",
+      "you_jealous_of_me": "you're jealous of me",
+      "not_jealous_anymore": "i'm not jealous anymore",
+      
+      // Missing
+      "miss_you": "i miss you",
+      "dont_miss_anymore": "i don't miss you anymore",
+      "miss_who_you_were": "i miss who you were",
+      "miss_who_we_were": "i miss who we were",
+      "miss_myself": "i miss myself",
+      
+      // Regret
+      "regret_everything": "i regret everything",
+      "no_regrets": "i have no regrets",
+      "regret_not_trying": "i regret not trying harder",
+      "regret_meeting": "i regret meeting you",
+      "both_have_regrets": "we both have regrets",
+      
+      // Sadness
+      "so_sad": "i'm so sad",
+      "finding_happiness": "i'm finding happiness",
+      "sad_what_lost": "i'm sad for what we lost",
+      "sad_for_you": "i'm sad for you",
+      "sad_for_me": "i'm sad for me",
+      
+      // Shame
+      "ashamed": "i'm ashamed",
+      "proud_myself": "i'm proud of myself",
+      "you_should_ashamed": "you should be ashamed",
+      "both_should_ashamed": "we should both be ashamed",
+      "no_one_ashamed": "no one should be ashamed",
+      
+      // Thank You
+      "thank_you": "thank you",
+      "no_thanks_needed": "no thanks needed",
+      "thank_pain": "thank you for the pain",
+      "thank_memories": "thank you for the memories",
+      "thank_leaving": "thank you for leaving",
+      
+      // Closure
+      "need_answers": "i need answers",
+      "dont_need_answers": "i don't need answers",
+      "need_understand": "i need to understand",
+      "need_move_on": "i need to move on",
+      "need_closure": "we need closure",
+      "never_got_closure": "i never got closure",
+      "seeking_closure": "i'm seeking closure",
+      "closure_impossible": "closure feels impossible",
+      "found_own_closure": "i found my own closure",
+      
+      // Anger
+      "angry_at_you": "i'm angry at you",
+      "angry_at_myself": "i'm angry at myself",
+      "angry_at_situation": "i'm angry at the situation",
+      "not_angry_anymore": "i'm not angry anymore",
+      
+      // Other
+      "other_feeling": "other feeling",
+      "different_emotion": "different emotion",
+      "something_else": "something else",
+      "cant_explain": "i can't explain",
+      "complicated": "it's complicated"
+    };
+    
+    return shortTags.map(shortTag => shortToDisplayMap[shortTag] || shortTag);
+  };
+
+  // Get prompts for selected subcategory
+  const getPromptsForSubTag = (subTag: string) => {
+    return typewriterPromptsBySubTag[subTag] || [];
+  };
+
+  // Convert display text to short tag
+  const getShortTag = (displayText: string, mainTag: string) => {
+    // Create a direct mapping from display text to short tag
+    const displayToShortMap: Record<string, string> = {
+      // Love
+      "i love you": "love_you",
+      "i don't love you anymore": "dont_love_anymore",
+      "i love you but can't be with you": "love_cant_be_together",
+      "i still love you": "still_love",
+      "i never loved you": "never_loved",
+      
+      // Hate
+      "i hate you": "hate_you",
+      "i hate myself": "hate_myself",
+      "i hate what we became": "hate_what_we_became",
+      "i don't hate you anymore": "dont_hate_anymore",
+      
+      // Apology
+      "i'm sorry": "im_sorry",
+      "you should be sorry": "you_should_be_sorry",
+      "we both need to apologize": "both_need_apologize",
+      "i'm not sorry": "im_not_sorry",
+      
+      // Blame
+      "i blame you": "blame_you",
+      "i blame myself": "blame_myself",
+      "we're both to blame": "both_to_blame",
+      "no one's to blame": "no_one_to_blame",
+      
+      // Confession
+      "i have to tell you": "have_to_tell_you",
+      "i'll keep this secret": "keep_secret",
+      "i was wrong": "i_was_wrong",
+      "you were wrong": "you_were_wrong",
+      "we both made mistakes": "both_made_mistakes",
+      
+      // Fear
+      "i'm afraid of losing you": "afraid_losing_you",
+      "i'm afraid of commitment": "afraid_commitment",
+      "i'm afraid of the future": "afraid_future",
+      "i'm not afraid anymore": "not_afraid_anymore",
+      
+      // Forgiveness
+      "i'm asking for forgiveness": "asking_forgiveness",
+      "i forgive you": "forgive_you",
+      "i can't forgive you": "cant_forgive",
+      "i forgive myself": "forgive_myself",
+      "we need to forgive each other": "need_forgive_each_other",
+      
+      // Goodbye
+      "goodbye forever": "goodbye_forever",
+      "see you again": "see_you_again",
+      "i'm leaving": "im_leaving",
+      "don't leave": "dont_leave",
+      "we need to part ways": "need_part_ways",
+      
+      // Gratitude
+      "thank you for everything": "thank_everything",
+      "thank you for the lessons": "thank_lessons",
+      "i'm grateful for us": "grateful_us",
+      "i'm grateful for the pain": "grateful_pain",
+      
+      // Guilt
+      "i feel guilty": "feel_guilty",
+      "i'm innocent": "innocent",
+      "you should feel guilty": "you_should_guilty",
+      "no one's guilty": "no_one_guilty",
+      "we both feel guilty": "both_guilty",
+      
+      // Heartbreak
+      "you broke my heart": "you_broke_heart",
+      "i broke my own heart": "broke_own_heart",
+      "we broke each other": "broke_each_other",
+      "my heart is healing": "heart_healing",
+      
+      // Jealousy
+      "i'm jealous of you": "jealous_of_you",
+      "i'm jealous of others": "jealous_of_others",
+      "you're jealous of me": "you_jealous_of_me",
+      "i'm not jealous anymore": "not_jealous_anymore",
+      
+      // Missing
+      "i miss you": "miss_you",
+      "i don't miss you anymore": "dont_miss_anymore",
+      "i miss who you were": "miss_who_you_were",
+      "i miss who we were": "miss_who_we_were",
+      "i miss myself": "miss_myself",
+      
+      // Regret
+      "i regret everything": "regret_everything",
+      "i have no regrets": "no_regrets",
+      "i regret not trying harder": "regret_not_trying",
+      "i regret meeting you": "regret_meeting",
+      "we both have regrets": "both_have_regrets",
+      
+      // Sadness
+      "i'm so sad": "so_sad",
+      "i'm finding happiness": "finding_happiness",
+      "i'm sad for what we lost": "sad_what_lost",
+      "i'm sad for you": "sad_for_you",
+      "i'm sad for me": "sad_for_me",
+      
+      // Shame
+      "i'm ashamed": "ashamed",
+      "i'm proud of myself": "proud_myself",
+      "you should be ashamed": "you_should_ashamed",
+      "we should both be ashamed": "both_should_ashamed",
+      "no one should be ashamed": "no_one_ashamed",
+      
+      // Thank You
+      "thank you": "thank_you",
+      "no thanks needed": "no_thanks_needed",
+      "thank you for the pain": "thank_pain",
+      "thank you for the memories": "thank_memories",
+      "thank you for leaving": "thank_leaving",
+      
+      // Closure
+      "i need answers": "need_answers",
+      "i don't need answers": "dont_need_answers",
+      "i need to understand": "need_understand",
+      "i need to move on": "need_move_on",
+      "we need closure": "need_closure",
+      "i never got closure": "never_got_closure",
+      "i'm seeking closure": "seeking_closure",
+      "closure feels impossible": "closure_impossible",
+      "i found my own closure": "found_own_closure",
+      
+      // Anger
+      "i'm angry at you": "angry_at_you",
+      "i'm angry at myself": "angry_at_myself",
+      "i'm angry at the situation": "angry_at_situation",
+      "i'm not angry anymore": "not_angry_anymore",
+      
+      // Other
+      "other feeling": "other_feeling",
+      "different emotion": "different_emotion",
+      "something else": "something_else",
+      "i can't explain": "cant_explain",
+      "it's complicated": "complicated"
+    };
+    
+    console.log("Converting display text to short tag:", displayText, "→", displayToShortMap[displayText]);
+    return displayToShortMap[displayText] || displayText;
+  };
+
+  // Reset subTag when main tag changes
+  useEffect(() => {
+    setSubTag("");
+  }, [tag]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -230,8 +533,8 @@ export default function SubmitPage() {
       setIsSubmitting(false);
       return;
     }
-    if (!recipient || !message || !tag) {
-      setError("Please fill in all required fields.");
+    if (!recipient || !message || !tag || !subTag) {
+      setError("Please fill in all required fields including tag and sub-emotion.");
       setIsSubmitting(false);
       return;
     }
@@ -282,6 +585,8 @@ export default function SubmitPage() {
       }
     }
 
+    const shortTag = getShortTag(subTag, tag);
+    
     const submission = {
       recipient,
       message,
@@ -294,17 +599,82 @@ export default function SubmitPage() {
       country: ipData?.country || null,
       uuid: uuid || null,
       tag,
+      sub_tag: shortTag || null,  // Convert to short tag
     };
 
-    const { error: insertErr } = await supabase
-      .from("memories")
-      .insert([submission]);
-    if (insertErr) {
-      console.error(insertErr);
-      setError("Error submitting your memory.");
+    try {
+      console.log("=== SUBMISSION DEBUG START ===");
+      console.log("Submitting with data:", submission);
+      console.log("Submission object keys:", Object.keys(submission));
+      console.log("Tag value:", tag);
+      console.log("SubTag value:", subTag);
+      console.log("Supabase client:", supabase);
+      
+      // Validate required fields
+      if (!recipient || !message || !tag || !subTag) {
+        console.error("Missing required fields:", { recipient, message, tag, subTag });
+        setError("Missing required fields. Please check your submission.");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Test database connection first
+      console.log("Testing database connection...");
+      const { data: testData, error: testError } = await supabase
+        .from("memories")
+        .select("id")
+        .limit(1);
+      
+      console.log("Database connection test result:", { testData, testError });
+      
+      if (testError) {
+        console.error("Database connection failed:", testError);
+        setError("Database connection failed. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      console.log("Attempting to insert submission...");
+      
+      // Try a different approach - use .then() instead of await
+      const insertPromise = supabase
+        .from("memories")
+        .insert([submission])
+        .select();
+      
+      insertPromise.then((result) => {
+        console.log("=== THEN CALLBACK RESULT ===");
+        console.log("Full result:", result);
+        console.log("Result data:", result.data);
+        console.log("Result error:", result.error);
+        console.log("Result error type:", typeof result.error);
+        console.log("Result error keys:", result.error ? Object.keys(result.error) : 'No error object');
+        
+        if (result.error) {
+          console.error("Supabase insert error details:", {
+            message: result.error.message,
+            details: result.error.details,
+            hint: result.error.hint,
+            code: result.error.code,
+            fullError: result.error
+          });
+          setError(`Error submitting your memory: ${result.error.message || 'Unknown error'}`);
+          setIsSubmitting(false);
+        } else {
+          console.log("Submission successful:", result.data);
+          setSubmitted(true);
+        }
+      });
+      
+      console.log("=== SUBMISSION DEBUG END ===");
+    } catch (err) {
+      console.error("=== EXCEPTION CAUGHT ===");
+      console.error("Error type:", typeof err);
+      console.error("Error message:", err instanceof Error ? err.message : 'Unknown error');
+      console.error("Error stack:", err instanceof Error ? err.stack : 'No stack trace');
+      console.error("Full error object:", err);
+      setError("An unexpected error occurred. Please try again.");
       setIsSubmitting(false);
-    } else {
-      setSubmitted(true);
     }
   };
 
@@ -545,6 +915,25 @@ export default function SubmitPage() {
                     ))}
                   </select>
                 </div>
+
+                {tag && (
+                  <div>
+                    <label className="block font-serif">Select a Sub-Emotion*</label>
+                    <select
+                      value={subTag}
+                      onChange={(e) => setSubTag(e.target.value)}
+                      required
+                      className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                    >
+                      <option value="" disabled>Select sub-emotion</option>
+                      {getSubTags(tag).map((st) => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+
 
                 <div className="flex items-center space-x-2 lg:mt-2">
                   <input
