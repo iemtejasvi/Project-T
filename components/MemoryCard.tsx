@@ -39,25 +39,34 @@ const pickStableTag = (seed: string) => {
   return tags[hash % tags.length];
 };
 
-const TypewriterPrompt: React.FC<{ tag: string; subTag?: string }> = ({ tag, subTag }) => {
+const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, subTag }) => {
   const prompts = useMemo(() => {
     // If we have a specific subTag (short tag), use prompts from that subcategory
     if (subTag && subTag !== "undefined" && subTag !== "null" && typewriterPromptsBySubTag[subTag]) {
       return typewriterPromptsBySubTag[subTag];
     }
     
-    // Fallback to all prompts from the main tag
-    if (!tag || !typewriterSubTags[tag]) {
-      return typewriterPromptsBySubTag["other_feeling"] || [];
+    // If we have a main tag, use all prompts from that tag
+    if (tag && typewriterSubTags[tag]) {
+      const allPrompts: string[] = [];
+      typewriterSubTags[tag].forEach(subTag => {
+        const subPrompts = typewriterPromptsBySubTag[subTag] || [];
+        allPrompts.push(...subPrompts);
+      });
+      
+      return allPrompts.length > 0 ? allPrompts : typewriterPromptsBySubTag["other_feeling"] || [];
     }
     
-    const allPrompts: string[] = [];
-    typewriterSubTags[tag].forEach(subTag => {
-      const subPrompts = typewriterPromptsBySubTag[subTag] || [];
-      allPrompts.push(...subPrompts);
+    // If no tag is selected, show a mix of all categories
+    const mixedPrompts: string[] = [];
+    Object.values(typewriterPromptsBySubTag).forEach(categoryPrompts => {
+      // Take 1-2 random prompts from each category to create a diverse mix
+      const shuffled = [...categoryPrompts].sort(() => 0.5 - Math.random());
+      mixedPrompts.push(...shuffled.slice(0, Math.min(2, shuffled.length)));
     });
     
-    return allPrompts.length > 0 ? allPrompts : typewriterPromptsBySubTag["other_feeling"] || [];
+    // Shuffle the mixed prompts and limit to a reasonable number
+    return mixedPrompts.sort(() => 0.5 - Math.random()).slice(0, 20);
   }, [tag, subTag]);
 
   const randomOffset = useMemo(() => Math.random() * 1000, []);
@@ -428,7 +437,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               {dateStr} | {dayStr}
             </div>
             <div className="min-h-[2.5em] w-full">
-                              <TypewriterPrompt tag={memory.tag || pickStableTag(memory.id)} subTag={memory.sub_tag} />
+                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} />
             </div>
           </div>
           {/* BACK */}

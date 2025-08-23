@@ -533,8 +533,8 @@ export default function SubmitPage() {
       setIsSubmitting(false);
       return;
     }
-    if (!recipient || !message || !tag || !subTag) {
-      setError("Please fill in all required fields including tag and sub-emotion.");
+    if (!recipient || !message) {
+      setError("Please fill in recipient and message.");
       setIsSubmitting(false);
       return;
     }
@@ -585,7 +585,7 @@ export default function SubmitPage() {
       }
     }
 
-    const shortTag = getShortTag(subTag, tag);
+    const shortTag = tag && subTag ? getShortTag(subTag, tag) : null;
     
     const submission = {
       recipient,
@@ -598,81 +598,32 @@ export default function SubmitPage() {
       ip: ipData?.ip || null,
       country: ipData?.country || null,
       uuid: uuid || null,
-      tag,
+      tag: tag || null,
       sub_tag: shortTag || null,  // Convert to short tag
     };
 
     try {
-      console.log("=== SUBMISSION DEBUG START ===");
-      console.log("Submitting with data:", submission);
-      console.log("Submission object keys:", Object.keys(submission));
-      console.log("Tag value:", tag);
-      console.log("SubTag value:", subTag);
-      console.log("Supabase client:", supabase);
-      
       // Validate required fields
-      if (!recipient || !message || !tag || !subTag) {
-        console.error("Missing required fields:", { recipient, message, tag, subTag });
+      if (!recipient || !message) {
         setError("Missing required fields. Please check your submission.");
         setIsSubmitting(false);
         return;
       }
       
-      // Test database connection first
-      console.log("Testing database connection...");
-      const { data: testData, error: testError } = await supabase
-        .from("memories")
-        .select("id")
-        .limit(1);
-      
-      console.log("Database connection test result:", { testData, testError });
-      
-      if (testError) {
-        console.error("Database connection failed:", testError);
-        setError("Database connection failed. Please try again.");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      console.log("Attempting to insert submission...");
-      
-      // Try a different approach - use .then() instead of await
-      const insertPromise = supabase
+      const { data, error } = await supabase
         .from("memories")
         .insert([submission])
         .select();
       
-      insertPromise.then((result) => {
-        console.log("=== THEN CALLBACK RESULT ===");
-        console.log("Full result:", result);
-        console.log("Result data:", result.data);
-        console.log("Result error:", result.error);
-        console.log("Result error type:", typeof result.error);
-        console.log("Result error keys:", result.error ? Object.keys(result.error) : 'No error object');
-        
-        if (result.error) {
-          console.error("Supabase insert error details:", {
-            message: result.error.message,
-            details: result.error.details,
-            hint: result.error.hint,
-            code: result.error.code,
-            fullError: result.error
-          });
-          setError(`Error submitting your memory: ${result.error.message || 'Unknown error'}`);
-          setIsSubmitting(false);
-        } else {
-          console.log("Submission successful:", result.data);
-          setSubmitted(true);
-        }
-      });
-      
-      console.log("=== SUBMISSION DEBUG END ===");
+      if (error) {
+        console.error("Supabase insert error:", error);
+        setError(`Error submitting your memory: ${error.message || 'Unknown error'}`);
+        setIsSubmitting(false);
+      } else {
+        setSubmitted(true);
+      }
     } catch (err) {
-      console.error("=== EXCEPTION CAUGHT ===");
-      console.error("Error type:", typeof err);
-      console.error("Error message:", err instanceof Error ? err.message : 'Unknown error');
-      console.error("Error stack:", err instanceof Error ? err.stack : 'No stack trace');
-      console.error("Full error object:", err);
+      console.error("Unexpected error:", err);
       setError("An unexpected error occurred. Please try again.");
       setIsSubmitting(false);
     }
@@ -902,34 +853,42 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block font-serif">Select a Tag* (personalizes typewriter text)</label>
+                  <label className="block font-serif">Select a Tag (optional - personalizes typewriter text)</label>
                   <select
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
-                    required
                     className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
                   >
-                    <option value="" disabled>Select a tag</option>
+                    <option value="">Select a tag (or leave blank for mixed emotions)</option>
                     {typewriterTags.map((t) => (
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
+                  {!tag && (
+                    <p className="text-sm text-[var(--text)]/70 mt-1 italic">
+                      Leave blank to see a diverse mix of emotional prompts from all categories
+                    </p>
+                  )}
                 </div>
 
                 {tag && (
                   <div>
-                    <label className="block font-serif">Select a Sub-Emotion*</label>
+                    <label className="block font-serif">Select a Sub-Emotion (optional)</label>
                     <select
                       value={subTag}
                       onChange={(e) => setSubTag(e.target.value)}
-                      required
                       className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
                     >
-                      <option value="" disabled>Select sub-emotion</option>
+                      <option value="">Select sub-emotion (or leave blank for mixed)</option>
                       {getSubTags(tag).map((st) => (
                         <option key={st} value={st}>{st}</option>
                       ))}
                     </select>
+                    {!subTag && (
+                      <p className="text-sm text-[var(--text)]/70 mt-1 italic">
+                        Leave blank to see all prompts from the {tag} category
+                      </p>
+                    )}
                   </div>
                 )}
 
