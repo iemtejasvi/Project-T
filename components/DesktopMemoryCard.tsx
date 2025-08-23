@@ -115,14 +115,7 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
   }
 }
 
-const pickStableTag = (seed: string) => {
-  const tags = typewriterTags;
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-  return tags[hash % tags.length];
-};
+
 
 const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, subTag }) => {
   // Get all prompts for the given tag by combining all subcategory prompts

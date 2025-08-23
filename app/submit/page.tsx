@@ -368,13 +368,8 @@ export default function SubmitPage() {
     return shortTags.map(shortTag => shortToDisplayMap[shortTag] || shortTag);
   };
 
-  // Get prompts for selected subcategory
-  const getPromptsForSubTag = (subTag: string) => {
-    return typewriterPromptsBySubTag[subTag] || [];
-  };
-
   // Convert display text to short tag
-  const getShortTag = (displayText: string, mainTag: string) => {
+  const getShortTag = (displayText: string) => {
     // Create a direct mapping from display text to short tag
     const displayToShortMap: Record<string, string> = {
       // Love
@@ -514,7 +509,6 @@ export default function SubmitPage() {
       "it's complicated": "complicated"
     };
     
-    console.log("Converting display text to short tag:", displayText, "→", displayToShortMap[displayText]);
     return displayToShortMap[displayText] || displayText;
   };
 
@@ -585,7 +579,7 @@ export default function SubmitPage() {
       }
     }
 
-    const shortTag = tag && subTag ? getShortTag(subTag, tag) : null;
+    const shortTag = tag && subTag ? getShortTag(subTag) : null;
     
     const submission = {
       recipient,
@@ -610,7 +604,7 @@ export default function SubmitPage() {
         return;
       }
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("memories")
         .insert([submission])
         .select();
