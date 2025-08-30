@@ -313,10 +313,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       }
     }
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+      <div
         className={
           isDesktop
             ? "w-full max-w-2xl min-h-[500px] mx-auto my-16 p-16 rounded-3xl shadow-2xl border border-[var(--border)]/30 bg-[var(--card-bg)]/90 backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden"
@@ -324,26 +321,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
-        {/* Decorative background elements */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-4 left-4 w-16 h-16 border border-[var(--text)] rounded-full"></div>
-          <div className="absolute bottom-4 right-4 w-12 h-12 border border-[var(--text)] rounded-full"></div>
-          <div className="absolute top-1/2 left-8 w-8 h-8 border border-[var(--text)] transform rotate-45"></div>
-          <div className="absolute top-1/2 right-8 w-6 h-6 border border-[var(--text)] transform rotate-45"></div>
-        </div>
+
 
         {/* Header section */}
         <div className="w-full flex flex-col items-center relative z-10">
           <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             {memory.animation && memory.animation !== "none" && (
-              <motion.span 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              <span 
                 className="text-xl sm:text-2xl md:text-3xl"
                 style={{ ...arrowStyle }}
               >
                 ★
-              </motion.span>
+              </span>
             )}
             <h3 className={`${isDesktop ? "text-5xl" : "text-2xl sm:text-3xl"} font-bold text-[var(--text)] text-center leading-tight`}>
               To: {memory.recipient}
@@ -351,60 +340,39 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           </div>
           
           {memory.sender && (
-            <motion.p 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
+            <p 
               className={`${isDesktop ? "text-xl" : "text-base sm:text-lg"} italic text-[var(--text)] opacity-80 mb-3 sm:mb-4 text-center`}
             >
               From: {memory.sender}
-            </motion.p>
+            </p>
           )}
           
-          <div className="w-full max-w-md mx-auto">
-            <hr className="border-[var(--border)]/50 border-t-2 rounded-full" />
-          </div>
+          <hr className="my-2 border-[#999999] w-full" />
         </div>
 
         {/* Message section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="w-full flex-1 flex flex-col justify-center items-center my-6 sm:my-8 relative z-10"
-        >
+        <div className="w-full flex-1 flex flex-col justify-center items-center my-6 sm:my-8 relative z-10">
           <div className={`${isDesktop ? "text-4xl" : "text-2xl sm:text-3xl"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
             {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
           </div>
-        </motion.div>
+        </div>
 
         {/* Footer section */}
         <div className="w-full flex flex-col items-center relative z-10">
-          <div className="w-full max-w-md mx-auto mb-3 sm:mb-4">
-            <hr className="border-[var(--border)]/50 border-t-2 rounded-full" />
-          </div>
+          <hr className="my-2 border-[#999999] w-full" />
           
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="flex flex-col items-center gap-1 sm:gap-2"
-          >
+          <div className="flex flex-col items-center gap-1 sm:gap-2">
             <span className={`${isDesktop ? "text-lg" : "text-xs sm:text-sm"} text-[var(--text)] opacity-70 font-medium text-center`}>
               {dateStr} • {dayStr} • {timeStr}
             </span>
             <span className={`${isDesktop ? "text-base" : "text-xs"} text-[var(--text)] opacity-50 font-normal text-center capitalize`}>
               {effectiveColor} theme
             </span>
-          </motion.div>
+          </div>
         </div>
 
-        {/* Corner decorations */}
-        <div className="absolute top-6 left-6 w-3 h-3 bg-[var(--accent)] rounded-full opacity-60"></div>
-        <div className="absolute top-6 right-6 w-2 h-2 bg-[var(--accent)] rounded-full opacity-60"></div>
-        <div className="absolute bottom-6 left-6 w-2 h-2 bg-[var(--accent)] rounded-full opacity-60"></div>
-        <div className="absolute bottom-6 right-6 w-3 h-3 bg-[var(--accent)] rounded-full opacity-60"></div>
-      </motion.div>
+
+      </div>
     );
   }
 
