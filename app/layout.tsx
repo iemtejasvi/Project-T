@@ -12,7 +12,7 @@ export const viewport = {
 };
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'),
+  metadataBase: new URL('https://www.ifonlyisentthis.com'),
   title: "If Only I Sent This",
   description: "A modern archive for unsent memories and heartfelt messages.",
   keywords: [
@@ -606,25 +606,20 @@ export const metadata = {
   openGraph: {
     title: "If Only I Sent This",
     description: "A modern archive for unsent memories and heartfelt messages.",
-    url: 'https://www.ifonlyisentthis.com',
-    siteName: 'If Only I Sent This',
     images: [
       {
-        url: '/opengraph-image',
+        url: '/opengraph-image.png',
         width: 1200,
         height: 630,
         alt: 'If Only I Sent This',
       },
     ],
-    locale: 'en_US',
-    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: "If Only I Sent This",
     description: "A modern archive for unsent memories and heartfelt messages.",
-    images: ['/opengraph-image'],
-    creator: '@ifonlyisentthis',
+    images: ['/opengraph-image.png'],
   },
   alternates: {
     canonical: '/',
@@ -660,7 +655,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <meta name="description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
-
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H"></script>
         <script
           dangerouslySetInnerHTML={{
