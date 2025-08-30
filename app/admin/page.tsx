@@ -132,7 +132,17 @@ export default function AdminPanel() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const secret = params.get("secret");
-    const ADMIN_SECRET = "K9#mP2$vL";
+    const ADMIN_SECRET = "K9mP2vL8xQ";
+    
+    // Debug logging
+    console.log("Admin secret check:", { 
+      secret, 
+      ADMIN_SECRET, 
+      matches: secret === ADMIN_SECRET,
+      url: window.location.href,
+      search: window.location.search
+    });
+    
     setIsAuthorized(secret === ADMIN_SECRET);
     setAuthChecked(true);
   }, []);
