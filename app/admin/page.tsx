@@ -561,22 +561,20 @@ export default function AdminPanel() {
 
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex min-w-max border-b border-[var(--border)]">
-            {(["pending", "approved", "banned", "announcements", "maintenance"] as Tab[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setSelectedTab(tab)}
-                className={`py-2 px-3 sm:px-4 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 ${
-                  selectedTab === tab
-                    ? "border-b-2 border-blue-600 text-gray-900"
-                    : "text-gray-600"
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
+        <div className="flex justify-between border-b border-[var(--border)]">
+          {(["pending", "approved", "banned", "announcements", "maintenance"] as Tab[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setSelectedTab(tab)}
+              className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
+                selectedTab === tab
+                  ? "border-b-2 border-blue-600 text-gray-900"
+                  : "text-gray-600"
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
