@@ -375,7 +375,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           >
             <div>
               <div className="flex justify-between items-start">
-                <h3 className="text-xl font-bold text-[var(--text)]">
+                <h3 className="text-xl font-bold text-[var(--text)] break-words overflow-hidden">
                   {memory.animation && memory.animation !== "none" && (
                     <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                       ★
@@ -423,7 +423,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
                   </span>
                 )}
               </div>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)]">From: {memory.sender}</p>}
+              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden">From: {memory.sender}</p>}
               <hr className="my-2 border-[#999999]" />
             </div>
             <div className="text-xs text-[var(--text)] text-center font-normal">
