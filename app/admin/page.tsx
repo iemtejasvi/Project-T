@@ -21,7 +21,7 @@ interface Memory {
   sub_tag?: string;
 }
 
-type Tab = "pending" | "approved" | "banned" | "announcements";
+type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance";
 
 export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
@@ -42,6 +42,8 @@ export default function AdminPanel() {
   const [searchTerm, setSearchTerm] = useState("");
   const [displayCount, setDisplayCount] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState("");
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -160,7 +162,30 @@ export default function AdminPanel() {
 
   useEffect(() => {
     fetchCurrentAnnouncement();
+    fetchMaintenanceStatus();
   }, []);
+
+  const fetchMaintenanceStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("maintenance")
+        .select("is_active, message")
+        .eq("id", 1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching maintenance status:", error);
+        return;
+      }
+
+      if (data) {
+        setMaintenanceMode(data.is_active);
+        setMaintenanceMessage(data.message || "");
+      }
+    } catch (err) {
+      console.error("Unexpected error fetching maintenance status:", err);
+    }
+  };
 
   const fetchCurrentAnnouncement = async () => {
     try {
@@ -273,6 +298,52 @@ export default function AdminPanel() {
       console.error("Error removing announcement:", error);
     } else {
       setCurrentAnnouncement(null);
+    }
+  };
+
+  const toggleMaintenanceMode = async () => {
+    const password = prompt("Please enter the maintenance password:");
+    if (password !== "2000@") {
+      alert("Incorrect password. Maintenance mode toggle aborted.");
+      return;
+    }
+
+    try {
+      if (maintenanceMode) {
+        // Disable maintenance mode
+        const { error } = await supabase
+          .from("maintenance")
+          .update({ is_active: false, message: "" })
+          .eq("id", 1);
+
+        if (error) {
+          console.error("Error disabling maintenance mode:", error);
+        } else {
+          setMaintenanceMode(false);
+          setMaintenanceMessage("");
+        }
+      } else {
+        // Enable maintenance mode
+        const message = prompt("Enter maintenance message (optional):") || "Site is under maintenance. Please check back later.";
+        
+        const { error } = await supabase
+          .from("maintenance")
+          .upsert({ 
+            id: 1, 
+            is_active: true, 
+            message: message,
+            updated_at: new Date().toISOString()
+          });
+
+        if (error) {
+          console.error("Error enabling maintenance mode:", error);
+        } else {
+          setMaintenanceMode(true);
+          setMaintenanceMessage(message);
+        }
+      }
+    } catch (err) {
+      console.error("Unexpected error toggling maintenance mode:", err);
     }
   };
 
@@ -481,7 +552,7 @@ export default function AdminPanel() {
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between border-b border-[var(--border)]">
-          {(["pending", "approved", "banned", "announcements"] as Tab[]).map((tab) => (
+          {(["pending", "approved", "banned", "announcements", "maintenance"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
@@ -607,6 +678,47 @@ export default function AdminPanel() {
                 </div>
               </form>
             )}
+          </div>
+        ) : selectedTab === "maintenance" ? (
+          <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
+              <span className="text-lg sm:text-xl md:text-2xl">🔧</span>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">Maintenance Mode</h2>
+            </div>
+            <div className="space-y-3 sm:space-y-4">
+              <div className="bg-[var(--bg)] p-3 sm:p-4 md:p-6 rounded-lg border border-[var(--border)]">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm sm:text-base md:text-lg text-[var(--text)] mb-2">
+                      Current Status: <span className={`font-semibold ${maintenanceMode ? 'text-red-600' : 'text-green-600'}`}>
+                        {maintenanceMode ? 'MAINTENANCE MODE ACTIVE' : 'SITE OPERATIONAL'}
+                      </span>
+                    </p>
+                    {maintenanceMode && maintenanceMessage && (
+                      <p className="text-sm sm:text-base text-gray-600 mb-2">
+                        Message: "{maintenanceMessage}"
+                      </p>
+                    )}
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      When maintenance mode is active, all users will see a maintenance page instead of the normal site.
+                    </p>
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <button
+                      onClick={toggleMaintenanceMode}
+                      className={`px-3 sm:px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap ${
+                        maintenanceMode 
+                          ? 'bg-green-500 hover:bg-green-600 text-white' 
+                          : 'bg-red-500 hover:bg-red-600 text-white'
+                      }`}
+                    >
+                      <span>{maintenanceMode ? '🔓' : '🔒'}</span>
+                      <span>{maintenanceMode ? 'Disable Maintenance' : 'Enable Maintenance'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <>

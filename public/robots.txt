@@ -8,5 +8,6 @@ Allow: /site.webmanifest
 Allow: /mstile-*.png
 Disallow: /admin
 Disallow: /api
+Disallow: /maintenance
 
 Sitemap: https://www.ifonlyisentthis.com/sitemap.xml 
