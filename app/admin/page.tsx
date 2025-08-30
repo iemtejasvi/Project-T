@@ -132,7 +132,7 @@ export default function AdminPanel() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const secret = params.get("secret");
-    const ADMIN_SECRET = "xK9#mP2$vL8@nQ4&jR7!hF5*wE3%tY6^uI1(oA9)sD0";
+    const ADMIN_SECRET = "K9#mP2$vL";
     setIsAuthorized(secret === ADMIN_SECRET);
     setAuthChecked(true);
   }, []);
