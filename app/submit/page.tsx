@@ -922,7 +922,7 @@ export default function SubmitPage() {
 
       <footer className="bg-[var(--card-bg)] shadow-inner">
         <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          © {new Date().getFullYear()} If Only I Sent This
+          © {new Date().getFullYear()} — If Only I Sent This
         </div>
       </footer>
     </div>

@@ -854,7 +854,7 @@ export default function AdminPanel() {
       {/* Footer */}
       <footer className="bg-white/80 backdrop-blur-md shadow-lg">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-sm text-gray-600">
-          © {new Date().getFullYear()} If Only I Sent This - Admin Panel
+          © {new Date().getFullYear()} — If Only I Sent This - Admin Panel
         </div>
       </footer>
     </div>
