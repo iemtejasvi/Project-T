@@ -245,7 +245,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   };
 
   const renderMessage = (memory: Memory, forceLarge?: boolean) => {
-    const wordCount = memory.message.split(/\s+/).length;
+    const wordCount = memory.message.split(/[\s.]+/).filter(word => word.length > 0).length;
     const isShortOrExact = wordCount <= 30;
     const textClass = forceLarge
       ? "text-3xl tracking-wide leading-snug break-words hyphens-none"

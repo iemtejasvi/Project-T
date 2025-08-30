@@ -160,7 +160,7 @@ export default function SubmitPage() {
     fetchIP();
   }, []);
 
-  const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
+  const wordCount = message.trim() ? message.trim().split(/[\s.]+/).filter(word => word.length > 0).length : 0;
   const isSpecialAllowed = wordCount <= 30;
   const percent = Math.min((wordCount / 50) * 100, 100).toFixed(0);
   const overLimit = wordCount > 50;

@@ -84,7 +84,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 };
 
 function renderMessageLarge(memory: Memory, effectiveColor: string) {
-  const wordCount = memory.message.split(/\s+/).length;
+  const wordCount = memory.message.split(/[\s.]+/).filter(word => word.length > 0).length;
   const isShortOrExact = wordCount <= 30;
   const textClass = isShortOrExact
     ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
@@ -312,7 +312,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             <hr className="my-2 border-[#999999]" />
             <ScrollableMessage
               style={{
-                fontSize: memory.message.split(/\s+/).length <= 30 ? '2rem' : '1.25rem',
+                fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
                 "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                 "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
               } as React.CSSProperties}
