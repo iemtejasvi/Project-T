@@ -283,14 +283,14 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 </span>
               </span>
             )}
-            <div>
-              <h3 className={`${large ? 'text-5xl' : 'text-3xl'} font-bold text-[var(--text)] flex items-center gap-2`}>
+            <div className="pb-1">
+              <h3 className={`${large ? 'text-5xl' : 'text-3xl'} font-bold text-[var(--text)] flex items-center gap-2 leading-tight`}>
                 {memory.animation && memory.animation !== "none" && (
                   <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                     ★
                   </span>
                 )}
-                <span className="break-words overflow-hidden">To: {memory.recipient}</span>
+                <span className="break-words overflow-hidden leading-tight">To: {memory.recipient}</span>
               </h3>
               {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)] break-words overflow-hidden`}>From: {memory.sender}</p>}
               <hr className="my-2 border-[#999999]" />
