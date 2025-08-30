@@ -606,20 +606,25 @@ export const metadata = {
   openGraph: {
     title: "If Only I Sent This",
     description: "A modern archive for unsent memories and heartfelt messages.",
+    url: 'https://www.ifonlyisentthis.com',
+    siteName: 'If Only I Sent This',
     images: [
       {
-        url: '/opengraph-image.png',
+        url: '/opengraph-image',
         width: 1200,
         height: 630,
         alt: 'If Only I Sent This',
       },
     ],
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: "If Only I Sent This",
     description: "A modern archive for unsent memories and heartfelt messages.",
-    images: ['/opengraph-image.png'],
+    images: ['/opengraph-image'],
+    creator: '@ifonlyisentthis',
   },
   alternates: {
     canonical: '/',
@@ -655,15 +660,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <meta name="description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
-        <meta property="og:title" content="If Only I Sent This" />
-        <meta property="og:description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.ifonlyisentthis.com/" />
-        <meta property="og:image" content="https://www.ifonlyisentthis.com/opengraph-image.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="If Only I Sent This" />
-        <meta name="twitter:description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
-        <meta name="twitter:image" content="https://www.ifonlyisentthis.com/opengraph-image.png" />
+
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H"></script>
         <script
           dangerouslySetInnerHTML={{
