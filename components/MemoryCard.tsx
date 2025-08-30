@@ -320,7 +320,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         className={
           isDesktop
             ? "w-full max-w-2xl min-h-[500px] mx-auto my-16 p-16 rounded-3xl shadow-2xl border border-[var(--border)]/30 bg-[var(--card-bg)]/90 backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden"
-            : "w-full max-w-sm mx-auto my-8 p-8 rounded-3xl shadow-xl border border-[var(--border)]/30 bg-[var(--card-bg)]/95 backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden"
+            : "w-full max-w-md mx-auto my-8 p-6 rounded-3xl shadow-xl border border-[var(--border)]/30 bg-[var(--card-bg)]/95 backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden min-h-[400px]"
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -334,18 +334,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
         {/* Header section */}
         <div className="w-full flex flex-col items-center relative z-10">
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             {memory.animation && memory.animation !== "none" && (
               <motion.span 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                className="text-2xl sm:text-3xl"
+                className="text-xl sm:text-2xl md:text-3xl"
                 style={{ ...arrowStyle }}
               >
                 ★
               </motion.span>
             )}
-            <h3 className={`${isDesktop ? "text-5xl" : "text-3xl"} font-bold text-[var(--text)] text-center leading-tight`}>
+            <h3 className={`${isDesktop ? "text-5xl" : "text-2xl sm:text-3xl"} font-bold text-[var(--text)] text-center leading-tight`}>
               To: {memory.recipient}
             </h3>
           </div>
@@ -355,7 +355,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className={`${isDesktop ? "text-xl" : "text-lg"} italic text-[var(--text)] opacity-80 mb-4 text-center`}
+              className={`${isDesktop ? "text-xl" : "text-base sm:text-lg"} italic text-[var(--text)] opacity-80 mb-3 sm:mb-4 text-center`}
             >
               From: {memory.sender}
             </motion.p>
@@ -371,16 +371,16 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="w-full flex-1 flex flex-col justify-center items-center my-8 relative z-10"
+          className="w-full flex-1 flex flex-col justify-center items-center my-6 sm:my-8 relative z-10"
         >
-          <div className={`${isDesktop ? "text-4xl" : "text-3xl"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-4`}>
+          <div className={`${isDesktop ? "text-4xl" : "text-2xl sm:text-3xl"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
             {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
           </div>
         </motion.div>
 
         {/* Footer section */}
         <div className="w-full flex flex-col items-center relative z-10">
-          <div className="w-full max-w-md mx-auto mb-4">
+          <div className="w-full max-w-md mx-auto mb-3 sm:mb-4">
             <hr className="border-[var(--border)]/50 border-t-2 rounded-full" />
           </div>
           
@@ -388,9 +388,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.5 }}
-            className="flex flex-col items-center gap-2"
+            className="flex flex-col items-center gap-1 sm:gap-2"
           >
-            <span className={`${isDesktop ? "text-lg" : "text-sm"} text-[var(--text)] opacity-70 font-medium text-center`}>
+            <span className={`${isDesktop ? "text-lg" : "text-xs sm:text-sm"} text-[var(--text)] opacity-70 font-medium text-center`}>
               {dateStr} • {dayStr} • {timeStr}
             </span>
             <span className={`${isDesktop ? "text-base" : "text-xs"} text-[var(--text)] opacity-50 font-normal text-center capitalize`}>
