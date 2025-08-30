@@ -572,7 +572,7 @@ export default function AdminPanel() {
                   : "text-gray-600"
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === "maintenance" ? "Maint" : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
