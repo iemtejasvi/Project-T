@@ -52,7 +52,7 @@ export default function Memories() {
     const start = page * pageSize;
     const end = start + pageSize;
     return filteredMemories.slice(start, end);
-  }, [filteredMemories, page]);
+  }, [filteredMemories, page, pageSize]);
 
   const totalPages = Math.ceil(filteredMemories.length / pageSize);
   const hasPrevious = page > 0;

@@ -63,7 +63,7 @@ export default function MaintenancePage() {
           </div>
 
           {/* Main Message */}
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-[var(--text)] mb-6 md:mb-8 font-['Playfair Display']">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-[var(--text)] mb-6 md:mb-8">
             Under Maintenance
           </h1>
 
@@ -75,7 +75,7 @@ export default function MaintenancePage() {
           {/* Additional Info Card */}
           <div className="bg-[var(--card-bg)] rounded-lg p-6 md:p-8 shadow-md border border-[var(--border)] mb-8">
             <p className="text-[var(--text)] mb-4 md:mb-6 text-base md:text-lg leading-relaxed">
-              We're working hard to improve your experience. Please check back soon.
+              We&apos;re working hard to improve your experience. Please check back soon.
             </p>
             
             {/* Auto-refresh indicator */}

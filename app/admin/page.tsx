@@ -504,7 +504,7 @@ export default function AdminPanel() {
 
     const interval = setInterval(checkExpiredItems, 1000); // Check every second
     return () => clearInterval(interval);
-  }, [currentTime, hasActiveItems, selectedTab, refreshMemories]);
+  }, [currentTime, hasActiveItems, selectedTab, refreshMemories, currentAnnouncement]);
 
   // Fetch banned users when banned tab is selected
   useEffect(() => {
@@ -696,7 +696,7 @@ export default function AdminPanel() {
                     </p>
                     {maintenanceMode && maintenanceMessage && (
                       <p className="text-sm sm:text-base text-gray-600 mb-2">
-                        Message: "{maintenanceMessage}"
+                        Message: &ldquo;{maintenanceMessage}&rdquo;
                       </p>
                     )}
                     <p className="text-xs sm:text-sm text-gray-500">

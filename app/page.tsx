@@ -183,7 +183,7 @@ export default function Home() {
     return () => {
       isMounted = false;
     };
-  }, [currentTime, hasActiveItems]);
+  }, [currentTime, hasActiveItems, recentMemories]);
 
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -274,7 +274,7 @@ export default function Home() {
       <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
         <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
           {announcement ? (
-            <h2 className="text-xl sm:text-2xl font-semibold text-red-500">
+            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-red-500 leading-tight">
               📢 Announcement — {announcement}
             </h2>
           ) : (
