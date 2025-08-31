@@ -42,39 +42,26 @@ export default function UuidInitializer() {
       }
 
       // Add cache refresh on version change
-      const currentVersion = '2.1'; // Increment this when deploying
+      const currentVersion = '2.2'; // Increment this when deploying
       const storedVersion = localStorage.getItem('app_version');
       
       if (storedVersion !== currentVersion) {
-        // Clear all caches when version changes
+        // Clear all caches when version changes (async/non-blocking)
         if ('caches' in window) {
           caches.keys().then(names => {
             names.forEach(name => {
               caches.delete(name);
             });
-          });
+          }).catch(() => {}); // Silent fail
         }
         
-        // Mobile-specific cache clearing
-        if ('storage' in navigator && 'estimate' in navigator.storage) {
-          // Clear additional mobile storage
-          try {
-            localStorage.clear();
-            sessionStorage.clear();
-          } catch (e) {
-            console.log('Storage clear failed:', e);
-          }
-        }
+        // Update version immediately to prevent future checks
+        localStorage.setItem('app_version', currentVersion);
         
-        // Force hard reload for mobile browsers
-        if (storedVersion) {
-          // Add timestamp to force fresh load
-          const timestamp = Date.now();
-          const url = new URL(window.location.href);
-          url.searchParams.set('v', timestamp.toString());
-          window.location.href = url.toString();
-        } else {
-          localStorage.setItem('app_version', currentVersion);
+        // Only force reload if this is genuinely an old version (not first visit)
+        if (storedVersion && storedVersion !== currentVersion) {
+          // Use replace instead of href to prevent history entry
+          window.location.replace(window.location.href);
         }
       }
     }
