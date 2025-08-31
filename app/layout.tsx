@@ -751,7 +751,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
+                  navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function() {
                     console.log('ServiceWorker registration successful');
                   }, function(err) {
                     console.log('ServiceWorker registration failed: ', err);

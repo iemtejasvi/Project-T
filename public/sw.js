@@ -38,6 +38,14 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Only handle http(s) schemes
+  if (!req.url.startsWith('http')) {
+    return;
+  }
+
+  // Only handle same-origin for caching; let third-party requests pass through
+  const sameOrigin = new URL(req.url).origin === self.location.origin;
+
   const acceptHeader = req.headers.get('accept') || '';
   const isDocumentRequest = req.mode === 'navigate' || acceptHeader.includes('text/html');
 
@@ -53,7 +61,7 @@ self.addEventListener('fetch', event => {
   const staticDestinations = new Set(['script', 'style', 'image', 'font']);
   const isStaticAsset = staticDestinations.has(req.destination) || req.url.includes('/_next/static/');
 
-  if (!isStaticAsset) {
+  if (!isStaticAsset || !sameOrigin) {
     // For anything else, just fetch from network
     return;
   }
@@ -65,17 +73,23 @@ self.addEventListener('fetch', event => {
           // Update cache in background
           fetch(req).then(response => {
             if (response && response.status === 200) {
-              cache.put(req, response.clone());
+              const vary = (response.headers.get('vary') || '').toLowerCase();
+              if (!vary.includes('*')) {
+                cache.put(req, response.clone()).catch(() => {});
+              }
             }
           }).catch(() => {});
           return cached;
         }
         return fetch(req).then(response => {
           if (response && response.status === 200) {
-            cache.put(req, response.clone());
+            const vary = (response.headers.get('vary') || '').toLowerCase();
+            if (!vary.includes('*')) {
+              cache.put(req, response.clone()).catch(() => {});
+            }
           }
           return response;
-        });
+        }).catch(() => cached || Response.error());
       })
     )
   );
