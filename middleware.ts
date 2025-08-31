@@ -8,6 +8,18 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Skip maintenance check for localhost/development
+  const hostname = request.nextUrl.hostname;
+  const isLocalhost = hostname === 'localhost' || 
+                     hostname === '127.0.0.1' || 
+                     hostname === '0.0.0.0' ||
+                     hostname.startsWith('localhost:') ||
+                     hostname.endsWith('.local');
+  
+  if (isLocalhost) {
+    return NextResponse.next();
+  }
+
   try {
     // Check maintenance status from Supabase
     const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/maintenance?id=eq.1&select=is_active`, {
