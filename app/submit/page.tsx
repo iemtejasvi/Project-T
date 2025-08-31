@@ -186,9 +186,9 @@ export default function SubmitPage() {
     }
   }, [overLimit]);
 
-  // Check memory limit on component mount and when IP/UUID changes
+  // Check memory limit and ban status on component mount and when IP/UUID changes
   useEffect(() => {
-    async function checkMemoryLimit() {
+    async function checkMemoryLimitAndBanStatus() {
       let uuid = null;
       if (typeof window !== 'undefined') {
         uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
@@ -200,24 +200,52 @@ export default function SubmitPage() {
       }
 
       if (ipData?.ip || uuid) {
-        const { count, error: memErr } = await supabase
-          .from("memories")
-          .select("*", { count: "exact" })
-          .or([
-            ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-            uuid ? `uuid.eq.${uuid}` : null
-          ].filter(Boolean).join(","));
-        
-        if (memErr) console.error("Error checking submission count:", memErr);
-        if (count && count >= 2) {
-          setHasReachedLimit(true);
-          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+        try {
+          // Check if user is banned first
+          const { data: banData, error: banErr } = await supabase
+            .from("banned_users")
+            .select("id")
+            .or([
+              ipData?.ip ? `ip.eq.${ipData.ip}` : null,
+              uuid ? `uuid.eq.${uuid}` : null
+            ].filter(Boolean).join(","))
+            .limit(1);
+          
+          if (banErr) {
+            console.error("Error checking banned status:", banErr);
+          } else if (banData && banData.length > 0) {
+            setHasReachedLimit(true);
+            setError("You are banned from submitting memories.");
+            return;
+          }
+
+          // Check memory count if not banned
+          const { count, error: memErr } = await supabase
+            .from("memories")
+            .select("*", { count: "exact" })
+            .or([
+              ipData?.ip ? `ip.eq.${ipData.ip}` : null,
+              uuid ? `uuid.eq.${uuid}` : null
+            ].filter(Boolean).join(","));
+          
+          if (memErr) {
+            console.error("Error checking submission count:", memErr);
+          } else if (count && count >= 2) {
+            setHasReachedLimit(true);
+            setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+          } else {
+            // Reset error and limit if user is within limits
+            setHasReachedLimit(false);
+            setError("");
+          }
+        } catch (err) {
+          console.error("Unexpected error checking user status:", err);
         }
       }
     }
 
     if (ipData) {
-      checkMemoryLimit();
+      checkMemoryLimitAndBanStatus();
     }
   }, [ipData]);
 
@@ -539,40 +567,68 @@ export default function SubmitPage() {
       uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
     }
 
-    // Check if banned by IP or UUID
+    // Enhanced ban and limit checking
     if (ipData?.ip || uuid) {
-      const { data: banData, error: banErr } = await supabase
-        .from("banned_users")
-        .select("id")
-        .or([
-          ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-          uuid ? `uuid.eq.${uuid}` : null
-        ].filter(Boolean).join(","));
-      if (banErr) console.error("Error checking banned users:", banErr);
-      if (banData && banData.length > 0) {
-        setError("You are banned from submitting memories.");
-        setIsSubmitting(false);
-        return;
-      }
-    }
-
-    // Check if user has already submitted 2 memories (by IP or UUID)
-    if (ipData?.ip || uuid) {
-      // Owner exemption - skip limit check for owner IP
+      // Owner exemption - skip all checks for owner IP
       if (ipData?.ip === '103.161.233.157') {
-        // Skip limit check for owner
+        // Skip all checks for owner
       } else {
-        const { count, error: memErr } = await supabase
-          .from("memories")
-          .select("*", { count: "exact" })
-          .or([
-            ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-            uuid ? `uuid.eq.${uuid}` : null
-          ].filter(Boolean).join(","));
-        if (memErr) console.error("Error checking submission count:", memErr);
-        if (count && count >= 2) {
-          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
-          setHasReachedLimit(true);
+        try {
+          // Check if banned by IP or UUID with more specific query
+          const banQuery = [];
+          if (ipData?.ip) banQuery.push(`ip.eq.${ipData.ip}`);
+          if (uuid) banQuery.push(`uuid.eq.${uuid}`);
+          
+          if (banQuery.length > 0) {
+            const { data: banData, error: banErr } = await supabase
+              .from("banned_users")
+              .select("id, ip, uuid")
+              .or(banQuery.join(","))
+              .limit(1);
+              
+            if (banErr) {
+              console.error("Error checking banned users:", banErr);
+              setError("Error verifying user status. Please try again.");
+              setIsSubmitting(false);
+              return;
+            }
+            
+            if (banData && banData.length > 0) {
+              setError("You are banned from submitting memories.");
+              setHasReachedLimit(true);
+              setIsSubmitting(false);
+              return;
+            }
+          }
+
+          // Check memory count with enhanced query
+          const memoryQuery = [];
+          if (ipData?.ip) memoryQuery.push(`ip.eq.${ipData.ip}`);
+          if (uuid) memoryQuery.push(`uuid.eq.${uuid}`);
+          
+          if (memoryQuery.length > 0) {
+            const { count, error: memErr } = await supabase
+              .from("memories")
+              .select("id", { count: "exact" })
+              .or(memoryQuery.join(","));
+              
+            if (memErr) {
+              console.error("Error checking submission count:", memErr);
+              setError("Error checking submission limit. Please try again.");
+              setIsSubmitting(false);
+              return;
+            }
+            
+            if (count && count >= 2) {
+              setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+              setHasReachedLimit(true);
+              setIsSubmitting(false);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error("Unexpected error during validation:", err);
+          setError("An unexpected error occurred. Please try again.");
           setIsSubmitting(false);
           return;
         }

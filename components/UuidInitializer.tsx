@@ -42,7 +42,7 @@ export default function UuidInitializer() {
       }
 
       // Add cache refresh on version change
-      const currentVersion = '1.1'; // Increment this when deploying
+      const currentVersion = '1.2'; // Increment this when deploying
       const storedVersion = localStorage.getItem('app_version');
       
       if (storedVersion !== currentVersion) {
