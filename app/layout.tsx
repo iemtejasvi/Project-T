@@ -2,7 +2,7 @@ import React from 'react';
 import "./globals.css";
 import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
-import UuidInitializer from "@/components/UuidInitializer";
+import SafeUuidInitializer from "@/components/SafeUuidInitializer";
 
 export const viewport = {
   width: 'device-width',
@@ -742,7 +742,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
-        <UuidInitializer />
+                  <SafeUuidInitializer />
         {children}
         <script
           dangerouslySetInnerHTML={{
