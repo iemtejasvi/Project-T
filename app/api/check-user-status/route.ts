@@ -19,7 +19,8 @@ function getClientIP(request: NextRequest): string | null {
     return cfConnectingIP;
   }
   
-  return request.ip || null;
+  // Fallback for when no IP headers are available
+  return null;
 }
 
 function getCookieValue(request: NextRequest, name: string): string | null {

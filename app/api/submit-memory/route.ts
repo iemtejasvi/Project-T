@@ -55,7 +55,8 @@ function getClientIP(request: NextRequest): string | null {
   }
   
   // Fallback to connection remote address
-  return request.ip || null;
+  // Fallback for when no IP headers are available
+  return null;
 }
 
 function getCookieValue(request: NextRequest, name: string): string | null {
