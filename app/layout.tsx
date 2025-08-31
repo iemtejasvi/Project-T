@@ -3,6 +3,7 @@ import "./globals.css";
 import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
+import MaintenanceWatcher from "@/components/MaintenanceWatcher";
 
 export const viewport = {
   width: 'device-width',
@@ -743,6 +744,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
         <UuidInitializer />
+        <MaintenanceWatcher />
         {children}
         <script
           dangerouslySetInnerHTML={{
