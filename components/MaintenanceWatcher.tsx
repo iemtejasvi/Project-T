@@ -12,6 +12,8 @@ export default function MaintenanceWatcher() {
     if (isLocalhost) return;
 
     const skipPaths = ['/maintenance', '/admin'];
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
     async function checkMaintenance() {
       try {
@@ -19,12 +21,15 @@ export default function MaintenanceWatcher() {
         const pathname = window.location.pathname;
         if (skipPaths.some(p => pathname.startsWith(p))) return;
 
-        const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/maintenance?id=eq.1&select=is_active`;
+        // If env is not available on client for any reason, fail silently
+        if (!supabaseUrl || !anonKey) return;
+
+        const url = `${supabaseUrl}/rest/v1/maintenance?id=eq.1&select=is_active`;
         const res = await fetch(url, {
           headers: {
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-            'Cache-Control': 'no-cache'
+            'apikey': anonKey,
+            'Authorization': `Bearer ${anonKey}`,
+            'Cache-Control': 'no-cache, no-store, max-age=0'
           }
         });
         if (!res.ok) return;
@@ -59,10 +64,14 @@ export default function MaintenanceWatcher() {
     };
     const handleFocus = () => startPolling();
     const handleBlur = () => stopPolling();
+    const handlePageShow = () => startPolling();
+    const handlePopState = () => checkMaintenance();
 
     document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('focus', handleFocus);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('pageshow', handlePageShow);
+    window.addEventListener('popstate', handlePopState);
 
     // Kick off immediately if visible
     if (document.visibilityState === 'visible') startPolling();
@@ -72,6 +81,8 @@ export default function MaintenanceWatcher() {
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('pageshow', handlePageShow);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
