@@ -140,6 +140,8 @@ export default function SubmitPage() {
   const [ipData, setIpData] = useState<IPData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasReachedLimit, setHasReachedLimit] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
+  const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [tag, setTag] = useState("");
   const [subTag, setSubTag] = useState("");
 
@@ -194,59 +196,52 @@ export default function SubmitPage() {
         uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
       }
 
-      // Owner exemption - skip limit check for owner IP
-      if (ipData?.ip === '103.161.233.157') {
-        return;
-      }
+      try {
+        // Use server-side API for status check (bypass-proof)
+        const response = await fetch('/api/check-user-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ uuid }),
+        });
 
-      if (ipData?.ip || uuid) {
-        try {
-          // Check if user is banned first
-          const { data: banData, error: banErr } = await supabase
-            .from("banned_users")
-            .select("id")
-            .or([
-              ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-              uuid ? `uuid.eq.${uuid}` : null
-            ].filter(Boolean).join(","))
-            .limit(1);
-          
-          if (banErr) {
-            console.error("Error checking banned status:", banErr);
-          } else if (banData && banData.length > 0) {
-            setHasReachedLimit(true);
-            setError("You are banned from submitting memories.");
-            return;
-          }
-
-          // Check memory count if not banned
-          const { count, error: memErr } = await supabase
-            .from("memories")
-            .select("*", { count: "exact" })
-            .or([
-              ipData?.ip ? `ip.eq.${ipData.ip}` : null,
-              uuid ? `uuid.eq.${uuid}` : null
-            ].filter(Boolean).join(","));
-          
-          if (memErr) {
-            console.error("Error checking submission count:", memErr);
-          } else if (count && count >= 2) {
-            setHasReachedLimit(true);
-            setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
-          } else {
-            // Reset error and limit if user is within limits
-            setHasReachedLimit(false);
-            setError("");
-          }
-        } catch (err) {
-          console.error("Unexpected error checking user status:", err);
+        if (!response.ok) {
+          console.error("Error checking user status:", response.status);
+          return;
         }
+
+        const result = await response.json();
+        
+        if (result.error) {
+          console.error("Server error checking status:", result.error);
+          return;
+        }
+
+        // Update states based on server response
+        if (result.isBanned) {
+          setIsBanned(true);
+          setHasReachedLimit(true);
+          setIsFormDisabled(true);
+          setError("You are banned from submitting memories.");
+        } else if (result.hasReachedLimit) {
+          setHasReachedLimit(true);
+          setIsFormDisabled(true);
+          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+        } else if (result.canSubmit) {
+          // Reset all states if user is within limits and not banned
+          setIsBanned(false);
+          setHasReachedLimit(false);
+          setIsFormDisabled(false);
+          setError("");
+        }
+      } catch (err) {
+        console.error("Network error checking user status:", err);
       }
     }
 
-    if (ipData) {
-      checkMemoryLimitAndBanStatus();
-    }
+    // Always check status (even without ipData, server will handle IP detection)
+    checkMemoryLimitAndBanStatus();
   }, [ipData]);
 
   // Add getSubTags function
@@ -595,7 +590,9 @@ export default function SubmitPage() {
             
             if (banData && banData.length > 0) {
               setError("You are banned from submitting memories.");
+              setIsBanned(true);
               setHasReachedLimit(true);
+              setIsFormDisabled(true);
               setIsSubmitting(false);
               return;
             }
@@ -622,6 +619,7 @@ export default function SubmitPage() {
             if (count && count >= 2) {
               setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
               setHasReachedLimit(true);
+              setIsFormDisabled(true);
               setIsSubmitting(false);
               return;
             }
@@ -638,18 +636,15 @@ export default function SubmitPage() {
     const shortTag = tag && subTag ? getShortTag(subTag) : null;
     
     const submission = {
-      recipient,
-      message,
-      sender,
-      status: "pending",
+      recipient: recipient.trim(),
+      message: message.trim(),
+      sender: sender.trim() || undefined,
       color,
       full_bg: fullBg,
-      animation: specialEffect,
-      ip: ipData?.ip || null,
-      country: ipData?.country || null,
-      uuid: uuid || null,
-      tag: tag || null,
-      sub_tag: shortTag || null,  // Convert to short tag
+      animation: specialEffect || undefined,
+      uuid: uuid || undefined,
+      tag: tag || undefined,
+      sub_tag: shortTag || undefined,  // Convert to short tag
     };
 
     try {
@@ -660,21 +655,48 @@ export default function SubmitPage() {
         return;
       }
       
-      const { error } = await supabase
-        .from("memories")
-        .insert([submission])
-        .select();
+      // Submit via API route with server-side validation
+      const response = await fetch('/api/submit-memory', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submission),
+      });
+
+      const result = await response.json();
       
-      if (error) {
-        console.error("Supabase insert error:", error);
-        setError(`Error submitting your memory: ${error.message || 'Unknown error'}`);
+      if (!response.ok) {
+        // Handle different error types
+        if (response.status === 403) {
+          // Banned user
+          setError(result.error || "You are banned from submitting memories.");
+          setIsBanned(true);
+          setHasReachedLimit(true);
+          setIsFormDisabled(true);
+        } else if (response.status === 429) {
+          // Rate limited / memory limit
+          setError(result.error || "Memory limit reached.");
+          setHasReachedLimit(true);
+          setIsFormDisabled(true);
+        } else {
+          // Other errors
+          setError(result.error || "An error occurred while submitting your memory.");
+        }
         setIsSubmitting(false);
-      } else {
+        return;
+      }
+      
+      // Success
+      if (result.success) {
         setSubmitted(true);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+        setIsSubmitting(false);
       }
     } catch (err) {
-      console.error("Unexpected error:", err);
-      setError("An unexpected error occurred. Please try again.");
+      console.error("Network error:", err);
+      setError("Network error. Please check your connection and try again.");
       setIsSubmitting(false);
     }
   };
@@ -820,7 +842,10 @@ export default function SubmitPage() {
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
                     required
-                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                    disabled={isFormDisabled}
+                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                    }`}
                   />
                 </div>
 
@@ -831,7 +856,10 @@ export default function SubmitPage() {
                     onChange={(e) => setMessage(e.target.value)}
                     required
                     rows={5}
-                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg lg:resize-none"
+                    disabled={isFormDisabled}
+                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg lg:resize-none ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                    }`}
                   />
                   <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2 lg:h-3 lg:shadow-sm">
                     <div
@@ -864,7 +892,10 @@ export default function SubmitPage() {
                     type="text"
                     value={sender}
                     onChange={(e) => setSender(e.target.value)}
-                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                    disabled={isFormDisabled}
+                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                    }`}
                   />
                 </div>
 
@@ -876,7 +907,10 @@ export default function SubmitPage() {
                       setColor(e.target.value);
                       setFullBg(e.target.value !== "default");
                     }}
-                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                    disabled={isFormDisabled}
+                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                    }`}
                   >
                     {colorOptions.map((o) => (
                       <option key={o.value} value={o.value}>
@@ -891,8 +925,10 @@ export default function SubmitPage() {
                   <select
                     value={specialEffect}
                     onChange={(e) => setSpecialEffect(e.target.value)}
-                    disabled={!isSpecialAllowed}
-                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50 lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                    disabled={!isSpecialAllowed || isFormDisabled}
+                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50 lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                    }`}
                   >
                     {specialEffects.map((o) => (
                       <option key={o.value} value={o.value}>
@@ -907,7 +943,10 @@ export default function SubmitPage() {
                   <select
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
-                    className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                    disabled={isFormDisabled}
+                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                    }`}
                   >
                     <option value="">Select a tag (or leave blank for mixed emotions)</option>
                     {typewriterTags.map((t) => (
@@ -927,7 +966,10 @@ export default function SubmitPage() {
                     <select
                       value={subTag}
                       onChange={(e) => setSubTag(e.target.value)}
-                      className="w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg"
+                      disabled={isFormDisabled}
+                      className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                      }`}
                     >
                       <option value="">Select sub-emotion (or leave blank for mixed)</option>
                       {getSubTags(tag).map((st) => (
@@ -950,7 +992,10 @@ export default function SubmitPage() {
                     type="checkbox"
                     checked={fullBg}
                     onChange={(e) => setFullBg(e.target.checked)}
-                    className="h-5 w-5 accent-[var(--accent)] lg:rounded-xl lg:border-2 lg:border-[var(--accent)]/30 lg:focus:ring-2 lg:focus:ring-[var(--accent)]/40"
+                    disabled={isFormDisabled}
+                    className={`h-5 w-5 accent-[var(--accent)] lg:rounded-xl lg:border-2 lg:border-[var(--accent)]/30 lg:focus:ring-2 lg:focus:ring-[var(--accent)]/40 ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   />
                   <label htmlFor="fullBg" className="font-serif lg:text-base">
                     Apply color to full card background
@@ -960,14 +1005,17 @@ export default function SubmitPage() {
                 <div className="text-center lg:flex-1 lg:flex lg:items-end">
                   <button
                     type="submit"
-                    disabled={isSubmitting || hasReachedLimit}
+                    disabled={isSubmitting || hasReachedLimit || isFormDisabled}
                     className={`w-full px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg transition-transform lg:px-10 lg:py-4 lg:rounded-3xl lg:shadow-xl lg:text-xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-2xl ${
-                      isSubmitting || hasReachedLimit 
+                      isSubmitting || hasReachedLimit || isFormDisabled
                         ? 'opacity-50 cursor-not-allowed' 
                         : 'hover:scale-105 lg:hover:scale-[1.04] lg:hover:shadow-2xl'
                     }`}
                   >
-                    {isSubmitting ? 'Submitting...' : 'Submit Memory'}
+                    {isSubmitting ? 'Submitting...' : 
+                     isBanned ? 'Banned from Submitting' :
+                     hasReachedLimit ? 'Memory Limit Reached' : 
+                     'Submit Memory'}
                   </button>
                 </div>
               </form>
