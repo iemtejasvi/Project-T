@@ -4,9 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 
 export default function UuidInitializer() {
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Check if UUID exists in either localStorage or cookies
-      const storedUuid = localStorage.getItem("user_uuid") || getCookie("user_uuid");
+    try {
+      if (typeof window !== "undefined") {
+        // Check if UUID exists in either localStorage or cookies
+        const storedUuid = localStorage.getItem("user_uuid") || getCookie("user_uuid");
       
       if (!storedUuid) {
         // Generate new UUID
@@ -77,12 +78,15 @@ export default function UuidInitializer() {
           // Fallback: just update version if any error occurs
           localStorage.setItem('app_version', currentVersion);
           console.log('Cache refresh handled gracefully');
-        }
-      }
-    }
-  }, []);
-  return null;
-}
+                 }
+       }
+     } catch (error) {
+       // If anything fails, just log and continue - don't crash the app
+       console.log('UuidInitializer error handled gracefully:', error);
+     }
+   }, []);
+   return null;
+ }
 
 // Helper function to get cookie value
 function getCookie(name: string): string | null {
