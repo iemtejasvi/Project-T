@@ -20,6 +20,10 @@ const nextConfig = {
             value: '0',
           },
           {
+            key: 'Vary',
+            value: '*',
+          },
+          {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },
