@@ -3,13 +3,13 @@ const nextConfig = {
   generateEtags: false, // Disable ETags to prevent caching issues
   async headers() {
     return [
-      // Premium cache control for HTML pages - bulletproof fresh content
+      // Cache control for HTML pages - ensure updates are visible
       {
         source: '/(.*)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0, private',
+            value: 'no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0',
           },
           {
             key: 'Pragma',
@@ -18,10 +18,6 @@ const nextConfig = {
           {
             key: 'Expires',
             value: '0',
-          },
-          {
-            key: 'Last-Modified',
-            value: new Date().toUTCString(),
           },
           {
             key: 'Vary',
@@ -34,10 +30,6 @@ const nextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'DENY',
-          },
-          {
-            key: 'X-Cache-Status',
-            value: 'BYPASS',
           },
         ],
       },
