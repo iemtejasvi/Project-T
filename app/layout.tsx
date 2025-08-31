@@ -15,6 +15,11 @@ export const metadata = {
   metadataBase: new URL('https://www.ifonlyisentthis.com'),
   title: "If Only I Sent This",
   description: "A modern archive for unsent memories and heartfelt messages.",
+  other: {
+    'cache-control': 'no-cache, no-store, must-revalidate',
+    'pragma': 'no-cache',
+    'expires': '0',
+  },
   keywords: [
     "unsent messages",
     "unsent letters",
