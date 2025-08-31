@@ -67,13 +67,13 @@ export default function UuidInitializer() {
               try {
                 // Use replace instead of href to prevent history entry
                 window.location.replace(window.location.href);
-              } catch (_e) {
+              } catch {
                 // Fallback: just update version without reload if error occurs
                 console.log('Cache refresh completed without reload');
               }
             }, 100);
           }
-        } catch (_error) {
+        } catch {
           // Fallback: just update version if any error occurs
           localStorage.setItem('app_version', currentVersion);
           console.log('Cache refresh handled gracefully');
