@@ -129,28 +129,6 @@ const twoMemoryLimitMessages = [
 ];
 
 export default function SubmitPage() {
-  // Add global error handler for this component
-  useEffect(() => {
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error('Unhandled promise rejection in SubmitPage:', event.reason);
-      event.preventDefault(); // Prevent the default browser behavior
-    };
-
-    const handleError = (event: ErrorEvent) => {
-      console.error('Unhandled error in SubmitPage:', event.error);
-      event.preventDefault(); // Prevent the default browser behavior
-    };
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('unhandledrejection', handleUnhandledRejection);
-      window.addEventListener('error', handleError);
-
-      return () => {
-        window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-        window.removeEventListener('error', handleError);
-      };
-    }
-  }, []);
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");

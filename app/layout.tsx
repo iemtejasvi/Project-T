@@ -3,8 +3,6 @@ import "./globals.css";
 import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import GlobalErrorHandler from "@/components/GlobalErrorHandler";
 
 export const viewport = {
   width: 'device-width',
@@ -743,52 +741,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
-        <ErrorBoundary>
-          <GlobalErrorHandler />
-          <ThemeSwitcher />
-          <UuidInitializer />
-          {children}
-        </ErrorBoundary>
+        <ThemeSwitcher />
+        <UuidInitializer />
+        {children}
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              try {
-                if ('serviceWorker' in navigator) {
-                  window.addEventListener('load', function() {
-                    try {
-                      navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
-                        console.log('ServiceWorker registration successful');
-                      }, function(err) {
-                        console.log('ServiceWorker registration failed: ', err);
-                      }).catch(function(error) {
-                        console.log('ServiceWorker registration error: ', error);
-                      });
-                    } catch (error) {
-                      console.log('ServiceWorker registration exception: ', error);
-                    }
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                  }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
                   });
-                  
-                  // Add cache clearing on page load for development
-                  try {
-                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                      if ('caches' in window) {
-                        caches.keys().then(names => {
-                          names.forEach(name => {
-                            caches.delete(name).catch(function() {
-                              // Silent fail for cache deletion
-                            });
-                          });
-                        }).catch(function() {
-                          // Silent fail for cache listing
-                        });
-                      }
-                    }
-                  } catch (error) {
-                    console.log('Cache clearing error handled: ', error);
+                });
+                
+                // Add cache clearing on page load for development
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                  if ('caches' in window) {
+                    caches.keys().then(names => {
+                      names.forEach(name => {
+                        caches.delete(name);
+                      });
+                    });
                   }
                 }
-              } catch (error) {
-                console.log('ServiceWorker initialization error handled: ', error);
               }
             `
           }}

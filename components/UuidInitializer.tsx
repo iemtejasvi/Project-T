@@ -4,10 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 
 export default function UuidInitializer() {
   useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
-        // Check if UUID exists in either localStorage or cookies
-        const storedUuid = localStorage.getItem("user_uuid") || getCookie("user_uuid");
+    if (typeof window !== "undefined") {
+      // Check if UUID exists in either localStorage or cookies
+      const storedUuid = localStorage.getItem("user_uuid") || getCookie("user_uuid");
       
       if (!storedUuid) {
         // Generate new UUID
@@ -80,10 +79,6 @@ export default function UuidInitializer() {
           console.log('Cache refresh handled gracefully');
         }
       }
-      } // Add missing closing brace for the window check
-    } catch (error) {
-      // If anything fails, just log and continue - don't crash the app
-      console.log('UuidInitializer error handled gracefully:', error);
     }
   }, []);
   return null;
