@@ -647,58 +647,60 @@ export default function SubmitPage() {
       sub_tag: shortTag || undefined,  // Convert to short tag
     };
 
-    try {
-      // Validate required fields
-      if (!recipient || !message) {
-        setError("Missing required fields. Please check your submission.");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Submit via API route with server-side validation
-      const response = await fetch('/api/submit-memory', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submission),
-      });
+    // Validate required fields first
+    if (!recipient || !message) {
+      setError("Missing required fields. Please check your submission.");
+      setIsSubmitting(false);
+      return;
+    }
 
-      const result = await response.json();
-      
+    // Instantly show success to user for better UX
+    setSubmitted(true);
+    setError("");
+    setIsSubmitting(false);
+    
+    // Scroll to top to show success message immediately
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Process submission in background (non-blocking)
+    fetch('/api/submit-memory', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submission),
+    }).then(response => {
+      return response.json().then(result => ({ response, result }));
+    }).then(({ response, result }) => {
       if (!response.ok) {
-        // Handle different error types
+        // Handle critical errors that should override success
         if (response.status === 403) {
-          // Banned user
+          // Banned user - critical error
+          setSubmitted(false);
           setError(result.error || "You are banned from submitting memories.");
           setIsBanned(true);
           setHasReachedLimit(true);
           setIsFormDisabled(true);
         } else if (response.status === 429) {
-          // Rate limited / memory limit
+          // Memory limit reached - critical error
+          setSubmitted(false);
           setError(result.error || "Memory limit reached.");
           setHasReachedLimit(true);
           setIsFormDisabled(true);
         } else {
-          // Other errors
-          setError(result.error || "An error occurred while submitting your memory.");
+          // Other errors (network/server) - log but keep success shown
+          console.error('Background submission failed:', result.error);
+          // User already saw success, so don't disturb their experience
         }
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Success
-      if (result.success) {
-        setSubmitted(true);
       } else {
-        setError("An unexpected error occurred. Please try again.");
-        setIsSubmitting(false);
+        // Successfully submitted - user already sees success
+        console.log('Memory submitted successfully in background');
       }
-    } catch (err) {
-      console.error("Network error:", err);
-      setError("Network error. Please check your connection and try again.");
-      setIsSubmitting(false);
-    }
+    }).catch(err => {
+      // Network or parsing error - log but don't disturb user experience
+      console.error('Background submission error:', err);
+      // Keep success message shown since user already saw it
+    });
   };
 
   // Helper function to get cookie value
