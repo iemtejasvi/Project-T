@@ -2,7 +2,7 @@ import React from 'react';
 import "./globals.css";
 import './bleeding-text.css';
 import ThemeSwitcher from "@/components/ThemeSwitcher";
-import SafeUuidInitializer from "@/components/SafeUuidInitializer";
+
 
 export const viewport = {
   width: 'device-width',
@@ -742,7 +742,55 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
-                  <SafeUuidInitializer />
+                  <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                // Immediate UUID initialization - cannot be cached separately
+                (function() {
+                  try {
+                    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+                      // Clean up any problematic cache versions immediately
+                      try { localStorage.removeItem('app_version'); } catch(e) {}
+                      
+                      // UUID generation and sync
+                      function getCookie(name) {
+                        const value = '; ' + document.cookie;
+                        const parts = value.split('; ' + name + '=');
+                        if (parts.length === 2) return parts.pop().split(';').shift();
+                        return null;
+                      }
+                      
+                      function generateUUID() {
+                        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                          const r = Math.random() * 16 | 0;
+                          const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                          return v.toString(16);
+                        });
+                      }
+                      
+                      const storedUuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
+                      
+                      if (!storedUuid) {
+                        const newUuid = generateUUID();
+                        localStorage.setItem('user_uuid', newUuid);
+                        const expirationDate = new Date();
+                        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+                        document.cookie = 'user_uuid=' + newUuid + '; expires=' + expirationDate.toUTCString() + '; path=/';
+                      } else if (!localStorage.getItem('user_uuid')) {
+                        localStorage.setItem('user_uuid', storedUuid);
+                      } else if (!getCookie('user_uuid')) {
+                        const expirationDate = new Date();
+                        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+                        document.cookie = 'user_uuid=' + storedUuid + '; expires=' + expirationDate.toUTCString() + '; path=/';
+                      }
+                    }
+                  } catch(e) {
+                    // Ignore all errors - just continue
+                  }
+                })();
+              `,
+            }}
+          />
         {children}
         <script
           dangerouslySetInnerHTML={{
