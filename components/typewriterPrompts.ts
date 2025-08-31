@@ -1,9 +1,12 @@
 export const typewriterTags: string[] = [
 	"Anger",
 	"Apology",
+  "Betrayal",
 	"Blame",
   "Closure",
 	"Confession",
+  "Devotion",
+  "Emptiness",
   "Fear",
 	"Forgiveness",
 	"Goodbye",
@@ -11,35 +14,54 @@ export const typewriterTags: string[] = [
   "Guilt",
   "Hate",
 	"Heartbreak",
+  "Hope",
   "Jealousy",
 	"Love",
+  "Longing",
   "Missing",
+  "Nostalgia",
+  "Obsession",
+  "Passion",
+  "Pride",
 	"Regret",
 	"Sadness",
   "Shame",
   "Thank You",
+  "Vulnerability",
+  "Yearning",
 	"Other"
 ];
 
 export const typewriterSubTags: Record<string, string[]> = {
   "Anger": ["angry_at_you", "angry_at_myself", "angry_at_situation", "not_angry_anymore"],
   "Apology": ["im_sorry", "you_should_be_sorry", "both_need_apologize", "im_not_sorry"],
+  "Betrayal": ["you_betrayed_me", "i_betrayed_you", "mutual_betrayal", "trust_destroyed", "betrayal_by_friend"],
   "Blame": ["blame_you", "blame_myself", "both_to_blame", "no_one_to_blame"],
   "Confession": ["have_to_tell_you", "keep_secret", "i_was_wrong", "you_were_wrong", "both_made_mistakes"],
+  "Devotion": ["devoted_to_you", "worship_your_existence", "you_are_my_religion", "unconditional_love", "would_die_for_you"],
+  "Emptiness": ["empty_without_you", "hollow_inside", "void_in_heart", "numb_and_empty", "emptiness_consumes"],
   "Fear": ["afraid_losing_you", "afraid_commitment", "afraid_future", "not_afraid_anymore"],
   "Forgiveness": ["asking_forgiveness", "forgive_you", "cant_forgive", "forgive_myself", "need_forgive_each_other"],
   "Goodbye": ["goodbye_forever", "see_you_again", "im_leaving", "dont_leave", "need_part_ways"],
   "Gratitude": ["thank_everything", "thank_lessons", "grateful_us", "grateful_pain"],
   "Guilt": ["feel_guilty", "innocent", "you_should_guilty", "no_one_guilty", "both_guilty"],
-  "Hate": ["hate_you", "hate_myself", "hate_what_we_became", "dont_hate_anymore"],
+  "Hate": ["hate_you", "hate_myself", "hate_what_we_became", "dont_hate_anymore", "i_cant_hate_you"],
   "Heartbreak": ["you_broke_heart", "broke_own_heart", "broke_each_other", "heart_healing"],
+  "Hope": ["hope_for_us", "hope_you_return", "hope_for_healing", "hope_is_fading", "never_give_up_hope"],
   "Jealousy": ["jealous_of_you", "jealous_of_others", "you_jealous_of_me", "not_jealous_anymore"],
   "Love": ["love_you", "dont_love_anymore", "love_cant_be_together", "still_love", "never_loved"],
+  "Longing": ["ache_for_you", "desperate_yearning", "craving_your_touch", "starving_for_you", "endless_desire"],
   "Missing": ["miss_you", "dont_miss_anymore", "miss_who_you_were", "miss_who_we_were", "miss_myself"],
+  "Nostalgia": ["remember_good_times", "miss_our_past", "better_days", "golden_memories", "wish_we_could_go_back"],
+  "Obsession": ["cant_stop_thinking", "consumed_by_you", "unhealthy_fixation", "obsessed_with_memories", "addicted_to_you"],
+  "Passion": ["burning_desire", "wild_love", "fierce_attraction", "passionate_fire", "intense_connection"],
+  "Pride": ["proud_of_us", "too_proud_to_beg", "swallowing_pride", "pride_before_fall", "damaged_pride"],
   "Regret": ["regret_everything", "no_regrets", "regret_not_trying", "regret_meeting", "both_have_regrets"],
   "Sadness": ["so_sad", "finding_happiness", "sad_what_lost", "sad_for_you", "sad_for_me"],
   "Shame": ["ashamed", "proud_myself", "you_should_ashamed", "both_should_ashamed", "no_one_ashamed"],
   "Thank You": ["thank_you", "no_thanks_needed", "thank_pain", "thank_memories", "thank_leaving"],
+  "Vulnerability": ["opening_my_heart", "showing_weakness", "need_protection", "trust_you_completely", "exposed_and_fragile"],
+  "Yearning": ["yearn_for_touch", "desperate_need", "soul_yearning", "yearning_for_past", "unfulfilled_yearning"],
   "Closure": ["need_answers", "dont_need_answers", "need_understand", "need_move_on", "need_closure", "never_got_closure", "seeking_closure", "closure_impossible", "found_own_closure"],
   "Other": ["other_feeling", "different_emotion", "something_else", "cant_explain", "complicated"]
 };
@@ -371,6 +393,13 @@ export const typewriterPromptsBySubTag: Record<string, string[]> = {
     "hate was just another emotion you took",
     "i don't have the energy to hate",
     "hate left when you did"
+  ],
+  "i_cant_hate_you": [
+    "i try to hate you but my heart won't let me",
+    "even when you hurt me i can't find hatred",
+    "hating you would be hating part of myself",
+    "my love for you makes hate impossible",
+    "i want to hate you but i just can't"
   ],
 
   // Heartbreak subcategories
@@ -755,5 +784,412 @@ export const typewriterPromptsBySubTag: Record<string, string[]> = {
     "it's more complicated than i can explain",
     "this isn't black and white",
     "the truth is somewhere in between"
+  ],
+
+  // Devotion subcategories
+  "devoted_to_you": [
+    "you are my prayer my temple my truth",
+    "i would worship at the altar of your existence",
+    "devotion runs deeper than blood through my veins",
+    "you are the only religion i understand",
+    "i am devoted to you beyond reason or logic"
+  ],
+  "worship_your_existence": [
+    "i worship the ground you walk on",
+    "your existence is my sacred text",
+    "i would kneel at the altar of your being",
+    "you are the god i never knew i needed",
+    "your presence is my holy communion"
+  ],
+  "you_are_my_religion": [
+    "you are my faith my church my salvation",
+    "i found god in the way you say my name",
+    "you are the only prayer i know by heart",
+    "your love is my scripture and my hymn",
+    "you are my religion and i am your disciple"
+  ],
+  "unconditional_love": [
+    "my love for you knows no bounds or conditions",
+    "i love you without limits or expectations",
+    "unconditional is the only way i know how to love you",
+    "my love for you is pure and without requirement",
+    "i love you completely and without reservation"
+  ],
+  "would_die_for_you": [
+    "i would die a thousand deaths for you",
+    "your life matters more than my own",
+    "i would sacrifice everything for your happiness",
+    "dying for you would be my greatest honor",
+    "i would give my life to save yours"
+  ],
+
+  // Hope subcategories
+  "hope_for_us": [
+    "hope whispers that we're not finished yet",
+    "i still believe in the possibility of us",
+    "hope keeps a candle burning in my window",
+    "i hope we find our way back to each other",
+    "hope tells me this isn't the end of our story"
+  ],
+  "hope_you_return": [
+    "i hope you come back to me",
+    "i hope you realize what you lost",
+    "i hope you remember what we had",
+    "i hope you find your way home to me",
+    "i hope you choose me in the end"
+  ],
+  "hope_for_healing": [
+    "i hope we both find peace",
+    "i hope time heals what hurt us",
+    "i hope we both learn to love again",
+    "i hope healing finds us where we are",
+    "i hope we both find what we're looking for"
+  ],
+  "hope_is_fading": [
+    "hope is slipping through my fingers",
+    "i'm losing hope for what we could be",
+    "hope feels like a dying ember",
+    "my hope is running out",
+    "hope is becoming harder to hold onto"
+  ],
+  "never_give_up_hope": [
+    "i will never stop hoping for us",
+    "hope is all i have left and i'm keeping it",
+    "i refuse to let hope die",
+    "hope is the last thing i'll surrender",
+    "i will hope for you until my final breath"
+  ],
+
+  // Longing subcategories
+  "ache_for_you": [
+    "my bones ache with missing you",
+    "i ache for you in places i didn't know existed",
+    "the ache for you lives in my marrow",
+    "you left an ache that nothing else can fill",
+    "i ache for you like drought aches for rain"
+  ],
+  "desperate_yearning": [
+    "i yearn for you with desperate intensity",
+    "yearning for you consumes every thought",
+    "my yearning for you borders on madness",
+    "i yearn for you like a drowning person yearns for air",
+    "yearning for you is my constant companion"
+  ],
+  "craving_your_touch": [
+    "i crave your touch like addiction",
+    "my skin remembers your hands",
+    "i hunger for your touch",
+    "craving your touch is my daily torment",
+    "your touch is the drug i can't quit"
+  ],
+  "starving_for_you": [
+    "i am starving for your presence",
+    "you are the feast i can never have",
+    "i starve for you in a world full of emptiness",
+    "starving for you is my natural state",
+    "you are the sustenance my soul craves"
+  ],
+  "endless_desire": [
+    "my desire for you knows no end",
+    "desire burns eternal in my chest",
+    "i desire you with the force of hurricanes",
+    "endless desire is my burden and my gift",
+    "desire for you flows like an endless river"
+  ],
+
+  // Nostalgia subcategories
+  "remember_good_times": [
+    "i remember when love was easy between us",
+    "i remember the way you used to look at me",
+    "i remember when we believed in forever",
+    "i remember the laughter that lived in our hearts",
+    "i remember when we were golden"
+  ],
+  "miss_our_past": [
+    "i miss the people we used to be",
+    "i miss the life we built together",
+    "i miss the dreams we shared",
+    "i miss the way we used to love",
+    "i miss the past version of us"
+  ],
+  "better_days": [
+    "we had better days than these",
+    "i remember when everything was easier",
+    "better days feel like a distant dream",
+    "i long for the better days we shared",
+    "better days remind me what we lost"
+  ],
+  "golden_memories": [
+    "our golden memories shine in the darkness",
+    "golden memories are all i have left",
+    "i polish our golden memories like treasures",
+    "golden memories haunt my quiet moments",
+    "our golden memories feel like fairy tales now"
+  ],
+  "wish_we_could_go_back": [
+    "i wish we could go back to the beginning",
+    "i wish we could rewind and start over",
+    "i wish we could go back to when love was enough",
+    "i wish we could go back to simpler times",
+    "i wish we could go back and do it right"
+  ],
+
+  // Vulnerability subcategories
+  "opening_my_heart": [
+    "i'm opening my heart despite the risk",
+    "here is my heart raw and unguarded",
+    "opening my heart to you terrifies me",
+    "i offer you my heart with trembling hands",
+    "my heart opens like a flower in your presence"
+  ],
+  "showing_weakness": [
+    "i'm showing you my weakness",
+    "vulnerability is my greatest strength",
+    "i'm weak for you and i don't care who knows",
+    "showing weakness takes more courage than hiding",
+    "my weakness for you is my truth"
+  ],
+  "need_protection": [
+    "i need you to protect my fragile heart",
+    "please be gentle with what i'm giving you",
+    "i need shelter from the storm",
+    "protect me from my own tender places",
+    "i need you to guard what i'm showing you"
+  ],
+  "trust_you_completely": [
+    "i trust you with every piece of me",
+    "complete trust is my gift to you",
+    "i trust you even when it scares me",
+    "trusting you completely is my leap of faith",
+    "my trust in you is absolute and unwavering"
+  ],
+  "exposed_and_fragile": [
+    "i am exposed and fragile before you",
+    "here i am naked in my truth",
+    "fragile is how i feel in your presence",
+    "i am glass in your careful hands",
+    "exposed and vulnerable is my offering to you"
+  ],
+
+  // Betrayal subcategories
+  "you_betrayed_me": [
+    "trust shattered into a thousand pieces",
+    "you stabbed me with the knife i handed you",
+    "betrayal tastes like copper and broken promises",
+    "you wore my secrets like weapons against me",
+    "you broke the sacred trust between us"
+  ],
+  "i_betrayed_you": [
+    "i am the knife that cut too deep",
+    "i betrayed the trust you gave so freely",
+    "i am the villain in our love story",
+    "i broke the promise i swore to keep",
+    "i betrayed myself by betraying you"
+  ],
+  "mutual_betrayal": [
+    "we both wielded secrets like daggers",
+    "we betrayed each other in different ways",
+    "we destroyed trust from both sides",
+    "betrayal was the language we both spoke",
+    "we both broke what we swore to protect"
+  ],
+  "trust_destroyed": [
+    "trust died slowly then all at once",
+    "what we built in years crumbled in moments",
+    "trust is the casualty of our war",
+    "we destroyed something irreplaceable",
+    "trust lies in ruins between us"
+  ],
+  "betrayal_by_friend": [
+    "friendship died when loyalty left",
+    "you chose sides and it wasn't mine",
+    "friendship became a casualty of your choices",
+    "you betrayed the bond we thought unbreakable",
+    "friendship meant nothing when push came to shove"
+  ],
+
+  // Emptiness subcategories
+  "empty_without_you": [
+    "you took yourself and left me hollow",
+    "emptiness echoes where you used to be",
+    "i am a shell of who i was with you",
+    "you left and took my wholeness with you",
+    "empty rooms remind me of empty hearts"
+  ],
+  "hollow_inside": [
+    "hollowness lives where my heart should be",
+    "i am carved out and echoing",
+    "hollow is the sound of my name without you",
+    "i am empty space pretending to be person",
+    "hollowness fills every corner of my being"
+  ],
+  "void_in_heart": [
+    "there's a you-shaped void in my chest",
+    "the void grows larger every day",
+    "my heart is a black hole where you used to be",
+    "void is the only word for this absence",
+    "the void consumes everything good"
+  ],
+  "numb_and_empty": [
+    "numbness is my default setting now",
+    "i feel nothing which is worse than everything",
+    "empty and numb is my natural state",
+    "numbness protects me from the emptiness",
+    "i am void of feeling void of you"
+  ],
+  "emptiness_consumes": [
+    "emptiness eats me from the inside out",
+    "the void grows hungrier each day",
+    "emptiness is a living thing inside me",
+    "i am being consumed by my own absence",
+    "emptiness feeds on what's left of me"
+  ],
+
+  // Obsession subcategories
+  "cant_stop_thinking": [
+    "you live rent-free in my mind",
+    "thoughts of you circle like vultures",
+    "i can't stop replaying our memories",
+    "you haunt every quiet moment",
+    "my mind is a broken record of you"
+  ],
+  "consumed_by_you": [
+    "you consume my every waking thought",
+    "i am drowning in thoughts of you",
+    "you are the fire that burns through everything",
+    "consumed is too gentle a word for this",
+    "you devour me from the inside out"
+  ],
+  "unhealthy_fixation": [
+    "my obsession with you is toxic",
+    "i know this fixation is destroying me",
+    "unhealthy doesn't begin to describe this",
+    "i'm addicted to the pain of wanting you",
+    "this obsession is my beautiful disease"
+  ],
+  "obsessed_with_memories": [
+    "i replay our past like a broken film",
+    "memories of you are my drug of choice",
+    "i'm addicted to what we used to be",
+    "our memories are my beautiful prison",
+    "i live in the past where you still loved me"
+  ],
+  "addicted_to_you": [
+    "you are my drug my poison my cure",
+    "withdrawal from you is killing me slowly",
+    "you're the addiction i can't quit",
+    "i need you like lungs need air",
+    "addiction to you runs through my veins"
+  ],
+
+  // Passion subcategories
+  "burning_desire": [
+    "desire burns through me like wildfire",
+    "i burn for you in ways that scare me",
+    "passion ignites every time you're near",
+    "desire consumes me body and soul",
+    "i am flame and you are gasoline"
+  ],
+  "wild_love": [
+    "our love was untamed and dangerous",
+    "wild is the only way i know how to love",
+    "you brought out the animal in me",
+    "we loved like wolves love the moon",
+    "wild love leaves beautiful scars"
+  ],
+  "fierce_attraction": [
+    "attraction pulls me like gravity",
+    "you are magnetic and i am metal",
+    "fierce doesn't capture this pull",
+    "attraction defies logic and reason",
+    "you draw me like moth to flame"
+  ],
+  "passionate_fire": [
+    "passion burns brighter than reason",
+    "we are fire and gasoline",
+    "passion consumes everything in its path",
+    "our fire burned too bright to last",
+    "passion is the flame that lights and destroys"
+  ],
+  "intense_connection": [
+    "we connect on levels that terrify me",
+    "intensity is the only way we know",
+    "our connection transcends the physical",
+    "we are bound by invisible threads",
+    "connection this deep changes you forever"
+  ],
+
+  // Pride subcategories
+  "proud_of_us": [
+    "i'm proud of what we built together",
+    "pride swells when i think of us",
+    "we created something worth being proud of",
+    "pride in us outweighs the pain",
+    "i'm proud of how we loved"
+  ],
+  "too_proud_to_beg": [
+    "pride won't let me crawl back to you",
+    "too proud to beg for your love",
+    "pride is my armor and my prison",
+    "i won't beg for what should be freely given",
+    "pride keeps me standing when love fails"
+  ],
+  "swallowing_pride": [
+    "pride tastes bitter going down",
+    "i swallow pride like medicine",
+    "sometimes love requires eating pride",
+    "pride is a small price for your love",
+    "i choke on pride to keep you close"
+  ],
+  "pride_before_fall": [
+    "pride led me to ruin",
+    "my pride was our downfall",
+    "pride blinded me to what mattered",
+    "pride came before our fall",
+    "pride built the wall between us"
+  ],
+  "damaged_pride": [
+    "you wounded my pride beyond repair",
+    "pride lies broken at your feet",
+    "damaged pride cuts deeper than heartbreak",
+    "you stripped away my pride and dignity",
+    "pride was the first casualty of loving you"
+  ],
+
+  // Yearning subcategories
+  "yearn_for_touch": [
+    "my skin yearns for your hands",
+    "i yearn for your touch like desert yearns for rain",
+    "yearning for your touch is physical pain",
+    "my body remembers and yearns",
+    "yearning for touch that will never come"
+  ],
+  "desperate_need": [
+    "need consumes me like hunger",
+    "desperation is my constant companion",
+    "i need you like i need oxygen",
+    "desperate need claws at my chest",
+    "need this deep should have a name"
+  ],
+  "soul_yearning": [
+    "my soul yearns for its missing piece",
+    "yearning lives in the depths of my being",
+    "soul-deep yearning has no cure",
+    "you are what my soul yearns for",
+    "yearning echoes in the chambers of my soul"
+  ],
+  "yearning_for_past": [
+    "i yearn for the people we used to be",
+    "yearning for yesterday consumes today",
+    "the past calls to me like a siren",
+    "i yearn for the time when love was enough",
+    "yearning for what was prevents what could be"
+  ],
+  "unfulfilled_yearning": [
+    "yearning without satisfaction is torture",
+    "unfulfilled yearning is my daily bread",
+    "wanting what i can't have defines me",
+    "yearning unfulfilled becomes a way of life",
+    "i am built of unfulfilled desires"
   ]
 };

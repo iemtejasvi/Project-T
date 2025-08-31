@@ -263,6 +263,7 @@ export default function SubmitPage() {
       "hate_myself": "i hate myself",
       "hate_what_we_became": "i hate what we became",
       "dont_hate_anymore": "i don't hate you anymore",
+      "i_cant_hate_you": "i can't hate you",
       
       // Apology
       "im_sorry": "i'm sorry",
@@ -380,6 +381,83 @@ export default function SubmitPage() {
       "angry_at_situation": "i'm angry at the situation",
       "not_angry_anymore": "i'm not angry anymore",
       
+      // Betrayal
+      "you_betrayed_me": "you betrayed me",
+      "i_betrayed_you": "i betrayed you",
+      "mutual_betrayal": "mutual betrayal",
+      "trust_destroyed": "trust destroyed",
+      "betrayal_by_friend": "betrayal by friend",
+      
+      // Devotion
+      "devoted_to_you": "devoted to you",
+      "worship_your_existence": "worship your existence",
+      "you_are_my_religion": "you are my religion",
+      "unconditional_love": "unconditional love",
+      "would_die_for_you": "would die for you",
+      
+      // Emptiness
+      "empty_without_you": "empty without you",
+      "hollow_inside": "hollow inside",
+      "void_in_heart": "void in heart",
+      "numb_and_empty": "numb and empty",
+      "emptiness_consumes": "emptiness consumes",
+      
+      // Hope
+      "hope_for_us": "hope for us",
+      "hope_you_return": "hope you return",
+      "hope_for_healing": "hope for healing",
+      "hope_is_fading": "hope is fading",
+      "never_give_up_hope": "never give up hope",
+      
+      // Longing
+      "ache_for_you": "ache for you",
+      "desperate_yearning": "desperate yearning",
+      "craving_your_touch": "craving your touch",
+      "starving_for_you": "starving for you",
+      "endless_desire": "endless desire",
+      
+      // Nostalgia
+      "remember_good_times": "remember good times",
+      "miss_our_past": "miss our past",
+      "better_days": "better days",
+      "golden_memories": "golden memories",
+      "wish_we_could_go_back": "wish we could go back",
+      
+      // Obsession
+      "cant_stop_thinking": "can't stop thinking",
+      "consumed_by_you": "consumed by you",
+      "unhealthy_fixation": "unhealthy fixation",
+      "obsessed_with_memories": "obsessed with memories",
+      "addicted_to_you": "addicted to you",
+      
+      // Passion
+      "burning_desire": "burning desire",
+      "wild_love": "wild love",
+      "fierce_attraction": "fierce attraction",
+      "passionate_fire": "passionate fire",
+      "intense_connection": "intense connection",
+      
+      // Pride
+      "proud_of_us": "proud of us",
+      "too_proud_to_beg": "too proud to beg",
+      "swallowing_pride": "swallowing pride",
+      "pride_before_fall": "pride before fall",
+      "damaged_pride": "damaged pride",
+      
+      // Vulnerability
+      "opening_my_heart": "opening my heart",
+      "showing_weakness": "showing weakness",
+      "need_protection": "need protection",
+      "trust_you_completely": "trust you completely",
+      "exposed_and_fragile": "exposed and fragile",
+      
+      // Yearning
+      "yearn_for_touch": "yearn for touch",
+      "desperate_need": "desperate need",
+      "soul_yearning": "soul yearning",
+      "yearning_for_past": "yearning for past",
+      "unfulfilled_yearning": "unfulfilled yearning",
+      
       // Other
       "other_feeling": "other feeling",
       "different_emotion": "different emotion",
@@ -407,6 +485,7 @@ export default function SubmitPage() {
       "i hate myself": "hate_myself",
       "i hate what we became": "hate_what_we_became",
       "i don't hate you anymore": "dont_hate_anymore",
+      "i can't hate you": "i_cant_hate_you",
       
       // Apology
       "i'm sorry": "im_sorry",
@@ -523,6 +602,83 @@ export default function SubmitPage() {
       "i'm angry at myself": "angry_at_myself",
       "i'm angry at the situation": "angry_at_situation",
       "i'm not angry anymore": "not_angry_anymore",
+      
+      // Betrayal
+      "you betrayed me": "you_betrayed_me",
+      "i betrayed you": "i_betrayed_you",
+      "mutual betrayal": "mutual_betrayal",
+      "trust destroyed": "trust_destroyed",
+      "betrayal by friend": "betrayal_by_friend",
+      
+      // Devotion
+      "devoted to you": "devoted_to_you",
+      "worship your existence": "worship_your_existence",
+      "you are my religion": "you_are_my_religion",
+      "unconditional love": "unconditional_love",
+      "would die for you": "would_die_for_you",
+      
+      // Emptiness
+      "empty without you": "empty_without_you",
+      "hollow inside": "hollow_inside",
+      "void in heart": "void_in_heart",
+      "numb and empty": "numb_and_empty",
+      "emptiness consumes": "emptiness_consumes",
+      
+      // Hope
+      "hope for us": "hope_for_us",
+      "hope you return": "hope_you_return",
+      "hope for healing": "hope_for_healing",
+      "hope is fading": "hope_is_fading",
+      "never give up hope": "never_give_up_hope",
+      
+      // Longing
+      "ache for you": "ache_for_you",
+      "desperate yearning": "desperate_yearning",
+      "craving your touch": "craving_your_touch",
+      "starving for you": "starving_for_you",
+      "endless desire": "endless_desire",
+      
+      // Nostalgia
+      "remember good times": "remember_good_times",
+      "miss our past": "miss_our_past",
+      "better days": "better_days",
+      "golden memories": "golden_memories",
+      "wish we could go back": "wish_we_could_go_back",
+      
+      // Obsession
+      "can't stop thinking": "cant_stop_thinking",
+      "consumed by you": "consumed_by_you",
+      "unhealthy fixation": "unhealthy_fixation",
+      "obsessed with memories": "obsessed_with_memories",
+      "addicted to you": "addicted_to_you",
+      
+      // Passion
+      "burning desire": "burning_desire",
+      "wild love": "wild_love",
+      "fierce attraction": "fierce_attraction",
+      "passionate fire": "passionate_fire",
+      "intense connection": "intense_connection",
+      
+      // Pride
+      "proud of us": "proud_of_us",
+      "too proud to beg": "too_proud_to_beg",
+      "swallowing pride": "swallowing_pride",
+      "pride before fall": "pride_before_fall",
+      "damaged pride": "damaged_pride",
+      
+      // Vulnerability
+      "opening my heart": "opening_my_heart",
+      "showing weakness": "showing_weakness",
+      "need protection": "need_protection",
+      "trust you completely": "trust_you_completely",
+      "exposed and fragile": "exposed_and_fragile",
+      
+      // Yearning
+      "yearn for touch": "yearn_for_touch",
+      "desperate need": "desperate_need",
+      "soul yearning": "soul_yearning",
+      "yearning for past": "yearning_for_past",
+      "unfulfilled yearning": "unfulfilled_yearning",
       
       // Other
       "other feeling": "other_feeling",
