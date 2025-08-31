@@ -78,15 +78,16 @@ export default function UuidInitializer() {
           // Fallback: just update version if any error occurs
           localStorage.setItem('app_version', currentVersion);
           console.log('Cache refresh handled gracefully');
-                 }
-       }
-     } catch (error) {
-       // If anything fails, just log and continue - don't crash the app
-       console.log('UuidInitializer error handled gracefully:', error);
-     }
-   }, []);
-   return null;
- }
+        }
+      }
+      } // Add missing closing brace for the window check
+    } catch (error) {
+      // If anything fails, just log and continue - don't crash the app
+      console.log('UuidInitializer error handled gracefully:', error);
+    }
+  }, []);
+  return null;
+}
 
 // Helper function to get cookie value
 function getCookie(name: string): string | null {
