@@ -58,13 +58,12 @@ export default function UuidInitializer() {
             caches.keys()
               .then(names => {
                 if (Array.isArray(names)) {
-                  return Promise.all(
-                    names.map(name => 
-                      caches.delete(name).catch(() => false)
-                    )
-                  );
+                  names.forEach(name => {
+                    caches.delete(name).catch(() => {
+                      // Individual cache deletion failed - not critical
+                    });
+                  });
                 }
-                return Promise.resolve();
               })
               .catch(() => {
                 // Cache clearing failed - not critical
