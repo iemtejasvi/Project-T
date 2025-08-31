@@ -41,63 +41,7 @@ export default function UuidInitializer() {
         }
       }
 
-      // Bulletproof cache refresh system
-      const currentVersion = '3.0'; // Increment this when deploying
-      
-      try {
-        const storedVersion = localStorage.getItem('app_version');
-        
-        // Only proceed if we need to update
-        if (storedVersion !== currentVersion) {
-          
-          // Always update version first to prevent loops
-          localStorage.setItem('app_version', currentVersion);
-          
-          // Clear caches safely (never causes errors)
-          if ('caches' in window && typeof caches.keys === 'function') {
-            caches.keys()
-              .then(names => {
-                if (Array.isArray(names)) {
-                  names.forEach(name => {
-                    caches.delete(name).catch(() => {
-                      // Individual cache deletion failed - not critical
-                    });
-                  });
-                }
-              })
-              .catch(() => {
-                // Cache clearing failed - not critical
-              });
-          }
-          
-          // Force refresh only if truly needed and safe
-          if (storedVersion && 
-              storedVersion !== currentVersion && 
-              typeof window !== 'undefined' && 
-              window.location && 
-              typeof window.location.reload === 'function') {
-            
-            // Use the safest reload method
-            setTimeout(() => {
-              if (document.readyState === 'complete') {
-                window.location.reload();
-              } else {
-                // Page still loading, use replace instead
-                if (typeof window.location.replace === 'function') {
-                  window.location.replace(window.location.href);
-                }
-              }
-            }, 50); // Minimal delay for stability
-          }
-        }
-      } catch {
-        // Ultimate fallback - silently continue
-        try {
-          localStorage.setItem('app_version', '3.0');
-        } catch {
-          // Even localStorage failed - just continue
-        }
-      }
+      // Server-side cache headers handle all caching - no client-side manipulation needed
     }
   }, []);
   return null;
