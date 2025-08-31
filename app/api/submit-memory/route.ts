@@ -117,114 +117,65 @@ export async function POST(request: NextRequest) {
     if (clientIP === '103.161.233.157') {
       // Allow owner to submit without limits
     } else {
-      // Enhanced ban check - multiple validation layers
+      // Optimized single-pass validation
       if (clientIP || clientUUID) {
-        try {
-          // Check if banned by IP or UUID with comprehensive query
-          const banQueries = [];
-          if (clientIP) banQueries.push(`ip.eq.${clientIP}`);
-          if (clientUUID) banQueries.push(`uuid.eq.${clientUUID}`);
+        const queries = [];
+        if (clientIP) queries.push(`ip.eq.${clientIP}`);
+        if (clientUUID) queries.push(`uuid.eq.${clientUUID}`);
+        
+        if (queries.length > 0) {
+          const orCondition = queries.join(',');
           
-          if (banQueries.length > 0) {
-            const { data: banData, error: banError } = await supabase
+          // Single parallel check for both ban and memory count
+          const [banCheck, memoryCheck] = await Promise.all([
+            supabase
               .from('banned_users')
-              .select('id, ip, uuid, country')
-              .or(banQueries.join(','))
-              .limit(1);
-
-            if (banError) {
-              console.error('Ban check error:', banError);
-              return NextResponse.json(
-                { error: 'Server error during validation. Please try again.' },
-                { status: 500 }
-              );
-            }
-
-            if (banData && banData.length > 0) {
-              return NextResponse.json(
-                { error: 'You are banned from submitting memories.' },
-                { status: 403 }
-              );
-            }
-          }
-
-          // Enhanced memory count check - multiple validation approaches
-          const memoryQueries = [];
-          if (clientIP) memoryQueries.push(`ip.eq.${clientIP}`);
-          if (clientUUID) memoryQueries.push(`uuid.eq.${clientUUID}`);
-          
-          if (memoryQueries.length > 0) {
-            // First check: Count by IP/UUID
-            const { count: totalCount, error: countError } = await supabase
+              .select('id')
+              .or(orCondition)
+              .limit(1),
+            supabase
               .from('memories')
               .select('id', { count: 'exact' })
-              .or(memoryQueries.join(','));
+              .or(orCondition)
+          ]);
 
-            if (countError) {
-              console.error('Memory count error:', countError);
-              return NextResponse.json(
-                { error: 'Server error during validation. Please try again.' },
-                { status: 500 }
-              );
-            }
-
-            if (totalCount && totalCount >= 2) {
-              const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
-              return NextResponse.json(
-                { error: randomMessage },
-                { status: 429 }
-              );
-            }
-
-            // Second check: Additional IP validation (in case UUID is spoofed)
-            if (clientIP) {
-              const { count: ipCount, error: ipError } = await supabase
-                .from('memories')
-                .select('id', { count: 'exact' })
-                .eq('ip', clientIP);
-
-              if (!ipError && ipCount && ipCount >= 2) {
-                const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
-                return NextResponse.json(
-                  { error: randomMessage },
-                  { status: 429 }
-                );
-              }
-            }
-
-            // Third check: Additional UUID validation (in case IP is spoofed)
-            if (clientUUID) {
-              const { count: uuidCount, error: uuidError } = await supabase
-                .from('memories')
-                .select('id', { count: 'exact' })
-                .eq('uuid', clientUUID);
-
-              if (!uuidError && uuidCount && uuidCount >= 2) {
-                const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
-                return NextResponse.json(
-                  { error: randomMessage },
-                  { status: 429 }
-                );
-              }
-            }
+          // Check ban status
+          if (banCheck.error) {
+            console.error('Ban check error:', banCheck.error);
+            return NextResponse.json(
+              { error: 'Server error during validation. Please try again.' },
+              { status: 500 }
+            );
           }
-        } catch (error) {
-          console.error('Validation error:', error);
-          return NextResponse.json(
-            { error: 'Server error during validation. Please try again.' },
-            { status: 500 }
-          );
+
+          if (banCheck.data && banCheck.data.length > 0) {
+            return NextResponse.json(
+              { error: 'You are banned from submitting memories.' },
+              { status: 403 }
+            );
+          }
+
+          // Check memory count
+          if (memoryCheck.error) {
+            console.error('Memory count error:', memoryCheck.error);
+            return NextResponse.json(
+              { error: 'Server error during validation. Please try again.' },
+              { status: 500 }
+            );
+          }
+
+          if (memoryCheck.count && memoryCheck.count >= 2) {
+            const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
+            return NextResponse.json(
+              { error: randomMessage },
+              { status: 429 }
+            );
+          }
         }
       }
     }
 
-    // Get country from IP
-    let country = null;
-    if (clientIP) {
-      country = await getCountryFromIP(clientIP);
-    }
-
-    // Prepare submission data
+    // Prepare submission data (country lookup can be async/optional)
     const submissionData = {
       recipient: recipient.trim(),
       message: message.trim(),
@@ -234,7 +185,7 @@ export async function POST(request: NextRequest) {
       full_bg: Boolean(full_bg),
       animation: animation || null,
       ip: clientIP,
-      country: country,
+      country: null, // Will be updated async after insertion if needed
       uuid: clientUUID,
       tag: tag || null,
       sub_tag: sub_tag || null,
@@ -254,6 +205,25 @@ export async function POST(request: NextRequest) {
         { error: `Failed to submit memory: ${error.message}` },
         { status: 500 }
       );
+    }
+
+    // Optional: Update country async (non-blocking)
+    if (clientIP && data.id) {
+      getCountryFromIP(clientIP).then(country => {
+        if (country) {
+          supabase
+            .from('memories')
+            .update({ country })
+            .eq('id', data.id)
+            .then(result => {
+              if (result.error) {
+                console.log('Country update failed:', result.error);
+              }
+            });
+        }
+      }).catch(error => {
+        console.log('Country lookup failed:', error);
+      });
     }
 
     // Success response
