@@ -41,6 +41,16 @@ export default function UuidInitializer() {
         }
       }
 
+      // One-time cleanup for existing users - ultra safe
+      try {
+        const oldVersion = localStorage.getItem('app_version');
+        if (oldVersion && (oldVersion === '2.2' || oldVersion === '2.3' || oldVersion === '3.0')) {
+          localStorage.removeItem('app_version');
+        }
+      } catch {
+        // Ignore any localStorage errors
+      }
+      
       // Server-side cache headers handle all caching - no client-side manipulation needed
     }
   }, []);
