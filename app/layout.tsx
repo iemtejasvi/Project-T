@@ -9,6 +9,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  themeColor: '#000000',
 };
 
 export const metadata = {
@@ -19,6 +20,10 @@ export const metadata = {
     'cache-control': 'no-cache, no-store, must-revalidate',
     'pragma': 'no-cache',
     'expires': '0',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+    'mobile-web-app-capable': 'yes',
+    'format-detection': 'telephone=no',
   },
   keywords: [
     "unsent messages",

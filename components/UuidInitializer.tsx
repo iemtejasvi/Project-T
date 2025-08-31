@@ -42,7 +42,7 @@ export default function UuidInitializer() {
       }
 
       // Add cache refresh on version change
-      const currentVersion = '2.0'; // Increment this when deploying
+      const currentVersion = '2.1'; // Increment this when deploying
       const storedVersion = localStorage.getItem('app_version');
       
       if (storedVersion !== currentVersion) {
@@ -54,11 +54,27 @@ export default function UuidInitializer() {
             });
           });
         }
-        localStorage.setItem('app_version', currentVersion);
         
-        // Force reload if version changed
+        // Mobile-specific cache clearing
+        if ('storage' in navigator && 'estimate' in navigator.storage) {
+          // Clear additional mobile storage
+          try {
+            localStorage.clear();
+            sessionStorage.clear();
+          } catch (e) {
+            console.log('Storage clear failed:', e);
+          }
+        }
+        
+        // Force hard reload for mobile browsers
         if (storedVersion) {
-          window.location.reload();
+          // Add timestamp to force fresh load
+          const timestamp = Date.now();
+          const url = new URL(window.location.href);
+          url.searchParams.set('v', timestamp.toString());
+          window.location.href = url.toString();
+        } else {
+          localStorage.setItem('app_version', currentVersion);
         }
       }
     }

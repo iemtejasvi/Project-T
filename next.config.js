@@ -9,7 +9,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0',
+            value: 'no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0',
           },
           {
             key: 'Pragma',
@@ -22,6 +22,14 @@ const nextConfig = {
           {
             key: 'Vary',
             value: '*',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
           },
         ],
       },
