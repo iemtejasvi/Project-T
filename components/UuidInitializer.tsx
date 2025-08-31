@@ -41,42 +41,62 @@ export default function UuidInitializer() {
         }
       }
 
-      // Add cache refresh on version change
-      const currentVersion = '2.3'; // Increment this when deploying
-      const storedVersion = localStorage.getItem('app_version');
+      // Bulletproof cache refresh system
+      const currentVersion = '3.0'; // Increment this when deploying
       
-      if (storedVersion !== currentVersion) {
-        try {
-          // Clear all caches when version changes (async/non-blocking)
-          if ('caches' in window) {
-            caches.keys().then(names => {
-              names.forEach(name => {
-                caches.delete(name);
+      try {
+        const storedVersion = localStorage.getItem('app_version');
+        
+        // Only proceed if we need to update
+        if (storedVersion !== currentVersion) {
+          
+          // Always update version first to prevent loops
+          localStorage.setItem('app_version', currentVersion);
+          
+          // Clear caches safely (never causes errors)
+          if ('caches' in window && typeof caches.keys === 'function') {
+            caches.keys()
+              .then(names => {
+                if (Array.isArray(names)) {
+                  return Promise.all(
+                    names.map(name => 
+                      caches.delete(name).catch(() => false)
+                    )
+                  );
+                }
+                return Promise.resolve();
+              })
+              .catch(() => {
+                // Cache clearing failed - not critical
               });
-            }).catch(() => {}); // Silent fail
           }
           
-          // Update version immediately to prevent future checks
-          localStorage.setItem('app_version', currentVersion);
-          
-          // Only force reload if this is genuinely an old version (not first visit)
-          // Add mobile-specific handling to prevent errors
-          if (storedVersion && storedVersion !== currentVersion) {
-            // Delay reload slightly for mobile stability
+          // Force refresh only if truly needed and safe
+          if (storedVersion && 
+              storedVersion !== currentVersion && 
+              typeof window !== 'undefined' && 
+              window.location && 
+              typeof window.location.reload === 'function') {
+            
+            // Use the safest reload method
             setTimeout(() => {
-              try {
-                // Use replace instead of href to prevent history entry
-                window.location.replace(window.location.href);
-              } catch {
-                // Fallback: just update version without reload if error occurs
-                console.log('Cache refresh completed without reload');
+              if (document.readyState === 'complete') {
+                window.location.reload();
+              } else {
+                // Page still loading, use replace instead
+                if (typeof window.location.replace === 'function') {
+                  window.location.replace(window.location.href);
+                }
               }
-            }, 100);
+            }, 50); // Minimal delay for stability
           }
+        }
+      } catch {
+        // Ultimate fallback - silently continue
+        try {
+          localStorage.setItem('app_version', '3.0');
         } catch {
-          // Fallback: just update version if any error occurs
-          localStorage.setItem('app_version', currentVersion);
-          console.log('Cache refresh handled gracefully');
+          // Even localStorage failed - just continue
         }
       }
     }
