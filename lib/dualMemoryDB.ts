@@ -25,7 +25,7 @@ function getNextDatabase(): 'A' | 'B' {
 
 // Interface for memory data
 interface MemoryData {
-  id?: string;
+  id: string;
   recipient: string;
   message: string;
   sender?: string | null;
@@ -59,7 +59,7 @@ async function testDatabaseConnection(db: typeof dbA): Promise<boolean> {
 }
 
 // Insert memory with round-robin and failover
-export async function insertMemory(memoryData: MemoryData) {
+export async function insertMemory(memoryData: Omit<MemoryData, 'id'>) {
   const primaryDB = getNextDatabase();
   const secondaryDB = primaryDB === 'A' ? 'B' : 'A';
   
@@ -179,7 +179,7 @@ export async function countMemories(filters: Record<string, string> = {}) {
 }
 
 // Update memory in both databases (finds the record first)
-export async function updateMemory(id: string, updates: Partial<MemoryData>) {
+export async function updateMemory(id: string, updates: Partial<Omit<MemoryData, 'id'>>) {
   const updatePromises = [
     dbA.client.from('memories').update(updates).eq('id', id).select(),
     dbB.client.from('memories').update(updates).eq('id', id).select()
