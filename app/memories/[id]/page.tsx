@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { fetchMemoryById } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 
 interface Memory {
@@ -28,11 +29,7 @@ export default function MemoryDetail() {
 
   useEffect(() => {
     async function fetchMemory() {
-      const { data, error } = await supabase
-        .from("memories")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data, error } = await fetchMemoryById(id);
       if (error || !data) {
         setMemory(false);
       } else {

@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    // Check maintenance status from Supabase
+    // Check maintenance status from Supabase (always use primary database)
     const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/maintenance?id=eq.1&select=is_active`, {
       headers: {
         'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

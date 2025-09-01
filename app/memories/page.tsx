@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { fetchMemories, updateMemory, primaryDB } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
 import { FaFeatherAlt } from "react-icons/fa";
@@ -86,13 +87,11 @@ export default function Memories() {
       try {
         setInitialLoading(true);
         
-        // Fetch memories
-        const { data: memoriesData, error: memoriesError } = await supabase
-          .from("memories")
-          .select("*")
-          .eq("status", "approved")
-          .order("pinned", { ascending: false })
-          .order("created_at", { ascending: false });
+        // Fetch memories from both databases
+        const { data: memoriesData, error: memoriesError } = await fetchMemories(
+          { status: "approved" },
+          { pinned: true, created_at: "desc" }
+        );
 
         if (!isMounted) return;
 
@@ -140,10 +139,7 @@ export default function Memories() {
 
         // Update expired pins in database
         for (const id of expiredPinIds) {
-          await supabase
-            .from("memories")
-            .update({ pinned: false, pinned_until: null })
-            .eq("id", id);
+          await updateMemory(id, { pinned: false, pinned_until: null });
         }
 
         // Update local state without refetching

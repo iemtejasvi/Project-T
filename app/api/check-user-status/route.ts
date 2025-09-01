@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
+import { countMemories, primaryDB } from '@/lib/dualMemoryDB';
 
 function getClientIP(request: NextRequest): string | null {
   // Try multiple headers for IP detection
@@ -46,8 +47,18 @@ export async function POST(request: NextRequest) {
     const clientIP = getClientIP(request);
     const clientUUID = uuid || getCookieValue(request, 'user_uuid');
     
-    // Owner exemption
-    if (clientIP === '103.161.233.157') {
+    // Owner exemption and localhost
+    const host = request.headers.get('host') || '';
+    const isLocalhost = host.includes('localhost') || 
+                       host.includes('127.0.0.1') ||
+                       host.includes('192.168.1.41') || // Your local network IP
+                       host.startsWith('localhost:') ||
+                       clientIP === '127.0.0.1' || 
+                       clientIP === '::1' ||
+                       clientIP === '192.168.1.41' ||
+                       !clientIP; // No IP detected = likely localhost
+    
+    if (clientIP === '103.161.233.157' || isLocalhost) {
       return NextResponse.json({
         canSubmit: true,
         isBanned: false,
@@ -67,7 +78,7 @@ export async function POST(request: NextRequest) {
         if (clientUUID) banQueries.push(`uuid.eq.${clientUUID}`);
         
         if (banQueries.length > 0) {
-          const { data: banData, error: banError } = await supabase
+          const { data: banData, error: banError } = await primaryDB
             .from('banned_users')
             .select('id')
             .or(banQueries.join(','))
@@ -91,10 +102,20 @@ export async function POST(request: NextRequest) {
           if (clientUUID) memoryQueries.push(`uuid.eq.${clientUUID}`);
           
           if (memoryQueries.length > 0) {
-            const { count, error: countError } = await supabase
-              .from('memories')
-              .select('id', { count: 'exact' })
-              .or(memoryQueries.join(','));
+            // Count memories across both databases
+            let totalCount = 0;
+            if (clientIP && clientUUID) {
+              const ipResult = await countMemories({ ip: clientIP });
+              const uuidResult = await countMemories({ uuid: clientUUID });
+              totalCount = Math.max(ipResult.count, uuidResult.count);
+            } else if (clientIP) {
+              const result = await countMemories({ ip: clientIP });
+              totalCount = result.count;
+            } else if (clientUUID) {
+              const result = await countMemories({ uuid: clientUUID });
+              totalCount = result.count;
+            }
+            const countError = null; // No error from our unified function
 
             if (countError) {
               console.error('Memory count error:', countError);
@@ -104,7 +125,7 @@ export async function POST(request: NextRequest) {
               );
             }
 
-            memoryCount = count || 0;
+            memoryCount = totalCount;
           }
         }
       } catch (error) {

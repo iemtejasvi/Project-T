@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { fetchMemories, primaryDB } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
@@ -65,8 +66,8 @@ export default function Home() {
 
     async function fetchData() {
       try {
-        // Fetch announcement
-        const { data: announcementData, error: announcementError } = await supabase
+        // Fetch announcement (always from primary database)
+        const { data: announcementData, error: announcementError } = await primaryDB
           .from("announcements")
           .select("id, message, expires_at")
           .eq("is_active", true)
@@ -84,7 +85,7 @@ export default function Home() {
           // Check if announcement has expired
           if (now >= expiryTime) {
             // Delete expired announcement
-            await supabase
+            await primaryDB
               .from("announcements")
               .delete()
               .eq("id", announcementData[0].id);
@@ -102,14 +103,14 @@ export default function Home() {
           if (isMounted) setAnnouncement(null);
         }
 
-        // Fetch memories
-        const { data: memoriesData, error: memoriesError } = await supabase
-          .from("memories")
-          .select("*")
-          .eq("status", "approved")
-          .order("pinned", { ascending: false })
-          .order("created_at", { ascending: false })
-          .limit(4);
+        // Fetch memories from both databases
+        const { data: allMemoriesData, error: memoriesError } = await fetchMemories(
+          { status: "approved" },
+          { pinned: true, created_at: "desc" }
+        );
+        
+        // Limit to 4 for home page
+        const memoriesData = allMemoriesData.slice(0, 4);
 
         if (!isMounted) return;
 
@@ -155,12 +156,10 @@ export default function Home() {
       try {
         const expiredPinIds = expiredPins.map(memory => memory.id);
 
-        // Update expired pins in database
+        // Update expired pins in database (import updateMemory)
+        const { updateMemory } = await import("@/lib/dualMemoryDB");
         for (const id of expiredPinIds) {
-          await supabase
-            .from("memories")
-            .update({ pinned: false, pinned_until: null })
-            .eq("id", id);
+          await updateMemory(id, { pinned: false, pinned_until: null });
         }
 
         // Update local state without refetching

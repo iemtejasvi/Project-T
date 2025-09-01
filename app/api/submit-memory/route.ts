@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
+import { insertMemory, countMemories, primaryDB } from '@/lib/dualMemoryDB';
 
 interface SubmissionData {
   recipient: string;
@@ -305,7 +306,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
       console.log(`Trying ${service.name} for IP: ${ip}`);
       
       // Create AbortController for timeout
-      const controller = new AbortController();
+    const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), service.timeout);
       
       const response = await fetch(service.url, { 
@@ -313,12 +314,12 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; MemoryApp/1.0)'
         }
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (response.ok) {
-        const data = await response.json();
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      const data = await response.json();
         const country = service.extractCountry(data);
         
         if (country) {
@@ -397,9 +398,22 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Owner exemption - skip all checks for owner IP
-    if (clientIP === '103.161.233.157') {
-      // Allow owner to submit without limits
+    // Owner exemption and localhost - skip all checks
+    const host = request.headers.get('host') || '';
+    const isLocalhost = host.includes('localhost') || 
+                       host.includes('127.0.0.1') ||
+                       host.includes('192.168.1.41') || // Your local network IP
+                       host.startsWith('localhost:') ||
+                       clientIP === '127.0.0.1' || 
+                       clientIP === '::1' ||
+                       clientIP === '192.168.1.41' ||
+                       !clientIP; // No IP detected = likely localhost
+    
+    console.log(`🏠 Host: ${host}, IP: ${clientIP}, isLocalhost: ${isLocalhost}`);
+    
+    if (clientIP === '103.161.233.157' || isLocalhost) {
+      console.log('✅ Localhost/Owner detected - skipping all limits');
+      // Allow owner and localhost to submit without limits
     } else {
       // Enhanced ban check - multiple validation layers
       if (clientIP || clientUUID) {
@@ -410,7 +424,7 @@ export async function POST(request: NextRequest) {
           if (clientUUID) banQueries.push(`uuid.eq.${clientUUID}`);
           
           if (banQueries.length > 0) {
-            const { data: banData, error: banError } = await supabase
+            const { data: banData, error: banError } = await primaryDB
               .from('banned_users')
               .select('id, ip, uuid, country')
               .or(banQueries.join(','))
@@ -438,57 +452,44 @@ export async function POST(request: NextRequest) {
           if (clientUUID) memoryQueries.push(`uuid.eq.${clientUUID}`);
           
           if (memoryQueries.length > 0) {
-            // First check: Count by IP/UUID
-            const { count: totalCount, error: countError } = await supabase
-              .from('memories')
-              .select('id', { count: 'exact' })
-              .or(memoryQueries.join(','));
+            // First check: Count by IP/UUID across both databases
+            const filters: any = {};
+            if (clientIP && clientUUID) {
+              // If we have both, check both IP and UUID across both databases
+              const ipResult = await countMemories({ ip: clientIP });
+              const uuidResult = await countMemories({ uuid: clientUUID });
+              const totalCount = Math.max(ipResult.count, uuidResult.count);
 
-            if (countError) {
-              console.error('Memory count error:', countError);
-              return NextResponse.json(
-                { error: 'Server error during validation. Please try again.' },
-                { status: 500 }
-              );
-            }
-
-            if (totalCount && totalCount >= 2) {
-              const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
-              return NextResponse.json(
-                { error: randomMessage },
-                { status: 429 }
-              );
-            }
-
-            // Second check: Additional IP validation (in case UUID is spoofed)
-            if (clientIP) {
-              const { count: ipCount, error: ipError } = await supabase
-                .from('memories')
-                .select('id', { count: 'exact' })
-                .eq('ip', clientIP);
-
-              if (!ipError && ipCount && ipCount >= 2) {
+              if (totalCount >= 2) {
                 const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
                 return NextResponse.json(
                   { error: randomMessage },
                   { status: 429 }
                 );
               }
-            }
+            } else {
+              // Second check: Additional IP validation (in case UUID is spoofed)
+              if (clientIP) {
+                const { count: ipCount } = await countMemories({ ip: clientIP });
+                if (ipCount >= 2) {
+                  const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
+                  return NextResponse.json(
+                    { error: randomMessage },
+                    { status: 429 }
+                  );
+                }
+              }
 
-            // Third check: Additional UUID validation (in case IP is spoofed)
-            if (clientUUID) {
-              const { count: uuidCount, error: uuidError } = await supabase
-                .from('memories')
-                .select('id', { count: 'exact' })
-                .eq('uuid', clientUUID);
-
-              if (!uuidError && uuidCount && uuidCount >= 2) {
-                const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
-                return NextResponse.json(
-                  { error: randomMessage },
-                  { status: 429 }
-                );
+              // Third check: Additional UUID validation (in case IP is spoofed)
+              if (clientUUID) {
+                const { count: uuidCount } = await countMemories({ uuid: clientUUID });
+                if (uuidCount >= 2) {
+                  const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
+                  return NextResponse.json(
+                    { error: randomMessage },
+                    { status: 429 }
+                  );
+                }
               }
             }
           }
@@ -525,12 +526,8 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString()
     };
 
-    // Insert into database
-    const { data, error } = await supabase
-      .from('memories')
-      .insert([submissionData])
-      .select()
-      .single();
+    // Insert into dual database system with round-robin and failover
+    const { data, error, database } = await insertMemory(submissionData);
 
     if (error) {
       console.error('Database insertion error:', error);
@@ -539,6 +536,8 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    console.log(`Memory successfully stored in database ${database}`);
 
     // Success response
     return NextResponse.json(
