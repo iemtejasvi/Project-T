@@ -15,7 +15,7 @@ const dbB = {
 };
 
 // Round-robin state (using persistent storage mechanism)
-let currentDatabase = 'A';
+let currentDatabase: 'A' | 'B' = 'A';
 
 // Function to get next database for round-robin
 function getNextDatabase(): 'A' | 'B' {
