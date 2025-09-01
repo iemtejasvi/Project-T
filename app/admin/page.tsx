@@ -121,7 +121,7 @@ export default function AdminPanel() {
       { status: selectedTab },
       { pinned: "desc", created_at: "desc" }
     ).then(({ data, error }) => {
-      if (error) console.error(error);
+      if (error) console.error(error.message || error);
       else setMemories(data || []);
     });
   }, [isAuthorized, selectedTab]);
@@ -153,7 +153,7 @@ export default function AdminPanel() {
           { status },
           { pinned: "desc", created_at: "desc" }
         );
-        if (error) console.error(error);
+        if (error) console.error(error.message || error);
         else setMemories(data || []);
       }
       fetchMemoriesData();
@@ -349,7 +349,7 @@ export default function AdminPanel() {
 
   async function updateMemoryStatus(id: string, newStatus: string) {
     const { error } = await updateMemory(id, { status: newStatus });
-    if (error) console.error(error);
+    if (error) console.error(error.message || error);
     refreshMemories();
   }
 
@@ -360,7 +360,7 @@ export default function AdminPanel() {
       return;
     }
     const { error } = await deleteMemory(id);
-    if (error) console.error(error);
+    if (error) console.error(error.message || error);
     refreshMemories();
   }
 
@@ -490,7 +490,7 @@ export default function AdminPanel() {
         .from("banned_users")
         .select("ip, uuid, country")
         .then(({ data, error }) => {
-          if (error) console.error(error);
+          if (error) console.error(error.message || error);
           else setBannedUsers(data || []);
         });
     }
