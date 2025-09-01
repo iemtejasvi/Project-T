@@ -35,6 +35,22 @@ const twoMemoryLimitMessages = [
   "Only 2 memories allowed. Two pieces of love, the rest is private."
 ];
 
+// Type definitions for API responses
+interface IPServiceResponse {
+  ip?: string;
+  origin?: string;
+  query?: string;
+}
+
+interface CountryServiceResponse {
+  status?: string;
+  country?: string;
+  country_name?: string;
+  country_code?: string;
+  ip?: string;
+  query?: string;
+}
+
 // Cache for IP detection to avoid repeated API calls
 const ipCache = new Map<string, { ip: string | null; timestamp: number }>();
 const IP_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for IP cache
@@ -105,7 +121,7 @@ async function getPublicIPFromServices(): Promise<string | null> {
     {
       name: 'ipify',
       url: 'https://api.ipify.org?format=json',
-      extractIP: (data: any) => data.ip,
+      extractIP: (data: IPServiceResponse) => data.ip,
       timeout: 3000,
       isJson: true
     },
@@ -119,14 +135,14 @@ async function getPublicIPFromServices(): Promise<string | null> {
     {
       name: 'ip-api.com',
       url: 'http://ip-api.com/json/?fields=query',
-      extractIP: (data: any) => data.query,
+      extractIP: (data: IPServiceResponse) => data.query,
       timeout: 3000,
       isJson: true
     },
     {
       name: 'httpbin',
       url: 'https://httpbin.org/ip',
-      extractIP: (data: any) => data.origin,
+      extractIP: (data: IPServiceResponse) => data.origin,
       timeout: 4000,
       isJson: true
     },
@@ -227,40 +243,40 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
     {
       name: 'ip-api.com',
       url: useAutoDetect ? `http://ip-api.com/json/?fields=status,country,query` : `http://ip-api.com/json/${ip}?fields=status,country`,
-      extractCountry: (data: any) => data.status === 'success' ? data.country : null,
-      extractIP: (data: any) => data.query || null,
+      extractCountry: (data: CountryServiceResponse) => data.status === 'success' ? data.country : null,
+      extractIP: (data: CountryServiceResponse) => data.query || null,
       timeout: 3000,
       canAutoDetectIP: true
     },
     {
       name: 'ipapi.co',
       url: useAutoDetect ? `https://ipapi.co/json/` : `https://ipapi.co/${ip}/json/`,
-      extractCountry: (data: any) => data.country_name || null,
-      extractIP: (data: any) => data.ip || null,
+      extractCountry: (data: CountryServiceResponse) => data.country_name || null,
+      extractIP: (data: CountryServiceResponse) => data.ip || null,
       timeout: 3000,
       canAutoDetectIP: true
     },
     {
       name: 'ipinfo.io',
       url: useAutoDetect ? `https://ipinfo.io/json` : `https://ipinfo.io/${ip}/json`,
-      extractCountry: (data: any) => data.country ? getCountryNameFromCode(data.country) : null,
-      extractIP: (data: any) => data.ip || null,
+      extractCountry: (data: CountryServiceResponse) => data.country ? getCountryNameFromCode(data.country) : null,
+      extractIP: (data: CountryServiceResponse) => data.ip || null,
       timeout: 4000,
       canAutoDetectIP: true
     },
     {
       name: 'ip2location',
       url: useAutoDetect ? `https://api.ip2location.io/?format=json` : `https://api.ip2location.io/?ip=${ip}&format=json`,
-      extractCountry: (data: any) => data.country_name || null,
-      extractIP: (data: any) => data.ip || null,
+      extractCountry: (data: CountryServiceResponse) => data.country_name || null,
+      extractIP: (data: CountryServiceResponse) => data.ip || null,
       timeout: 4000,
       canAutoDetectIP: true
     },
     {
       name: 'ipwhois.app',
       url: useAutoDetect ? `https://ipwhois.app/json/` : `https://ipwhois.app/json/${ip}`,
-      extractCountry: (data: any) => data.country || null,
-      extractIP: (data: any) => data.ip || null,
+      extractCountry: (data: CountryServiceResponse) => data.country || null,
+      extractIP: (data: CountryServiceResponse) => data.ip || null,
       timeout: 3000,
       canAutoDetectIP: true
     }
@@ -319,7 +335,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
           const cacheKey = detectedIP || ip;
           countryCache.set(cacheKey, { country, timestamp: Date.now() });
           
-          return { country, detectedIP };
+          return { country, detectedIP: detectedIP || undefined };
         } else {
           console.log(`⚠️ ${service.name} returned no country data`);
         }
