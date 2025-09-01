@@ -252,10 +252,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     const wordCount = memory.message.split(/[\s.]+/).filter(word => word.length > 0).length;
     const isShortOrExact = wordCount <= 30;
     const textClass = forceLarge
-      ? "text-2xl tracking-wide leading-snug break-words hyphens-none"
+      ? "text-[26px] tracking-wide leading-snug break-words hyphens-none"
       : isShortOrExact
-        ? "text-xl tracking-wide leading-snug break-words hyphens-none"
-        : "text-lg tracking-wide leading-snug break-words hyphens-none";
+        ? "text-[22px] tracking-wide leading-snug break-words hyphens-none"
+        : "text-[19px] tracking-wide leading-snug break-words hyphens-none";
     
     switch (memory.animation) {
       case "poetic":
