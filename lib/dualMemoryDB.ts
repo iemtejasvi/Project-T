@@ -28,20 +28,20 @@ interface MemoryData {
   id: string;
   recipient: string;
   message: string;
-  sender?: string | null;
+  sender?: string;
   status: string;
   color: string;
   full_bg: boolean;
-  animation?: string | null;
-  ip?: string | null;
-  country?: string | null;
-  uuid?: string | null;
-  tag?: string | null;
-  sub_tag?: string | null;
-  created_at?: string;
+  animation?: string;
+  ip?: string;
+  country?: string;
+  uuid?: string;
+  tag?: string;
+  sub_tag?: string;
+  created_at: string;
   pinned?: boolean;
-  pinned_until?: string | null;
-  [key: string]: string | boolean | null | undefined;
+  pinned_until?: string;
+  [key: string]: string | boolean | undefined;
 }
 
 // Test database connectivity
@@ -58,8 +58,17 @@ async function testDatabaseConnection(db: typeof dbA): Promise<boolean> {
   }
 }
 
+// Helper function to clean memory data (convert null to undefined)
+function cleanMemoryData(data: any): MemoryData {
+  const cleaned = Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [key, value === null ? undefined : value])
+  );
+  return cleaned as MemoryData;
+}
+
 // Insert memory with round-robin and failover
-export async function insertMemory(memoryData: Omit<MemoryData, 'id'>) {
+export async function insertMemory(memoryData: any) {
+  const cleanedData = cleanMemoryData(memoryData);
   const primaryDB = getNextDatabase();
   const secondaryDB = primaryDB === 'A' ? 'B' : 'A';
   
@@ -72,7 +81,7 @@ export async function insertMemory(memoryData: Omit<MemoryData, 'id'>) {
   try {
     const { data, error } = await primaryClient.client
       .from('memories')
-      .insert([memoryData])
+      .insert([cleanedData])
       .select()
       .single();
       
@@ -90,7 +99,7 @@ export async function insertMemory(memoryData: Omit<MemoryData, 'id'>) {
     try {
       const { data, error } = await secondaryClient.client
         .from('memories')
-        .insert([memoryData])
+        .insert([cleanedData])
         .select()
         .single();
         
@@ -124,13 +133,13 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   let memoriesB: MemoryData[] = [];
   
   if (resultA.status === 'fulfilled' && !resultA.value.error) {
-    memoriesA = resultA.value.data || [];
+    memoriesA = (resultA.value.data || []).map(cleanMemoryData);
   } else {
     console.error('Error fetching from database A:', resultA.status === 'fulfilled' ? resultA.value.error : resultA.reason);
   }
   
   if (resultB.status === 'fulfilled' && !resultB.value.error) {
-    memoriesB = resultB.value.data || [];
+    memoriesB = (resultB.value.data || []).map(cleanMemoryData);
   } else {
     console.error('Error fetching from database B:', resultB.status === 'fulfilled' ? resultB.value.error : resultB.reason);
   }
@@ -252,9 +261,9 @@ export async function fetchMemoryById(id: string) {
   
   // Return the first successful result
   if (resultA.status === 'fulfilled' && !resultA.value.error) {
-    return { data: resultA.value.data, error: null };
+    return { data: cleanMemoryData(resultA.value.data), error: null };
   } else if (resultB.status === 'fulfilled' && !resultB.value.error) {
-    return { data: resultB.value.data, error: null };
+    return { data: cleanMemoryData(resultB.value.data), error: null };
   } else {
     return { data: null, error: { message: 'Memory not found in either database' } };
   }
