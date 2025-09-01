@@ -75,10 +75,21 @@ function getCookieValue(request: NextRequest, name: string): string | null {
 
 async function getCountryFromIP(ip: string): Promise<string | null> {
   try {
-    const response = await fetch(`https://ipapi.co/${ip}/json/`);
+    // Try ip-api.com first (higher rate limits, free tier)
+    const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country`);
     if (response.ok) {
       const data = await response.json();
-      return data.country_name || null;
+      if (data.status === 'success' && data.country) {
+        return data.country;
+      }
+    }
+    
+    // Fallback to ipapi.co if first service fails
+    console.log('Falling back to ipapi.co for IP:', ip);
+    const fallbackResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+    if (fallbackResponse.ok) {
+      const fallbackData = await fallbackResponse.json();
+      return fallbackData.country_name || null;
     }
   } catch (error) {
     console.error('Error fetching country from IP:', error);
@@ -110,8 +121,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Get client IP and UUID
-    const clientIP = getClientIP(request);
+    let clientIP = getClientIP(request);
     const clientUUID = uuid || getCookieValue(request, 'user_uuid');
+    
+    // Handle localhost/development IPs - get real IP for country lookup
+    const isLocalhost = !clientIP || clientIP === '::1' || clientIP === '127.0.0.1' || clientIP.startsWith('192.168.') || clientIP.startsWith('10.');
+    let realClientIP = clientIP;
+    
+    if (isLocalhost) {
+      // For development/localhost, try to get public IP for country detection
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        if (ipResponse.ok) {
+          const ipData = await ipResponse.json();
+          realClientIP = ipData.ip;
+          console.log(`Using public IP ${realClientIP} for localhost country detection`);
+        }
+      } catch (error) {
+        console.log('Could not get public IP for localhost, country will be null');
+      }
+    }
     
     // Owner exemption - skip all checks for owner IP
     if (clientIP === '103.161.233.157') {
@@ -220,8 +249,8 @@ export async function POST(request: NextRequest) {
 
     // Get country from IP
     let country = null;
-    if (clientIP) {
-      country = await getCountryFromIP(clientIP);
+    if (realClientIP) {
+      country = await getCountryFromIP(realClientIP);
     }
 
     // Prepare submission data
