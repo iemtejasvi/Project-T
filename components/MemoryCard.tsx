@@ -320,8 +320,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
       <div
         className={
           isDesktop
-            ? "w-full max-w-2xl min-h-[500px] mx-auto my-16 p-16 rounded-3xl shadow-2xl border border-[var(--border)]/30 bg-[var(--card-bg)]/90 backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden"
-            : "w-full max-w-md mx-auto my-8 p-6 rounded-3xl shadow-xl border border-[var(--border)]/30 bg-[var(--card-bg)]/95 backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden min-h-[400px]"
+            ? "w-full max-w-3xl mx-auto my-16 p-16 rounded-[2rem] shadow-[0_25px_100px_rgba(0,0,0,0.3)] border-2 border-[var(--border)]/40 bg-gradient-to-br from-[var(--card-bg)]/95 via-[var(--card-bg)]/90 to-[var(--card-bg)]/95 backdrop-blur-2xl flex flex-col items-center justify-center relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.02] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
+            : "w-full max-w-sm mx-auto my-6 p-6 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.2)] border border-[var(--border)]/40 bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/95 to-[var(--card-bg)]/98 backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.03] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -331,22 +331,23 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         <div className="w-full flex flex-col items-center relative z-10">
           <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             {memory.animation && memory.animation !== "none" && (
-              <span 
-                className="text-xl sm:text-2xl md:text-3xl"
+              <motion.span 
+                initial={{ opacity: 0, rotate: -180 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className={`${isDesktop ? "text-4xl" : "text-xl"} drop-shadow-lg`}
                 style={{ ...arrowStyle }}
               >
                 ★
-              </span>
+              </motion.span>
             )}
-            <h3 className={`${isDesktop ? "text-5xl" : "text-2xl sm:text-3xl"} font-bold text-[var(--text)] text-center leading-tight`}>
+            <h3 className={`${isDesktop ? "text-6xl" : "text-2xl"} font-bold text-[var(--text)] text-center leading-tight drop-shadow-sm bg-gradient-to-r from-[var(--text)] to-[var(--text)]/80 bg-clip-text`}>
               To: {memory.recipient}
             </h3>
           </div>
           
           {memory.sender && (
-            <p 
-              className={`${isDesktop ? "text-xl" : "text-base sm:text-lg"} italic text-[var(--text)] opacity-80 mb-3 sm:mb-4 text-center`}
-            >
+            <p className={`${isDesktop ? "text-2xl" : "text-base"} italic text-[var(--text)] opacity-75 mb-3 sm:mb-4 text-center font-light tracking-wide`}>
               From: {memory.sender}
             </p>
           )}
@@ -355,9 +356,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </div>
 
         {/* Message section */}
-        <div className="w-full flex-1 flex flex-col justify-center items-center my-6 sm:my-8 relative z-10">
-          <div className={`${isDesktop ? "text-4xl" : "text-2xl sm:text-3xl"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
-            {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
+        <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
+          <div className={`${isDesktop ? "text-5xl" : "text-lg"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4 drop-shadow-sm relative`}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--text)]/[0.02] to-transparent rounded-lg blur-xl"></div>
+            <div className="relative z-10">
+              {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
+            </div>
           </div>
         </div>
 
@@ -366,10 +370,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
           <hr className="my-2 border-[#999999] w-full" />
           
           <div className="flex flex-col items-center gap-1 sm:gap-2">
-            <span className={`${isDesktop ? "text-lg" : "text-xs sm:text-sm"} text-[var(--text)] opacity-70 font-medium text-center`}>
+            <span className={`${isDesktop ? "text-xl" : "text-xs"} text-[var(--text)] opacity-75 font-medium text-center tracking-wide drop-shadow-sm`}>
               {dateStr} • {dayStr} • {timeStr}
             </span>
-            <span className={`${isDesktop ? "text-base" : "text-xs"} text-[var(--text)] opacity-50 font-normal text-center capitalize`}>
+            <span className={`${isDesktop ? "text-lg" : "text-xs"} text-[var(--text)] opacity-60 font-light text-center capitalize px-2 py-1 rounded-full bg-[var(--text)]/[0.05] border border-[var(--text)]/10 backdrop-blur-sm`}>
               {effectiveColor} theme
             </span>
           </div>
