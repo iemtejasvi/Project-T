@@ -16,10 +16,13 @@ interface Memory {
   status: string;
   color: string;
   full_bg: boolean;
-  letter_style: string;
+  letter_style?: string;
   animation?: string;
   pinned?: boolean;
   pinned_until?: string;
+  ip?: string;
+  country?: string;
+  uuid?: string;
   tag?: string;
   sub_tag?: string;
 }
