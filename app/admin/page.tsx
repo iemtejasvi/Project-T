@@ -418,7 +418,7 @@ export default function AdminPanel() {
       // If already pinned, just unpin it
       const { error } = await updateMemory(memory.id, { 
         pinned: false,
-        pinned_until: null
+        pinned_until: undefined
       });
       if (error) console.error(error);
       refreshMemories();
@@ -468,7 +468,7 @@ export default function AdminPanel() {
       let needsRefresh = false;
       for (const memory of pinnedMemories || []) {
         if (new Date(memory.pinned_until) <= currentTime) {
-          await updateMemory(memory.id, { pinned: false, pinned_until: null });
+          await updateMemory(memory.id, { pinned: false, pinned_until: undefined });
           needsRefresh = true;
         }
       }

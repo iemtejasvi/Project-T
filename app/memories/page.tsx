@@ -138,7 +138,7 @@ export default function Memories() {
 
         // Update expired pins in database
         for (const id of expiredPinIds) {
-          await updateMemory(id, { pinned: false, pinned_until: null });
+          await updateMemory(id, { pinned: false, pinned_until: undefined });
         }
 
         // Update local state without refetching

@@ -158,7 +158,7 @@ export default function Home() {
         // Update expired pins in database (import updateMemory)
         const { updateMemory } = await import("@/lib/dualMemoryDB");
         for (const id of expiredPinIds) {
-          await updateMemory(id, { pinned: false, pinned_until: null });
+          await updateMemory(id, { pinned: false, pinned_until: undefined });
         }
 
         // Update local state without refetching
