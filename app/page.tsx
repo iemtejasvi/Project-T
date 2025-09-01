@@ -7,7 +7,6 @@ import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
 import { FaFeatherAlt } from "react-icons/fa";
-import Loader from "@/components/Loader";
 
 interface Memory {
   id: string;
