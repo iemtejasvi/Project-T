@@ -357,7 +357,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
         {/* Message section */}
         <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
-          <div className={`${isDesktop ? "text-5xl" : "text-lg"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4 drop-shadow-sm relative`}>
+                      <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4 drop-shadow-sm relative`}>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--text)]/[0.02] to-transparent rounded-lg blur-xl"></div>
             <div className="relative z-10">
               {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
