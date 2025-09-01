@@ -114,7 +114,7 @@ export default function Home() {
         if (!isMounted) return;
 
         if (memoriesError) {
-          console.error("Error fetching memories:", memoriesError.message);
+          console.error("Error fetching memories:", memoriesError);
         } else {
           if (isMounted) setRecentMemories(memoriesData || []);
         }

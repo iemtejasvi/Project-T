@@ -95,7 +95,7 @@ export default function Memories() {
         if (!isMounted) return;
 
         if (memoriesError) {
-          console.error("Error fetching memories:", memoriesError.message);
+          console.error("Error fetching memories:", memoriesError);
         } else {
           if (isMounted) {
             setAllMemories(memoriesData || []);
