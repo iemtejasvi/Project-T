@@ -89,7 +89,7 @@ export default function Memories() {
         // Fetch memories from both databases
         const { data: memoriesData, error: memoriesError } = await fetchMemories(
           { status: "approved" },
-          { pinned: true, created_at: "desc" }
+          { pinned: "desc", created_at: "desc" }
         );
 
         if (!isMounted) return;

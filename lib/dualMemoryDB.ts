@@ -153,23 +153,21 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
     filteredMemories = filteredMemories.filter(m => m.uuid === filters.uuid);
   }
   
-  // Apply ordering
-  if (orderBy.created_at) {
-    filteredMemories.sort((a, b) => {
-      const dateA = new Date(a.created_at).getTime();
-      const dateB = new Date(b.created_at).getTime();
+  // Apply ordering - pinned first, then by created_at
+  filteredMemories.sort((a, b) => {
+    // First sort by pinned status (pinned items first)
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    
+    // Then sort by created_at
+    if (orderBy.created_at) {
+      const dateA = new Date(a.created_at || '').getTime();
+      const dateB = new Date(b.created_at || '').getTime();
       return orderBy.created_at === 'desc' ? dateB - dateA : dateA - dateB;
-    });
-  }
-  
-  // Apply pinned ordering (pinned items first)
-  if (orderBy.pinned) {
-    filteredMemories.sort((a, b) => {
-      if (a.pinned && !b.pinned) return -1;
-      if (!a.pinned && b.pinned) return 1;
-      return 0;
-    });
-  }
+    }
+    
+    return 0;
+  });
   
   return { data: filteredMemories, error: null };
 }

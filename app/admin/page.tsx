@@ -119,7 +119,7 @@ export default function AdminPanel() {
     if (!isAuthorized) return;
     fetchMemories(
       { status: selectedTab },
-      { pinned: true, created_at: "desc" }
+      { pinned: "desc", created_at: "desc" }
     ).then(({ data, error }) => {
       if (error) console.error(error);
       else setMemories(data || []);
@@ -151,7 +151,7 @@ export default function AdminPanel() {
         const status = selectedTab === "pending" ? "pending" : selectedTab;
         const { data, error } = await fetchMemories(
           { status },
-          { pinned: true, created_at: "desc" }
+          { pinned: "desc", created_at: "desc" }
         );
         if (error) console.error(error);
         else setMemories(data || []);
@@ -462,7 +462,7 @@ export default function AdminPanel() {
       }
 
       // Check expired pins across both databases
-      const { data: allMemories } = await fetchMemories({ pinned: true });
+      const { data: allMemories } = await fetchMemories({ pinned: "true" });
       const pinnedMemories = allMemories.filter(m => m.pinned_until);
 
       let needsRefresh = false;

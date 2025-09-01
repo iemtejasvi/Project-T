@@ -105,7 +105,7 @@ export default function Home() {
         // Fetch memories from both databases
         const { data: allMemoriesData, error: memoriesError } = await fetchMemories(
           { status: "approved" },
-          { pinned: true, created_at: "desc" }
+          { pinned: "desc", created_at: "desc" }
         );
         
         // Limit to 4 for home page
