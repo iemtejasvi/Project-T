@@ -120,9 +120,10 @@ export default function AdminPanel() {
     fetchMemories(
       { status: selectedTab },
       { pinned: "desc", created_at: "desc" }
-    ).then(({ data, error }) => {
-      if (error) console.error(error.message || error);
-      else setMemories(data || []);
+    ).then(({ data }) => {
+      setMemories(data || []);
+    }).catch((error) => {
+      console.error('Error fetching memories:', error);
     });
   }, [isAuthorized, selectedTab]);
 
@@ -148,13 +149,16 @@ export default function AdminPanel() {
   useEffect(() => {
     if (isAuthorized) {
       async function fetchMemoriesData() {
-        const status = selectedTab === "pending" ? "pending" : selectedTab;
-        const { data, error } = await fetchMemories(
-          { status },
-          { pinned: "desc", created_at: "desc" }
-        );
-        if (error) console.error(error.message || error);
-        else setMemories(data || []);
+        try {
+          const status = selectedTab === "pending" ? "pending" : selectedTab;
+          const { data } = await fetchMemories(
+            { status },
+            { pinned: "desc", created_at: "desc" }
+          );
+          setMemories(data || []);
+        } catch (error) {
+          console.error('Error fetching memories:', error);
+        }
       }
       fetchMemoriesData();
     }
