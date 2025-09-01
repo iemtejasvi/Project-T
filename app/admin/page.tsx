@@ -467,7 +467,7 @@ export default function AdminPanel() {
 
       let needsRefresh = false;
       for (const memory of pinnedMemories || []) {
-        if (new Date(memory.pinned_until) <= currentTime) {
+        if (memory.pinned_until && new Date(memory.pinned_until) <= currentTime) {
           await updateMemory(memory.id, { pinned: false, pinned_until: undefined });
           needsRefresh = true;
         }
