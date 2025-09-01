@@ -230,18 +230,10 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         </Link>
       </div>
       <motion.div
-        whileHover={{ 
-          scale: 1.02, 
-          boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
-          y: -5
-        }}
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ 
-          duration: 0.6, 
-          ease: [0.25, 0.46, 0.45, 0.94]
-        }}
-        className={`flip-card w-full h-[420px] perspective-1000 cursor-pointer rounded-[2rem] shadow-[0_15px_35px_rgba(0,0,0,0.1)] hover:shadow-[0_25px_50px_rgba(0,0,0,0.25)] mx-auto border-2 backdrop-blur-sm relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.03] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000`}
+        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`flip-card w-full h-[420px] perspective-1000 cursor-pointer rounded-3xl hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >

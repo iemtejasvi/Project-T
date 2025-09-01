@@ -406,18 +406,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         </Link>
       </div>
       <motion.div
-        whileHover={{ 
-          scale: 1.02, 
-          boxShadow: "0 20px 40px rgba(0,0,0,0.25)",
-          y: -3
-        }}
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ 
-          duration: 0.5, 
-          ease: [0.25, 0.46, 0.45, 0.94]
-        }}
-        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.25)] border-2 backdrop-blur-sm relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.04] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
+        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer rounded-xl hover:shadow-2xl"
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
