@@ -252,10 +252,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
     const wordCount = memory.message.split(/[\s.]+/).filter(word => word.length > 0).length;
     const isShortOrExact = wordCount <= 30;
     const textClass = forceLarge
-      ? "text-base tracking-wide leading-snug break-words hyphens-none"
+      ? "text-lg tracking-wide leading-snug break-words hyphens-none"
       : isShortOrExact
-        ? "text-base tracking-wide leading-snug break-words hyphens-none"
-        : "text-sm tracking-wide leading-snug break-words hyphens-none";
+        ? "text-lg tracking-wide leading-snug break-words hyphens-none"
+        : "text-base tracking-wide leading-snug break-words hyphens-none";
     
     switch (memory.animation) {
       case "poetic":
@@ -321,7 +321,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
         className={
           isDesktop
             ? "w-full max-w-3xl mx-auto my-16 p-16 rounded-[2rem] shadow-[0_25px_100px_rgba(0,0,0,0.3)] border-2 border-[var(--border)]/40 bg-gradient-to-br from-[var(--card-bg)]/95 via-[var(--card-bg)]/90 to-[var(--card-bg)]/95 backdrop-blur-2xl flex flex-col items-center justify-center relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.02] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
-            : "w-full max-w-sm mx-auto my-6 p-6 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.2)] border border-[var(--border)]/40 bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/95 to-[var(--card-bg)]/98 backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.03] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
+            : "w-full max-w-md mx-auto my-6 p-6 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.2)] border border-[var(--border)]/40 bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/95 to-[var(--card-bg)]/98 backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.03] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -357,7 +357,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
 
         {/* Message section */}
         <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
-          <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4 drop-shadow-sm relative`}>
+          <div className={`${isDesktop ? "text-5xl" : "text-lg"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4 drop-shadow-sm relative`}>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--text)]/[0.02] to-transparent rounded-lg blur-xl"></div>
             <div className="relative z-10">
               {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
