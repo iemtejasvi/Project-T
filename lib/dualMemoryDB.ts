@@ -59,7 +59,7 @@ async function testDatabaseConnection(db: typeof dbA): Promise<boolean> {
 }
 
 // Helper function to clean memory data (convert null to undefined)
-function cleanMemoryData(data: any): MemoryData {
+function cleanMemoryData(data: Record<string, unknown>): MemoryData {
   const cleaned = Object.fromEntries(
     Object.entries(data).map(([key, value]) => [key, value === null ? undefined : value])
   );
@@ -67,7 +67,7 @@ function cleanMemoryData(data: any): MemoryData {
 }
 
 // Insert memory with round-robin and failover
-export async function insertMemory(memoryData: any) {
+export async function insertMemory(memoryData: Record<string, unknown>) {
   const cleanedData = cleanMemoryData(memoryData);
   const primaryDB = getNextDatabase();
   const secondaryDB = primaryDB === 'A' ? 'B' : 'A';
