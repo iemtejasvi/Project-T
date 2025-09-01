@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get client IP and UUID
-    let clientIP = getClientIP(request);
+    const clientIP = getClientIP(request);
     const clientUUID = uuid || getCookieValue(request, 'user_uuid');
     
     // Handle localhost/development IPs - get real IP for country lookup
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
           realClientIP = ipData.ip;
           console.log(`Using public IP ${realClientIP} for localhost country detection`);
         }
-      } catch (error) {
+      } catch {
         console.log('Could not get public IP for localhost, country will be null');
       }
     }
