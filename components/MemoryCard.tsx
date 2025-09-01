@@ -139,10 +139,12 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   const [flipped, setFlipped] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
     checkDesktop();
+    setIsClient(true);
     window.addEventListener("resize", checkDesktop);
     return () => {
       window.removeEventListener("resize", checkDesktop);
@@ -284,6 +286,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail }) => {
   };
 
   if (detail) {
+    // Show loading state until client-side detection is complete
+    if (!isClient) {
+      return (
+        <div className="w-full max-w-md mx-auto my-6 p-6 rounded-xl bg-[var(--card-bg)] flex items-center justify-center min-h-[300px]">
+          <div className="flex items-center gap-2 text-[var(--text)] opacity-60">
+            <div className="w-2 h-2 rounded-full bg-current animate-pulse"></div>
+            <div className="w-2 h-2 rounded-full bg-current animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 rounded-full bg-current animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          </div>
+        </div>
+      );
+    }
     // Large message renderer for detail desktop
     function renderMessageLargeDetail(memory: Memory) {
       const wordCount = memory.message.split(/\s+/).length;

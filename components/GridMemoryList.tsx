@@ -27,12 +27,28 @@ interface GridMemoryListProps {
 
 const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
     checkDesktop();
+    setIsClient(true);
     window.addEventListener("resize", checkDesktop);
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
+
+  // Show loading state until client-side detection is complete
+  if (!isClient) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"></div>
+          <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+      </div>
+    );
+  }
 
   if (isDesktop) {
     return (

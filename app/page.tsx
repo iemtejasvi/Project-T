@@ -33,6 +33,7 @@ export default function Home() {
   const [announcement, setAnnouncement] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -188,6 +189,7 @@ export default function Home() {
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
     checkDesktop();
+    setIsClient(true);
     window.addEventListener("resize", checkDesktop);
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
@@ -288,7 +290,15 @@ export default function Home() {
           Recent Memories
         </h2>
         {recentMemories.length > 0 ? (
-          isDesktop ? (
+          !isClient ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
+          ) : isDesktop ? (
             <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
             <div>
