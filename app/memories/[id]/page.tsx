@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { fetchMemoryById } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
+import Loader from "@/components/Loader";
 
 interface Memory {
   id: string;
@@ -43,7 +44,11 @@ export default function MemoryDetail() {
     fetchMemory();
   }, [id]);
 
-  if (loading) return <p className="p-6 text-center text-[var(--text)]">Loading...</p>;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader text="Loading memory..." />
+    </div>
+  );
   if (memory === false) return <p className="p-6 text-center text-[var(--text)] text-xl font-semibold">Memory not found.</p>;
 
   return (

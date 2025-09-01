@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { fetchMemories, updateMemory, deleteMemory, primaryDB } from "@/lib/dualMemoryDB";
+import Loader from "@/components/Loader";
 
 interface Memory {
   id: string;
@@ -502,7 +503,9 @@ export default function AdminPanel() {
 
   if (!authChecked) {
     return (
-      <div className="p-6 text-center text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
+        <Loader text="Authenticating..." />
+      </div>
     );
   }
 
@@ -885,7 +888,12 @@ export default function AdminPanel() {
                       disabled={loading}
                       className="px-6 py-3 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-lg hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
                     >
-                      {loading ? "Loading..." : "Load More"}
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-[#6b5b47]/20 border-t-[#6b5b47] rounded-full animate-spin"></div>
+                          Loading...
+                        </div>
+                      ) : "Load More"}
                     </button>
                   </div>
                 )}

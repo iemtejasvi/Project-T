@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { typewriterTags, typewriterSubTags } from "@/components/typewriterPrompts";
+import InlineLoader from "@/components/InlineLoader";
 
 interface IPData {
   ip?: string;
@@ -1170,8 +1171,12 @@ export default function SubmitPage() {
                         : 'hover:scale-105 lg:hover:scale-[1.04] lg:hover:shadow-2xl'
                     }`}
                   >
-                    {isSubmitting ? 'Submitting...' : 
-                     isBanned ? 'Banned from Submitting' :
+                    {isSubmitting ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <InlineLoader />
+                        Submitting...
+                      </div>
+                    ) : isBanned ? 'Banned from Submitting' :
                      hasReachedLimit ? 'Memory Limit Reached' : 
                      'Submit Memory'}
                   </button>

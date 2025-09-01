@@ -5,6 +5,7 @@ import { fetchMemories, updateMemory } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
 import { FaFeatherAlt } from "react-icons/fa";
+import Loader from "@/components/Loader";
 
 interface Memory {
   id: string;
@@ -237,8 +238,8 @@ export default function Memories() {
           />
         </div>
         {initialLoading ? (
-          <div className="text-center py-8">
-            <p className="text-[var(--text)]">Loading memories...</p>
+          <div className="flex items-center justify-center py-16">
+            <Loader text="Loading memories..." />
           </div>
         ) : displayedMemories.length > 0 ? (
           <>
