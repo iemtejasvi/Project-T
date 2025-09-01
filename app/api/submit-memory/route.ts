@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
 import { insertMemory, countMemories, primaryDB } from '@/lib/dualMemoryDB';
 
 interface SubmissionData {
@@ -453,7 +452,6 @@ export async function POST(request: NextRequest) {
           
           if (memoryQueries.length > 0) {
             // First check: Count by IP/UUID across both databases
-            const filters: any = {};
             if (clientIP && clientUUID) {
               // If we have both, check both IP and UUID across both databases
               const ipResult = await countMemories({ ip: clientIP });

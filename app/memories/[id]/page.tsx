@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
 import { fetchMemoryById } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 

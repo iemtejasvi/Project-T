@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
-import { fetchMemories, updateMemory, primaryDB } from "@/lib/dualMemoryDB";
+import { fetchMemories, updateMemory } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
 import { FaFeatherAlt } from "react-icons/fa";

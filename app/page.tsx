@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
 import { fetchMemories, primaryDB } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";

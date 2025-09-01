@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
 import { countMemories, primaryDB } from '@/lib/dualMemoryDB';
 
 function getClientIP(request: NextRequest): string | null {

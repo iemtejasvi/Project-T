@@ -25,6 +25,7 @@ function getNextDatabase(): 'A' | 'B' {
 
 // Interface for memory data
 interface MemoryData {
+  id?: string;
   recipient: string;
   message: string;
   sender?: string | null;
@@ -40,12 +41,13 @@ interface MemoryData {
   created_at?: string;
   pinned?: boolean;
   pinned_until?: string | null;
+  [key: string]: string | boolean | null | undefined;
 }
 
 // Test database connectivity
 async function testDatabaseConnection(db: typeof dbA): Promise<boolean> {
   try {
-    const { data, error } = await db.client
+    const { error } = await db.client
       .from('memories')
       .select('id')
       .limit(1);
@@ -112,14 +114,14 @@ export async function insertMemory(memoryData: MemoryData) {
 }
 
 // Fetch memories from both databases with unified results
-export async function fetchMemories(filters: any = {}, orderBy: any = {}) {
+export async function fetchMemories(filters: Record<string, string> = {}, orderBy: Record<string, string> = {}) {
   const [resultA, resultB] = await Promise.allSettled([
     dbA.client.from('memories').select('*'),
     dbB.client.from('memories').select('*')
   ]);
   
-  let memoriesA: any[] = [];
-  let memoriesB: any[] = [];
+  let memoriesA: MemoryData[] = [];
+  let memoriesB: MemoryData[] = [];
   
   if (resultA.status === 'fulfilled' && !resultA.value.error) {
     memoriesA = resultA.value.data || [];
@@ -173,7 +175,7 @@ export async function fetchMemories(filters: any = {}, orderBy: any = {}) {
 }
 
 // Count memories from both databases
-export async function countMemories(filters: any = {}) {
+export async function countMemories(filters: Record<string, string> = {}) {
   const { data } = await fetchMemories(filters);
   return { count: data.length, error: null };
 }
