@@ -219,28 +219,28 @@ export const typewriterPromptsBySubTag: Record<string, string[]> = {
 
   // Confession subcategories
   "have_to_tell_you": [
-    "i have to tell you something",
-    "i need to confess my feelings",
-    "i have to say this out loud",
-    "i need to tell you the truth",
-    "i have to confess my love",
-    "i need to tell you everything",
-    "i have to confess my pain",
-    "i need to tell you my heart",
-    "i have to confess my fear",
-    "i need to tell you my soul"
+    "i have to tell you i'm dying inside",
+    "i need to confess i'm broken beyond repair",
+    "i have to say i'm drowning in my own tears",
+    "i need to tell you i'm losing my mind",
+    "i have to confess i'm bleeding from my soul",
+    "i need to tell you i'm suffocating slowly",
+    "i have to confess i'm a walking corpse",
+    "i need to tell you i'm burning alive",
+    "i have to confess i'm falling apart",
+    "i need to tell you i'm already dead"
   ],
   "keep_secret": [
-    "i'll keep this secret forever",
-    "i'll never tell anyone this",
-    "i'll take this to my grave",
-    "i'll keep this between us",
-    "i'll never share this truth",
-    "i'll keep this hidden always",
-    "i'll never speak of this",
-    "i'll keep this in my heart",
-    "i'll never reveal this",
-    "i'll keep this secret safe"
+    "i'll keep this secret until it kills me",
+    "i'll never tell anyone how much i hurt",
+    "i'll take this pain to my fucking grave",
+    "i'll keep this torture between us forever",
+    "i'll never share how broken i really am",
+    "i'll keep this darkness hidden in my soul",
+    "i'll never speak of the hell inside me",
+    "i'll keep this agony in my dying heart",
+    "i'll never reveal how much i'm suffering",
+    "i'll keep this secret until i'm nothing"
   ],
   "i_was_wrong": [
     "i was wrong about everything",
