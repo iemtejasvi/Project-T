@@ -69,367 +69,612 @@ export const typewriterSubTags: Record<string, string[]> = {
 export const typewriterPromptsBySubTag: Record<string, string[]> = {
   // Anger subcategories
   "angry_at_you": [
-    "you taught me to bleed and called it love",
-    "i swallowed storms for you you called it silence",
-    "you broke the rules and blamed the game",
-    "i tore myself open you just watched",
-    "rage was the only language you understood"
+    "i want to scream until my throat bleeds",
+    "i'm burning alive and you're just watching",
+    "i want to break everything you ever touched",
+    "i'm drowning in rage and you're laughing",
+    "i want to tear your world apart",
+    "i'm bleeding anger and you don't care",
+    "i want to make you feel my pain",
+    "i'm exploding with fury you created",
+    "i want to destroy what you built",
+    "i'm a storm of anger you unleashed"
   ],
   "angry_at_myself": [
-    "i'm furious at the person i became for you",
-    "anger burns brightest when directed inward",
-    "i'm mad at myself for believing your lies",
-    "self-rage is the hardest fire to put out",
-    "i'm angry at my own stupidity"
+    "i want to tear my own heart out",
+    "i hate how i became your doormat",
+    "i want to punch my reflection",
+    "i'm furious at my own weakness",
+    "i want to burn my memories alive",
+    "i hate that i still want you",
+    "i want to rip my feelings out",
+    "i'm angry at my own stupidity",
+    "i want to destroy who i became",
+    "i hate that i let you break me"
   ],
   "angry_at_situation": [
-    "this whole thing makes me furious",
-    "i'm angry at how unfair life can be",
-    "the situation itself deserves my rage",
-    "i'm mad at the circumstances not you",
-    "anger at fate is the most helpless kind"
+    "i want to scream at the universe",
+    "i'm furious at how unfair this is",
+    "i want to break the world apart",
+    "i'm raging at the cruel timing",
+    "i want to destroy this reality",
+    "i'm angry at fate's sick joke",
+    "i want to tear down the walls",
+    "i'm furious at life's betrayal",
+    "i want to scream at the stars",
+    "i'm raging at this nightmare"
   ],
   "not_angry_anymore": [
-    "the fire inside me has finally died",
-    "anger left when you did",
-    "i'm too tired to be angry",
-    "rage burned itself out",
-    "anger was just another thing you took from me"
+    "i'm too tired to feel anything",
+    "i don't have energy for rage",
+    "i'm empty of all emotions",
+    "i can't even remember anger",
+    "i'm numb to everything now",
+    "i don't care enough to be mad",
+    "i'm too broken to feel rage",
+    "i'm exhausted from fighting",
+    "i'm done with all emotions",
+    "i'm too dead inside to care"
   ],
 
   // Apology subcategories
   "im_sorry": [
-    "if sorry had weight i'd sink to reach you",
-    "i hurt you trying not to lose you",
-    "forgive me for being too much and not enough",
-    "i stitched lies where truth should have lived",
-    "if i could i'd rewrite every moment with care"
+    "i'm sorry for everything i broke",
+    "i'm sorry for not being enough",
+    "i'm sorry for loving you wrong",
+    "i'm sorry for staying too long",
+    "i'm sorry for believing your lies",
+    "i'm sorry for not leaving sooner",
+    "i'm sorry for wasting your time",
+    "i'm sorry for breaking your heart",
+    "i'm sorry for not fighting harder",
+    "i'm sorry for letting you down"
   ],
   "you_should_be_sorry": [
-    "your apologies are too little too late",
-    "sorry doesn't fix what you broke",
-    "you should be the one saying sorry",
-    "your sorry means nothing now",
-    "i'm tired of waiting for your apology"
+    "i'm waiting for your apology",
+    "i'm tired of your empty words",
+    "i'm done with your fake sorry",
+    "i'm waiting for you to care",
+    "i'm sick of your excuses",
+    "i'm waiting for you to mean it",
+    "i'm tired of your lies",
+    "i'm done with your games",
+    "i'm waiting for you to change",
+    "i'm sick of your bullshit"
   ],
   "both_need_apologize": [
-    "we both messed up and we both need to say sorry",
-    "this isn't just on me or just on you",
-    "we both owe each other apologies",
-    "neither of us is innocent here",
-    "we both need to own our mistakes"
+    "i'm sorry for my part in this",
+    "i'm sorry for not trying harder",
+    "i'm sorry for the pain i caused",
+    "i'm sorry for not understanding",
+    "i'm sorry for my mistakes",
+    "i'm sorry for not communicating",
+    "i'm sorry for my selfishness",
+    "i'm sorry for not listening",
+    "i'm sorry for my stubbornness",
+    "i'm sorry for not compromising"
   ],
   "im_not_sorry": [
-    "i won't apologize for protecting myself",
-    "sorry isn't something i feel right now",
+    "i'm not sorry for leaving",
+    "i'm not sorry for protecting myself",
     "i'm not sorry for walking away",
-    "some things don't deserve apologies",
-    "i'm done saying sorry for existing"
+    "i'm not sorry for choosing me",
+    "i'm not sorry for my boundaries",
+    "i'm not sorry for my self-respect",
+    "i'm not sorry for my dignity",
+    "i'm not sorry for my worth",
+    "i'm not sorry for my strength",
+    "i'm not sorry for my survival"
   ],
 
   // Blame subcategories
   "blame_you": [
-    "you taught me to bleed and called it love",
-    "you carried fire i carried ash",
-    "you built cages and named them homes",
-    "i held your sins like they were mine",
-    "you made leaving look like salvation"
+    "i blame you for everything",
+    "i blame you for my pain",
+    "i blame you for my heartbreak",
+    "i blame you for my tears",
+    "i blame you for my emptiness",
+    "i blame you for my anger",
+    "i blame you for my sadness",
+    "i blame you for my loneliness",
+    "i blame you for my fear",
+    "i blame you for my brokenness"
   ],
   "blame_myself": [
-    "i broke myself before anyone else could",
-    "blame carves me sharper each day",
-    "i ruined what could've been whole",
-    "my choices haunt like old scars",
-    "i dug my own collapse"
+    "i blame myself for everything",
+    "i blame myself for staying",
+    "i blame myself for believing you",
+    "i blame myself for not leaving",
+    "i blame myself for my choices",
+    "i blame myself for my weakness",
+    "i blame myself for my stupidity",
+    "i blame myself for my blindness",
+    "i blame myself for my pain",
+    "i blame myself for my heartbreak"
   ],
   "both_to_blame": [
-    "we both played our parts in this disaster",
-    "neither of us is innocent",
-    "we both made choices that led here",
-    "blame belongs to both of us",
-    "we both failed each other"
+    "i blame both of us equally",
+    "i blame myself and i blame you",
+    "i blame us for what we became",
+    "i blame us for not trying harder",
+    "i blame us for our mistakes",
+    "i blame us for our stubbornness",
+    "i blame us for our pride",
+    "i blame us for our silence",
+    "i blame us for our fear",
+    "i blame us for our failure"
   ],
   "no_one_to_blame": [
-    "sometimes things just fall apart",
-    "blame doesn't help anyone heal",
-    "this wasn't anyone's fault",
-    "life happens and people change",
-    "assigning blame won't fix anything"
+    "i don't blame anyone for this",
+    "i don't blame you or myself",
+    "i don't blame fate or destiny",
+    "i don't blame the universe",
+    "i don't blame love or time",
+    "i don't blame circumstances",
+    "i don't blame bad timing",
+    "i don't blame anyone at all",
+    "i don't blame the world",
+    "i don't blame anything"
   ],
 
   // Confession subcategories
   "have_to_tell_you": [
-    "i loved you in ways i didn't have language for",
-    "every version of me still chooses you first",
-    "i never stopped writing your name inside prayers",
-    "you're the secret i couldn't keep quiet",
-    "my chest aches with truths unspoken"
+    "i have to tell you something",
+    "i need to confess my feelings",
+    "i have to say this out loud",
+    "i need to tell you the truth",
+    "i have to confess my love",
+    "i need to tell you everything",
+    "i have to confess my pain",
+    "i need to tell you my heart",
+    "i have to confess my fear",
+    "i need to tell you my soul"
   ],
   "keep_secret": [
-    "some things are better left unsaid",
-    "this secret will die with me",
-    "i'll carry this to my grave",
-    "some truths don't need to be shared",
-    "this stays between me and my heart"
+    "i'll keep this secret forever",
+    "i'll never tell anyone this",
+    "i'll take this to my grave",
+    "i'll keep this between us",
+    "i'll never share this truth",
+    "i'll keep this hidden always",
+    "i'll never speak of this",
+    "i'll keep this in my heart",
+    "i'll never reveal this",
+    "i'll keep this secret safe"
   ],
   "i_was_wrong": [
-    "i made mistakes i can't undo",
     "i was wrong about everything",
-    "my judgment failed me completely",
     "i was wrong to trust you",
-    "i was wrong to stay so long"
+    "i was wrong to stay so long",
+    "i was wrong about us",
+    "i was wrong about love",
+    "i was wrong about you",
+    "i was wrong about myself",
+    "i was wrong about the future",
+    "i was wrong about happiness",
+    "i was wrong about hope"
   ],
   "you_were_wrong": [
-    "you made choices that hurt us both",
-    "you were wrong about what we had",
-    "your decisions led us here",
-    "you were wrong to leave",
-    "you were wrong about me"
+    "i think you were wrong about me",
+    "i think you were wrong about us",
+    "i think you were wrong about love",
+    "i think you were wrong about everything",
+    "i think you were wrong to leave",
+    "i think you were wrong about the future",
+    "i think you were wrong about happiness",
+    "i think you were wrong about hope",
+    "i think you were wrong about yourself",
+    "i think you were wrong about life"
   ],
   "both_made_mistakes": [
-    "we both messed up in different ways",
-    "neither of us handled this right",
-    "we both made poor choices",
-    "we both share the blame",
-    "we both failed at love"
+    "i made mistakes and so did you",
+    "i was wrong and you were too",
+    "i failed and you failed too",
+    "i messed up and you did too",
+    "i was stupid and you were too",
+    "i was blind and you were too",
+    "i was weak and you were too",
+    "i was wrong and you were wrong",
+    "i was foolish and you were too",
+    "i was naive and you were too"
   ],
 
   // Fear subcategories
   "afraid_losing_you": [
-    "the thought of life without you terrifies me",
-    "i'm scared of what comes after you",
-    "losing you is my biggest fear",
-    "i'm afraid of the emptiness you'll leave",
-    "the fear of losing you keeps me awake"
+    "i'm terrified of losing you",
+    "i'm scared of being alone",
+    "i'm afraid of the emptiness",
+    "i'm terrified of the silence",
+    "i'm scared of the darkness",
+    "i'm afraid of the loneliness",
+    "i'm terrified of the void",
+    "i'm scared of the future",
+    "i'm afraid of the unknown",
+    "i'm terrified of the pain"
   ],
   "afraid_commitment": [
-    "commitment scares me more than loneliness",
+    "i'm scared of commitment",
+    "i'm terrified of forever",
+    "i'm afraid of being trapped",
+    "i'm scared of losing freedom",
     "i'm terrified of being tied down",
-    "the idea of forever makes me panic",
-    "i'm afraid of what commitment means",
-    "commitment feels like a trap"
+    "i'm afraid of the responsibility",
+    "i'm scared of the expectations",
+    "i'm terrified of the pressure",
+    "i'm afraid of the obligation",
+    "i'm scared of the sacrifice"
   ],
   "afraid_future": [
-    "tomorrow scares me more than yesterday",
-    "i'm terrified of what's coming",
-    "the future feels like a dark room",
-    "i'm afraid of what life has planned",
-    "the unknown terrifies me"
+    "i'm terrified of the future",
+    "i'm scared of tomorrow",
+    "i'm afraid of what's coming",
+    "i'm terrified of the unknown",
+    "i'm scared of change",
+    "i'm afraid of uncertainty",
+    "i'm terrified of failure",
+    "i'm scared of disappointment",
+    "i'm afraid of regret",
+    "i'm terrified of loss"
   ],
   "not_afraid_anymore": [
-    "fear lost its grip on me",
-    "i'm finally free from my fears",
-    "courage replaced my cowardice",
-    "i'm not scared of anything now",
-    "fear died when you left"
+    "i'm not afraid of anything anymore",
+    "i'm not scared of the future",
+    "i'm not afraid of being alone",
+    "i'm not scared of the unknown",
+    "i'm not afraid of change",
+    "i'm not scared of failure",
+    "i'm not afraid of pain",
+    "i'm not scared of loss",
+    "i'm not afraid of tomorrow",
+    "i'm not scared of anything"
   ],
 
   // Forgiveness subcategories
   "asking_forgiveness": [
-    "please forgive me for what i did",
-    "i need your forgiveness to move on",
-    "can you find it in your heart to forgive me",
     "i'm begging for your forgiveness",
-    "forgiveness is all i ask for"
+    "i need you to forgive me",
+    "i'm asking for your mercy",
+    "i need your forgiveness to live",
+    "i'm pleading for your pardon",
+    "i need you to let me go",
+    "i'm asking for your grace",
+    "i need your forgiveness to heal",
+    "i'm begging for your kindness",
+    "i need you to forgive my mistakes"
   ],
   "forgive_you": [
-    "i let go of what hurt so i could hold myself",
-    "i forgive you i'm still learning to forgive me",
-    "some wounds heal once you stop pressing them",
-    "i chose peace even when rage was easier",
-    "forgiveness tastes bitter before it tastes free"
+    "i forgive you for everything",
+    "i forgive you for hurting me",
+    "i forgive you for leaving me",
+    "i forgive you for breaking my heart",
+    "i forgive you for the pain",
+    "i forgive you for the lies",
+    "i forgive you for the betrayal",
+    "i forgive you for the emptiness",
+    "i forgive you for the tears",
+    "i forgive you for the loneliness"
   ],
   "cant_forgive": [
-    "some things are beyond forgiveness",
-    "i'm not ready to forgive you yet",
-    "forgiveness feels like betrayal to myself",
-    "what you did is unforgivable",
-    "i'll never be able to forgive you"
+    "i can never forgive you",
+    "i can't forgive what you did",
+    "i can never forgive the pain",
+    "i can't forgive the betrayal",
+    "i can never forgive the lies",
+    "i can't forgive the heartbreak",
+    "i can never forgive the emptiness",
+    "i can't forgive the loneliness",
+    "i can never forgive the tears",
+    "i can't forgive the brokenness"
   ],
   "forgive_myself": [
-    "i'm learning to forgive my own mistakes",
-    "self-forgiveness is the hardest kind",
-    "i forgive myself for staying so long",
-    "i forgive myself for believing your lies",
-    "i forgive myself for not leaving sooner"
+    "i need to forgive myself",
+    "i'm trying to forgive myself",
+    "i want to forgive myself",
+    "i need to let myself off the hook",
+    "i'm learning to forgive myself",
+    "i want to stop blaming myself",
+    "i need to be kinder to myself",
+    "i'm working on forgiving myself",
+    "i want to love myself again",
+    "i need to stop punishing myself"
   ],
   "need_forgive_each_other": [
-    "forgiveness needs to go both ways",
-    "we both need to let go of the past",
-    "mutual forgiveness is the only way forward",
-    "we need to forgive each other to heal",
-    "forgiveness is a two-way street"
+    "i need to forgive you and you need to forgive me",
+    "i need to forgive myself and you need to forgive yourself",
+    "i need to let go and you need to let go",
+    "i need to move on and you need to move on",
+    "i need to heal and you need to heal",
+    "i need to find peace and you need to find peace",
+    "i need to stop blaming and you need to stop blaming",
+    "i need to accept and you need to accept",
+    "i need to understand and you need to understand",
+    "i need to grow and you need to grow"
   ],
 
   // Goodbye subcategories
   "goodbye_forever": [
-    "i'm leaving the door unlocked not open",
-    "we ended softly so the noise wouldn't",
-    "goodbye lingered longer than love did",
-    "our last glance held a thousand endings",
-    "walking away hurt less than staying still"
+    "i'm saying goodbye forever",
+    "i'm never coming back to you",
+    "i'm walking away for good",
+    "i'm done with us forever",
+    "i'm leaving and never returning",
+    "i'm saying goodbye to love",
+    "i'm done with this pain",
+    "i'm leaving this behind me",
+    "i'm saying goodbye to hope",
+    "i'm done with this chapter"
   ],
   "see_you_again": [
-    "this isn't goodbye forever",
-    "i'll see you on the other side",
-    "until we meet again",
-    "this is just a temporary farewell",
-    "i'll see you when the time is right"
+    "i'll see you again someday",
+    "i'll see you in another life",
+    "i'll see you when time is right",
+    "i'll see you in my dreams",
+    "i'll see you in my memories",
+    "i'll see you in my heart",
+    "i'll see you in my thoughts",
+    "i'll see you in my prayers",
+    "i'll see you in my soul",
+    "i'll see you in my future"
   ],
   "im_leaving": [
-    "i'm walking away from this",
-    "i'm choosing to leave",
-    "i'm done with this chapter",
-    "i'm moving on without you",
-    "i'm leaving for my own sake"
+    "i'm leaving you behind",
+    "i'm walking away from us",
+    "i'm leaving this pain",
+    "i'm leaving this heartbreak",
+    "i'm leaving this emptiness",
+    "i'm leaving this loneliness",
+    "i'm leaving this sadness",
+    "i'm leaving this darkness",
+    "i'm leaving this nightmare",
+    "i'm leaving this prison"
   ],
   "dont_leave": [
-    "please don't walk away",
-    "stay with me a little longer",
-    "don't leave me here alone",
+    "i'm begging you not to leave",
+    "i'm pleading with you to stay",
+    "i'm asking you not to go",
+    "i'm desperate for you to stay",
+    "i'm terrified of you leaving",
     "i'm not ready for you to go",
-    "please don't abandon me"
+    "i'm begging you to wait",
+    "i'm pleading for more time",
+    "i'm asking for one more chance",
+    "i'm desperate for you to stay"
   ],
   "need_part_ways": [
-    "it's time for us to go separate ways",
-    "we need to walk different paths",
-    "parting is the best thing for us both",
-    "we need to let each other go",
-    "separate paths lead to better destinations"
+    "i need to walk away from you",
+    "i need to leave this behind",
+    "i need to move on without you",
+    "i need to find my own path",
+    "i need to let you go",
+    "i need to start over alone",
+    "i need to find myself again",
+    "i need to heal without you",
+    "i need to grow on my own",
+    "i need to find my own way"
   ],
 
   // Gratitude subcategories
   "thank_everything": [
-    "thank you for all the memories",
-    "thank you for the time we shared",
-    "thank you for being part of my story",
-    "thank you for everything you gave me",
-    "thank you for the journey we took together"
+    "i'm thankful for everything you gave me",
+    "i'm grateful for all the memories",
+    "i'm thankful for the time we shared",
+    "i'm grateful for the love we had",
+    "i'm thankful for the moments we created",
+    "i'm grateful for the laughter we shared",
+    "i'm thankful for the tears we cried",
+    "i'm grateful for the dreams we dreamed",
+    "i'm thankful for the future we planned",
+    "i'm grateful for the past we lived"
   ],
   "thank_lessons": [
-    "thank you for teaching me about love",
-    "thank you for the hard lessons learned",
-    "thank you for showing me what i deserve",
-    "thank you for the wisdom you gave me",
-    "thank you for the growth you inspired"
+    "i'm thankful for the lessons you taught me",
+    "i'm grateful for the wisdom you shared",
+    "i'm thankful for the strength you gave me",
+    "i'm grateful for the courage you inspired",
+    "i'm thankful for the growth you caused",
+    "i'm grateful for the person you made me",
+    "i'm thankful for the love you showed me",
+    "i'm grateful for the pain you taught me",
+    "i'm thankful for the truth you revealed",
+    "i'm grateful for the life you showed me"
   ],
   "grateful_us": [
-    "i'm thankful for what we had",
+    "i'm thankful for what we had together",
     "i'm grateful for the love we shared",
     "i'm thankful for the connection we felt",
-    "i'm grateful for the moments we created",
-    "i'm thankful for the bond we formed"
+    "i'm grateful for the bond we formed",
+    "i'm thankful for the team we were",
+    "i'm grateful for the future we planned",
+    "i'm thankful for the dreams we shared",
+    "i'm grateful for the memories we made",
+    "i'm thankful for the life we built",
+    "i'm grateful for the love we knew"
   ],
   "grateful_pain": [
-    "thank you for the pain that made me stronger",
+    "i'm thankful for the pain that made me stronger",
     "i'm grateful for the hurt that taught me",
-    "thank you for the suffering that shaped me",
+    "i'm thankful for the suffering that shaped me",
     "i'm grateful for the wounds that healed me",
-    "thank you for the pain that led to growth"
+    "i'm thankful for the pain that led to growth",
+    "i'm grateful for the tears that made me wiser",
+    "i'm thankful for the heartbreak that made me braver",
+    "i'm grateful for the loneliness that made me independent",
+    "i'm thankful for the fear that made me courageous",
+    "i'm grateful for the darkness that made me appreciate light"
   ],
 
   // Guilt subcategories
   "feel_guilty": [
-    "guilt weighs heavier than the truth",
-    "i feel responsible for everything",
-    "guilt keeps me awake at night",
-    "i carry the weight of what i didn't do",
-    "guilt whispers that everything is my fault"
+    "i feel guilty for everything",
+    "i feel guilty for hurting you",
+    "i feel guilty for not trying harder",
+    "i feel guilty for my mistakes",
+    "i feel guilty for my choices",
+    "i feel guilty for my weakness",
+    "i feel guilty for my selfishness",
+    "i feel guilty for my stubbornness",
+    "i feel guilty for my pride",
+    "i feel guilty for my fear"
   ],
   "innocent": [
-    "i did nothing wrong",
-    "i'm not to blame for this",
-    "i'm innocent of the charges",
-    "i didn't cause this pain",
-    "i'm not responsible for what happened"
+    "i know i'm innocent in this",
+    "i know i did nothing wrong",
+    "i know i'm not to blame",
+    "i know i'm not responsible",
+    "i know i'm not guilty",
+    "i know i'm not at fault",
+    "i know i'm not the problem",
+    "i know i'm not the cause",
+    "i know i'm not the reason",
+    "i know i'm not the one"
   ],
   "you_should_guilty": [
-    "you're the one who should feel bad",
-    "guilt belongs to you not me",
-    "you should feel ashamed of yourself",
-    "you're the guilty party here",
-    "guilt is your burden to carry"
+    "i think you should feel guilty",
+    "i think you should feel ashamed",
+    "i think you should feel bad",
+    "i think you should feel responsible",
+    "i think you should feel at fault",
+    "i think you should feel blame",
+    "i think you should feel remorse",
+    "i think you should feel regret",
+    "i think you should feel sorry",
+    "i think you should feel pain"
   ],
   "no_one_guilty": [
-    "this isn't anyone's fault",
-    "no one needs to feel guilty",
-    "guilt doesn't help anyone",
-    "we're all innocent here",
-    "guilt serves no purpose"
+    "i don't think anyone is guilty",
+    "i don't think anyone is to blame",
+    "i don't think anyone is at fault",
+    "i don't think anyone is responsible",
+    "i don't think anyone should feel bad",
+    "i don't think anyone should feel guilty",
+    "i don't think anyone should feel ashamed",
+    "i don't think anyone should feel remorse",
+    "i don't think anyone should feel regret",
+    "i don't think anyone should feel pain"
   ],
   "both_guilty": [
-    "we both carry our share of guilt",
-    "we're both to blame",
-    "we both feel responsible",
-    "guilt belongs to both of us",
-    "we both have things to feel bad about"
+    "i think we're both guilty",
+    "i think we're both to blame",
+    "i think we're both at fault",
+    "i think we're both responsible",
+    "i think we both made mistakes",
+    "i think we both failed each other",
+    "i think we both hurt each other",
+    "i think we both broke each other",
+    "i think we both destroyed us",
+    "i think we both ruined everything"
   ],
 
   // Hate subcategories
   "hate_you": [
-    "i swallowed storms for you you called it silence",
-    "you broke the rules and blamed the game",
-    "i tore myself open you just watched",
-    "rage was the only language you understood",
-    "you left me burning with questions unanswered"
+    "i hate you for everything you did",
+    "i hate you for breaking my heart",
+    "i hate you for leaving me alone",
+    "i hate you for the pain you caused",
+    "i hate you for the lies you told",
+    "i hate you for the betrayal",
+    "i hate you for the emptiness",
+    "i hate you for the loneliness",
+    "i hate you for the tears",
+    "i hate you for the brokenness"
   ],
   "hate_myself": [
-    "i hate the person i became for you",
+    "i hate myself for loving you",
     "i hate myself for staying so long",
-    "i hate myself for believing your lies",
+    "i hate myself for believing you",
     "i hate myself for not leaving sooner",
-    "i hate myself for loving you"
+    "i hate myself for my weakness",
+    "i hate myself for my stupidity",
+    "i hate myself for my blindness",
+    "i hate myself for my choices",
+    "i hate myself for my pain",
+    "i hate myself for my heartbreak"
   ],
   "hate_what_we_became": [
     "i hate what we turned into",
-    "i hate the mess we made",
+    "i hate the mess we created",
     "i hate what we became together",
-    "i hate the toxic thing we created",
-    "i hate what we allowed ourselves to become"
+    "i hate the toxic thing we built",
+    "i hate what we allowed ourselves to be",
+    "i hate the people we became",
+    "i hate the relationship we had",
+    "i hate the love we destroyed",
+    "i hate the future we ruined",
+    "i hate the life we wasted"
   ],
   "dont_hate_anymore": [
-    "hate burned itself out",
+    "i don't hate you anymore",
     "i'm too tired to hate you",
-    "hate was just another emotion you took",
-    "i don't have the energy to hate",
-    "hate left when you did"
+    "i don't have energy for hate",
+    "i'm done with hating you",
+    "i'm over the hate",
+    "i don't feel hate anymore",
+    "i'm too broken to hate",
+    "i'm too empty to hate",
+    "i'm too numb to hate",
+    "i'm too dead inside to hate"
   ],
   "i_cant_hate_you": [
-    "i try to hate you but my heart won't let me",
-    "even when you hurt me i can't find hatred",
-    "hating you would be hating part of myself",
-    "my love for you makes hate impossible",
-    "i want to hate you but i just can't"
+    "i can't bring myself to hate you",
+    "i want to hate you but i can't",
+    "i try to hate you but i can't",
+    "i wish i could hate you",
+    "i should hate you but i don't",
+    "i want to hate you so badly",
+    "i need to hate you to heal",
+    "i want to hate you to move on",
+    "i should hate you for what you did",
+    "i want to hate you for my own good"
   ],
 
   // Heartbreak subcategories
   "you_broke_heart": [
-    "i held the future until it cracked in my hands",
-    "your absence sits where air should be",
-    "our story ended mid-sentence",
-    "i sleep next to ghosts of us",
-    "you left and time limps still"
+    "i feel like you broke my heart",
+    "i think you shattered my soul",
+    "i believe you destroyed my love",
+    "i feel like you killed my hope",
+    "i think you broke my spirit",
+    "i believe you crushed my dreams",
+    "i feel like you stole my future",
+    "i think you took my happiness",
+    "i believe you destroyed my peace",
+    "i feel like you broke everything"
   ],
   "broke_own_heart": [
-    "i broke my heart by staying too long",
-    "i broke my own heart by believing you",
-    "i broke my heart by not leaving sooner",
-    "i broke my heart by loving too much",
-    "i broke my own heart by trusting you"
+    "i think i broke my own heart",
+    "i believe i destroyed my own love",
+    "i feel like i killed my own hope",
+    "i think i broke my own spirit",
+    "i believe i crushed my own dreams",
+    "i feel like i stole my own future",
+    "i think i took my own happiness",
+    "i believe i destroyed my own peace",
+    "i feel like i broke everything",
+    "i think i ruined my own life"
   ],
   "broke_each_other": [
-    "we destroyed each other slowly",
-    "we broke each other's hearts",
-    "we shattered what we had together",
-    "we broke each other in different ways",
-    "we were each other's destruction"
+    "i think we broke each other's hearts",
+    "i believe we destroyed each other's love",
+    "i feel like we killed each other's hope",
+    "i think we broke each other's spirits",
+    "i believe we crushed each other's dreams",
+    "i feel like we stole each other's future",
+    "i think we took each other's happiness",
+    "i believe we destroyed each other's peace",
+    "i feel like we broke everything",
+    "i think we ruined each other's lives"
   ],
   "heart_healing": [
-    "my heart is slowly mending",
-    "healing takes time but it's happening",
-    "my heart is learning to beat again",
-    "healing is a slow process",
-    "my heart is finding its way back"
+    "i think my heart is slowly healing",
+    "i believe i'm getting better",
+    "i feel like i'm starting to heal",
+    "i think my heart is mending",
+    "i believe i'm finding peace",
+    "i feel like i'm moving forward",
+    "i think my heart is growing stronger",
+    "i believe i'm learning to love again",
+    "i feel like i'm finding hope again",
+    "i think my heart is beating again"
   ],
 
   // Jealousy subcategories
@@ -438,574 +683,964 @@ export const typewriterPromptsBySubTag: Record<string, string[]> = {
     "i'm jealous of your freedom",
     "i'm jealous of your new life",
     "i'm jealous of your ability to move on",
-    "i'm jealous of your peace"
+    "i'm jealous of your peace",
+    "i'm jealous of your strength",
+    "i'm jealous of your independence",
+    "i'm jealous of your future",
+    "i'm jealous of your choices",
+    "i'm jealous of your courage"
   ],
   "jealous_of_others": [
-    "i'm jealous of people who have what i lost",
+    "i'm jealous of people who have love",
     "i'm jealous of happy couples",
-    "i'm jealous of people who don't know heartbreak",
-    "i'm jealous of those who found love",
-    "i'm jealous of people who don't understand pain"
+    "i'm jealous of people who don't know pain",
+    "i'm jealous of those who found happiness",
+    "i'm jealous of people who don't understand heartbreak",
+    "i'm jealous of people who have what i want",
+    "i'm jealous of people who don't know loneliness",
+    "i'm jealous of those who have hope",
+    "i'm jealous of people who have peace",
+    "i'm jealous of those who have love"
   ],
   "you_jealous_of_me": [
-    "your jealousy shows in everything you do",
-    "you're jealous of my strength",
-    "you're jealous of my ability to heal",
-    "you're jealous of my independence",
-    "you're jealous of my peace"
+    "i think you're jealous of my strength",
+    "i believe you're jealous of my independence",
+    "i feel like you're jealous of my peace",
+    "i think you're jealous of my future",
+    "i believe you're jealous of my choices",
+    "i feel like you're jealous of my courage",
+    "i think you're jealous of my happiness",
+    "i believe you're jealous of my freedom",
+    "i feel like you're jealous of my life",
+    "i think you're jealous of my growth"
   ],
   "not_jealous_anymore": [
-    "jealousy lost its grip on me",
-    "i'm not jealous of anything now",
-    "jealousy burned itself out",
-    "i'm content with what i have",
-    "jealousy died with our relationship"
+    "i'm not jealous of anything anymore",
+    "i don't feel jealousy towards anyone",
+    "i'm over being jealous of others",
+    "i don't care about what others have",
+    "i'm content with my own life",
+    "i don't compare myself to others",
+    "i'm happy with what i have",
+    "i don't want what others have",
+    "i'm grateful for my own journey",
+    "i don't feel envy anymore"
   ],
 
   // Love subcategories
   "love_you": [
-    "you make time forget its job around me",
-    "if i had a forever i'd spend it in your quiet",
-    "love found me when i wasn't looking",
-    "you soften the weight of being alive",
-    "i fall for you in every lifetime"
+    "i love you more than words can say",
+    "i love you with all my heart",
+    "i love you more than life itself",
+    "i love you beyond reason or logic",
+    "i love you with every fiber of my being",
+    "i love you more than the stars love the night",
+    "i love you more than the ocean loves the shore",
+    "i love you more than the sun loves the sky",
+    "i love you more than the earth loves the moon",
+    "i love you more than anything in this world"
   ],
   "dont_love_anymore": [
-    "love died slowly and painfully",
     "i don't love you like i used to",
-    "love left when you did",
-    "i'm not in love with you anymore",
-    "love burned itself out"
+    "i don't love you anymore",
+    "i don't feel love for you",
+    "i don't love you the same way",
+    "i don't love you at all",
+    "i don't love you anymore",
+    "i don't feel anything for you",
+    "i don't love you like before",
+    "i don't love you anymore",
+    "i don't love you the way i should"
   ],
   "love_cant_be_together": [
     "i love you but we can't be together",
-    "love isn't enough to fix us",
-    "i love you but it's not healthy",
-    "i love you but we're toxic",
-    "i love you but we need to part"
+    "i love you but it's not enough",
+    "i love you but we're not meant to be",
+    "i love you but we're too different",
+    "i love you but we're too broken",
+    "i love you but we're too damaged",
+    "i love you but we're too hurt",
+    "i love you but we're too scarred",
+    "i love you but we're too wounded",
+    "i love you but we're too damaged"
   ],
   "still_love": [
-    "my love for you hasn't faded",
     "i still love you despite everything",
-    "love persists even through pain",
     "i still love you even now",
-    "my heart still belongs to you"
+    "i still love you after all this time",
+    "i still love you despite the pain",
+    "i still love you despite the hurt",
+    "i still love you despite the lies",
+    "i still love you despite the betrayal",
+    "i still love you despite the heartbreak",
+    "i still love you despite the emptiness",
+    "i still love you despite the loneliness"
   ],
   "never_loved": [
-    "what i felt wasn't love",
+    "i never really loved you",
     "i never truly loved you",
-    "love was never part of this",
-    "i was fooling myself about love",
-    "love was never real between us"
+    "i never actually loved you",
+    "i never really felt love for you",
+    "i never truly felt love for you",
+    "i never actually felt love for you",
+    "i never really knew what love was",
+    "i never truly knew what love was",
+    "i never actually knew what love was",
+    "i never really understood love"
   ],
 
   // Missing subcategories
   "miss_you": [
-    "i keep a chair out for conversations that never arrive",
-    "even the walls don't answer anymore",
-    "emptiness walks me to sleep",
-    "the quiet tastes heavier at night",
-    "solitude presses harder than hands"
+    "i miss you every single day",
+    "i miss you in my dreams",
+    "i miss you in my thoughts",
+    "i miss you in my memories",
+    "i miss you in my heart",
+    "i miss you in my soul",
+    "i miss you in my future",
+    "i miss you in my past",
+    "i miss you in my present",
+    "i miss you in my life"
   ],
   "dont_miss_anymore": [
-    "missing you faded with time",
+    "i don't miss you anymore",
     "i don't miss you like i used to",
-    "missing you stopped hurting",
+    "i don't miss you at all",
     "i'm over missing you",
-    "missing you became a habit i broke"
+    "i'm done missing you",
+    "i don't feel missing you",
+    "i don't think about missing you",
+    "i don't care about missing you",
+    "i don't want to miss you",
+    "i don't need to miss you"
   ],
   "miss_who_you_were": [
     "i miss the person you used to be",
-    "i miss the version of you i fell in love with",
-    "i miss who you were before everything changed",
+    "i miss the version of you i loved",
+    "i miss who you were before",
     "i miss the person you pretended to be",
-    "i miss the you that never really existed"
+    "i miss the you that never existed",
+    "i miss the you i thought i knew",
+    "i miss the you i fell in love with",
+    "i miss the you i trusted completely",
+    "i miss the you i believed in",
+    "i miss the you i thought was real"
   ],
   "miss_who_we_were": [
     "i miss the couple we used to be",
     "i miss the us that felt invincible",
     "i miss the relationship we had",
     "i miss the dynamic we shared",
-    "i miss the team we used to be"
+    "i miss the team we used to be",
+    "i miss the love we used to have",
+    "i miss the future we used to plan",
+    "i miss the dreams we used to share",
+    "i miss the life we used to build",
+    "i miss the happiness we used to know"
   ],
   "miss_myself": [
     "i miss the person i was before you",
     "i miss who i used to be",
     "i miss the me that existed before this",
     "i miss my old self",
-    "i miss the person i lost along the way"
+    "i miss the person i lost along the way",
+    "i miss the me that was happy",
+    "i miss the me that was whole",
+    "i miss the me that was confident",
+    "i miss the me that was independent",
+    "i miss the me that was free"
   ],
 
   // Regret subcategories
   "regret_everything": [
-    "i chose the right words and said them too late",
-    "i kept the peace and lost the truth",
-    "regret chews quietly never full",
-    "i should've stayed when i left",
-    "my silence cost me everything"
+    "i regret everything about us",
+    "i regret every choice i made",
+    "i regret every word i said",
+    "i regret every action i took",
+    "i regret every moment we shared",
+    "i regret every memory we created",
+    "i regret every dream we dreamed",
+    "i regret every plan we made",
+    "i regret every hope we had",
+    "i regret every love we shared"
   ],
   "no_regrets": [
-    "every choice led me here",
-    "i don't regret a single moment",
-    "regrets are a waste of time",
-    "i'm grateful for every experience",
-    "no regrets only lessons learned"
+    "i don't regret anything about us",
+    "i don't regret any choice i made",
+    "i don't regret any word i said",
+    "i don't regret any action i took",
+    "i don't regret any moment we shared",
+    "i don't regret any memory we created",
+    "i don't regret any dream we dreamed",
+    "i don't regret any plan we made",
+    "i don't regret any hope we had",
+    "i don't regret any love we shared"
   ],
   "regret_not_trying": [
-    "i should've fought harder for us",
-    "i regret not putting in more effort",
-    "i wish i'd tried harder to make it work",
-    "i regret not giving it my all",
-    "i should've tried harder to save us"
+    "i regret not trying harder for us",
+    "i regret not fighting harder for us",
+    "i regret not giving more effort",
+    "i regret not putting in more work",
+    "i regret not trying to save us",
+    "i regret not fighting for our love",
+    "i regret not working harder",
+    "i regret not giving my all",
+    "i regret not trying everything",
+    "i regret not fighting everything"
   ],
   "regret_meeting": [
-    "meeting you was my biggest mistake",
-    "i wish our paths had never crossed",
     "i regret the day i met you",
-    "meeting you ruined my life",
-    "i regret ever knowing you"
+    "i regret ever knowing you",
+    "i regret our paths crossing",
+    "i regret the moment we met",
+    "i regret the day we became friends",
+    "i regret the day we fell in love",
+    "i regret the day we started dating",
+    "i regret the day we moved in together",
+    "i regret the day we got married",
+    "i regret the day we said i do"
   ],
   "both_have_regrets": [
-    "we both made mistakes we regret",
-    "we both have things we wish we'd done differently",
-    "we both carry our own regrets",
-    "we both have things we'd change",
-    "we both have regrets about us"
+    "i think we both have regrets",
+    "i believe we both made mistakes",
+    "i feel like we both failed each other",
+    "i think we both have things we'd change",
+    "i believe we both have things we'd do differently",
+    "i feel like we both have things we'd undo",
+    "i think we both have things we'd redo",
+    "i believe we both have things we'd fix",
+    "i feel like we both have things we'd improve",
+    "i think we both have things we'd correct"
   ],
 
   // Sadness subcategories
   "so_sad": [
-    "some days i'm just rain without a storm",
-    "i miss me most when i miss you",
-    "tears stain even when unseen",
-    "grief sits heavy in morning light",
-    "the ache lingers uninvited but constant"
+    "i'm so sad all the time",
+    "i'm so sad about everything",
+    "i'm so sad about what we lost",
+    "i'm so sad about what we could have been",
+    "i'm so sad about what we won't be",
+    "i'm so sad about the future we planned",
+    "i'm so sad about the dreams we shared",
+    "i'm so sad about the love we lost",
+    "i'm so sad about the memories we won't make",
+    "i'm so sad about the life we won't live"
   ],
   "finding_happiness": [
-    "happiness is slowly returning",
+    "i'm trying to find happiness again",
+    "i'm looking for happiness in new places",
+    "i'm searching for happiness within myself",
+    "i'm working on finding happiness",
     "i'm learning to be happy again",
-    "joy is finding its way back",
-    "i'm discovering happiness in new places",
-    "happiness is a choice i'm making"
+    "i'm discovering happiness in small things",
+    "i'm finding happiness in new experiences",
+    "i'm creating happiness for myself",
+    "i'm building happiness from scratch",
+    "i'm choosing happiness every day"
   ],
   "sad_what_lost": [
     "i'm sad about what we could have been",
-    "i'm sad for the future we planned",
-    "i'm sad for the dreams we shared",
-    "i'm sad for the love we lost",
-    "i'm sad for the memories we won't make"
+    "i'm sad about the future we planned",
+    "i'm sad about the dreams we shared",
+    "i'm sad about the love we lost",
+    "i'm sad about the memories we won't make",
+    "i'm sad about the life we won't live",
+    "i'm sad about the happiness we won't know",
+    "i'm sad about the peace we won't find",
+    "i'm sad about the trust we won't rebuild",
+    "i'm sad about the bond we won't restore"
   ],
   "sad_for_you": [
     "i'm sad about what you're missing",
     "i'm sad for the person you could have been",
     "i'm sad about the choices you made",
     "i'm sad for the pain you're in",
-    "i'm sad for the life you're living"
+    "i'm sad for the life you're living",
+    "i'm sad for the future you won't have",
+    "i'm sad for the dreams you won't achieve",
+    "i'm sad for the love you won't experience",
+    "i'm sad for the happiness you won't know",
+    "i'm sad for the peace you won't find"
   ],
   "sad_for_me": [
     "i'm sad about what i lost",
     "i'm sad for the person i became",
     "i'm sad about the time i wasted",
     "i'm sad for the love i gave away",
-    "i'm sad for the future i lost"
+    "i'm sad for the future i lost",
+    "i'm sad for the dreams i abandoned",
+    "i'm sad for the happiness i sacrificed",
+    "i'm sad for the peace i destroyed",
+    "i'm sad for the trust i broke",
+    "i'm sad for the bond i damaged"
   ],
 
   // Shame subcategories
   "ashamed": [
-    "i hide in shadows of my own making",
-    "shame wraps around me like a second skin",
-    "i feel unworthy of the light",
-    "my mistakes echo louder than my successes",
-    "i carry guilt like a backpack of stones"
+    "i feel ashamed of everything",
+    "i feel ashamed of who i became",
+    "i feel ashamed of my choices",
+    "i feel ashamed of my actions",
+    "i feel ashamed of my words",
+    "i feel ashamed of my mistakes",
+    "i feel ashamed of my weakness",
+    "i feel ashamed of my stupidity",
+    "i feel ashamed of my blindness",
+    "i feel ashamed of my pain"
   ],
   "proud_myself": [
     "i'm proud of how far i've come",
     "i'm proud of my strength",
     "i'm proud of my ability to heal",
     "i'm proud of who i've become",
-    "i'm proud of my resilience"
+    "i'm proud of my resilience",
+    "i'm proud of my courage",
+    "i'm proud of my independence",
+    "i'm proud of my growth",
+    "i'm proud of my wisdom",
+    "i'm proud of my survival"
   ],
   "you_should_ashamed": [
-    "you should be ashamed of your behavior",
-    "you should feel ashamed of what you did",
-    "shame belongs to you not me",
-    "you should be ashamed of yourself",
-    "you should feel ashamed of your choices"
+    "i think you should be ashamed",
+    "i believe you should feel ashamed",
+    "i feel like you should be ashamed",
+    "i think you should feel guilty",
+    "i believe you should feel bad",
+    "i feel like you should feel remorse",
+    "i think you should feel regret",
+    "i believe you should feel sorry",
+    "i feel like you should feel pain",
+    "i think you should feel hurt"
   ],
   "both_should_ashamed": [
-    "we both have reasons to feel ashamed",
-    "we should both be ashamed of what we became",
-    "shame belongs to both of us",
-    "we both have things to be ashamed of",
-    "we should both feel ashamed of us"
+    "i think we both should be ashamed",
+    "i believe we both should feel ashamed",
+    "i feel like we both should be ashamed",
+    "i think we both should feel guilty",
+    "i believe we both should feel bad",
+    "i feel like we both should feel remorse",
+    "i think we both should feel regret",
+    "i believe we both should feel sorry",
+    "i feel like we both should feel pain",
+    "i think we both should feel hurt"
   ],
   "no_one_ashamed": [
-    "shame serves no purpose here",
-    "no one needs to feel ashamed",
-    "shame doesn't help anyone heal",
-    "we're all human and make mistakes",
-    "shame is unnecessary and unhelpful"
+    "i don't think anyone should be ashamed",
+    "i don't believe anyone should feel ashamed",
+    "i don't feel like anyone should be ashamed",
+    "i don't think anyone should feel guilty",
+    "i don't believe anyone should feel bad",
+    "i don't feel like anyone should feel remorse",
+    "i don't think anyone should feel regret",
+    "i don't believe anyone should feel sorry",
+    "i don't feel like anyone should feel pain",
+    "i don't think anyone should feel hurt"
   ],
 
   // Thank You subcategories
   "thank_you": [
-    "thank you for the moments you didn't know mattered",
-    "gratitude fills the spaces you left behind",
-    "i'm thankful for the lessons you taught me",
-    "thank you for showing me what love isn't",
-    "i'm grateful for the strength you forced me to find"
+    "i want to thank you for everything",
+    "i want to thank you for the memories",
+    "i want to thank you for the love",
+    "i want to thank you for the lessons",
+    "i want to thank you for the growth",
+    "i want to thank you for the strength",
+    "i want to thank you for the wisdom",
+    "i want to thank you for the courage",
+    "i want to thank you for the independence",
+    "i want to thank you for the freedom"
   ],
   "no_thanks_needed": [
-    "you don't need to thank me",
-    "thanks aren't necessary",
-    "no thanks required",
-    "you don't owe me thanks",
-    "thanks aren't needed here"
+    "i don't need you to thank me",
+    "i don't want you to thank me",
+    "i don't expect you to thank me",
+    "i don't require you to thank me",
+    "i don't ask you to thank me",
+    "i don't demand you to thank me",
+    "i don't insist you to thank me",
+    "i don't force you to thank me",
+    "i don't pressure you to thank me",
+    "i don't compel you to thank me"
   ],
   "thank_pain": [
-    "thank you for the pain that made me stronger",
-    "thank you for the hurt that taught me",
-    "thank you for the suffering that shaped me",
-    "thank you for the wounds that healed me",
-    "thank you for the pain that led to growth"
+    "i want to thank you for the pain",
+    "i want to thank you for the hurt",
+    "i want to thank you for the suffering",
+    "i want to thank you for the wounds",
+    "i want to thank you for the heartbreak",
+    "i want to thank you for the tears",
+    "i want to thank you for the loneliness",
+    "i want to thank you for the emptiness",
+    "i want to thank you for the darkness",
+    "i want to thank you for the brokenness"
   ],
   "thank_memories": [
-    "thank you for all the good times",
-    "thank you for the memories we created",
-    "thank you for the moments we shared",
-    "thank you for the experiences we had",
-    "thank you for the stories we wrote together"
+    "i want to thank you for the memories",
+    "i want to thank you for the moments",
+    "i want to thank you for the experiences",
+    "i want to thank you for the stories",
+    "i want to thank you for the adventures",
+    "i want to thank you for the laughter",
+    "i want to thank you for the joy",
+    "i want to thank you for the happiness",
+    "i want to thank you for the peace",
+    "i want to thank you for the love"
   ],
   "thank_leaving": [
-    "thank you for walking away",
-    "thank you for setting me free",
-    "thank you for ending what needed to end",
-    "thank you for the gift of leaving",
-    "thank you for choosing to go"
+    "i want to thank you for leaving",
+    "i want to thank you for walking away",
+    "i want to thank you for setting me free",
+    "i want to thank you for ending it",
+    "i want to thank you for the closure",
+    "i want to thank you for the freedom",
+    "i want to thank you for the independence",
+    "i want to thank you for the strength",
+    "i want to thank you for the courage",
+    "i want to thank you for the wisdom"
   ],
 
   // Closure subcategories
   "need_answers": [
-    "i need to know why this happened",
     "i need answers to move forward",
-    "i need to understand what went wrong",
-    "i need answers to find peace",
-    "i need to know the truth"
+    "i need to understand what happened",
+    "i need to know why you left",
+    "i need to know what went wrong",
+    "i need to know the truth",
+    "i need to know the reason",
+    "i need to know the cause",
+    "i need to know the explanation",
+    "i need to know the motivation",
+    "i need to know the purpose"
   ],
   "dont_need_answers": [
-    "answers won't change anything",
+    "i don't need answers anymore",
     "i don't need to know why",
-    "answers aren't necessary anymore",
     "i don't need explanations",
-    "answers won't help me heal"
+    "i don't need the truth",
+    "i don't need the reason",
+    "i don't need the cause",
+    "i don't need the explanation",
+    "i don't need the motivation",
+    "i don't need the purpose",
+    "i don't need anything from you"
   ],
   "need_understand": [
     "i need to understand what happened",
     "i need to understand why you left",
     "i need to understand where we went wrong",
     "i need to understand to move on",
-    "i need to understand to heal"
+    "i need to understand to heal",
+    "i need to understand to grow",
+    "i need to understand to learn",
+    "i need to understand to forgive",
+    "i need to understand to accept",
+    "i need to understand to let go"
   ],
   "need_move_on": [
-    "i need to let go and move forward",
     "i need to move on from this",
+    "i need to let go and move forward",
     "i need to leave this behind me",
     "i need to move on to better things",
-    "i need to move on for my own sake"
+    "i need to move on for my own sake",
+    "i need to move on to heal",
+    "i need to move on to grow",
+    "i need to move on to learn",
+    "i need to move on to forgive",
+    "i need to move on to accept"
   ],
   "need_closure": [
-    "we both need closure to move forward",
-    "we need closure to heal properly",
-    "we need closure to find peace",
-    "we need closure to let go",
-    "we need closure to end this chapter"
+    "i need closure to move forward",
+    "i need closure to heal properly",
+    "i need closure to find peace",
+    "i need closure to let go",
+    "i need closure to end this chapter",
+    "i need closure to start over",
+    "i need closure to rebuild",
+    "i need closure to restore",
+    "i need closure to renew",
+    "i need closure to regenerate"
   ],
   "never_got_closure": [
-    "closure was something you never gave me",
-    "i'm still waiting for the closure i deserve",
-    "closure is the one thing i never received",
-    "i never got the answers i needed",
-    "closure remains elusive and painful"
+    "i never got the closure i needed",
+    "i never got the answers i wanted",
+    "i never got the explanation i deserved",
+    "i never got the truth i needed",
+    "i never got the reason i wanted",
+    "i never got the cause i deserved",
+    "i never got the motivation i needed",
+    "i never got the purpose i wanted",
+    "i never got the understanding i deserved",
+    "i never got the peace i needed"
   ],
   "seeking_closure": [
-    "i'm actively looking for closure",
-    "i'm searching for answers everywhere",
-    "i'm seeking closure in any way i can",
-    "closure is what i'm desperately seeking",
-    "i'm on a quest for closure"
+    "i'm actively seeking closure",
+    "i'm searching for closure everywhere",
+    "i'm looking for closure in any way",
+    "i'm pursuing closure actively",
+    "i'm hunting for closure desperately",
+    "i'm seeking closure constantly",
+    "i'm searching for closure endlessly",
+    "i'm looking for closure hopelessly",
+    "i'm pursuing closure painfully",
+    "i'm hunting for closure desperately"
   ],
   "closure_impossible": [
-    "closure seems completely out of reach",
-    "getting closure feels like an impossible dream",
-    "closure feels like something i'll never achieve",
-    "the idea of closure feels hopeless",
-    "closure feels like an unattainable goal"
+    "i think closure is impossible",
+    "i believe closure is out of reach",
+    "i feel like closure is unattainable",
+    "i think closure is hopeless",
+    "i believe closure is unachievable",
+    "i feel like closure is unrealistic",
+    "i think closure is impractical",
+    "i believe closure is unfeasible",
+    "i feel like closure is unworkable",
+    "i think closure is undoable"
   ],
   "found_own_closure": [
-    "i had to create my own closure",
-    "i found closure within myself",
-    "i made my own peace without you",
-    "closure came from within not from you",
-    "i found closure on my own terms"
+    "i found my own closure",
+    "i created my own closure",
+    "i made my own closure",
+    "i built my own closure",
+    "i established my own closure",
+    "i formed my own closure",
+    "i developed my own closure",
+    "i constructed my own closure",
+    "i fashioned my own closure",
+    "i shaped my own closure"
   ],
 
   // Other subcategories
   "other_feeling": [
-    "i don't have a word for this but it feels true",
-    "some feelings don't fit labels they still fit us",
-    "this emotion is too complex to name",
+    "i feel something i can't name",
     "i feel something i can't describe",
-    "this feeling defies categorization"
+    "i feel something i can't explain",
+    "i feel something i can't understand",
+    "i feel something i can't categorize",
+    "i feel something i can't label",
+    "i feel something i can't identify",
+    "i feel something i can't recognize",
+    "i feel something i can't place",
+    "i feel something i can't define"
   ],
   "different_emotion": [
-    "this isn't what i expected to feel",
-    "my emotions are all mixed up",
+    "i feel a different emotion now",
     "i feel something completely different",
-    "this emotion surprised me",
-    "i'm feeling something new and strange"
+    "i feel something unexpected",
+    "i feel something surprising",
+    "i feel something new",
+    "i feel something strange",
+    "i feel something unusual",
+    "i feel something unfamiliar",
+    "i feel something unknown",
+    "i feel something foreign"
   ],
   "something_else": [
-    "there's something else going on here",
-    "this is about more than what it seems",
-    "there's something deeper happening",
-    "this isn't the whole story",
-    "there's something else i need to say"
+    "i feel like there's something else",
+    "i think there's something deeper",
+    "i believe there's something more",
+    "i feel like there's something hidden",
+    "i think there's something beneath",
+    "i believe there's something underneath",
+    "i feel like there's something concealed",
+    "i think there's something covered",
+    "i believe there's something masked",
+    "i feel like there's something disguised"
   ],
   "cant_explain": [
-    "i don't know how to explain this",
-    "words fail me right now",
-    "i can't put this into words",
-    "this feeling is beyond explanation",
-    "i'm at a loss for words"
+    "i can't explain what i'm feeling",
+    "i can't put my feelings into words",
+    "i can't describe what i'm experiencing",
+    "i can't articulate my emotions",
+    "i can't express what i'm feeling",
+    "i can't communicate my feelings",
+    "i can't convey what i'm experiencing",
+    "i can't put words to my emotions",
+    "i can't verbalize my feelings",
+    "i can't speak my emotions"
   ],
   "complicated": [
-    "this situation is more complex than it seems",
-    "nothing about this is simple",
-    "it's more complicated than i can explain",
-    "this isn't black and white",
-    "the truth is somewhere in between"
+    "i feel like this is complicated",
+    "i think this is complex",
+    "i believe this is intricate",
+    "i feel like this is involved",
+    "i think this is elaborate",
+    "i believe this is sophisticated",
+    "i feel like this is detailed",
+    "i think this is thorough",
+    "i believe this is comprehensive",
+    "i feel like this is extensive"
   ],
 
   // Devotion subcategories
   "devoted_to_you": [
-    "you are my prayer my temple my truth",
-    "i would worship at the altar of your existence",
-    "devotion runs deeper than blood through my veins",
-    "you are the only religion i understand",
-    "i am devoted to you beyond reason or logic"
+    "i'm completely devoted to you",
+    "i'm totally devoted to you",
+    "i'm entirely devoted to you",
+    "i'm wholly devoted to you",
+    "i'm fully devoted to you",
+    "i'm completely committed to you",
+    "i'm totally committed to you",
+    "i'm entirely committed to you",
+    "i'm wholly committed to you",
+    "i'm fully committed to you"
   ],
   "worship_your_existence": [
-    "i worship the ground you walk on",
-    "your existence is my sacred text",
-    "i would kneel at the altar of your being",
-    "you are the god i never knew i needed",
-    "your presence is my holy communion"
+    "i worship your existence completely",
+    "i worship your being totally",
+    "i worship your presence entirely",
+    "i worship your essence wholly",
+    "i worship your soul fully",
+    "i worship your spirit completely",
+    "i worship your heart totally",
+    "i worship your mind entirely",
+    "i worship your body wholly",
+    "i worship your life fully"
   ],
   "you_are_my_religion": [
-    "you are my faith my church my salvation",
-    "i found god in the way you say my name",
-    "you are the only prayer i know by heart",
-    "your love is my scripture and my hymn",
-    "you are my religion and i am your disciple"
+    "i think you are my religion",
+    "i believe you are my faith",
+    "i feel like you are my god",
+    "i think you are my salvation",
+    "i believe you are my temple",
+    "i feel like you are my church",
+    "i think you are my prayer",
+    "i believe you are my scripture",
+    "i feel like you are my hymn",
+    "i think you are my altar"
   ],
   "unconditional_love": [
-    "my love for you knows no bounds or conditions",
-    "i love you without limits or expectations",
-    "unconditional is the only way i know how to love you",
-    "my love for you is pure and without requirement",
-    "i love you completely and without reservation"
+    "i love you unconditionally",
+    "i love you without conditions",
+    "i love you without limits",
+    "i love you without boundaries",
+    "i love you without restrictions",
+    "i love you without requirements",
+    "i love you without expectations",
+    "i love you without demands",
+    "i love you without rules",
+    "i love you without conditions"
   ],
   "would_die_for_you": [
-    "i would die a thousand deaths for you",
-    "your life matters more than my own",
-    "i would sacrifice everything for your happiness",
-    "dying for you would be my greatest honor",
-    "i would give my life to save yours"
+    "i would die for you",
+    "i would sacrifice everything for you",
+    "i would give my life for you",
+    "i would lay down my life for you",
+    "i would risk everything for you",
+    "i would lose everything for you",
+    "i would abandon everything for you",
+    "i would forsake everything for you",
+    "i would renounce everything for you",
+    "i would surrender everything for you"
   ],
 
   // Hope subcategories
   "hope_for_us": [
-    "hope whispers that we're not finished yet",
-    "i still believe in the possibility of us",
-    "hope keeps a candle burning in my window",
-    "i hope we find our way back to each other",
-    "hope tells me this isn't the end of our story"
+    "i still have hope for us",
+    "i hope we can fix this",
+    "i hope we can start over",
+    "i hope we can find our way back",
+    "i hope we can heal together",
+    "i hope we can love again",
+    "i hope we can trust again",
+    "i hope we can forgive each other",
+    "i hope we can grow together",
+    "i hope we can be happy again"
   ],
   "hope_you_return": [
     "i hope you come back to me",
     "i hope you realize what you lost",
     "i hope you remember what we had",
-    "i hope you find your way home to me",
-    "i hope you choose me in the end"
+    "i hope you find your way home",
+    "i hope you choose me again",
+    "i hope you miss me too",
+    "i hope you want me back",
+    "i hope you need me again",
+    "i hope you love me still",
+    "i hope you want us again"
   ],
   "hope_for_healing": [
     "i hope we both find peace",
-    "i hope time heals what hurt us",
+    "i hope time heals our wounds",
     "i hope we both learn to love again",
-    "i hope healing finds us where we are",
-    "i hope we both find what we're looking for"
+    "i hope we both find happiness",
+    "i hope we both heal completely",
+    "i hope we both find ourselves again",
+    "i hope we both grow stronger",
+    "i hope we both find hope again",
+    "i hope we both find love again",
+    "i hope we both find peace again"
   ],
   "hope_is_fading": [
-    "hope is slipping through my fingers",
-    "i'm losing hope for what we could be",
-    "hope feels like a dying ember",
-    "my hope is running out",
-    "hope is becoming harder to hold onto"
+    "i feel like my hope is fading",
+    "i think hope is leaving me",
+    "i believe hope is dying slowly",
+    "i feel like hope is slipping away",
+    "i think hope is becoming harder to hold",
+    "i believe hope is running out",
+    "i feel like hope is disappearing",
+    "i think hope is becoming distant",
+    "i believe hope is becoming impossible",
+    "i feel like hope is becoming a dream"
   ],
   "never_give_up_hope": [
-    "i will never stop hoping for us",
-    "hope is all i have left and i'm keeping it",
-    "i refuse to let hope die",
-    "hope is the last thing i'll surrender",
-    "i will hope for you until my final breath"
+    "i will never give up hope",
+    "i will never stop believing in us",
+    "i will never stop hoping for love",
+    "i will never stop hoping for happiness",
+    "i will never stop hoping for peace",
+    "i will never stop hoping for healing",
+    "i will never stop hoping for tomorrow",
+    "i will never stop hoping for better days",
+    "i will never stop hoping for love again",
+    "i will never stop hoping for us again"
   ],
 
   // Longing subcategories
   "ache_for_you": [
-    "my bones ache with missing you",
-    "i ache for you in places i didn't know existed",
-    "the ache for you lives in my marrow",
-    "you left an ache that nothing else can fill",
-    "i ache for you like drought aches for rain"
+    "i ache for you every single day",
+    "i ache for you in my bones",
+    "i ache for you in my heart",
+    "i ache for you in my soul",
+    "i ache for you in my dreams",
+    "i ache for you in my thoughts",
+    "i ache for you in my memories",
+    "i ache for you in my future",
+    "i ache for you in my past",
+    "i ache for you in my present"
   ],
   "desperate_yearning": [
-    "i yearn for you with desperate intensity",
-    "yearning for you consumes every thought",
-    "my yearning for you borders on madness",
-    "i yearn for you like a drowning person yearns for air",
-    "yearning for you is my constant companion"
+    "i yearn for you desperately",
+    "i yearn for you every moment",
+    "i yearn for you with all my heart",
+    "i yearn for you with all my soul",
+    "i yearn for you with all my being",
+    "i yearn for you constantly",
+    "i yearn for you endlessly",
+    "i yearn for you hopelessly",
+    "i yearn for you painfully",
+    "i yearn for you completely"
   ],
   "craving_your_touch": [
-    "i crave your touch like addiction",
-    "my skin remembers your hands",
-    "i hunger for your touch",
-    "craving your touch is my daily torment",
-    "your touch is the drug i can't quit"
+    "i crave your touch constantly",
+    "i crave your touch desperately",
+    "i crave your touch endlessly",
+    "i crave your touch painfully",
+    "i crave your touch hopelessly",
+    "i crave your touch completely",
+    "i crave your touch totally",
+    "i crave your touch absolutely",
+    "i crave your touch entirely",
+    "i crave your touch wholly"
   ],
   "starving_for_you": [
-    "i am starving for your presence",
-    "you are the feast i can never have",
-    "i starve for you in a world full of emptiness",
-    "starving for you is my natural state",
-    "you are the sustenance my soul craves"
+    "i'm starving for your love",
+    "i'm starving for your presence",
+    "i'm starving for your touch",
+    "i'm starving for your voice",
+    "i'm starving for your smile",
+    "i'm starving for your laughter",
+    "i'm starving for your warmth",
+    "i'm starving for your comfort",
+    "i'm starving for your peace",
+    "i'm starving for your happiness"
   ],
   "endless_desire": [
-    "my desire for you knows no end",
-    "desire burns eternal in my chest",
-    "i desire you with the force of hurricanes",
-    "endless desire is my burden and my gift",
-    "desire for you flows like an endless river"
+    "i have endless desire for you",
+    "i feel endless desire for you",
+    "i experience endless desire for you",
+    "i live with endless desire for you",
+    "i carry endless desire for you",
+    "i hold endless desire for you",
+    "i keep endless desire for you",
+    "i nurture endless desire for you",
+    "i feed endless desire for you",
+    "i grow endless desire for you"
   ],
 
   // Nostalgia subcategories
   "remember_good_times": [
-    "i remember when love was easy between us",
-    "i remember the way you used to look at me",
-    "i remember when we believed in forever",
-    "i remember the laughter that lived in our hearts",
-    "i remember when we were golden"
+    "i remember when love was easy",
+    "i remember when we were happy",
+    "i remember when we were whole",
+    "i remember when we were together",
+    "i remember when we were in love",
+    "i remember when we were free",
+    "i remember when we were young",
+    "i remember when we were innocent",
+    "i remember when we were hopeful",
+    "i remember when we were alive"
   ],
   "miss_our_past": [
     "i miss the people we used to be",
     "i miss the life we built together",
     "i miss the dreams we shared",
     "i miss the way we used to love",
-    "i miss the past version of us"
+    "i miss the past version of us",
+    "i miss the future we planned",
+    "i miss the happiness we knew",
+    "i miss the peace we had",
+    "i miss the trust we shared",
+    "i miss the bond we formed"
   ],
   "better_days": [
-    "we had better days than these",
+    "i remember better days than these",
     "i remember when everything was easier",
-    "better days feel like a distant dream",
-    "i long for the better days we shared",
-    "better days remind me what we lost"
+    "i remember when life was simpler",
+    "i remember when love was enough",
+    "i remember when we were happy",
+    "i remember when we were whole",
+    "i remember when we were together",
+    "i remember when we were in love",
+    "i remember when we were free",
+    "i remember when we were hopeful"
   ],
   "golden_memories": [
-    "our golden memories shine in the darkness",
-    "golden memories are all i have left",
-    "i polish our golden memories like treasures",
-    "golden memories haunt my quiet moments",
-    "our golden memories feel like fairy tales now"
+    "i cherish our golden memories",
+    "i hold our golden memories close",
+    "i treasure our golden memories",
+    "i protect our golden memories",
+    "i keep our golden memories safe",
+    "i love our golden memories",
+    "i miss our golden memories",
+    "i need our golden memories",
+    "i want our golden memories",
+    "i live for our golden memories"
   ],
   "wish_we_could_go_back": [
     "i wish we could go back to the beginning",
     "i wish we could rewind and start over",
     "i wish we could go back to when love was enough",
     "i wish we could go back to simpler times",
-    "i wish we could go back and do it right"
+    "i wish we could go back and do it right",
+    "i wish we could go back to when we were happy",
+    "i wish we could go back to when we were whole",
+    "i wish we could go back to when we were together",
+    "i wish we could go back to when we were in love",
+    "i wish we could go back to when we were free"
   ],
 
   // Vulnerability subcategories
   "opening_my_heart": [
-    "i'm opening my heart despite the risk",
-    "here is my heart raw and unguarded",
-    "opening my heart to you terrifies me",
-    "i offer you my heart with trembling hands",
-    "my heart opens like a flower in your presence"
+    "i'm opening my heart to you",
+    "i'm showing you my heart",
+    "i'm giving you my heart",
+    "i'm sharing my heart with you",
+    "i'm revealing my heart to you",
+    "i'm exposing my heart to you",
+    "i'm baring my heart to you",
+    "i'm offering my heart to you",
+    "i'm presenting my heart to you",
+    "i'm displaying my heart to you"
   ],
   "showing_weakness": [
     "i'm showing you my weakness",
-    "vulnerability is my greatest strength",
-    "i'm weak for you and i don't care who knows",
-    "showing weakness takes more courage than hiding",
-    "my weakness for you is my truth"
+    "i'm revealing my weakness to you",
+    "i'm exposing my weakness to you",
+    "i'm sharing my weakness with you",
+    "i'm giving you my weakness",
+    "i'm offering you my weakness",
+    "i'm presenting you my weakness",
+    "i'm displaying you my weakness",
+    "i'm baring you my weakness",
+    "i'm showing you my vulnerability"
   ],
   "need_protection": [
-    "i need you to protect my fragile heart",
-    "please be gentle with what i'm giving you",
-    "i need shelter from the storm",
-    "protect me from my own tender places",
-    "i need you to guard what i'm showing you"
+    "i need you to protect me",
+    "i need you to protect my heart",
+    "i need you to protect my soul",
+    "i need you to protect my feelings",
+    "i need you to protect my emotions",
+    "i need you to protect my thoughts",
+    "i need you to protect my dreams",
+    "i need you to protect my hopes",
+    "i need you to protect my future",
+    "i need you to protect my past"
   ],
   "trust_you_completely": [
-    "i trust you with every piece of me",
-    "complete trust is my gift to you",
-    "i trust you even when it scares me",
-    "trusting you completely is my leap of faith",
-    "my trust in you is absolute and unwavering"
+    "i trust you completely",
+    "i trust you with everything",
+    "i trust you with my heart",
+    "i trust you with my soul",
+    "i trust you with my life",
+    "i trust you with my future",
+    "i trust you with my past",
+    "i trust you with my present",
+    "i trust you with my dreams",
+    "i trust you with my hopes"
   ],
   "exposed_and_fragile": [
-    "i am exposed and fragile before you",
-    "here i am naked in my truth",
-    "fragile is how i feel in your presence",
-    "i am glass in your careful hands",
-    "exposed and vulnerable is my offering to you"
+    "i feel exposed and fragile",
+    "i feel vulnerable and weak",
+    "i feel open and defenseless",
+    "i feel naked and unprotected",
+    "i feel bare and unguarded",
+    "i feel transparent and see-through",
+    "i feel revealed and uncovered",
+    "i feel uncovered and unprotected",
+    "i feel defenseless and weak",
+    "i feel fragile and breakable"
   ],
 
   // Betrayal subcategories
   "you_betrayed_me": [
-    "trust shattered into a thousand pieces",
-    "you stabbed me with the knife i handed you",
-    "betrayal tastes like copper and broken promises",
-    "you wore my secrets like weapons against me",
-    "you broke the sacred trust between us"
+    "i trusted you with my heart",
+    "i gave you my deepest secrets",
+    "i believed every word you said",
+    "i thought you were different",
+    "i never saw it coming",
+    "i opened my soul to you",
+    "i let you see my weakness",
+    "i thought you were safe",
+    "i trusted you completely",
+    "i never thought you'd hurt me"
   ],
   "i_betrayed_you": [
-    "i am the knife that cut too deep",
-    "i betrayed the trust you gave so freely",
-    "i am the villain in our love story",
-    "i broke the promise i swore to keep",
-    "i betrayed myself by betraying you"
+    "i broke your trust completely",
+    "i betrayed everything we had",
+    "i destroyed what we built",
+    "i stabbed you in the back",
+    "i became someone i hate",
+    "i broke my own promises",
+    "i betrayed your love",
+    "i destroyed our future",
+    "i broke your heart",
+    "i betrayed myself too"
   ],
   "mutual_betrayal": [
-    "we both wielded secrets like daggers",
-    "we betrayed each other in different ways",
-    "we destroyed trust from both sides",
-    "betrayal was the language we both spoke",
-    "we both broke what we swore to protect"
+    "i betrayed you and you betrayed me",
+    "i broke your trust and you broke mine",
+    "i destroyed us and so did you",
+    "i betrayed our love and you did too",
+    "i broke promises and you broke yours",
+    "i lied to you and you lied to me",
+    "i hurt you and you hurt me",
+    "i betrayed us both",
+    "i destroyed everything we had",
+    "i broke what we could have been"
   ],
   "trust_destroyed": [
-    "trust died slowly then all at once",
-    "what we built in years crumbled in moments",
-    "trust is the casualty of our war",
-    "we destroyed something irreplaceable",
-    "trust lies in ruins between us"
+    "i can never trust you again",
+    "i can never trust anyone again",
+    "i can never trust love again",
+    "i can never trust myself again",
+    "i can never trust the future again",
+    "i can never trust happiness again",
+    "i can never trust hope again",
+    "i can never trust dreams again",
+    "i can never trust promises again",
+    "i can never trust words again"
   ],
   "betrayal_by_friend": [
-    "friendship died when loyalty left",
-    "you chose sides and it wasn't mine",
-    "friendship became a casualty of your choices",
-    "you betrayed the bond we thought unbreakable",
-    "friendship meant nothing when push came to shove"
+    "i thought you were my friend",
+    "i trusted you with everything",
+    "i never thought you'd betray me",
+    "i thought you had my back",
+    "i believed in your loyalty",
+    "i thought you were different",
+    "i never saw the betrayal coming",
+    "i thought you were safe",
+    "i trusted you completely",
+    "i never thought you'd hurt me"
   ],
 
   // Emptiness subcategories
@@ -1047,149 +1682,249 @@ export const typewriterPromptsBySubTag: Record<string, string[]> = {
 
   // Obsession subcategories
   "cant_stop_thinking": [
-    "you live rent-free in my mind",
-    "thoughts of you circle like vultures",
+    "i can't stop thinking about you",
+    "i can't get you out of my mind",
     "i can't stop replaying our memories",
-    "you haunt every quiet moment",
-    "my mind is a broken record of you"
+    "i can't stop thinking about us",
+    "i can't stop thinking about what we had",
+    "i can't stop thinking about what we lost",
+    "i can't stop thinking about what we could have been",
+    "i can't stop thinking about what we should have been",
+    "i can't stop thinking about what we were",
+    "i can't stop thinking about what we are"
   ],
   "consumed_by_you": [
-    "you consume my every waking thought",
-    "i am drowning in thoughts of you",
-    "you are the fire that burns through everything",
-    "consumed is too gentle a word for this",
-    "you devour me from the inside out"
+    "i'm completely consumed by thoughts of you",
+    "i'm totally consumed by memories of you",
+    "i'm entirely consumed by love for you",
+    "i'm wholly consumed by desire for you",
+    "i'm fully consumed by need for you",
+    "i'm completely consumed by want for you",
+    "i'm totally consumed by longing for you",
+    "i'm entirely consumed by missing you",
+    "i'm wholly consumed by yearning for you",
+    "i'm fully consumed by craving you"
   ],
   "unhealthy_fixation": [
-    "my obsession with you is toxic",
-    "i know this fixation is destroying me",
-    "unhealthy doesn't begin to describe this",
-    "i'm addicted to the pain of wanting you",
-    "this obsession is my beautiful disease"
+    "i know my fixation on you is unhealthy",
+    "i know my obsession with you is toxic",
+    "i know my addiction to you is dangerous",
+    "i know my need for you is unhealthy",
+    "i know my want for you is toxic",
+    "i know my desire for you is dangerous",
+    "i know my longing for you is unhealthy",
+    "i know my craving for you is toxic",
+    "i know my yearning for you is dangerous",
+    "i know my love for you is unhealthy"
   ],
   "obsessed_with_memories": [
-    "i replay our past like a broken film",
-    "memories of you are my drug of choice",
-    "i'm addicted to what we used to be",
-    "our memories are my beautiful prison",
-    "i live in the past where you still loved me"
+    "i'm obsessed with memories of you",
+    "i'm obsessed with memories of us",
+    "i'm obsessed with memories of what we had",
+    "i'm obsessed with memories of what we lost",
+    "i'm obsessed with memories of what we could have been",
+    "i'm obsessed with memories of what we should have been",
+    "i'm obsessed with memories of what we were",
+    "i'm obsessed with memories of what we are",
+    "i'm obsessed with memories of what we will be",
+    "i'm obsessed with memories of what we won't be"
   ],
   "addicted_to_you": [
-    "you are my drug my poison my cure",
-    "withdrawal from you is killing me slowly",
-    "you're the addiction i can't quit",
-    "i need you like lungs need air",
-    "addiction to you runs through my veins"
+    "i'm addicted to thoughts of you",
+    "i'm addicted to memories of you",
+    "i'm addicted to love for you",
+    "i'm addicted to desire for you",
+    "i'm addicted to need for you",
+    "i'm addicted to want for you",
+    "i'm addicted to longing for you",
+    "i'm addicted to missing you",
+    "i'm addicted to yearning for you",
+    "i'm addicted to craving you"
   ],
 
   // Passion subcategories
   "burning_desire": [
-    "desire burns through me like wildfire",
-    "i burn for you in ways that scare me",
-    "passion ignites every time you're near",
-    "desire consumes me body and soul",
-    "i am flame and you are gasoline"
+    "i have burning desire for you",
+    "i feel burning desire for you",
+    "i experience burning desire for you",
+    "i live with burning desire for you",
+    "i carry burning desire for you",
+    "i hold burning desire for you",
+    "i keep burning desire for you",
+    "i nurture burning desire for you",
+    "i feed burning desire for you",
+    "i grow burning desire for you"
   ],
   "wild_love": [
-    "our love was untamed and dangerous",
-    "wild is the only way i know how to love",
-    "you brought out the animal in me",
-    "we loved like wolves love the moon",
-    "wild love leaves beautiful scars"
+    "i feel wild love for you",
+    "i experience wild love for you",
+    "i live with wild love for you",
+    "i carry wild love for you",
+    "i hold wild love for you",
+    "i keep wild love for you",
+    "i nurture wild love for you",
+    "i feed wild love for you",
+    "i grow wild love for you",
+    "i feel wild love for you"
   ],
   "fierce_attraction": [
-    "attraction pulls me like gravity",
-    "you are magnetic and i am metal",
-    "fierce doesn't capture this pull",
-    "attraction defies logic and reason",
-    "you draw me like moth to flame"
+    "i feel fierce attraction to you",
+    "i experience fierce attraction to you",
+    "i live with fierce attraction to you",
+    "i carry fierce attraction to you",
+    "i hold fierce attraction to you",
+    "i keep fierce attraction to you",
+    "i nurture fierce attraction to you",
+    "i feed fierce attraction to you",
+    "i grow fierce attraction to you",
+    "i feel fierce attraction to you"
   ],
   "passionate_fire": [
-    "passion burns brighter than reason",
-    "we are fire and gasoline",
-    "passion consumes everything in its path",
-    "our fire burned too bright to last",
-    "passion is the flame that lights and destroys"
+    "i feel passionate fire for you",
+    "i experience passionate fire for you",
+    "i live with passionate fire for you",
+    "i carry passionate fire for you",
+    "i hold passionate fire for you",
+    "i keep passionate fire for you",
+    "i nurture passionate fire for you",
+    "i feed passionate fire for you",
+    "i grow passionate fire for you",
+    "i feel passionate fire for you"
   ],
   "intense_connection": [
-    "we connect on levels that terrify me",
-    "intensity is the only way we know",
-    "our connection transcends the physical",
-    "we are bound by invisible threads",
-    "connection this deep changes you forever"
+    "i feel intense connection with you",
+    "i experience intense connection with you",
+    "i live with intense connection with you",
+    "i carry intense connection with you",
+    "i hold intense connection with you",
+    "i keep intense connection with you",
+    "i nurture intense connection with you",
+    "i feed intense connection with you",
+    "i grow intense connection with you",
+    "i feel intense connection with you"
   ],
 
   // Pride subcategories
   "proud_of_us": [
     "i'm proud of what we built together",
-    "pride swells when i think of us",
-    "we created something worth being proud of",
-    "pride in us outweighs the pain",
-    "i'm proud of how we loved"
+    "i'm proud of the love we shared",
+    "i'm proud of the memories we created",
+    "i'm proud of the future we planned",
+    "i'm proud of the dreams we shared",
+    "i'm proud of the life we built",
+    "i'm proud of the happiness we knew",
+    "i'm proud of the peace we had",
+    "i'm proud of the trust we shared",
+    "i'm proud of the bond we formed"
   ],
   "too_proud_to_beg": [
-    "pride won't let me crawl back to you",
-    "too proud to beg for your love",
-    "pride is my armor and my prison",
-    "i won't beg for what should be freely given",
-    "pride keeps me standing when love fails"
+    "i'm too proud to beg for your love",
+    "i'm too proud to crawl back to you",
+    "i'm too proud to ask for forgiveness",
+    "i'm too proud to admit i need you",
+    "i'm too proud to show my weakness",
+    "i'm too proud to admit my mistakes",
+    "i'm too proud to ask for help",
+    "i'm too proud to show my vulnerability",
+    "i'm too proud to admit my pain",
+    "i'm too proud to show my heartbreak"
   ],
   "swallowing_pride": [
-    "pride tastes bitter going down",
-    "i swallow pride like medicine",
-    "sometimes love requires eating pride",
-    "pride is a small price for your love",
-    "i choke on pride to keep you close"
+    "i'm swallowing my pride for you",
+    "i'm eating my pride for your love",
+    "i'm choking on my pride for you",
+    "i'm sacrificing my pride for you",
+    "i'm giving up my pride for you",
+    "i'm letting go of my pride for you",
+    "i'm abandoning my pride for you",
+    "i'm destroying my pride for you",
+    "i'm killing my pride for you",
+    "i'm burying my pride for you"
   ],
   "pride_before_fall": [
-    "pride led me to ruin",
-    "my pride was our downfall",
-    "pride blinded me to what mattered",
-    "pride came before our fall",
-    "pride built the wall between us"
+    "i think my pride led to our fall",
+    "i believe my pride destroyed us",
+    "i feel like my pride ruined everything",
+    "i think my pride was our downfall",
+    "i believe my pride killed our love",
+    "i feel like my pride broke our bond",
+    "i think my pride destroyed our future",
+    "i believe my pride ruined our happiness",
+    "i feel like my pride killed our peace",
+    "i think my pride destroyed our trust"
   ],
   "damaged_pride": [
-    "you wounded my pride beyond repair",
-    "pride lies broken at your feet",
-    "damaged pride cuts deeper than heartbreak",
-    "you stripped away my pride and dignity",
-    "pride was the first casualty of loving you"
+    "i feel like you damaged my pride",
+    "i think you wounded my pride",
+    "i believe you broke my pride",
+    "i feel like you destroyed my pride",
+    "i think you killed my pride",
+    "i believe you ruined my pride",
+    "i feel like you shattered my pride",
+    "i think you crushed my pride",
+    "i believe you annihilated my pride",
+    "i feel like you obliterated my pride"
   ],
 
   // Yearning subcategories
   "yearn_for_touch": [
-    "my skin yearns for your hands",
-    "i yearn for your touch like desert yearns for rain",
-    "yearning for your touch is physical pain",
-    "my body remembers and yearns",
-    "yearning for touch that will never come"
+    "i yearn for your touch constantly",
+    "i yearn for your touch desperately",
+    "i yearn for your touch endlessly",
+    "i yearn for your touch painfully",
+    "i yearn for your touch hopelessly",
+    "i yearn for your touch completely",
+    "i yearn for your touch totally",
+    "i yearn for your touch absolutely",
+    "i yearn for your touch entirely",
+    "i yearn for your touch wholly"
   ],
   "desperate_need": [
-    "need consumes me like hunger",
-    "desperation is my constant companion",
-    "i need you like i need oxygen",
-    "desperate need claws at my chest",
-    "need this deep should have a name"
+    "i have desperate need for you",
+    "i feel desperate need for you",
+    "i experience desperate need for you",
+    "i live with desperate need for you",
+    "i carry desperate need for you",
+    "i hold desperate need for you",
+    "i keep desperate need for you",
+    "i nurture desperate need for you",
+    "i feed desperate need for you",
+    "i grow desperate need for you"
   ],
   "soul_yearning": [
-    "my soul yearns for its missing piece",
-    "yearning lives in the depths of my being",
-    "soul-deep yearning has no cure",
-    "you are what my soul yearns for",
-    "yearning echoes in the chambers of my soul"
+    "i have soul yearning for you",
+    "i feel soul yearning for you",
+    "i experience soul yearning for you",
+    "i live with soul yearning for you",
+    "i carry soul yearning for you",
+    "i hold soul yearning for you",
+    "i keep soul yearning for you",
+    "i nurture soul yearning for you",
+    "i feed soul yearning for you",
+    "i grow soul yearning for you"
   ],
   "yearning_for_past": [
-    "i yearn for the people we used to be",
-    "yearning for yesterday consumes today",
-    "the past calls to me like a siren",
-    "i yearn for the time when love was enough",
-    "yearning for what was prevents what could be"
+    "i yearn for the past we had",
+    "i yearn for the people we were",
+    "i yearn for the love we shared",
+    "i yearn for the happiness we knew",
+    "i yearn for the peace we had",
+    "i yearn for the trust we shared",
+    "i yearn for the bond we formed",
+    "i yearn for the future we planned",
+    "i yearn for the dreams we shared",
+    "i yearn for the life we built"
   ],
   "unfulfilled_yearning": [
-    "yearning without satisfaction is torture",
-    "unfulfilled yearning is my daily bread",
-    "wanting what i can't have defines me",
-    "yearning unfulfilled becomes a way of life",
-    "i am built of unfulfilled desires"
+    "i have unfulfilled yearning for you",
+    "i feel unfulfilled yearning for you",
+    "i experience unfulfilled yearning for you",
+    "i live with unfulfilled yearning for you",
+    "i carry unfulfilled yearning for you",
+    "i hold unfulfilled yearning for you",
+    "i keep unfulfilled yearning for you",
+    "i nurture unfulfilled yearning for you",
+    "i feed unfulfilled yearning for you",
+    "i grow unfulfilled yearning for you"
   ]
 };
