@@ -217,7 +217,12 @@ const TypingEffect: React.FC = () => {
           setCharIndex(charIndex - 1);
         } else {
           setIsDeleting(false);
-          setCurrentIndex(Math.floor(Math.random() * messages.length));
+          // Ensure we get a different random index
+          let newIndex;
+          do {
+            newIndex = Math.floor(Math.random() * messages.length);
+          } while (newIndex === currentIndex && messages.length > 1);
+          setCurrentIndex(newIndex);
         }
       }
     }, delay);
