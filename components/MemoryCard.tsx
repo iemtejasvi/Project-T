@@ -38,83 +38,54 @@ interface MemoryCardProps {
 
 
 const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, subTag }) => {
-  // Create a stable, shuffled prompt array that doesn't change on re-renders
   const prompts = useMemo(() => {
-    let selectedPrompts: string[] = [];
-    
-    // If we have a specific subTag, use prompts from that subcategory
+    // If we have a specific subTag (short tag), use prompts from that subcategory
     if (subTag && subTag !== "undefined" && subTag !== "null" && typewriterPromptsBySubTag[subTag]) {
-      selectedPrompts = [...typewriterPromptsBySubTag[subTag]];
+      return typewriterPromptsBySubTag[subTag];
     }
+    
     // If we have a main tag, use all prompts from that tag
-    else if (tag && typewriterSubTags[tag]) {
+    if (tag && typewriterSubTags[tag]) {
+      const allPrompts: string[] = [];
       typewriterSubTags[tag].forEach(subTag => {
         const subPrompts = typewriterPromptsBySubTag[subTag] || [];
-        selectedPrompts.push(...subPrompts);
+        allPrompts.push(...subPrompts);
       });
-    }
-    // If no tag is selected, show a mix of all categories
-    else {
-      Object.values(typewriterPromptsBySubTag).forEach(categoryPrompts => {
-        // Take 2-3 random prompts from each category for diversity
-        const shuffled = [...categoryPrompts].sort(() => 0.5 - Math.random());
-        selectedPrompts.push(...shuffled.slice(0, Math.min(3, shuffled.length)));
-      });
+      
+      return allPrompts.length > 0 ? allPrompts : typewriterPromptsBySubTag["other_feeling"] || [];
     }
     
-    // Shuffle all selected prompts thoroughly and limit to 25 for variety
-    return selectedPrompts
-      .sort(() => 0.5 - Math.random())
-      .sort(() => 0.5 - Math.random()) // Double shuffle for better randomness
-      .slice(0, Math.min(25, selectedPrompts.length));
+    // If no tag is selected, show a mix of all categories
+    const mixedPrompts: string[] = [];
+    Object.values(typewriterPromptsBySubTag).forEach(categoryPrompts => {
+      // Take 1-2 random prompts from each category to create a diverse mix
+      const shuffled = [...categoryPrompts].sort(() => 0.5 - Math.random());
+      mixedPrompts.push(...shuffled.slice(0, Math.min(2, shuffled.length)));
+    });
+    
+    // Shuffle the mixed prompts and limit to a reasonable number
+    return mixedPrompts.sort(() => 0.5 - Math.random()).slice(0, 20);
   }, [tag, subTag]);
 
-  // Generate a unique random offset for each instance
-  const randomOffset = useMemo(() => Math.random() * 2000 + 500, []);
-  
-  // Track used prompts to prevent immediate repeats
-  const [usedPrompts, setUsedPrompts] = useState<Set<number>>(new Set());
-  
-  // Start with a random prompt
-  const [currentIndex, setCurrentIndex] = useState(() => {
-    const startIndex = Math.floor(Math.random() * prompts.length);
-    return startIndex;
-  });
-  
+  const randomOffset = useMemo(() => Math.random() * 1000, []);
+  const [currentIndex, setCurrentIndex] = useState(
+    Math.floor(Math.random() * prompts.length)
+  );
   const [displayedText, setDisplayedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
 
-  // Reset used prompts when tag/subTag changes
-  useEffect(() => {
-    setUsedPrompts(new Set());
-    setCurrentIndex(Math.floor(Math.random() * prompts.length));
-    setDisplayedText("");
-    setCharIndex(0);
-    setIsDeleting(false);
-  }, [tag, subTag, prompts.length]);
-
   useEffect(() => {
     const currentPrompt = prompts[currentIndex];
     let delay = isDeleting ? 50 : 100;
-    
-    // Add random variation to typing speed
-    if (!isDeleting) {
-      delay += Math.random() * 50; // Random 0-50ms variation
-    }
-    
-    // Add the random offset only at the start
     if (!isDeleting && charIndex === 0) {
       delay += randomOffset;
     }
-    
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setDisplayedText(currentPrompt.substring(0, charIndex + 1));
         if (charIndex + 1 === currentPrompt.length) {
-          // Random pause before deleting (2-4 seconds)
-          const pauseTime = 2000 + Math.random() * 2000;
-          setTimeout(() => setIsDeleting(true), pauseTime);
+          setTimeout(() => setIsDeleting(true), 2000);
         } else {
           setCharIndex(charIndex + 1);
         }
@@ -122,31 +93,11 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, su
         setDisplayedText(currentPrompt.substring(0, charIndex - 1));
         if (charIndex - 1 === 0) {
           setIsDeleting(false);
-          
-          // Mark current prompt as used
-          setUsedPrompts(prev => new Set([...prev, currentIndex]));
-          
-          // Find next available prompt
+          // Ensure we get a different random index
           let newIndex;
-          let attempts = 0;
-          const maxAttempts = prompts.length * 2;
-          
           do {
-            // If we've used most prompts, reset the used set
-            if (usedPrompts.size >= prompts.length * 0.8) {
-              setUsedPrompts(new Set());
-            }
-            
             newIndex = Math.floor(Math.random() * prompts.length);
-            attempts++;
-            
-            // Prevent infinite loop
-            if (attempts > maxAttempts) {
-              newIndex = (currentIndex + 1) % prompts.length;
-              break;
-            }
-          } while (usedPrompts.has(newIndex) || newIndex === currentIndex);
-          
+          } while (newIndex === currentIndex && prompts.length > 1);
           setCurrentIndex(newIndex);
           setCharIndex(0);
         } else {
@@ -155,7 +106,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, su
       }
     }, delay);
     return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, currentIndex, prompts, randomOffset, usedPrompts]);
+  }, [charIndex, isDeleting, currentIndex, prompts]);
 
   return (
     <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
@@ -533,11 +484,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               {dateStr} | {dayStr}
             </div>
             <div className="min-h-[2.5em] w-full">
-              <TypewriterPrompt 
-                key={`${memory.id}-${memory.tag}-${memory.sub_tag}`}
-                tag={memory.tag} 
-                subTag={memory.sub_tag} 
-              />
+                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} />
             </div>
           </div>
           {/* BACK */}
