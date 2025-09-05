@@ -14,26 +14,13 @@ const dbB = {
   client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!)
 };
 
-// Round-robin state using timestamp-based selection for better distribution
-let lastUsedDatabase: 'A' | 'B' | null = null;
-let lastUsedTime: number = 0;
+// Round-robin state (using persistent storage mechanism)
+let currentDatabase: 'A' | 'B' = 'A';
 
-// Function to get next database for round-robin with better distribution
+// Function to get next database for round-robin
 function getNextDatabase(): 'A' | 'B' {
-  const now = Date.now();
-  
-  // If this is the first call or enough time has passed, use timestamp-based selection
-  if (lastUsedDatabase === null || (now - lastUsedTime) > 1000) { // 1 second threshold
-    // Use timestamp to determine which database to use
-    const useA = (Math.floor(now / 1000) % 2) === 0;
-    lastUsedDatabase = useA ? 'A' : 'B';
-  } else {
-    // Alternate from last used database
-    lastUsedDatabase = lastUsedDatabase === 'A' ? 'B' : 'A';
-  }
-  
-  lastUsedTime = now;
-  return lastUsedDatabase;
+  currentDatabase = currentDatabase === 'A' ? 'B' : 'A';
+  return currentDatabase;
 }
 
 // Interface for memory data
@@ -263,40 +250,6 @@ export async function getDatabaseStatus() {
   };
 }
 
-// Get database usage statistics
-export async function getDatabaseUsageStats() {
-  try {
-    const [countA, countB] = await Promise.all([
-      dbA.client.from('memories').select('id', { count: 'exact', head: true }),
-      dbB.client.from('memories').select('id', { count: 'exact', head: true })
-    ]);
-    
-    return {
-      databaseA: {
-        count: countA.count || 0,
-        healthy: !countA.error
-      },
-      databaseB: {
-        count: countB.count || 0,
-        healthy: !countB.error
-      },
-      totalMemories: (countA.count || 0) + (countB.count || 0),
-      distribution: {
-        databaseA: countA.count || 0,
-        databaseB: countB.count || 0
-      }
-    };
-  } catch (error) {
-    console.error('Error getting database usage stats:', error);
-    return {
-      databaseA: { count: 0, healthy: false },
-      databaseB: { count: 0, healthy: false },
-      totalMemories: 0,
-      distribution: { databaseA: 0, databaseB: 0 }
-    };
-  }
-}
-
 // Fetch single memory by ID from both databases
 export async function fetchMemoryById(id: string) {
   const fetchPromises = [
@@ -314,21 +267,6 @@ export async function fetchMemoryById(id: string) {
   } else {
     return { data: null, error: { message: 'Memory not found in either database' } };
   }
-}
-
-// Get round-robin statistics for monitoring
-export function getRoundRobinStats() {
-  return {
-    lastUsedDatabase,
-    lastUsedTime,
-    timeSinceLastUse: lastUsedTime ? Date.now() - lastUsedTime : null
-  };
-}
-
-// Reset round-robin state (useful for testing)
-export function resetRoundRobinState() {
-  lastUsedDatabase = null;
-  lastUsedTime = 0;
 }
 
 // Export individual database clients for non-memory operations

@@ -1,27 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { countMemories, primaryDB } from '@/lib/dualMemoryDB';
 
-// Function to check if IP is whitelisted and get its limit
-async function getWhitelistInfo(ip: string): Promise<{ isWhitelisted: boolean; limit: number }> {
-  try {
-    // Always use primary database for whitelist operations
-    const { data, error } = await primaryDB
-      .from('ip_whitelist')
-      .select('"limit"') // Use quoted "limit" since it's a reserved keyword
-      .eq('ip', ip)
-      .single();
-
-    if (error || !data) {
-      return { isWhitelisted: false, limit: 2 }; // Default limit
-    }
-
-    return { isWhitelisted: true, limit: data.limit };
-  } catch (error) {
-    console.error('Error checking whitelist:', error);
-    return { isWhitelisted: false, limit: 2 }; // Default limit
-  }
-}
-
 function getClientIP(request: NextRequest): string | null {
   // Try multiple headers for IP detection
   const forwardedFor = request.headers.get('x-forwarded-for');
@@ -115,7 +94,7 @@ export async function POST(request: NextRequest) {
           isBanned = banData && banData.length > 0;
         }
 
-        // Check memory count with multiple criteria and whitelist support
+        // Check memory count with multiple criteria
         if (!isBanned) {
           const memoryQueries = [];
           if (clientIP) memoryQueries.push(`ip.eq.${clientIP}`);
@@ -157,22 +136,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get whitelist info for final response
-    let whitelistInfo = { isWhitelisted: false, limit: 2 };
-    if (clientIP) {
-      whitelistInfo = await getWhitelistInfo(clientIP);
-    }
-
-    const canSubmit = !isBanned && memoryCount < whitelistInfo.limit;
+    const canSubmit = !isBanned && memoryCount < 2;
 
     return NextResponse.json({
       canSubmit,
       isBanned,
       memoryCount,
-      hasReachedLimit: memoryCount >= whitelistInfo.limit,
-      isOwner: false,
-      isWhitelisted: whitelistInfo.isWhitelisted,
-      submissionLimit: whitelistInfo.limit
+      hasReachedLimit: memoryCount >= 2,
+      isOwner: false
     });
 
   } catch (error) {

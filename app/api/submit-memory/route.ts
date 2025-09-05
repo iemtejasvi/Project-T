@@ -1,27 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insertMemory, countMemories, primaryDB } from '@/lib/dualMemoryDB';
 
-// Function to check if IP is whitelisted and get its limit
-async function getWhitelistInfo(ip: string): Promise<{ isWhitelisted: boolean; limit: number }> {
-  try {
-    // Always use primary database for whitelist operations
-    const { data, error } = await primaryDB
-      .from('ip_whitelist')
-      .select('"limit"') // Use quoted "limit" since it's a reserved keyword
-      .eq('ip', ip)
-      .single();
-
-    if (error || !data) {
-      return { isWhitelisted: false, limit: 2 }; // Default limit
-    }
-
-    return { isWhitelisted: true, limit: data.limit };
-  } catch (error) {
-    console.error('Error checking whitelist:', error);
-    return { isWhitelisted: false, limit: 2 }; // Default limit
-  }
-}
-
 interface SubmissionData {
   recipient: string;
   message: string;
@@ -466,18 +445,12 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // Enhanced memory count check - multiple validation approaches with whitelist support
+          // Enhanced memory count check - multiple validation approaches
           const memoryQueries = [];
           if (clientIP) memoryQueries.push(`ip.eq.${clientIP}`);
           if (clientUUID) memoryQueries.push(`uuid.eq.${clientUUID}`);
           
           if (memoryQueries.length > 0) {
-            // Check if IP is whitelisted and get its limit
-            let whitelistInfo = { isWhitelisted: false, limit: 2 };
-            if (clientIP) {
-              whitelistInfo = await getWhitelistInfo(clientIP);
-            }
-
             // First check: Count by IP/UUID across both databases
             if (clientIP && clientUUID) {
               // If we have both, check both IP and UUID across both databases
@@ -485,7 +458,7 @@ export async function POST(request: NextRequest) {
               const uuidResult = await countMemories({ uuid: clientUUID });
               const totalCount = Math.max(ipResult.count, uuidResult.count);
 
-              if (totalCount >= whitelistInfo.limit) {
+              if (totalCount >= 2) {
                 const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
                 return NextResponse.json(
                   { error: randomMessage },
@@ -496,7 +469,7 @@ export async function POST(request: NextRequest) {
               // Second check: Additional IP validation (in case UUID is spoofed)
               if (clientIP) {
                 const { count: ipCount } = await countMemories({ ip: clientIP });
-                if (ipCount >= whitelistInfo.limit) {
+                if (ipCount >= 2) {
                   const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
                   return NextResponse.json(
                     { error: randomMessage },
@@ -508,7 +481,7 @@ export async function POST(request: NextRequest) {
               // Third check: Additional UUID validation (in case IP is spoofed)
               if (clientUUID) {
                 const { count: uuidCount } = await countMemories({ uuid: clientUUID });
-                if (uuidCount >= whitelistInfo.limit) {
+                if (uuidCount >= 2) {
                   const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
                   return NextResponse.json(
                     { error: randomMessage },
