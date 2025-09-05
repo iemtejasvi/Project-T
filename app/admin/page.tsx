@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchMemories, updateMemory, deleteMemory, primaryDB } from "@/lib/dualMemoryDB";
+import { fetchMemories, updateMemory, deleteMemory, primaryDB, getDatabaseUsageStats, getRoundRobinStats } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -23,7 +23,7 @@ interface Memory {
   sub_tag?: string;
 }
 
-type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance";
+type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "whitelist";
 
 export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
@@ -41,11 +41,17 @@ export default function AdminPanel() {
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
   const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
+  const [whitelistedIPs, setWhitelistedIPs] = useState<{ id: string; ip: string; limit: number; created_at: string; notes?: string }[]>([]);
+  const [newWhitelistIP, setNewWhitelistIP] = useState("");
+  const [newWhitelistLimit, setNewWhitelistLimit] = useState(4);
+  const [newWhitelistNotes, setNewWhitelistNotes] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [displayCount, setDisplayCount] = useState(10);
   const [loading, setLoading] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
+  const [dbStats, setDbStats] = useState<any>(null);
+  const [memoryCounts, setMemoryCounts] = useState<{ [ip: string]: { count: number; limit: number; isWhitelisted: boolean } }>({});
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -501,6 +507,242 @@ export default function AdminPanel() {
     }
   }, [selectedTab]);
 
+  // Fetch whitelisted IPs when whitelist tab is selected
+  useEffect(() => {
+    if (selectedTab === "whitelist") {
+      loadWhitelistedIPs();
+    }
+  }, [selectedTab]);
+
+  const loadWhitelistedIPs = async () => {
+    try {
+      // Always use primary database for whitelist operations
+      const { data, error } = await primaryDB
+        .from("ip_whitelist")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) {
+        console.error("Error loading whitelisted IPs:", error);
+        // If table doesn't exist, show empty state
+        if (error.code === "PGRST116" || error.message?.includes("relation") || error.message?.includes("does not exist")) {
+          console.log("Whitelist table doesn't exist yet. Please create it first.");
+          setWhitelistedIPs([]);
+        } else {
+          // Other errors - still show empty state but log the error
+          setWhitelistedIPs([]);
+        }
+      } else {
+        setWhitelistedIPs(data || []);
+        // Load memory counts for all IPs that have submitted memories
+        loadAllMemoryCounts();
+      }
+    } catch (error) {
+      console.error("Error loading whitelisted IPs:", error);
+      setWhitelistedIPs([]);
+    }
+  };
+
+  const loadMemoryCountsForIPs = async (ips: string[]) => {
+    try {
+      const counts: { [ip: string]: { count: number; limit: number; isWhitelisted: boolean } } = {};
+      
+      for (const ip of ips) {
+        // Get whitelist info
+        const { data: whitelistData } = await primaryDB
+          .from("ip_whitelist")
+          .select('"limit"')
+          .eq("ip", ip)
+          .single();
+        
+        const limit = whitelistData?.limit || 2;
+        const isWhitelisted = !!whitelistData;
+        
+        // Get memory count from both databases
+        const [dbACount, dbBCount] = await Promise.all([
+          primaryDB
+            .from("memories")
+            .select("id", { count: "exact", head: true })
+            .eq("ip", ip),
+          primaryDB
+            .from("memories_b")
+            .select("id", { count: "exact", head: true })
+            .eq("ip", ip)
+        ]);
+        
+        const totalCount = (dbACount.count || 0) + (dbBCount.count || 0);
+        
+        counts[ip] = {
+          count: totalCount,
+          limit,
+          isWhitelisted
+        };
+      }
+      
+      setMemoryCounts(counts);
+    } catch (error) {
+      console.error("Error loading memory counts:", error);
+    }
+  };
+
+  const loadAllMemoryCounts = async () => {
+    try {
+      // Get all unique IPs that have submitted memories from both databases
+      const [dbAIPs, dbBIPs] = await Promise.all([
+        primaryDB
+          .from("memories")
+          .select("ip")
+          .not("ip", "is", null),
+        primaryDB
+          .from("memories_b")
+          .select("ip")
+          .not("ip", "is", null)
+      ]);
+      
+      // Combine and get unique IPs
+      const allIPs = [...(dbAIPs.data || []), ...(dbBIPs.data || [])]
+        .map(item => item.ip)
+        .filter((ip, index, self) => ip && self.indexOf(ip) === index);
+      
+      const counts: { [ip: string]: { count: number; limit: number; isWhitelisted: boolean } } = {};
+      
+      for (const ip of allIPs) {
+        // Get whitelist info
+        const { data: whitelistData } = await primaryDB
+          .from("ip_whitelist")
+          .select('"limit"')
+          .eq("ip", ip)
+          .single();
+        
+        const limit = whitelistData?.limit || 2;
+        const isWhitelisted = !!whitelistData;
+        
+        // Get memory count from both databases
+        const [dbACount, dbBCount] = await Promise.all([
+          primaryDB
+            .from("memories")
+            .select("id", { count: "exact", head: true })
+            .eq("ip", ip),
+          primaryDB
+            .from("memories_b")
+            .select("id", { count: "exact", head: true })
+            .eq("ip", ip)
+        ]);
+        
+        const totalCount = (dbACount.count || 0) + (dbBCount.count || 0);
+        
+        counts[ip] = {
+          count: totalCount,
+          limit,
+          isWhitelisted
+        };
+      }
+      
+      setMemoryCounts(counts);
+    } catch (error) {
+      console.error("Error loading all memory counts:", error);
+    }
+  };
+
+  const loadDatabaseStats = async () => {
+    try {
+      const stats = await getDatabaseUsageStats();
+      const roundRobinStats = getRoundRobinStats();
+      setDbStats({ ...stats, roundRobin: roundRobinStats });
+    } catch (error) {
+      console.error("Error loading database stats:", error);
+    }
+  };
+
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert(`${label} copied to clipboard!`);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert(`${label} copied to clipboard!`);
+    }
+  };
+
+  const addToWhitelist = async () => {
+    if (!newWhitelistIP.trim()) {
+      alert("Please enter an IP address");
+      return;
+    }
+
+    const password = prompt("Please enter the whitelist password:");
+    if (password !== "2000@") {
+      alert("Incorrect password. Whitelist add aborted.");
+      return;
+    }
+
+    try {
+      // Always use primary database for whitelist operations
+      const { error } = await primaryDB
+        .from("ip_whitelist")
+        .insert([{
+          ip: newWhitelistIP.trim(),
+          "limit": newWhitelistLimit, // Use quoted "limit" since it's a reserved keyword
+          notes: newWhitelistNotes.trim() || null,
+          created_at: new Date().toISOString()
+        }]);
+
+      if (error) {
+        console.error("Error adding to whitelist:", error);
+        
+        // If table doesn't exist, provide helpful message
+        if (error.code === "PGRST116" || error.message?.includes("relation") || error.message?.includes("does not exist")) {
+          alert("The whitelist table needs to be created first. Please create the table in your Supabase dashboard with the following structure:\n\nTable: ip_whitelist\nColumns:\n- id (uuid, primary key, default: gen_random_uuid())\n- ip (text, not null)\n- \"limit\" (integer, not null, default: 4)\n- notes (text, nullable)\n- created_at (timestamptz, default: now())");
+        } else {
+          alert("Error adding IP to whitelist. Please try again.");
+        }
+      } else {
+        setNewWhitelistIP("");
+        setNewWhitelistLimit(4);
+        setNewWhitelistNotes("");
+        loadWhitelistedIPs();
+        alert("IP added to whitelist successfully!");
+      }
+    } catch (error) {
+      console.error("Error adding to whitelist:", error);
+      alert("Error adding IP to whitelist. Please try again.");
+    }
+  };
+
+  const removeFromWhitelist = async (id: string) => {
+    const password = prompt("Please enter the whitelist password:");
+    if (password !== "2000@") {
+      alert("Incorrect password. Whitelist removal aborted.");
+      return;
+    }
+
+    try {
+      // Always use primary database for whitelist operations
+      const { error } = await primaryDB
+        .from("ip_whitelist")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error removing from whitelist:", error);
+        alert("Error removing IP from whitelist. Please try again.");
+      } else {
+        loadWhitelistedIPs();
+        alert("IP removed from whitelist successfully!");
+      }
+    } catch (error) {
+      console.error("Error removing from whitelist:", error);
+      alert("Error removing IP from whitelist. Please try again.");
+    }
+  };
+
   if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
@@ -533,33 +775,46 @@ export default function AdminPanel() {
         </div>
       </header>
 
-      {/* Tabs */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex justify-between border-b border-[var(--border)]">
-          {(["pending", "approved", "banned", "announcements", "maintenance"] as Tab[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setSelectedTab(tab)}
-              className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
-                selectedTab === tab
-                  ? "border-b-2 border-blue-600 text-gray-900"
-                  : "text-gray-600"
-              }`}
-            >
-              {tab === "maintenance" ? "Maint" : tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
+             {/* Tabs */}
+       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+         <div className="flex justify-between border-b border-[var(--border)]">
+           {(["pending", "approved", "banned", "announcements", "maintenance", "whitelist"] as Tab[]).map((tab) => (
+             <button
+               key={tab}
+               onClick={() => setSelectedTab(tab)}
+               className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
+                 selectedTab === tab
+                   ? "border-b-2 border-blue-600 text-gray-900"
+                   : "text-gray-600"
+               }`}
+             >
+               <span className="hidden sm:inline">
+                 {tab === "maintenance" ? "Maintenance" : 
+                  tab === "announcements" ? "Announcements" :
+                  tab === "whitelist" ? "Whitelist" :
+                  tab.charAt(0).toUpperCase() + tab.slice(1)}
+               </span>
+               <span className="sm:hidden">
+                 {tab === "maintenance" ? "Maint" : 
+                  tab === "announcements" ? "Announce" :
+                  tab === "whitelist" ? "White" :
+                  tab === "approved" ? "Approve" :
+                  tab === "pending" ? "Pending" :
+                  tab === "banned" ? "Ban" :
+                  tab.charAt(0).toUpperCase() + tab.slice(1)}
+               </span>
+             </button>
+           ))}
+         </div>
+       </div>
 
       {/* Content */}
       <main className="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
-        {selectedTab === "announcements" ? (
-          <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
-              <span className="text-lg sm:text-xl md:text-2xl">📢</span>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">Announcements</h2>
-            </div>
+                 {selectedTab === "announcements" ? (
+           <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
+             <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
+               <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">Announcements</h2>
+             </div>
             {currentAnnouncement ? (
               <div className="space-y-3 sm:space-y-4">
                 <div className="bg-[var(--bg)] p-3 sm:p-4 md:p-6 rounded-lg border border-[var(--border)]">
@@ -572,15 +827,14 @@ export default function AdminPanel() {
                         Active Announcement • Expires in: {formatRemainingTime(currentAnnouncement.expires_at)}
                       </p>
                     </div>
-                    <div className="flex flex-row items-center gap-2">
-                      <button
-                        onClick={handleRemoveAnnouncement}
-                        className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap"
-                      >
-                        <span>🗑️</span>
-                        <span>Remove</span>
-                      </button>
-                    </div>
+                                         <div className="flex flex-row items-center gap-2">
+                       <button
+                         onClick={handleRemoveAnnouncement}
+                         className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap"
+                       >
+                         <span>Remove</span>
+                       </button>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -651,24 +905,22 @@ export default function AdminPanel() {
                       </div>
                     </div>
                   </div>
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2 font-medium text-sm whitespace-nowrap"
-                    disabled={!announcement.trim() || calculateTotalSeconds(announcementTimer) <= 0}
-                  >
-                    <span>📢</span>
-                    <span>Post Announcement</span>
-                  </button>
+                                     <button
+                     type="submit"
+                     className="w-full sm:w-auto px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2 font-medium text-sm whitespace-nowrap"
+                     disabled={!announcement.trim() || calculateTotalSeconds(announcementTimer) <= 0}
+                   >
+                     <span>Post Announcement</span>
+                   </button>
                 </div>
               </form>
             )}
           </div>
-        ) : selectedTab === "maintenance" ? (
-          <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
-              <span className="text-lg sm:text-xl md:text-2xl">🔧</span>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">Maintenance Mode</h2>
-            </div>
+                 ) : selectedTab === "maintenance" ? (
+           <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
+             <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
+               <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">Maintenance Mode</h2>
+             </div>
             <div className="space-y-3 sm:space-y-4">
               <div className="bg-[var(--bg)] p-3 sm:p-4 md:p-6 rounded-lg border border-[var(--border)]">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
@@ -688,36 +940,219 @@ export default function AdminPanel() {
                     </p>
                   </div>
                   <div className="flex flex-row items-center gap-2">
-                    <button
-                      onClick={toggleMaintenanceMode}
-                      className={`px-3 sm:px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap ${
-                        maintenanceMode 
-                          ? 'bg-green-500 hover:bg-green-600 text-white' 
-                          : 'bg-red-500 hover:bg-red-600 text-white'
-                      }`}
-                    >
-                      <span>{maintenanceMode ? '🔓' : '🔒'}</span>
-                      <span>{maintenanceMode ? 'Disable Maintenance' : 'Enable Maintenance'}</span>
-                    </button>
+                                         <button
+                       onClick={toggleMaintenanceMode}
+                       className={`px-3 sm:px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap ${
+                         maintenanceMode 
+                           ? 'bg-green-500 hover:bg-green-600 text-white' 
+                           : 'bg-red-500 hover:bg-red-600 text-white'
+                       }`}
+                     >
+                       <span>{maintenanceMode ? 'Disable Maintenance' : 'Enable Maintenance'}</span>
+                     </button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+                 ) : selectedTab === "whitelist" ? (
+           <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
+             <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
+               <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">IP Whitelist</h2>
+             </div>
+            
+            {/* Add new IP to whitelist */}
+            <div className="bg-[var(--bg)] p-3 sm:p-4 md:p-6 rounded-lg border border-[var(--border)] mb-4">
+              <h3 className="text-base sm:text-lg font-semibold text-[var(--text)] mb-3">Add IP to Whitelist</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text)] mb-1">IP Address</label>
+                  <input
+                    type="text"
+                    value={newWhitelistIP}
+                    onChange={(e) => setNewWhitelistIP(e.target.value)}
+                    placeholder="e.g., 192.168.1.100"
+                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text)] mb-1">Submission Limit</label>
+                  <select
+                    value={newWhitelistLimit}
+                    onChange={(e) => setNewWhitelistLimit(Number(e.target.value))}
+                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value={3}>3 memories</option>
+                    <option value={4}>4 memories</option>
+                    <option value={5}>5 memories</option>
+                    <option value={6}>6 memories</option>
+                    <option value={7}>7 memories</option>
+                    <option value={8}>8 memories</option>
+                    <option value={9}>9 memories</option>
+                    <option value={10}>10 memories</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text)] mb-1">Notes (Optional)</label>
+                  <input
+                    type="text"
+                    value={newWhitelistNotes}
+                    onChange={(e) => setNewWhitelistNotes(e.target.value)}
+                    placeholder="e.g., Trusted user, VIP member"
+                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--input-bg)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <button
+                  onClick={addToWhitelist}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Add to Whitelist
+                </button>
+              </div>
+            </div>
+
+                         {/* Whitelisted IPs list */}
+             <div className="bg-[var(--bg)] p-3 sm:p-4 md:p-6 rounded-lg border border-[var(--border)]">
+               <div className="flex items-center justify-between mb-3">
+                 <h3 className="text-base sm:text-lg font-semibold text-[var(--text)]">Whitelisted IPs</h3>
+                 <button
+                   onClick={loadAllMemoryCounts}
+                   className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                 >
+                   Refresh Stats
+                 </button>
+               </div>
+              {whitelistedIPs.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-500 text-sm mb-2">No whitelisted IPs yet.</p>
+                  <p className="text-xs text-gray-400">
+                    If this is your first time, you may need to create the database table first.
+                  </p>
+                </div>
+              ) : (
+                                 <div className="space-y-2">
+                   {whitelistedIPs.map((item) => {
+                     const memoryInfo = memoryCounts[item.ip] || { count: 0, limit: item.limit, isWhitelisted: true };
+                     return (
+                       <div key={item.id} className="flex items-center justify-between p-3 bg-[var(--card-bg)] rounded-lg border border-[var(--border)]">
+                         <div className="flex-1">
+                           <div className="flex items-center gap-2 mb-1">
+                             <span className="font-mono text-sm font-medium text-[var(--text)]">{item.ip}</span>
+                             <button
+                               onClick={() => copyToClipboard(item.ip, 'IP address')}
+                               className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded transition-colors"
+                               title="Copy IP address"
+                             >
+                               Copy
+                             </button>
+                             <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                               Limit: {item.limit} memories
+                             </span>
+                             <span className={`text-xs px-2 py-1 rounded ${
+                               memoryInfo.count >= memoryInfo.limit 
+                                 ? 'bg-red-100 text-red-800' 
+                                 : 'bg-green-100 text-green-800'
+                             }`}>
+                               Used: {memoryInfo.count}/{memoryInfo.limit}
+                             </span>
+                           </div>
+                           {item.notes && (
+                             <p className="text-xs text-gray-600">{item.notes}</p>
+                           )}
+                           <p className="text-xs text-gray-500">
+                             Added: {new Date(item.created_at).toLocaleDateString()}
+                           </p>
+                         </div>
+                         <button
+                           onClick={() => removeFromWhitelist(item.id)}
+                           className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
+                         >
+                           Remove
+                         </button>
+                       </div>
+                     );
+                   })}
+                 </div>
+              )}
+            </div>
+          </div>
         ) : (
           <>
             {selectedTab === "approved" && (
-              <div className="mb-6">
-                <input
-                  type="text"
-                  placeholder="Search by recipient, message, or sender..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="w-full p-3 sm:p-3.5 text-base sm:text-lg border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] bg-white shadow-sm transition-all duration-200"
-                  autoComplete="off"
-                  inputMode="search"
-                />
-              </div>
+              <>
+                <div className="mb-6">
+                  <input
+                    type="text"
+                    placeholder="Search by recipient, message, or sender..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="w-full p-3 sm:p-3.5 text-base sm:text-lg border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] bg-white shadow-sm transition-all duration-200"
+                    autoComplete="off"
+                    inputMode="search"
+                  />
+                </div>
+
+                {/* Database Statistics */}
+                <div className="mb-6 bg-[var(--card-bg)] p-4 rounded-lg border border-[var(--border)]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-[var(--text)]">Database Statistics</h3>
+                    <button
+                      onClick={loadDatabaseStats}
+                      className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                    >
+                      Refresh Stats
+                    </button>
+                  </div>
+                  
+                  {dbStats ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="bg-[var(--bg)] p-3 rounded-lg">
+                        <div className="text-sm text-gray-600">Database A</div>
+                        <div className="text-xl font-bold text-[var(--text)]">{dbStats.databaseA.count}</div>
+                        <div className={`text-xs ${dbStats.databaseA.healthy ? 'text-green-600' : 'text-red-600'}`}>
+                          {dbStats.databaseA.healthy ? 'Healthy' : 'Unhealthy'}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-[var(--bg)] p-3 rounded-lg">
+                        <div className="text-sm text-gray-600">Database B</div>
+                        <div className="text-xl font-bold text-[var(--text)]">{dbStats.databaseB.count}</div>
+                        <div className={`text-xs ${dbStats.databaseB.healthy ? 'text-green-600' : 'text-red-600'}`}>
+                          {dbStats.databaseB.healthy ? 'Healthy' : 'Unhealthy'}
+                        </div>
+                      </div>
+                      
+                      <div className="bg-[var(--bg)] p-3 rounded-lg">
+                        <div className="text-sm text-gray-600">Total Memories</div>
+                        <div className="text-xl font-bold text-[var(--text)]">{dbStats.totalMemories}</div>
+                        <div className="text-xs text-gray-500">Across both databases</div>
+                      </div>
+                      
+                      <div className="bg-[var(--bg)] p-3 rounded-lg">
+                        <div className="text-sm text-gray-600">Round-Robin</div>
+                        <div className="text-lg font-bold text-[var(--text)]">
+                          {dbStats.roundRobin?.lastUsedDatabase || 'N/A'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {dbStats.roundRobin?.timeSinceLastUse ? 
+                            `${Math.floor(dbStats.roundRobin.timeSinceLastUse / 1000)}s ago` : 
+                            'Not used yet'
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <button
+                        onClick={loadDatabaseStats}
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                      >
+                        Load Database Statistics
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
             {displayedMemories.length > 0 ? (
               <>
@@ -741,18 +1176,41 @@ export default function AdminPanel() {
                         : "border-red-600"
                     }`}
                   >
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
-                      {memory.pinned && (
-                        <span className="text-yellow-500 text-xl">📌</span>
-                      )}
-                    </div>
+                                         <div className="flex justify-between items-start">
+                       <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+                       {memory.pinned && (
+                         <span className="text-yellow-500 text-sm font-medium">PINNED</span>
+                       )}
+                     </div>
                     <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">{memory.message}</p>
                     {memory.sender && (
                       <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
                     )}
                     <div className="mt-3 text-sm text-gray-500 break-words">
-                      <p>IP: {memory.ip}</p>
+                      <div className="flex items-center gap-2">
+                        <span>IP: {memory.ip}</span>
+                                                 {memory.ip && (
+                           <button
+                             onClick={() => copyToClipboard(memory.ip!, 'IP address')}
+                             className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded transition-colors"
+                             title="Copy IP address"
+                           >
+                             Copy
+                           </button>
+                         )}
+                      </div>
+                      {memory.uuid && (
+                        <div className="flex items-center gap-2">
+                          <span>UUID: {memory.uuid}</span>
+                                                     <button
+                             onClick={() => copyToClipboard(memory.uuid!, 'UUID')}
+                             className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded transition-colors"
+                             title="Copy UUID"
+                           >
+                             Copy
+                           </button>
+                        </div>
+                      )}
                       <p>Country: {memory.country}</p>
                     </div>
                     <small className="block mt-3 text-gray-500">

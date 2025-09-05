@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 
 const TypingEffect: React.FC = () => {
   const messages = useMemo(
@@ -139,6 +139,9 @@ const TypingEffect: React.FC = () => {
     []
   );
   
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+  
   const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * messages.length));
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -146,7 +149,7 @@ const TypingEffect: React.FC = () => {
   const [charIndex, setCharIndex] = useState(0);
 
   useEffect(() => {
-    const currentMessage = messages[currentIndex];
+    const currentMessage = messagesRef.current[currentIndex];
     let delay = Math.random() * 100 + 100; // Typing delay between 100-200ms
     if (isDeleting) {
       delay = 50; // Faster deletion
@@ -178,15 +181,15 @@ const TypingEffect: React.FC = () => {
           // Ensure we get a different random index
           let newIndex;
           do {
-            newIndex = Math.floor(Math.random() * messages.length);
-          } while (newIndex === currentIndex && messages.length > 1);
+            newIndex = Math.floor(Math.random() * messagesRef.current.length);
+          } while (newIndex === currentIndex && messagesRef.current.length > 1);
           setCurrentIndex(newIndex);
         }
       }
     }, delay);
 
     return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, isMistyped, currentIndex, messages]);
+  }, [charIndex, isDeleting, isMistyped, currentIndex]);
 
   return (
     <div className="min-h-[2.5rem] overflow-hidden text-center text-2xl sm:text-3xl md:text-4xl font-serif font-normal text-[var(--text)] transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
