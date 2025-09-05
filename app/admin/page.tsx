@@ -50,7 +50,12 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
-  const [dbStats, setDbStats] = useState<any>(null);
+  const [dbStats, setDbStats] = useState<{
+    databaseA: { count: number; healthy: boolean };
+    databaseB: { count: number; healthy: boolean };
+    totalMemories: number;
+    roundRobin: { lastUsedDatabase: string | null; timeSinceLastUse: number | null };
+  } | null>(null);
   const [memoryCounts, setMemoryCounts] = useState<{ [ip: string]: { count: number; limit: number; isWhitelisted: boolean } }>({});
 
   // Check if there are any active pinned memories or announcements that need monitoring
@@ -507,85 +512,7 @@ export default function AdminPanel() {
     }
   }, [selectedTab]);
 
-  // Fetch whitelisted IPs when whitelist tab is selected
-  useEffect(() => {
-    if (selectedTab === "whitelist") {
-      loadWhitelistedIPs();
-    }
-  }, [selectedTab]);
-
-  const loadWhitelistedIPs = async () => {
-    try {
-      // Always use primary database for whitelist operations
-      const { data, error } = await primaryDB
-        .from("ip_whitelist")
-        .select("*")
-        .order("created_at", { ascending: false });
-      
-      if (error) {
-        console.error("Error loading whitelisted IPs:", error);
-        // If table doesn't exist, show empty state
-        if (error.code === "PGRST116" || error.message?.includes("relation") || error.message?.includes("does not exist")) {
-          console.log("Whitelist table doesn't exist yet. Please create it first.");
-          setWhitelistedIPs([]);
-        } else {
-          // Other errors - still show empty state but log the error
-          setWhitelistedIPs([]);
-        }
-      } else {
-        setWhitelistedIPs(data || []);
-        // Load memory counts for all IPs that have submitted memories
-        loadAllMemoryCounts();
-      }
-    } catch (error) {
-      console.error("Error loading whitelisted IPs:", error);
-      setWhitelistedIPs([]);
-    }
-  };
-
-  const loadMemoryCountsForIPs = async (ips: string[]) => {
-    try {
-      const counts: { [ip: string]: { count: number; limit: number; isWhitelisted: boolean } } = {};
-      
-      for (const ip of ips) {
-        // Get whitelist info
-        const { data: whitelistData } = await primaryDB
-          .from("ip_whitelist")
-          .select('"limit"')
-          .eq("ip", ip)
-          .single();
-        
-        const limit = whitelistData?.limit || 2;
-        const isWhitelisted = !!whitelistData;
-        
-        // Get memory count from both databases
-        const [dbACount, dbBCount] = await Promise.all([
-          primaryDB
-            .from("memories")
-            .select("id", { count: "exact", head: true })
-            .eq("ip", ip),
-          primaryDB
-            .from("memories_b")
-            .select("id", { count: "exact", head: true })
-            .eq("ip", ip)
-        ]);
-        
-        const totalCount = (dbACount.count || 0) + (dbBCount.count || 0);
-        
-        counts[ip] = {
-          count: totalCount,
-          limit,
-          isWhitelisted
-        };
-      }
-      
-      setMemoryCounts(counts);
-    } catch (error) {
-      console.error("Error loading memory counts:", error);
-    }
-  };
-
-  const loadAllMemoryCounts = async () => {
+  const loadAllMemoryCounts = useCallback(async () => {
     try {
       // Get all unique IPs that have submitted memories from both databases
       const [dbAIPs, dbBIPs] = await Promise.all([
@@ -642,7 +569,43 @@ export default function AdminPanel() {
     } catch (error) {
       console.error("Error loading all memory counts:", error);
     }
-  };
+  }, []);
+
+  const loadWhitelistedIPs = useCallback(async () => {
+    try {
+      // Always use primary database for whitelist operations
+      const { data, error } = await primaryDB
+        .from("ip_whitelist")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) {
+        console.error("Error loading whitelisted IPs:", error);
+        // If table doesn't exist, show empty state
+        if (error.code === "PGRST116" || error.message?.includes("relation") || error.message?.includes("does not exist")) {
+          console.log("Whitelist table doesn't exist yet. Please create it first.");
+          setWhitelistedIPs([]);
+        } else {
+          // Other errors - still show empty state but log the error
+          setWhitelistedIPs([]);
+        }
+      } else {
+        setWhitelistedIPs(data || []);
+        // Load memory counts for all IPs that have submitted memories
+        loadAllMemoryCounts();
+      }
+    } catch (error) {
+      console.error("Error loading whitelisted IPs:", error);
+      setWhitelistedIPs([]);
+    }
+  }, [loadAllMemoryCounts]);
+
+  // Fetch whitelisted IPs when whitelist tab is selected
+  useEffect(() => {
+    if (selectedTab === "whitelist") {
+      loadWhitelistedIPs();
+    }
+  }, [selectedTab, loadWhitelistedIPs]);
 
   const loadDatabaseStats = async () => {
     try {
@@ -792,7 +755,7 @@ export default function AdminPanel() {
                  {tab === "maintenance" ? "Maintenance" : 
                   tab === "announcements" ? "Announcements" :
                   tab === "whitelist" ? "Whitelist" :
-                  tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  String(tab).charAt(0).toUpperCase() + String(tab).slice(1)}
                </span>
                <span className="sm:hidden">
                  {tab === "maintenance" ? "Maint" : 
@@ -801,7 +764,7 @@ export default function AdminPanel() {
                   tab === "approved" ? "Approve" :
                   tab === "pending" ? "Pending" :
                   tab === "banned" ? "Ban" :
-                  tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  String(tab).charAt(0).toUpperCase() + String(tab).slice(1)}
                </span>
              </button>
            ))}
