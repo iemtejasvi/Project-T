@@ -10,14 +10,14 @@ const dbA = {
 };
 
 // Create dbB client using global singleton pattern
-if (!(global as any).__supabaseClientB) {
-  (global as any).__supabaseClientB = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!);
+if (!(global as Record<string, unknown>).__supabaseClientB) {
+  (global as Record<string, unknown>).__supabaseClientB = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!);
 }
 
 const dbB = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL_B!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!,
-  client: (global as any).__supabaseClientB // Use global singleton
+  client: (global as Record<string, unknown>).__supabaseClientB as SupabaseClient // Use global singleton with proper typing
 };
 
 // Stateless round-robin selector (avoids serverless cold-start resets)
