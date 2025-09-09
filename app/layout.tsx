@@ -758,6 +758,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 sessionStorage.setItem('ioist_cleanup_done', '1');
 
                 var cleanup = async function() {
+                  // Prevent multiple cleanup runs
+                  if (window.ioist_cleanup_running) { return; }
+                  window.ioist_cleanup_running = true;
+                  
                   try {
                     // 1) Clear CacheStorage
                     if (window.caches && caches.keys) {
@@ -807,9 +811,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } catch(e) {}
                 };
 
-                // Delay until load to avoid blocking rendering
-                if (document.readyState === 'complete') { cleanup(); }
-                else { window.addEventListener('load', function(){ cleanup(); }); }
+                // Run cleanup only once, after page is fully loaded
+                if (document.readyState === 'complete') { 
+                  cleanup(); 
+                } else { 
+                  window.addEventListener('load', cleanup, { once: true }); 
+                }
 
                 // Intentionally no bfcache reload: keep current session smooth.
               })();
