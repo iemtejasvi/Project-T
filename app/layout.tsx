@@ -741,7 +741,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
-        <div id="global-loader" style={{position:'fixed',inset:0 as any,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--background)',zIndex:2147483646}}>
+        <div id="global-loader" style={{position:'fixed',top:0,right:0,bottom:0,left:0,display:'flex',alignItems:'center',justifyContent:'center',background:'var(--background)',zIndex:2147483646}}>
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'12px',color:'var(--text)'}}>
             <div style={{width:'32px',height:'32px',border:'2px solid currentColor',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />
             <span style={{opacity:0.7}}>Loading…</span>

@@ -106,7 +106,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, su
       }
     }, delay);
     return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, currentIndex, prompts]);
+  }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
     <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
@@ -338,8 +338,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       <div
         className={
           isDesktop
-            ? "w-full max-w-3xl mx-auto my-16 p-16 rounded-[2rem] shadow-[0_25px_100px_rgba(0,0,0,0.3)] border-2 border-[var(--border)]/40 bg-gradient-to-br from-[var(--card-bg)]/95 via-[var(--card-bg)]/90 to-[var(--card-bg)]/95 backdrop-blur-2xl flex flex-col items-center justify-center relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.02] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
-            : "w-full max-w-[420px] mx-auto my-6 p-6 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.2)] border border-[var(--border)]/40 bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/95 to-[var(--card-bg)]/98 backdrop-blur-xl flex flex-col items-center justify-center relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.03] before:to-transparent before:rotate-45 before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-1000"
+            ? "w-full max-w-3xl mx-auto my-12 p-12 rounded-[2rem] shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden"
+            : "w-full max-w-[440px] mx-auto my-6 p-6 rounded-[1.5rem] shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden min-h-[65vh]"
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -359,7 +359,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 ★
               </motion.span>
             )}
-            <h3 className={`${isDesktop ? "text-6xl" : "text-2xl"} font-bold text-[var(--text)] text-center leading-tight drop-shadow-sm bg-gradient-to-r from-[var(--text)] to-[var(--text)]/80 bg-clip-text`}>
+            <h3 className={`${isDesktop ? "text-5xl" : "text-2xl"} font-bold text-[var(--text)] text-center leading-tight drop-shadow-sm`}>
               To: {memory.recipient}
             </h3>
           </div>
@@ -375,11 +375,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
         {/* Message section */}
         <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
-                      <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4 drop-shadow-sm relative`}>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--text)]/[0.02] to-transparent rounded-lg blur-xl"></div>
-            <div className="relative z-10">
-              {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
-            </div>
+          <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
+            {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
           </div>
         </div>
 
@@ -388,11 +385,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           <hr className="my-2 border-[#999999] w-full" />
           
           <div className="flex flex-col items-center gap-1 sm:gap-2">
-            <span className={`${isDesktop ? "text-xl" : "text-xs"} text-[var(--text)] opacity-75 font-medium text-center tracking-wide drop-shadow-sm`}>
+            <span className={`${isDesktop ? "text-xl" : "text-xs"} text-[var(--text)] opacity-75 font-medium text-center tracking-wide`}>
               {dateStr} • {dayStr} • {timeStr}
             </span>
-            <span className={`${isDesktop ? "text-lg" : "text-xs"} text-[var(--text)] opacity-60 font-light text-center capitalize px-2 py-1 rounded-full bg-[var(--text)]/[0.05] border border-[var(--text)]/10 backdrop-blur-sm`}>
-              {effectiveColor} theme
+            <span className={`${isDesktop ? "text-base" : "text-xs"} text-[var(--text)] opacity-60 font-light text-center capitalize`}>
+              {effectiveColor}
             </span>
           </div>
         </div>
