@@ -1,9 +1,10 @@
-// Cache version - bump to invalidate old caches
+// Cache version - increment this when deploying updates
 const CACHE_VERSION = 'v2.0';
 const CACHE_NAME = `ifonlyisentthis-${CACHE_VERSION}`;
 
-// Only pre-cache immutable static assets. Never pre-cache HTML routes.
-const STATIC_ASSETS = [
+// Only pre-cache static, versioned assets that are safe to cache long-term
+// Never pre-cache HTML routes to avoid serving stale pages
+const urlsToCache = [
   '/favicon.ico',
   '/favicon-32x32.png',
   '/favicon-16x16.png',
@@ -12,71 +13,85 @@ const STATIC_ASSETS = [
   '/opengraph-image.png'
 ];
 
-self.addEventListener('install', (event) => {
+// Add timestamp to force cache refresh on updates
+const CACHE_TIMESTAMP = Date.now();
+
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        // Add timestamp to URLs to force refresh
+        const urlsWithTimestamp = urlsToCache.map(url => 
+          `${url}?v=${CACHE_VERSION}&t=${CACHE_TIMESTAMP}`
+        );
+        return cache.addAll(urlsWithTimestamp);
+      })
   );
+  // Skip waiting to activate immediately
   self.skipWaiting();
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   const { request } = event;
 
-  // Never handle non-GET or API calls
+  // Bypass non-GET requests and API calls entirely
   if (request.method !== 'GET' || request.url.includes('/api/') || request.url.includes('supabase')) {
     return;
   }
 
-  const requestUrl = new URL(request.url);
-
-  // Use network-first for HTML/doc requests to avoid serving stale pages
-  if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
+  // Never cache HTML navigations; always go to network first with cache fallback
+  const acceptHeader = request.headers.get('accept') || '';
+  const isHTMLNavigation = request.mode === 'navigate' || acceptHeader.includes('text/html');
+  if (isHTMLNavigation) {
     event.respondWith(
-      fetch(request)
-        .then((networkResponse) => networkResponse)
-        .catch(() => {
-          // Safe offline fallback HTML to avoid throwing in SW
-          const offlineHtml = `<!doctype html><html><head><meta charset="utf-8"/><title>Offline</title><meta name="viewport" content="width=device-width, initial-scale=1"/></head><body style="font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding:16px;">You appear to be offline. Please reconnect and try again.</body></html>`;
-          return new Response(offlineHtml, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-        })
+      fetch(request).catch(() => caches.match(request))
     );
     return;
   }
 
-  // For same-origin static assets, prefer cache-first with network fallback
-  if (requestUrl.origin === self.location.origin) {
+  // Cache-first for static assets (images/fonts/icons). Let Next.js headers manage JS/CSS.
+  const isStaticAsset =
+    request.destination === 'image' ||
+    request.destination === 'font' ||
+    /\.(png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/i.test(new URL(request.url).pathname);
+
+  if (isStaticAsset) {
     event.respondWith(
-      caches.match(request).then((cached) => {
+      caches.match(request).then(cached => {
         if (cached) return cached;
-        return fetch(request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseToCache));
+        return fetch(request).then(response => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const cloned = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, cloned));
           }
-          return networkResponse;
+          return response;
         });
       })
     );
-    return;
   }
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && cacheName.startsWith('ifonlyisentthis-')) {
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          // Delete old caches
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
-      )
-    ).then(() => self.clients.claim())
+      );
+    }).then(() => {
+      // Claim all clients immediately
+      return self.clients.claim();
+    })
   );
-});
+}); 
 
-// Notify clients when a new SW takes control so they can refresh once
-self.addEventListener('message', (event) => {
+// Support message-triggered skipWaiting to update clients seamlessly
+self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }

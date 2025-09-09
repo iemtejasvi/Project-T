@@ -749,67 +749,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  try {
-                  // One-time hard reset to recover from any bad SW state on old clients
-                  (async function() {
-                    try {
-                      var resetKey = 'sw_reset_v2';
-                      if (!localStorage.getItem(resetKey)) {
-                        if ('getRegistrations' in navigator.serviceWorker) {
-                          const regs = await navigator.serviceWorker.getRegistrations();
-                          for (const r of regs) { try { await r.unregister(); } catch(_){} }
-                        }
-                        if ('caches' in window) {
-                          try {
-                            const names = await caches.keys();
-                            await Promise.all(names.map(function(n){ return caches.delete(n); }));
-                          } catch(_){}
-                        }
-                        localStorage.setItem(resetKey, '1');
-                        // Replace to avoid multiple history entries
-                        window.location.replace(window.location.href);
-                        return; // Stop further execution on this load
-                      }
-                    } catch(_){}
-                  })();
-
                   navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
-                    console.log('ServiceWorker registration successful');
-
-                    // If there's an updated service worker waiting, activate it immediately
+                    // If there's an updated SW waiting, activate it immediately
                     if (registration.waiting) {
                       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
                     }
 
-                    // When a new SW is installed but waiting, take control and reload once
+                    // Listen for new updates; when found, force activate and reload
                     registration.addEventListener('updatefound', function() {
-                      const installingWorker = registration.installing;
-                      if (!installingWorker) return;
-                      installingWorker.addEventListener('statechange', function() {
-                        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                          if (registration.waiting) {
-                            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                      const newWorker = registration.installing;
+                      if (!newWorker) return;
+                      newWorker.addEventListener('statechange', function() {
+                        if (newWorker.state === 'installed') {
+                          if (navigator.serviceWorker.controller) {
+                            newWorker.postMessage({ type: 'SKIP_WAITING' });
                           }
                         }
                       });
                     });
-
-                    // One-time reload when the controller changes to the new SW
-                    let refreshed = false;
-                    navigator.serviceWorker.addEventListener('controllerchange', function() {
-                      if (refreshed) return;
-                      refreshed = true;
-                      // Use replace to avoid extra history entry
-                      window.location.replace(window.location.href);
-                    });
                   }, function(err) {
                     console.log('ServiceWorker registration failed: ', err);
                   });
-                  } catch (e) {
-                    console.log('ServiceWorker registration threw: ', e);
-                  }
                 });
-                
+
+                // When the controller changes (new SW activated), reload once
+                let hasReloaded = false;
+                navigator.serviceWorker.addEventListener('controllerchange', function() {
+                  if (hasReloaded) return;
+                  hasReloaded = true;
+                  window.location.reload();
+                });
+
                 // Add cache clearing on page load for development
                 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                   if ('caches' in window) {
