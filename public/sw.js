@@ -33,10 +33,12 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(
       fetch(request)
-        .then((networkResponse) => {
-          return networkResponse;
+        .then((networkResponse) => networkResponse)
+        .catch(() => {
+          // Safe offline fallback HTML to avoid throwing in SW
+          const offlineHtml = `<!doctype html><html><head><meta charset="utf-8"/><title>Offline</title><meta name="viewport" content="width=device-width, initial-scale=1"/></head><body style="font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding:16px;">You appear to be offline. Please reconnect and try again.</body></html>`;
+          return new Response(offlineHtml, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
         })
-        .catch(() => caches.match('/'))
     );
     return;
   }

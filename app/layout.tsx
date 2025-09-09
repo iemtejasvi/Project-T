@@ -749,6 +749,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
+                  try {
                   navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
                     console.log('ServiceWorker registration successful');
 
@@ -781,6 +782,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   }, function(err) {
                     console.log('ServiceWorker registration failed: ', err);
                   });
+                  } catch (e) {
+                    console.log('ServiceWorker registration threw: ', e);
+                  }
                 });
                 
                 // Add cache clearing on page load for development
