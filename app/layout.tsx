@@ -748,8 +748,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                // Run only in production on this domain
-                var isProd = ['www.ifonlyisentthis.com', 'ifonlyisentthis.com'].includes(window.location.hostname);
+                // Run only in production on this domain (covers subdomains)
+                var host = window.location.hostname || '';
+                var isProd = host === 'ifonlyisentthis.com' || host.endsWith('.ifonlyisentthis.com');
                 if (!isProd) { return; }
                 
                 // Ensure we don't loop reloads: mark one-time cleanup per session
@@ -809,6 +810,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 // Delay until load to avoid blocking rendering
                 if (document.readyState === 'complete') { cleanup(); }
                 else { window.addEventListener('load', function(){ cleanup(); }); }
+
+                // Additionally, handle browser back-forward cache restores
+                // If a page is restored from bfcache, force a reload once per session
+                window.addEventListener('pageshow', function(ev){
+                  try {
+                    if (ev && ev.persisted && sessionStorage.getItem('ioist_bfcache_bust') !== '1') {
+                      sessionStorage.setItem('ioist_bfcache_bust', '1');
+                      window.location.reload();
+                    }
+                  } catch(e) {}
+                });
               })();
             `
           }}
