@@ -753,6 +753,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isProd = host === 'ifonlyisentthis.com' || host.endsWith('.ifonlyisentthis.com');
                 if (!isProd) { return; }
                 
+                // Session guard: if we've already cleaned this session, do nothing
+                try { if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; } } catch(e) {}
+
                 // In-page guards to prevent double execution
                 var g = window; 
                 if (g.__ioist_cleanup_done || g.__ioist_cleanup_in_progress) { return; }
