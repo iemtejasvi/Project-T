@@ -807,9 +807,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } catch(e) {}
                 };
 
-                // Delay until load to avoid blocking rendering
-                if (document.readyState === 'complete') { cleanup(); }
-                else { window.addEventListener('load', function(){ cleanup(); }); }
+                // Delay until load to avoid blocking rendering, with small delay for proper execution order
+                if (document.readyState === 'complete') { 
+                  setTimeout(cleanup, 50); 
+                } else { 
+                  window.addEventListener('load', function(){ 
+                    setTimeout(cleanup, 50); 
+                  }); 
+                }
 
                 // Intentionally no bfcache reload: keep current session smooth.
               })();
