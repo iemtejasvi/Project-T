@@ -776,7 +776,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                   try {
                     // 3) Clear storage (localStorage, sessionStorage, IndexedDB)
-                    // Preserve the hasVisited flag to prevent welcome message from showing again
+                    // Preserve hasVisited flag to prevent welcome message flash
                     var hasVisited = localStorage.getItem('hasVisited');
                     localStorage.clear();
                     if (hasVisited) {
@@ -802,10 +802,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } catch(e) {}
 
                   // Reload to get a clean, first-visit experience (with cooldown)
+                  // But don't reload if welcome message is showing
                   try {
                     var now = Date.now();
                     var last = parseInt(sessionStorage.getItem('ioist_last_reload_ts') || '0', 10);
-                    if (!last || (now - last) > 8000) {
+                    var hasVisited = localStorage.getItem('hasVisited');
+                    
+                    // Only reload if user has already seen welcome message (hasVisited exists)
+                    // This prevents reload during welcome message display
+                    if (hasVisited && (!last || (now - last) > 8000)) {
                       sessionStorage.setItem('ioist_last_reload_ts', String(now));
                       window.location.reload();
                     }
