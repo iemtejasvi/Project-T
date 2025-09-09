@@ -741,15 +741,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
-        <div id="global-loader" suppressHydrationWarning style={{position:'fixed',top:'0',right:'0',bottom:'0',left:'0',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--background)',zIndex:'2147483646'}}>
-          <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'12px',color:'var(--text)'}}>
-            <div style={{width:'32px',height:'32px',border:'2px solid currentColor',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />
-            <span style={{opacity:0.7}}>Loading…</span>
-          </div>
-          <style>
-            {`@keyframes spin {from{transform:rotate(0)} to{transform:rotate(360deg)}}`}
-          </style>
-        </div>
         <ThemeSwitcher />
         <UuidInitializer />
         {children}
@@ -821,14 +812,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 else { window.addEventListener('load', function(){ cleanup(); }); }
 
                 // Intentionally no bfcache reload: keep current session smooth.
-              })();
-              // Hide global loader on window load regardless
-              (function(){
-                function hide(){
-                  try{var el=document.getElementById('global-loader'); if(el){el.style.display='none';}}catch(e){}
-                }
-                if (document.readyState === 'complete') { hide(); }
-                else { window.addEventListener('load', hide); }
               })();
             `
           }}
