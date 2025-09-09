@@ -753,50 +753,38 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isProd = host === 'ifonlyisentthis.com' || host.endsWith('.ifonlyisentthis.com');
                 if (!isProd) { return; }
                 
-                // Global flag to prevent multiple executions
-                if (window.ioist_script_loaded) { return; }
-                window.ioist_script_loaded = true;
-                
+                // Ensure we don't loop reloads: mark one-time cleanup per session
+                if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
+                sessionStorage.setItem('ioist_cleanup_done', '1');
+
                 var cleanup = async function() {
-                  // Ensure we don't loop reloads: mark one-time cleanup per session
-                  if (sessionStorage.getItem('ioist_cleanup_done') === '1') { 
-                    console.log('Cache cleanup already done this session');
-                    return; 
-                  }
-                  sessionStorage.setItem('ioist_cleanup_done', '1');
-                  console.log('Starting cache cleanup...');
-                  
                   try {
                     // 1) Clear CacheStorage
                     if (window.caches && caches.keys) {
                       var keys = await caches.keys();
                       await Promise.all(keys.map(function(k){ return caches.delete(k); }));
-                      console.log('CacheStorage cleared');
                     }
-                  } catch(e) { console.log('CacheStorage clear error:', e); }
+                  } catch(e) {}
 
                   try {
                     // 2) Unregister any service workers for this origin
                     if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
                       var regs = await navigator.serviceWorker.getRegistrations();
                       await Promise.all(regs.map(function(r){ return r.unregister(); }));
-                      console.log('Service workers unregistered');
                     }
-                  } catch(e) { console.log('Service worker unregister error:', e); }
+                  } catch(e) {}
 
                   try {
                     // 3) Clear storage (localStorage, sessionStorage, IndexedDB)
                     localStorage.clear();
-                    console.log('localStorage cleared');
-                  } catch(e) { console.log('localStorage clear error:', e); }
+                  } catch(e) {}
 
                   try {
                     // Preserve the marker while clearing sessionStorage
                     var marker = sessionStorage.getItem('ioist_cleanup_done');
                     sessionStorage.clear();
                     sessionStorage.setItem('ioist_cleanup_done', marker || '1');
-                    console.log('sessionStorage cleared (marker preserved)');
-                  } catch(e) { console.log('sessionStorage clear error:', e); }
+                  } catch(e) {}
 
                   try {
                     if (window.indexedDB && indexedDB.databases) {
@@ -805,9 +793,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         if (db && db.name) { return new Promise(function(res){ var del = indexedDB.deleteDatabase(db.name); del.onsuccess = del.onerror = del.onblocked = function(){ res(); }; }); }
                         return Promise.resolve();
                       }));
-                      console.log('IndexedDB cleared');
                     }
-                  } catch(e) { console.log('IndexedDB clear error:', e); }
+                  } catch(e) {}
 
                   // Reload to get a clean, first-visit experience (with cooldown)
                   try {
@@ -815,18 +802,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     var last = parseInt(sessionStorage.getItem('ioist_last_reload_ts') || '0', 10);
                     if (!last || (now - last) > 8000) {
                       sessionStorage.setItem('ioist_last_reload_ts', String(now));
-                      console.log('Reloading page...');
                       window.location.reload();
-                    } else {
-                      console.log('Reload cooldown active, skipping reload');
                     }
-                  } catch(e) { console.log('Reload error:', e); }
+                  } catch(e) {}
                 };
 
-                // Only run cleanup once, with a small delay to ensure everything is loaded
-                setTimeout(function() {
-                  cleanup();
-                }, 100);
+                // Delay until load to avoid blocking rendering
+                if (document.readyState === 'complete') { cleanup(); }
+                else { window.addEventListener('load', function(){ cleanup(); }); }
 
                 // Intentionally no bfcache reload: keep current session smooth.
               })();

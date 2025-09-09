@@ -41,17 +41,42 @@ export default function UuidInitializer() {
         }
       }
 
-      // Version management - only update version, no reloads (cache clearing handles reloads)
+      // Add cache refresh on version change
       const currentVersion = '2.3'; // Increment this when deploying
       const storedVersion = localStorage.getItem('app_version');
       
       if (storedVersion !== currentVersion) {
         try {
-          // Just update version - let the cache clearing script handle any reloads
+          // Clear all caches when version changes (async/non-blocking)
+          if ('caches' in window) {
+            caches.keys().then(names => {
+              names.forEach(name => {
+                caches.delete(name);
+              });
+            }).catch(() => {}); // Silent fail
+          }
+          
+          // Update version immediately to prevent future checks
           localStorage.setItem('app_version', currentVersion);
+          
+          // Only force reload if this is genuinely an old version (not first visit)
+          // Add mobile-specific handling to prevent errors
+          if (storedVersion && storedVersion !== currentVersion) {
+            // Delay reload slightly for mobile stability
+            setTimeout(() => {
+              try {
+                // Use replace instead of href to prevent history entry
+                window.location.replace(window.location.href);
+              } catch {
+                // Fallback: just update version without reload if error occurs
+                console.log('Cache refresh completed without reload');
+              }
+            }, 100);
+          }
         } catch {
           // Fallback: just update version if any error occurs
           localStorage.setItem('app_version', currentVersion);
+          console.log('Cache refresh handled gracefully');
         }
       }
     }

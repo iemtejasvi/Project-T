@@ -1,23 +1,17 @@
 // lib/dualMemoryDB.ts
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { supabase as existingSupabaseClient } from "./supabaseClient";
+import { createClient } from "@supabase/supabase-js";
 
-// Database configurations - use global singletons to prevent multiple instances
+// Database configurations
 const dbA = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  client: existingSupabaseClient // Reuse the global singleton
+  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 };
-
-// Create dbB client using global singleton pattern
-if (!(global as Record<string, unknown>).__supabaseClientB) {
-  (global as Record<string, unknown>).__supabaseClientB = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!);
-}
 
 const dbB = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL_B!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!,
-  client: (global as Record<string, unknown>).__supabaseClientB as SupabaseClient // Use global singleton with proper typing
+  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!)
 };
 
 // Stateless round-robin selector (avoids serverless cold-start resets)
