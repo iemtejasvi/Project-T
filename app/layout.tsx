@@ -749,6 +749,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
+                  // One-time migration: clean up any legacy SW registered with a query string
+                  try {
+                    var MIGRATION_KEY = 'sw_migration_done_v2';
+                    var alreadyMigrated = localStorage.getItem(MIGRATION_KEY) === '1';
+                    if (!alreadyMigrated) {
+                      navigator.serviceWorker.getRegistrations().then(function(regs){
+                        var hasLegacy = regs.some(function(r){
+                          return r.active && r.active.scriptURL && r.active.scriptURL.indexOf('/sw.js?') !== -1;
+                        });
+                        if (hasLegacy) {
+                          // Unregister all and clear caches, then reload once
+                          Promise.all([
+                            Promise.all(regs.map(function(r){ return r.unregister(); })),
+                            ('caches' in window) ? caches.keys().then(function(names){
+                              return Promise.all(names.map(function(n){ return caches.delete(n); }));
+                            }) : Promise.resolve()
+                          ]).then(function(){
+                            localStorage.setItem(MIGRATION_KEY, '1');
+                            window.location.reload();
+                          });
+                          return; // Stop normal registration path; page will reload
+                        } else {
+                          localStorage.setItem(MIGRATION_KEY, '1');
+                        }
+                      });
+                    }
+                  } catch (e) {}
+
                   navigator.serviceWorker.getRegistrations().then(function(regs){
                     regs.forEach(function(r){
                       // If any existing registration was done with a query param, nuke it
