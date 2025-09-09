@@ -26,7 +26,6 @@ interface Memory {
   uuid?: string;
   tag?: string;
   sub_tag?: string;
-  typewriter_enabled?: boolean;
   pinned_until?: string;
 }
 
@@ -107,7 +106,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, su
       }
     }, delay);
     return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
+  }, [charIndex, isDeleting, currentIndex, prompts]);
 
   return (
     <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
@@ -484,14 +483,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             <div className="text-xs text-[var(--text)] text-center font-normal">
               {dateStr} | {dayStr}
             </div>
-            <div className="min-h-[2.5em] w-full flex items-center justify-center">
-              {memory.typewriter_enabled ? (
-                <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} />
-              ) : (
-                <span className="text-sm text-[var(--text)] opacity-80 text-center">
-                  {dateStr} • {timeStr}
-                </span>
-              )}
+            <div className="min-h-[2.5em] w-full">
+                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} />
             </div>
           </div>
           {/* BACK */}

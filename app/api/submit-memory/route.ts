@@ -10,7 +10,6 @@ interface SubmissionData {
   animation?: string;
   tag?: string;
   sub_tag?: string;
-  typewriter_enabled?: boolean;
 }
 
 const memoryLimitMessages = [
@@ -352,7 +351,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body: SubmissionData & { uuid?: string } = await request.json();
-    const { recipient, message, sender, color, full_bg, animation, tag, sub_tag, typewriter_enabled, uuid } = body;
+    const { recipient, message, sender, color, full_bg, animation, tag, sub_tag, uuid } = body;
 
     // Basic validation
     if (!recipient || !message) {
@@ -512,7 +511,6 @@ export async function POST(request: NextRequest) {
       uuid: clientUUID,
       tag: tag || null,
       sub_tag: sub_tag || null,
-      typewriter_enabled: Boolean(typewriter_enabled),
       created_at: new Date().toISOString()
     };
 

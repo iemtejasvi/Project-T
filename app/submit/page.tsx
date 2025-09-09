@@ -106,7 +106,7 @@ const limitMessages = [
   "We came for heartbreak, not homework.",
 ];
 
-const memoryLimitMessages = [
+const twoMemoryLimitMessages = [
   "Only 6 memories allowed. Some goodbyes must stay in your heart.",
   "Only 6 memories allowed. Six pieces of your story, that's all we can hold.",
   "Only 6 memories allowed. Six moments of love, the rest stays with you.",
@@ -116,7 +116,17 @@ const memoryLimitMessages = [
   "Only 6 memories allowed. Six moments of courage, the rest is strength.",
   "Only 6 memories allowed. Six pieces of your soul, the rest is sacred.",
   "Only 6 memories allowed. Six echoes of love, the rest is yours.",
-  "Only 6 memories allowed. Six pieces of your story, the rest is poetry."
+  "Only 6 memories allowed. Six pieces of your story, the rest is poetry.",
+  "Only 6 memories allowed. Six glimpses of forever, the rest is dream.",
+  "Only 6 memories allowed. Six moments of heart, the rest is prayer.",
+  "Only 6 memories allowed. Six pieces of truth, the rest is space.",
+  "Only 6 memories allowed. Six echoes of soul, the rest is light.",
+  "Only 6 memories allowed. Six pieces of love, the rest is song.",
+  "Only 6 memories allowed. Six moments of story, the rest is verse.",
+  "Only 6 memories allowed. Six pieces of heart, the rest is dream.",
+  "Only 6 memories allowed. Six echoes of truth, the rest is yours.",
+  "Only 6 memories allowed. Six moments of soul, the rest is sacred.",
+  "Only 6 memories allowed. Six pieces of love, the rest is private."
 ];
 
 export default function SubmitPage() {
@@ -125,7 +135,7 @@ export default function SubmitPage() {
   const [sender, setSender] = useState("");
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
-  const [fullBg] = useState(true);
+  const [fullBg, setFullBg] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
@@ -135,7 +145,6 @@ export default function SubmitPage() {
   const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [tag, setTag] = useState("");
   const [subTag, setSubTag] = useState("");
-  const [typewriterEnabled, setTypewriterEnabled] = useState(false);
 
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
@@ -219,7 +228,7 @@ export default function SubmitPage() {
         } else if (result.hasReachedLimit) {
           setHasReachedLimit(true);
           setIsFormDisabled(true);
-          setError(memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)]);
+          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
         } else if (result.canSubmit) {
           // Reset all states if user is within limits and not banned
           setIsBanned(false);
@@ -765,7 +774,7 @@ export default function SubmitPage() {
             }
             
             if (count && count >= 6) {
-              setError(memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)]);
+              setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
               setHasReachedLimit(true);
               setIsFormDisabled(true);
               setIsSubmitting(false);
@@ -793,7 +802,6 @@ export default function SubmitPage() {
       uuid: uuid || undefined,
       tag: tag || undefined,
       sub_tag: shortTag || undefined,  // Convert to short tag
-      typewriter_enabled: typewriterEnabled,
     };
 
     // Validate required fields first
@@ -1056,6 +1064,7 @@ export default function SubmitPage() {
                     value={color}
                     onChange={(e) => {
                       setColor(e.target.value);
+                      setFullBg(e.target.value !== "default");
                     }}
                     disabled={isFormDisabled}
                     className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
@@ -1088,9 +1097,8 @@ export default function SubmitPage() {
                   </select>
                 </div>
 
-                {typewriterEnabled && (
                 <div>
-                  <label className="block font-serif">Select a Tag (shows typewriter prompts)</label>
+                  <label className="block font-serif">Select a Tag (optional - personalizes typewriter text)</label>
                   <select
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
@@ -1110,9 +1118,8 @@ export default function SubmitPage() {
                     </p>
                   )}
                 </div>
-                )}
 
-                {typewriterEnabled && tag && (
+                {tag && (
                   <div>
                     <label className="block font-serif">Select a Sub-Emotion (optional)</label>
                     <select
@@ -1138,23 +1145,21 @@ export default function SubmitPage() {
 
 
 
-                {/* Typewriter toggle (clean switch) */}
-                <div className="flex items-center justify-between lg:mt-2">
-                  <label className="font-serif lg:text-base">Enable typewriter prompts on the card</label>
-                  <label className={`relative inline-flex items-center cursor-pointer ${isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={typewriterEnabled}
-                      onChange={(e) => setTypewriterEnabled(e.target.checked)}
-                      disabled={isFormDisabled}
-                    />
-                    <div className="w-14 h-8 bg-[var(--border)]/60 peer-focus:outline-none rounded-full peer peer-checked:bg-[var(--accent)] transition-colors"></div>
-                    <span className="absolute left-1 top-1 w-6 h-6 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-6"></span>
+                <div className="flex items-center space-x-2 lg:mt-2">
+                  <input
+                    id="fullBg"
+                    type="checkbox"
+                    checked={fullBg}
+                    onChange={(e) => setFullBg(e.target.checked)}
+                    disabled={isFormDisabled}
+                    className={`h-5 w-5 accent-[var(--accent)] lg:rounded-xl lg:border-2 lg:border-[var(--accent)]/30 lg:focus:ring-2 lg:focus:ring-[var(--accent)]/40 ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  />
+                  <label htmlFor="fullBg" className="font-serif lg:text-base">
+                    Apply color to full card background
                   </label>
                 </div>
-
-                {/* Full background is now always enabled; user toggle removed */}
 
                 <div className="text-center lg:flex-1 lg:flex lg:items-end">
                   <button
