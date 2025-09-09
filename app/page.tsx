@@ -286,7 +286,7 @@ export default function Home() {
       </section>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] sm:text-left sm:ml-8 text-center ml-0">
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
           Recent Memories
         </h2>
         {recentMemories.length > 0 ? (
@@ -325,3 +325,4 @@ export default function Home() {
     </div>
   );
 }
+
