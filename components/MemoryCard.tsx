@@ -39,9 +39,7 @@ interface MemoryCardProps {
 const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnabled?: boolean }> = ({ tag, subTag, typewriterEnabled }) => {
   // For new memories: use the typewriter_enabled field
   // For old memories: show typewriter by default (typewriter_enabled will be undefined)
-  if (typewriterEnabled === false) {
-    return <></>;
-  }
+  const isDisabled = typewriterEnabled === false;
 
   const prompts = useMemo(() => {
     // If we have a specific subTag (short tag), use prompts from that subcategory
@@ -112,6 +110,10 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
     }, delay);
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
+
+  if (isDisabled) {
+    return <></>;
+  }
 
   return (
     <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">

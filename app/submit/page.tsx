@@ -133,7 +133,8 @@ export default function SubmitPage() {
   const [sender, setSender] = useState("");
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
-  const [fullBg, setFullBg] = useState(true);
+  // Full background is enforced everywhere now
+  const fullBg = true;
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);

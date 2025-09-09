@@ -116,9 +116,7 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
 const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnabled?: boolean }> = ({ tag, subTag, typewriterEnabled }) => {
   // For new memories: use the typewriter_enabled field
   // For old memories: show typewriter by default (typewriter_enabled will be undefined)
-  if (typewriterEnabled === false) {
-    return <></>;
-  }
+  const isDisabled = typewriterEnabled === false;
 
   // Get all prompts for the given tag by combining all subcategory prompts
   const prompts = React.useMemo(() => {
@@ -182,7 +180,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, currentIndex, prompts]);
   
-  if (prompts.length === 0) return null;
+  if (isDisabled || prompts.length === 0) return null;
   
   return (
     <div className="min-h-[2rem] overflow-hidden text-center text-xl text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">

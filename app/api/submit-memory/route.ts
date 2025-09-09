@@ -353,7 +353,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body: SubmissionData & { uuid?: string } = await request.json();
-    const { recipient, message, sender, color, full_bg, animation, tag, sub_tag, uuid, enableTypewriter, typewriter_enabled } = body;
+    const { recipient, message, sender, color, animation, tag, sub_tag, uuid, enableTypewriter, typewriter_enabled } = body;
 
     // Normalize typewriter flag from either field name
     const normalizedTypewriterEnabled =
@@ -522,9 +522,6 @@ export async function POST(request: NextRequest) {
       typewriter_enabled: normalizedTypewriterEnabled ?? false,
       created_at: new Date().toISOString()
     };
-    
-    // Debug: log what we're storing
-    console.log('Storing memory with typewriter_enabled:', submissionData.typewriter_enabled, 'tag:', submissionData.tag, 'sub_tag:', submissionData.sub_tag);
 
     // Cookie-assisted round-robin to avoid serverless state issues
     const currentPref = getCookieValue(request, 'rr_db');
