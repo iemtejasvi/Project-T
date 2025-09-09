@@ -514,8 +514,12 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString()
     };
 
+    // Cookie-assisted round-robin to avoid serverless state issues
+    const currentPref = getCookieValue(request, 'rr_db');
+    const nextPreferred: 'A' | 'B' = currentPref === 'A' ? 'B' : 'A';
+
     // Insert into dual database system with round-robin and failover
-    const { data, error, database } = await insertMemory(submissionData);
+    const { data, error, database } = await insertMemory(submissionData, nextPreferred);
 
     if (error) {
       console.error('Database insertion error:', error);
@@ -527,8 +531,8 @@ export async function POST(request: NextRequest) {
 
     console.log(`Memory successfully stored in database ${database}`);
 
-    // Success response
-    return NextResponse.json(
+    // Success response with toggled rr cookie
+    const res = NextResponse.json(
       { 
         success: true, 
         message: 'Memory submitted successfully and is pending approval.',
@@ -536,6 +540,10 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
+    try {
+      res.headers.set('Set-Cookie', `rr_db=${nextPreferred}; Path=/; Max-Age=1800; SameSite=Lax; Secure`);
+    } catch {}
+    return res;
 
   } catch (error) {
     console.error('Unexpected server error:', error);
