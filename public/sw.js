@@ -1,15 +1,9 @@
-// Cache version - increment this when deploying updates
-const CACHE_VERSION = 'v1.1';
+// Cache version - bump to invalidate old caches
+const CACHE_VERSION = 'v2.0';
 const CACHE_NAME = `ifonlyisentthis-${CACHE_VERSION}`;
 
-const urlsToCache = [
-  '/',
-  '/memories',
-  '/submit',
-  '/how-it-works',
-  '/contact',
-  '/donate',
-  '/privacy-policy',
+// Only pre-cache immutable static assets. Never pre-cache HTML routes.
+const STATIC_ASSETS = [
   '/favicon.ico',
   '/favicon-32x32.png',
   '/favicon-16x16.png',
@@ -18,80 +12,70 @@ const urlsToCache = [
   '/opengraph-image.png'
 ];
 
-// Add timestamp to force cache refresh on updates
-const CACHE_TIMESTAMP = Date.now();
-
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        // Add timestamp to URLs to force refresh
-        const urlsWithTimestamp = urlsToCache.map(url => 
-          `${url}?v=${CACHE_VERSION}&t=${CACHE_TIMESTAMP}`
-        );
-        return cache.addAll(urlsWithTimestamp);
-      })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
-  // Skip waiting to activate immediately
   self.skipWaiting();
 });
 
-self.addEventListener('fetch', event => {
-  // Skip caching for dynamic content and API calls
-  if (event.request.url.includes('/api/') || 
-      event.request.url.includes('supabase') ||
-      event.request.method !== 'GET') {
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+
+  // Never handle non-GET or API calls
+  if (request.method !== 'GET' || request.url.includes('/api/') || request.url.includes('supabase')) {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Return cached version if available
-        if (response) {
-          return response;
-        }
-        
-        // Fetch from network
-        return fetch(event.request)
-          .then(response => {
-            // Only cache successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            
-            // Clone the response before caching
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
-            
-            return response;
-          })
-          .catch(() => {
-            // Return cached version if network fails
-            return caches.match(event.request);
-          });
+  const requestUrl = new URL(request.url);
+
+  // Use network-first for HTML/doc requests to avoid serving stale pages
+  if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          return networkResponse;
+        })
+        .catch(() => caches.match('/'))
+    );
+    return;
+  }
+
+  // For same-origin static assets, prefer cache-first with network fallback
+  if (requestUrl.origin === self.location.origin) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseToCache));
+          }
+          return networkResponse;
+        });
       })
-  );
+    );
+    return;
+  }
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          // Delete old caches
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME && cacheName.startsWith('ifonlyisentthis-')) {
             return caches.delete(cacheName);
           }
         })
-      );
-    }).then(() => {
-      // Claim all clients immediately
-      return self.clients.claim();
-    })
+      )
+    ).then(() => self.clients.claim())
   );
-}); 
+});
+
+// Notify clients when a new SW takes control so they can refresh once
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});

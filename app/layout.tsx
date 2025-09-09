@@ -751,6 +751,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
                     console.log('ServiceWorker registration successful');
+
+                    // If there's an updated service worker waiting, activate it immediately
+                    if (registration.waiting) {
+                      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+
+                    // When a new SW is installed but waiting, take control and reload once
+                    registration.addEventListener('updatefound', function() {
+                      const installingWorker = registration.installing;
+                      if (!installingWorker) return;
+                      installingWorker.addEventListener('statechange', function() {
+                        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                          if (registration.waiting) {
+                            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                          }
+                        }
+                      });
+                    });
+
+                    // One-time reload when the controller changes to the new SW
+                    let refreshed = false;
+                    navigator.serviceWorker.addEventListener('controllerchange', function() {
+                      if (refreshed) return;
+                      refreshed = true;
+                      // Use replace to avoid extra history entry
+                      window.location.replace(window.location.href);
+                    });
                   }, function(err) {
                     console.log('ServiceWorker registration failed: ', err);
                   });
