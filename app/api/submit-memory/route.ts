@@ -516,7 +516,8 @@ export async function POST(request: NextRequest) {
 
     // Cookie-assisted round-robin to avoid serverless state issues
     const currentPref = getCookieValue(request, 'rr_db');
-    const nextPreferred: 'A' | 'B' = currentPref === 'A' ? 'B' : 'A';
+    // First-time visitors get a randomized starting DB to avoid skew
+    const nextPreferred: 'A' | 'B' = currentPref === 'A' ? 'B' : (currentPref === 'B' ? 'A' : (Math.random() < 0.5 ? 'A' : 'B'));
 
     // Insert into dual database system with round-robin and failover
     const { data, error, database } = await insertMemory(submissionData, nextPreferred);
