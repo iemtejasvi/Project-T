@@ -494,9 +494,9 @@ export default function AdminPanel() {
       primaryDB
         .from("banned_users")
         .select("ip, uuid, country")
-        .then(({ data, error }: { data: any; error: any }) => {
-          if (error) console.error(error.message || error);
-          else setBannedUsers(data || []);
+        .then(({ data, error }: { data: unknown; error: unknown }) => {
+          if (error) console.error((error as Error).message || error);
+          else setBannedUsers((data as Array<{ip: string; uuid: string; country: string}>) || []);
         });
     }
   }, [selectedTab]);
