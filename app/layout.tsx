@@ -776,7 +776,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                   try {
                     // 3) Clear storage (localStorage, sessionStorage, IndexedDB)
+                    // Preserve the hasVisited flag to prevent welcome message from showing again
+                    var hasVisited = localStorage.getItem('hasVisited');
                     localStorage.clear();
+                    if (hasVisited) {
+                      localStorage.setItem('hasVisited', hasVisited);
+                    }
                   } catch(e) {}
 
                   try {
