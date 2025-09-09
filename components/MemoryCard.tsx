@@ -339,7 +339,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         className={
           isDesktop
             ? "w-full max-w-3xl mx-auto my-12 p-12 rounded-[2rem] shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden"
-            : "w-[92%] max-w-[560px] mx-auto my-6 p-6 rounded-[1.5rem] shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden min-h-[50vh]"
+            : "w-full max-w-[520px] mx-auto my-6 p-6 rounded-[1.5rem] shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden min-h-[50vh]"
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
