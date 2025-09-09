@@ -72,22 +72,24 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          // Delete old caches
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      // Claim all clients immediately
-      return self.clients.claim();
-    })
-  );
+  event.waitUntil((async () => {
+    const cacheNames = await caches.keys();
+    await Promise.all(
+      cacheNames.map(name => {
+        if (name !== CACHE_NAME) {
+          return caches.delete(name);
+        }
+        return undefined;
+      })
+    );
+    await self.skipWaiting();
+    await self.clients.claim();
+    // Force all client pages to reload to take the new SW immediately
+    const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    clientList.forEach(client => {
+      try { client.navigate(client.url); } catch (e) {}
+    });
+  })());
 }); 
 
 // Support message-triggered skipWaiting to update clients seamlessly

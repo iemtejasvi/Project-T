@@ -749,7 +749,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
+                  navigator.serviceWorker.getRegistrations().then(function(regs){
+                    regs.forEach(function(r){
+                      // If any existing registration was done with a query param, nuke it
+                      if (r.active && r.active.scriptURL && r.active.scriptURL.includes('/sw.js?')) {
+                        r.unregister();
+                      }
+                    });
+                  }).finally(function(){
+                    return navigator.serviceWorker.register('/sw.js');
+                  }).then(function(registration) {
                     // If there's an updated SW waiting, activate it immediately
                     if (registration.waiting) {
                       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
