@@ -2,27 +2,22 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { supabase as existingSupabaseClient } from "./supabaseClient";
 
-// Database configurations - reuse existing client for dbA to prevent multiple instances
-let dbBClient: SupabaseClient | null = null;
-
+// Database configurations - use global singletons to prevent multiple instances
 const dbA = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  client: existingSupabaseClient // Direct assignment instead of getter
+  client: existingSupabaseClient // Reuse the global singleton
 };
 
-// Create dbB client using singleton pattern
-function getDbBClient() {
-  if (!dbBClient) {
-    dbBClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!);
-  }
-  return dbBClient;
+// Create dbB client using global singleton pattern
+if (!(global as any).__supabaseClientB) {
+  (global as any).__supabaseClientB = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!);
 }
 
 const dbB = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL_B!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!,
-  client: getDbBClient() // Direct assignment instead of getter
+  client: (global as any).__supabaseClientB // Use global singleton
 };
 
 // Stateless round-robin selector (avoids serverless cold-start resets)
