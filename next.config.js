@@ -135,7 +135,7 @@ const nextConfig = {
   },
   poweredByHeader: false,
   compress: true,
-  reactStrictMode: true,
+  reactStrictMode: false,
 };
 
 module.exports = nextConfig;
