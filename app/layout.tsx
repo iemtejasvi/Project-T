@@ -750,6 +750,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                   try {
+                  // One-time hard reset to recover from any bad SW state on old clients
+                  (async function() {
+                    try {
+                      var resetKey = 'sw_reset_v2';
+                      if (!localStorage.getItem(resetKey)) {
+                        if ('getRegistrations' in navigator.serviceWorker) {
+                          const regs = await navigator.serviceWorker.getRegistrations();
+                          for (const r of regs) { try { await r.unregister(); } catch(_){} }
+                        }
+                        if ('caches' in window) {
+                          try {
+                            const names = await caches.keys();
+                            await Promise.all(names.map(function(n){ return caches.delete(n); }));
+                          } catch(_){}
+                        }
+                        localStorage.setItem(resetKey, '1');
+                        // Replace to avoid multiple history entries
+                        window.location.replace(window.location.href);
+                        return; // Stop further execution on this load
+                      }
+                    } catch(_){}
+                  })();
+
                   navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(function(registration) {
                     console.log('ServiceWorker registration successful');
 
