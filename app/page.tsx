@@ -128,9 +128,10 @@ export default function Home() {
 
     fetchData();
 
-    if (!localStorage.getItem("hasVisited")) {
+    // Check if welcome should show (only once per session, following cache clear rules)
+    if (!sessionStorage.getItem("ioist_welcome_shown")) {
       setShowWelcome(true);
-      localStorage.setItem("hasVisited", "true");
+      sessionStorage.setItem("ioist_welcome_shown", "1");
     }
 
     return () => {
