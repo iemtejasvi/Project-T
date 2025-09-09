@@ -192,13 +192,15 @@ const TypingEffect: React.FC = () => {
   }, [charIndex, isDeleting, isMistyped, currentIndex]);
 
   return (
-    <div className="min-h-[3rem] overflow-hidden text-center text-lg sm:text-xl md:text-2xl font-serif font-light italic text-[var(--text)]/45 transition-all duration-700 whitespace-pre-wrap break-normal leading-relaxed tracking-wide">
-      <span className="opacity-30 text-[var(--text)]/25 select-none">&ldquo;</span>
-      <span className="relative">
-        {displayText}
-        <span className="inline-block w-0.5 h-4 bg-[var(--text)]/25 ml-1 animate-pulse"></span>
-      </span>
-      <span className="opacity-30 text-[var(--text)]/25 select-none">&rdquo;</span>
+    <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+      <div className="min-h-[3rem] overflow-hidden text-center text-lg sm:text-xl md:text-2xl font-serif font-light italic text-[var(--text)]/45 transition-all duration-700 whitespace-pre-wrap break-normal leading-relaxed tracking-wide">
+        <span className="opacity-30 text-[var(--text)]/25 select-none">&ldquo;</span>
+        <span className="relative">
+          {displayText}
+          <span className="inline-block w-0.5 h-4 bg-[var(--text)]/25 ml-1 animate-pulse"></span>
+        </span>
+        <span className="opacity-30 text-[var(--text)]/25 select-none">&rdquo;</span>
+      </div>
     </div>
   );
 };
