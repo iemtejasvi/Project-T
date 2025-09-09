@@ -1,17 +1,30 @@
 // lib/dualMemoryDB.ts
 import { createClient } from "@supabase/supabase-js";
 
-// Database configurations
+// Database configurations - reuse clients to prevent multiple instances
+let dbAClient: any = null;
+let dbBClient: any = null;
+
 const dbA = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  get client() {
+    if (!dbAClient) {
+      dbAClient = createClient(this.url, this.key);
+    }
+    return dbAClient;
+  }
 };
 
 const dbB = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL_B!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!,
-  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!)
+  get client() {
+    if (!dbBClient) {
+      dbBClient = createClient(this.url, this.key);
+    }
+    return dbBClient;
+  }
 };
 
 // Stateless round-robin selector (avoids serverless cold-start resets)
