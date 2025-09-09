@@ -53,6 +53,30 @@ export default function MemoryDetail() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Rough paper background effect for individual memory pages */}
+      {memory && memory.animation === "rough" && (
+        <>
+          <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+            <defs>
+              <filter id="roughpaper-bg">
+                <feTurbulence type="fractalNoise" baseFrequency="0.04" result="noise" numOctaves="5" />
+                <feDiffuseLighting in="noise" lightingColor="#fff" surfaceScale="2">
+                  <feDistantLight azimuth="45" elevation="60" />
+                </feDiffuseLighting>
+              </filter>
+            </defs>
+          </svg>
+          <div
+            className="fixed inset-0 w-full h-full"
+            style={{
+              filter: "url(#roughpaper-bg)",
+              background: "var(--bg)",
+              zIndex: -1,
+            }}
+          />
+        </>
+      )}
+      
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">Memory Detail</h1>
