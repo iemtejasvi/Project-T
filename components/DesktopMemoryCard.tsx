@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
-import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
@@ -93,10 +91,6 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
     ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
     : "text-2xl tracking-wide leading-snug break-words hyphens-none";
   switch (memory.animation) {
-    case "poetic":
-      return (
-        <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
-      );
     case "cursive":
       return (
         <CursiveText
@@ -105,8 +99,6 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
           effectiveColor={effectiveColor}
         />
       );
-    case "bleeding":
-      return <BleedingText message={memory.message} textClass={textClass} />;
     case "handwritten":
       return <HandwrittenText message={memory.message} textClass={textClass} />;
     default:

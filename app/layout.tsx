@@ -1,6 +1,6 @@
 import React from 'react';
 import "./globals.css";
-import './bleeding-text.css';
+// Removed bleeding effect stylesheet
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 

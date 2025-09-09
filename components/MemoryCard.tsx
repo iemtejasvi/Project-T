@@ -2,9 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import PoeticText from "./PoeticText";
 import CursiveText from './CursiveText';
-import BleedingText from './BleedingText';
 import HandwrittenText from './HandwrittenText';
 import "../app/globals.css";
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
@@ -264,10 +262,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         : "text-[19px] tracking-wide leading-snug break-words hyphens-none";
     
     switch (memory.animation) {
-      case "poetic":
-        return (
-          <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
-        );
       case "cursive":
         return (
           <CursiveText
@@ -276,8 +270,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             effectiveColor={effectiveColor}
           />
         );
-      case "bleeding":
-        return <BleedingText message={memory.message} textClass={textClass} />;
       case "handwritten":
         return <HandwrittenText message={memory.message} textClass={textClass} />;
       default:
@@ -310,10 +302,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         ? "text-5xl tracking-wide leading-snug break-words hyphens-none"
         : "text-4xl tracking-wide leading-snug break-words hyphens-none";
       switch (memory.animation) {
-        case "poetic":
-          return (
-            <PoeticText message={memory.message} textClass={textClass} effectiveColor={effectiveColor} />
-          );
         case "cursive":
           return (
             <CursiveText
@@ -322,8 +310,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               effectiveColor={effectiveColor}
             />
           );
-        case "bleeding":
-          return <BleedingText message={memory.message} textClass={textClass} />;
         case "handwritten":
           return <HandwrittenText message={memory.message} textClass={textClass} />;
         default:

@@ -14,13 +14,10 @@ const dbB = {
   client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!)
 };
 
-// Round-robin state (using persistent storage mechanism)
-let currentDatabase: 'A' | 'B' = 'A';
-
-// Function to get next database for round-robin
+// Stateless round-robin selector (avoids serverless cold-start resets)
 function getNextDatabase(): 'A' | 'B' {
-  currentDatabase = currentDatabase === 'A' ? 'B' : 'A';
-  return currentDatabase;
+  // Alternate based on current time parity to distribute writes without relying on process state
+  return (Date.now() % 2 === 0) ? 'A' : 'B';
 }
 
 // Interface for memory data
@@ -67,9 +64,9 @@ function cleanMemoryData(data: Record<string, unknown>): MemoryData {
 }
 
 // Insert memory with round-robin and failover
-export async function insertMemory(memoryData: Record<string, unknown>) {
+export async function insertMemory(memoryData: Record<string, unknown>, preferred?: 'A' | 'B') {
   const cleanedData = cleanMemoryData(memoryData);
-  const primaryDB = getNextDatabase();
+  const primaryDB = preferred ?? getNextDatabase();
   const secondaryDB = primaryDB === 'A' ? 'B' : 'A';
   
   const primaryClient = primaryDB === 'A' ? dbA : dbB;
