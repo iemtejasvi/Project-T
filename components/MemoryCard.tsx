@@ -107,7 +107,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, su
       }
     }, delay);
     return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, currentIndex, prompts]);
+  }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   return (
     <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">

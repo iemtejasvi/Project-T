@@ -125,7 +125,7 @@ export default function SubmitPage() {
   const [sender, setSender] = useState("");
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
-  const [fullBg, setFullBg] = useState(true);
+  const [fullBg] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
