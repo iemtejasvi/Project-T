@@ -84,11 +84,7 @@ self.addEventListener('activate', event => {
     );
     await self.skipWaiting();
     await self.clients.claim();
-    // Force all client pages to reload to take the new SW immediately
-    const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    clientList.forEach(client => {
-      try { client.navigate(client.url); } catch (e) {}
-    });
+    // Do not force navigate; registration code will handle a single reload
   })());
 }); 
 

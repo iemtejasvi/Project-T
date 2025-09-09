@@ -778,12 +778,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } catch (e) {}
 
                   navigator.serviceWorker.getRegistrations().then(function(regs){
+                    var needsPurge = false;
                     regs.forEach(function(r){
                       // If any existing registration was done with a query param, nuke it
                       if (r.active && r.active.scriptURL && r.active.scriptURL.includes('/sw.js?')) {
+                        needsPurge = true;
                         r.unregister();
                       }
                     });
+                    // If legacy SW detected, call server endpoint to clear caches/storage once
+                    if (needsPurge) {
+                      fetch('/api/clear-cache', { method: 'GET', cache: 'no-store' }).catch(function(){});
+                    }
                   }).finally(function(){
                     return navigator.serviceWorker.register('/sw.js');
                   }).then(function(registration) {

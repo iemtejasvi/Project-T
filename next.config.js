@@ -12,12 +12,6 @@ const nextConfig = {
             value: 'no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0',
           },
           {
-            // Force-clear old caches and unregister legacy service workers on next navigation
-            // Safe for this app (no auth-dependent storage). Remove or relax later if desired.
-            key: 'Clear-Site-Data',
-            value: '"cache", "storage"',
-          },
-          {
             key: 'Pragma',
             value: 'no-cache',
           },
