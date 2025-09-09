@@ -8,10 +8,7 @@ let dbBClient: SupabaseClient | null = null;
 const dbA = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  get client() {
-    // Reuse the existing supabase client to prevent multiple instances
-    return existingSupabaseClient;
-  }
+  client: existingSupabaseClient // Direct assignment instead of getter
 };
 
 const dbB = {
