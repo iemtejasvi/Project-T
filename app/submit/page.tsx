@@ -125,7 +125,7 @@ export default function SubmitPage() {
   const [sender, setSender] = useState("");
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
-  const [fullBg, setFullBg] = useState(false);
+  const [fullBg, setFullBg] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
@@ -135,6 +135,7 @@ export default function SubmitPage() {
   const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [tag, setTag] = useState("");
   const [subTag, setSubTag] = useState("");
+  const [typewriterEnabled, setTypewriterEnabled] = useState(false);
 
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
@@ -218,7 +219,7 @@ export default function SubmitPage() {
         } else if (result.hasReachedLimit) {
           setHasReachedLimit(true);
           setIsFormDisabled(true);
-          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+          setError(memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)]);
         } else if (result.canSubmit) {
           // Reset all states if user is within limits and not banned
           setIsBanned(false);
@@ -792,6 +793,7 @@ export default function SubmitPage() {
       uuid: uuid || undefined,
       tag: tag || undefined,
       sub_tag: shortTag || undefined,  // Convert to short tag
+      typewriter_enabled: typewriterEnabled,
     };
 
     // Validate required fields first
@@ -1054,7 +1056,6 @@ export default function SubmitPage() {
                     value={color}
                     onChange={(e) => {
                       setColor(e.target.value);
-                      setFullBg(e.target.value !== "default");
                     }}
                     disabled={isFormDisabled}
                     className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
@@ -1087,8 +1088,9 @@ export default function SubmitPage() {
                   </select>
                 </div>
 
+                {typewriterEnabled && (
                 <div>
-                  <label className="block font-serif">Select a Tag (optional - personalizes typewriter text)</label>
+                  <label className="block font-serif">Select a Tag (shows typewriter prompts)</label>
                   <select
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
@@ -1108,8 +1110,9 @@ export default function SubmitPage() {
                     </p>
                   )}
                 </div>
+                )}
 
-                {tag && (
+                {typewriterEnabled && tag && (
                   <div>
                     <label className="block font-serif">Select a Sub-Emotion (optional)</label>
                     <select
@@ -1135,21 +1138,20 @@ export default function SubmitPage() {
 
 
 
-                <div className="flex items-center space-x-2 lg:mt-2">
-                  <input
-                    id="fullBg"
-                    type="checkbox"
-                    checked={fullBg}
-                    onChange={(e) => setFullBg(e.target.checked)}
+                {/* Typewriter toggle */}
+                <div className="flex items-center justify-between lg:mt-2">
+                  <label className="font-serif lg:text-base">Enable typewriter prompts on the card</label>
+                  <button
+                    type="button"
+                    onClick={() => setTypewriterEnabled(v => !v)}
                     disabled={isFormDisabled}
-                    className={`h-5 w-5 accent-[var(--accent)] lg:rounded-xl lg:border-2 lg:border-[var(--accent)]/30 lg:focus:ring-2 lg:focus:ring-[var(--accent)]/40 ${
-                      isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  />
-                  <label htmlFor="fullBg" className="font-serif lg:text-base">
-                    Apply color to full card background
-                  </label>
+                    className={`px-4 py-2 rounded-xl border transition ${typewriterEnabled ? 'bg-[var(--accent)] text-[var(--text)]' : 'bg-transparent text-[var(--text)]/80'} ${isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {typewriterEnabled ? 'Yes' : 'No'}
+                  </button>
                 </div>
+
+                {/* Full background is now always enabled; user toggle removed */}
 
                 <div className="text-center lg:flex-1 lg:flex lg:items-end">
                   <button

@@ -25,6 +25,7 @@ interface Memory {
   uuid?: string;
   tag?: string;
   sub_tag?: string;
+  typewriter_enabled?: boolean;
 }
 
 interface DesktopMemoryCardProps {
@@ -301,8 +302,14 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             <div className="text-xl text-[var(--text)] text-center font-normal">
               {dateStr} | {dayStr}
             </div>
-            <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)]">
-                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} />
+            <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)] flex items-center justify-center">
+              {memory.typewriter_enabled ? (
+                <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} />
+              ) : (
+                <span className="opacity-80">
+                  {dateStr}
+                </span>
+              )}
             </div>
           </div>
           {/* BACK */}
