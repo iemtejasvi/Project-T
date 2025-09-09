@@ -796,31 +796,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     }
                   } catch(e) {}
 
+                  // Reload to get a clean, first-visit experience (with cooldown)
                   try {
-                    // As a last step, register the cleanup SW once to ensure any old controller releases on next load, then reload
-                    if (navigator.serviceWorker && navigator.serviceWorker.register) {
-                      await navigator.serviceWorker.register('/sw.js');
+                    var now = Date.now();
+                    var last = parseInt(sessionStorage.getItem('ioist_last_reload_ts') || '0', 10);
+                    if (!last || (now - last) > 8000) {
+                      sessionStorage.setItem('ioist_last_reload_ts', String(now));
+                      window.location.reload();
                     }
                   } catch(e) {}
-
-                  // Reload to get a clean, first-visit experience
-                  try { window.location.reload(); } catch(e) {}
                 };
 
                 // Delay until load to avoid blocking rendering
                 if (document.readyState === 'complete') { cleanup(); }
                 else { window.addEventListener('load', function(){ cleanup(); }); }
 
-                // Additionally, handle browser back-forward cache restores
-                // If a page is restored from bfcache, force a reload once per session
-                window.addEventListener('pageshow', function(ev){
-                  try {
-                    if (ev && ev.persisted && sessionStorage.getItem('ioist_bfcache_bust') !== '1') {
-                      sessionStorage.setItem('ioist_bfcache_bust', '1');
-                      window.location.reload();
-                    }
-                  } catch(e) {}
-                });
+                // Intentionally no bfcache reload: keep current session smooth.
               })();
             `
           }}
