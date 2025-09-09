@@ -106,10 +106,27 @@ const limitMessages = [
   "We came for heartbreak, not homework.",
 ];
 
-const memoryLimitMessages = [
-  "Only 6 memories allowed. Some goodbyes must stay in your heart.",
-  "Only 6 memories allowed. Six pieces of your story, that's all we can hold.",
-  "Only 6 memories allowed. Share wisely."
+const twoMemoryLimitMessages = [
+  "Only 2 memories allowed. Some goodbyes must stay in your heart.",
+  "Only 2 memories allowed. Two pieces of your story, that's all we can hold.",
+  "Only 2 memories allowed. Two moments of love, the rest stays with you.",
+  "Only 2 memories allowed. Two fragments of forever, the rest is yours.",
+  "Only 2 memories allowed. Two echoes of your heart, the rest remains.",
+  "Only 2 memories allowed. Two pieces of your truth, the rest is private.",
+  "Only 2 memories allowed. Two moments of courage, the rest is strength.",
+  "Only 2 memories allowed. Two pieces of your soul, the rest is sacred.",
+  "Only 2 memories allowed. Two echoes of love, the rest is yours.",
+  "Only 2 memories allowed. Two pieces of your story, the rest is poetry.",
+  "Only 2 memories allowed. Two glimpses of forever, the rest is dream.",
+  "Only 2 memories allowed. Two moments of heart, the rest is prayer.",
+  "Only 2 memories allowed. Two pieces of truth, the rest is space.",
+  "Only 2 memories allowed. Two echoes of soul, the rest is light.",
+  "Only 2 memories allowed. Two pieces of love, the rest is song.",
+  "Only 2 memories allowed. Two moments of story, the rest is verse.",
+  "Only 2 memories allowed. Two pieces of heart, the rest is dream.",
+  "Only 2 memories allowed. Two echoes of truth, the rest is yours.",
+  "Only 2 memories allowed. Two moments of soul, the rest is sacred.",
+  "Only 2 memories allowed. Two pieces of love, the rest is private."
 ];
 
 export default function SubmitPage() {
@@ -211,7 +228,7 @@ export default function SubmitPage() {
         } else if (result.hasReachedLimit) {
           setHasReachedLimit(true);
           setIsFormDisabled(true);
-          setError(memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)]);
+          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
         } else if (result.canSubmit) {
           // Reset all states if user is within limits and not banned
           setIsBanned(false);
@@ -756,8 +773,8 @@ export default function SubmitPage() {
               return;
             }
             
-            if (count && count >= 6) {
-              setError(memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)]);
+            if (count && count >= 2) {
+              setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
               setHasReachedLimit(true);
               setIsFormDisabled(true);
               setIsSubmitting(false);

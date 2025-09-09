@@ -747,93 +747,69 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  // One-time migration: clean up any legacy SW registered with a query string
+              (function() {
+                // Run only in production on this domain
+                var isProd = ['www.ifonlyisentthis.com', 'ifonlyisentthis.com'].includes(window.location.hostname);
+                if (!isProd) { return; }
+                
+                // Ensure we don't loop reloads: mark one-time cleanup per session
+                if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
+                sessionStorage.setItem('ioist_cleanup_done', '1');
+
+                var cleanup = async function() {
                   try {
-                    var MIGRATION_KEY = 'sw_migration_done_v2';
-                    var alreadyMigrated = localStorage.getItem(MIGRATION_KEY) === '1';
-                    if (!alreadyMigrated) {
-                      navigator.serviceWorker.getRegistrations().then(function(regs){
-                        var hasLegacy = regs.some(function(r){
-                          return r.active && r.active.scriptURL && r.active.scriptURL.indexOf('/sw.js?') !== -1;
-                        });
-                        if (hasLegacy) {
-                          // Unregister all and clear caches, then reload once
-                          Promise.all([
-                            Promise.all(regs.map(function(r){ return r.unregister(); })),
-                            ('caches' in window) ? caches.keys().then(function(names){
-                              return Promise.all(names.map(function(n){ return caches.delete(n); }));
-                            }) : Promise.resolve()
-                          ]).then(function(){
-                            localStorage.setItem(MIGRATION_KEY, '1');
-                            window.location.reload();
-                          });
-                          return; // Stop normal registration path; page will reload
-                        } else {
-                          localStorage.setItem(MIGRATION_KEY, '1');
-                        }
-                      });
+                    // 1) Clear CacheStorage
+                    if (window.caches && caches.keys) {
+                      var keys = await caches.keys();
+                      await Promise.all(keys.map(function(k){ return caches.delete(k); }));
                     }
-                  } catch (e) {}
+                  } catch(e) {}
 
-                  navigator.serviceWorker.getRegistrations().then(function(regs){
-                    var needsPurge = false;
-                    regs.forEach(function(r){
-                      // If any existing registration was done with a query param, nuke it
-                      if (r.active && r.active.scriptURL && r.active.scriptURL.includes('/sw.js?')) {
-                        needsPurge = true;
-                        r.unregister();
-                      }
-                    });
-                    // If legacy SW detected, call server endpoint to clear caches/storage once
-                    if (needsPurge) {
-                      fetch('/api/clear-cache', { method: 'GET', cache: 'no-store' }).catch(function(){});
+                  try {
+                    // 2) Unregister any service workers for this origin
+                    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                      var regs = await navigator.serviceWorker.getRegistrations();
+                      await Promise.all(regs.map(function(r){ return r.unregister(); }));
                     }
-                  }).finally(function(){
-                    return navigator.serviceWorker.register('/sw.js');
-                  }).then(function(registration) {
-                    // If there's an updated SW waiting, activate it immediately
-                    if (registration.waiting) {
-                      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                  } catch(e) {}
+
+                  try {
+                    // 3) Clear storage (localStorage, sessionStorage, IndexedDB)
+                    localStorage.clear();
+                  } catch(e) {}
+
+                  try {
+                    // Preserve the marker while clearing sessionStorage
+                    var marker = sessionStorage.getItem('ioist_cleanup_done');
+                    sessionStorage.clear();
+                    sessionStorage.setItem('ioist_cleanup_done', marker || '1');
+                  } catch(e) {}
+
+                  try {
+                    if (window.indexedDB && indexedDB.databases) {
+                      var dbs = await indexedDB.databases();
+                      await Promise.all((dbs || []).map(function(db){
+                        if (db && db.name) { return new Promise(function(res){ var del = indexedDB.deleteDatabase(db.name); del.onsuccess = del.onerror = del.onblocked = function(){ res(); }; }); }
+                        return Promise.resolve();
+                      }));
                     }
+                  } catch(e) {}
 
-                    // Listen for new updates; when found, force activate and reload
-                    registration.addEventListener('updatefound', function() {
-                      const newWorker = registration.installing;
-                      if (!newWorker) return;
-                      newWorker.addEventListener('statechange', function() {
-                        if (newWorker.state === 'installed') {
-                          if (navigator.serviceWorker.controller) {
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                          }
-                        }
-                      });
-                    });
-                  }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                  });
-                });
+                  try {
+                    // As a last step, register the cleanup SW once to ensure any old controller releases on next load, then reload
+                    if (navigator.serviceWorker && navigator.serviceWorker.register) {
+                      await navigator.serviceWorker.register('/sw.js');
+                    }
+                  } catch(e) {}
 
-                // When the controller changes (new SW activated), reload once
-                let hasReloaded = false;
-                navigator.serviceWorker.addEventListener('controllerchange', function() {
-                  if (hasReloaded) return;
-                  hasReloaded = true;
-                  window.location.reload();
-                });
+                  // Reload to get a clean, first-visit experience
+                  try { window.location.reload(); } catch(e) {}
+                };
 
-                // Add cache clearing on page load for development
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                  if ('caches' in window) {
-                    caches.keys().then(names => {
-                      names.forEach(name => {
-                        caches.delete(name);
-                      });
-                    });
-                  }
-                }
-              }
+                // Delay until load to avoid blocking rendering
+                if (document.readyState === 'complete') { cleanup(); }
+                else { window.addEventListener('load', function(){ cleanup(); }); }
+              })();
             `
           }}
         />
@@ -841,3 +817,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
