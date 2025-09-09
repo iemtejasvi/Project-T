@@ -4,7 +4,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
-import RoughPaperText from './RoughPaperText';
 import "../app/globals.css";
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
