@@ -96,7 +96,7 @@ export default function MemoryDetail() {
                   href="/memories"
                   className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
                 >
-                  Back to Memories
+                  Back to Archive
                 </Link>
               </li>
             </ul>

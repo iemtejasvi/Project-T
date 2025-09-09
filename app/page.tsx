@@ -242,6 +242,12 @@ export default function Home() {
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] home-desktop-heading">If Only I Sent This</h1>
+          {/* Typewriter effect - desktop only */}
+          <div className="hidden lg:block mt-4">
+            <div className="text-lg italic text-[var(--text)]/70">
+              <TypingEffect />
+            </div>
+          </div>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
@@ -252,12 +258,12 @@ export default function Home() {
               </li>
               <li>
                 <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link">
-                  Memories
+                  Archive
                 </Link>
               </li>
               <li>
                 <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link">
-                  Submit
+                  Confess
                 </Link>
               </li>
               <li>
@@ -273,17 +279,15 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
-        <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
-          {announcement ? (
-            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-red-500 leading-tight">
-              📢 Announcement — {announcement}
-            </h2>
-          ) : (
-          <TypingEffect />
-          )}
-        </div>
-      </section>
+        {announcement && (
+          <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
+            <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+              <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-red-500 leading-tight">
+                📢 Announcement — {announcement}
+              </h2>
+            </div>
+          </section>
+        )}
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">

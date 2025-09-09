@@ -939,7 +939,7 @@ export default function SubmitPage() {
               </li>
               <li>
                 <Link href="/memories" className="hover:text-[var(--accent)] transition desktop-nav-link">
-                  Memories
+                  Archive
                 </Link>
               </li>
               <li>

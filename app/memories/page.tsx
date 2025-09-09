@@ -194,7 +194,7 @@ export default function Memories() {
       </div>
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading">Memories</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading">Archive</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
@@ -211,7 +211,7 @@ export default function Memories() {
                   href="/submit"
                   className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
                 >
-                  Submit
+                  Confess
                 </Link>
               </li>
               <li>

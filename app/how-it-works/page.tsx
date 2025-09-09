@@ -28,7 +28,7 @@ export default function HowItWorks() {
                   href="/memories"
                   className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
                 >
-                  Memories
+                  Archive
                 </Link>
               </li>
               <li>
@@ -36,7 +36,7 @@ export default function HowItWorks() {
                   href="/submit"
                   className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
                 >
-                  Submit
+                  Confess
                 </Link>
               </li>
               <li className="relative">
@@ -101,11 +101,11 @@ export default function HowItWorks() {
           <p className="text-base sm:text-lg text-[var(--text)]">
             Start by heading to the{" "}
             <Link href="/submit" className="text-[var(--accent)] hover:underline whitespace-nowrap">
-              Submit
+              Confess
             </Link>{" "}
             page, or browse the{" "}
             <Link href="/memories" className="text-[var(--accent)] hover:underline whitespace-nowrap">
-              Memories
+              Archive
             </Link>{" "}
             page to see what others have shared.
           </p>
