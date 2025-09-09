@@ -753,11 +753,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isProd = host === 'ifonlyisentthis.com' || host.endsWith('.ifonlyisentthis.com');
                 if (!isProd) { return; }
                 
-                // Ensure we don't loop reloads: mark one-time cleanup per session
-                if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
-                sessionStorage.setItem('ioist_cleanup_done', '1');
-
                 var cleanup = async function() {
+                  // Ensure we don't loop reloads: mark one-time cleanup per session
+                  if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
+                  sessionStorage.setItem('ioist_cleanup_done', '1');
                   try {
                     // 1) Clear CacheStorage
                     if (window.caches && caches.keys) {
@@ -807,13 +806,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } catch(e) {}
                 };
 
-                // Delay until load to avoid blocking rendering, with small delay for proper execution order
+                // Delay until load to avoid blocking rendering
                 if (document.readyState === 'complete') { 
-                  setTimeout(cleanup, 50); 
+                  cleanup(); 
                 } else { 
-                  window.addEventListener('load', function(){ 
-                    setTimeout(cleanup, 50); 
-                  }); 
+                  window.addEventListener('load', function(){ cleanup(); }); 
                 }
 
                 // Intentionally no bfcache reload: keep current session smooth.
