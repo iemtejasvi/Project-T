@@ -23,6 +23,7 @@ interface Memory {
   uuid?: string;
   tag?: string;
   sub_tag?: string;
+  typewriter_enabled?: boolean;
 }
 
 interface DesktopMemoryCardProps {
@@ -112,7 +113,13 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
 
 
 
-const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, subTag }) => {
+const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnabled?: boolean }> = ({ tag, subTag, typewriterEnabled }) => {
+  // For new memories: use the typewriter_enabled field
+  // For old memories: show typewriter by default (typewriter_enabled will be undefined)
+  if (typewriterEnabled === false) {
+    return <></>;
+  }
+
   // Get all prompts for the given tag by combining all subcategory prompts
   const prompts = React.useMemo(() => {
     // If we have a specific subTag (short tag), use prompts from that subcategory
@@ -294,7 +301,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               {dateStr} | {dayStr}
             </div>
             <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)]">
-                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} />
+                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>
           </div>
           {/* BACK */}

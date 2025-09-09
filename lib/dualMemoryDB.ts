@@ -38,6 +38,7 @@ interface MemoryData {
   created_at: string;
   pinned?: boolean;
   pinned_until?: string;
+  typewriter_enabled?: boolean;
   [key: string]: string | boolean | undefined;
 }
 

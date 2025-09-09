@@ -25,6 +25,7 @@ interface Memory {
   tag?: string;
   sub_tag?: string;
   pinned_until?: string;
+  typewriter_enabled?: boolean;
 }
 
 interface MemoryCardProps {
@@ -35,7 +36,13 @@ interface MemoryCardProps {
 
 
 
-const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string }> = ({ tag, subTag }) => {
+const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnabled?: boolean }> = ({ tag, subTag, typewriterEnabled }) => {
+  // For new memories: use the typewriter_enabled field
+  // For old memories: show typewriter by default (typewriter_enabled will be undefined)
+  if (typewriterEnabled === false) {
+    return <></>;
+  }
+
   const prompts = useMemo(() => {
     // If we have a specific subTag (short tag), use prompts from that subcategory
     if (subTag && subTag !== "undefined" && subTag !== "null" && typewriterPromptsBySubTag[subTag]) {
@@ -467,7 +474,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               {dateStr} | {dayStr}
             </div>
             <div className="min-h-[2.5em] w-full">
-                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} />
+                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>
           </div>
           {/* BACK */}

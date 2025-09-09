@@ -133,7 +133,7 @@ export default function SubmitPage() {
   const [sender, setSender] = useState("");
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
-  const [fullBg, setFullBg] = useState(false);
+  const [fullBg, setFullBg] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [ipData, setIpData] = useState<IPData | null>(null);
@@ -143,6 +143,7 @@ export default function SubmitPage() {
   const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [tag, setTag] = useState("");
   const [subTag, setSubTag] = useState("");
+  const [enableTypewriter, setEnableTypewriter] = useState(false);
 
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
@@ -695,6 +696,14 @@ export default function SubmitPage() {
     setSubTag("");
   }, [tag]);
 
+  // Reset tag and subTag when typewriter is disabled
+  useEffect(() => {
+    if (!enableTypewriter) {
+      setTag("");
+      setSubTag("");
+    }
+  }, [enableTypewriter]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -788,7 +797,10 @@ export default function SubmitPage() {
       }
     }
 
-    const shortTag = tag && subTag ? getShortTag(subTag) : null;
+    const shortTag = enableTypewriter && tag && subTag ? getShortTag(subTag) : null;
+    
+    // Debug: log the form values
+    console.log('Form values:', { enableTypewriter, tag, subTag, shortTag });
     
     const submission = {
       recipient: recipient.trim(),
@@ -798,8 +810,9 @@ export default function SubmitPage() {
       full_bg: fullBg,
       animation: specialEffect || undefined,
       uuid: uuid || undefined,
-      tag: tag || undefined,
+      tag: enableTypewriter ? (tag || undefined) : undefined,
       sub_tag: shortTag || undefined,  // Convert to short tag
+      typewriter_enabled: enableTypewriter,
     };
 
     // Validate required fields first
@@ -1060,10 +1073,7 @@ export default function SubmitPage() {
                   <label className="block font-serif">Select a Color (optional)</label>
                   <select
                     value={color}
-                    onChange={(e) => {
-                      setColor(e.target.value);
-                      setFullBg(e.target.value !== "default");
-                    }}
+                    onChange={(e) => setColor(e.target.value)}
                     disabled={isFormDisabled}
                     className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
                       isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
@@ -1095,69 +1105,74 @@ export default function SubmitPage() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block font-serif">Select a Tag (optional - personalizes typewriter text)</label>
-                  <select
-                    value={tag}
-                    onChange={(e) => setTag(e.target.value)}
-                    disabled={isFormDisabled}
-                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
-                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                    }`}
-                  >
-                    <option value="">Select a tag (or leave blank for mixed emotions)</option>
-                    {typewriterTags.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                  {!tag && (
-                    <p className="text-sm text-[var(--text)]/70 mt-1 italic">
-                      Leave blank to see a diverse mix of emotional prompts from all categories
-                    </p>
-                  )}
-                </div>
-
-                {tag && (
-                  <div>
-                    <label className="block font-serif">Select a Sub-Emotion (optional)</label>
-                    <select
-                      value={subTag}
-                      onChange={(e) => setSubTag(e.target.value)}
-                      disabled={isFormDisabled}
-                      className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                      }`}
-                    >
-                      <option value="">Select sub-emotion (or leave blank for mixed)</option>
-                      {getSubTags(tag).map((st) => (
-                        <option key={st} value={st}>{st}</option>
-                      ))}
-                    </select>
-                    {!subTag && (
-                      <p className="text-sm text-[var(--text)]/70 mt-1 italic">
-                        Leave blank to see all prompts from the {tag} category
-                      </p>
-                    )}
-                  </div>
-                )}
-
-
-
                 <div className="flex items-center space-x-2 lg:mt-2">
                   <input
-                    id="fullBg"
+                    id="enableTypewriter"
                     type="checkbox"
-                    checked={fullBg}
-                    onChange={(e) => setFullBg(e.target.checked)}
+                    checked={enableTypewriter}
+                    onChange={(e) => setEnableTypewriter(e.target.checked)}
                     disabled={isFormDisabled}
                     className={`h-5 w-5 accent-[var(--accent)] lg:rounded-xl lg:border-2 lg:border-[var(--accent)]/30 lg:focus:ring-2 lg:focus:ring-[var(--accent)]/40 ${
                       isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   />
-                  <label htmlFor="fullBg" className="font-serif lg:text-base">
-                    Apply color to full card background
+                  <label htmlFor="enableTypewriter" className="font-serif lg:text-base">
+                    Enable typewriter text on memory card
                   </label>
                 </div>
+
+                {enableTypewriter && (
+                  <>
+                    <div>
+                      <label className="block font-serif">Select a Tag (optional - personalizes typewriter text)</label>
+                      <select
+                        value={tag}
+                        onChange={(e) => setTag(e.target.value)}
+                        disabled={isFormDisabled}
+                        className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                        }`}
+                      >
+                        <option value="">Select a tag (or leave blank for mixed emotions)</option>
+                        {typewriterTags.map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                      {!tag && (
+                        <p className="text-sm text-[var(--text)]/70 mt-1 italic">
+                          Leave blank to see a diverse mix of emotional prompts from all categories
+                        </p>
+                      )}
+                    </div>
+
+                    {tag && (
+                      <div>
+                        <label className="block font-serif">Select a Sub-Emotion (optional)</label>
+                        <select
+                          value={subTag}
+                          onChange={(e) => setSubTag(e.target.value)}
+                          disabled={isFormDisabled}
+                          className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                            isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                          }`}
+                        >
+                          <option value="">Select sub-emotion (or leave blank for mixed)</option>
+                          {getSubTags(tag).map((st) => (
+                            <option key={st} value={st}>{st}</option>
+                          ))}
+                        </select>
+                        {!subTag && (
+                          <p className="text-sm text-[var(--text)]/70 mt-1 italic">
+                            Leave blank to see all prompts from the {tag} category
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+
+
+
 
                 <div className="text-center lg:flex-1 lg:flex lg:items-end">
                   <button

@@ -10,6 +10,8 @@ interface SubmissionData {
   animation?: string;
   tag?: string;
   sub_tag?: string;
+  enableTypewriter?: boolean;
+  typewriter_enabled?: boolean;
 }
 
 const memoryLimitMessages = [
@@ -351,7 +353,13 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body: SubmissionData & { uuid?: string } = await request.json();
-    const { recipient, message, sender, color, full_bg, animation, tag, sub_tag, uuid } = body;
+    const { recipient, message, sender, color, full_bg, animation, tag, sub_tag, uuid, enableTypewriter, typewriter_enabled } = body;
+
+    // Normalize typewriter flag from either field name
+    const normalizedTypewriterEnabled =
+      typeof enableTypewriter === 'boolean'
+        ? enableTypewriter
+        : (typeof typewriter_enabled === 'boolean' ? typewriter_enabled : undefined);
 
     // Basic validation
     if (!recipient || !message) {
@@ -504,15 +512,19 @@ export async function POST(request: NextRequest) {
       sender: sender?.trim() || null,
       status: 'pending',
       color: color || 'default',
-      full_bg: Boolean(full_bg),
+      full_bg: true,
       animation: animation || null,
       ip: clientIP,
       country: country,
       uuid: clientUUID,
-      tag: tag || null,
-      sub_tag: sub_tag || null,
+      tag: normalizedTypewriterEnabled ? tag : null,
+      sub_tag: normalizedTypewriterEnabled ? sub_tag : null,
+      typewriter_enabled: normalizedTypewriterEnabled ?? false,
       created_at: new Date().toISOString()
     };
+    
+    // Debug: log what we're storing
+    console.log('Storing memory with typewriter_enabled:', submissionData.typewriter_enabled, 'tag:', submissionData.tag, 'sub_tag:', submissionData.sub_tag);
 
     // Cookie-assisted round-robin to avoid serverless state issues
     const currentPref = getCookieValue(request, 'rr_db');
