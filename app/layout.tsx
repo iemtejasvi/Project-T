@@ -753,26 +753,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isProd = host === 'ifonlyisentthis.com' || host.endsWith('.ifonlyisentthis.com');
                 if (!isProd) { return; }
                 
-                // Session guard: if we've already cleaned this session, do nothing
-                try { if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; } } catch(e) {}
-
-                // In-page guards to prevent double execution
-                var g = window; 
-                if (g.__ioist_cleanup_done || g.__ioist_cleanup_in_progress) { return; }
+                // Ensure we don't loop reloads: mark one-time cleanup per session
+                if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
+                sessionStorage.setItem('ioist_cleanup_done', '1');
 
                 var cleanup = async function() {
-                  if (g.__ioist_cleanup_done) { return; }
-                  g.__ioist_cleanup_in_progress = true;
-                  // Ensure we don't loop reloads: mark one-time cleanup per session
-                  if (sessionStorage.getItem('ioist_cleanup_done') !== '1') {
-                    sessionStorage.setItem('ioist_cleanup_done', '1');
-                  }
-                  var workDone = false;
                   try {
                     // 1) Clear CacheStorage
                     if (window.caches && caches.keys) {
                       var keys = await caches.keys();
-                      if (keys && keys.length) { workDone = true; }
                       await Promise.all(keys.map(function(k){ return caches.delete(k); }));
                     }
                   } catch(e) {}
@@ -781,32 +770,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     // 2) Unregister any service workers for this origin
                     if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
                       var regs = await navigator.serviceWorker.getRegistrations();
-                      if (regs && regs.length) { workDone = true; }
                       await Promise.all(regs.map(function(r){ return r.unregister(); }));
                     }
                   } catch(e) {}
 
                   try {
                     // 3) Clear storage (localStorage, sessionStorage, IndexedDB)
-                    if (localStorage.length) { workDone = true; }
                     localStorage.clear();
                   } catch(e) {}
 
                   try {
                     // Preserve the marker while clearing sessionStorage
                     var marker = sessionStorage.getItem('ioist_cleanup_done');
-                    var hadSessionKeys = sessionStorage.length > 0;
                     sessionStorage.clear();
                     sessionStorage.setItem('ioist_cleanup_done', marker || '1');
-                    if (hadSessionKeys) { workDone = true; }
                   } catch(e) {}
 
                   try {
                     if (window.indexedDB && indexedDB.databases) {
                       var dbs = await indexedDB.databases();
-                      var dblist = dbs || [];
-                      if (dblist.length) { workDone = true; }
-                      await Promise.all(dblist.map(function(db){
+                      await Promise.all((dbs || []).map(function(db){
                         if (db && db.name) { return new Promise(function(res){ var del = indexedDB.deleteDatabase(db.name); del.onsuccess = del.onerror = del.onblocked = function(){ res(); }; }); }
                         return Promise.resolve();
                       }));
@@ -815,24 +798,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                   // Reload to get a clean, first-visit experience (with cooldown)
                   try {
-                    // Only reload if we actually cleared something and aren't coming from a reload already
-                    var navEntry = (performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation')[0] : null;
-                    var wasReload = navEntry && navEntry.type === 'reload';
                     var now = Date.now();
                     var last = parseInt(sessionStorage.getItem('ioist_last_reload_ts') || '0', 10);
-                    if (workDone && !wasReload && (!last || (now - last) > 8000)) {
+                    if (!last || (now - last) > 8000) {
                       sessionStorage.setItem('ioist_last_reload_ts', String(now));
-                      g.__ioist_cleanup_done = true;
                       window.location.reload();
                     }
                   } catch(e) {}
-                  g.__ioist_cleanup_done = true;
                 };
 
-                // Delay until load to avoid blocking rendering and ensure single run
-                var runOnce = function(){ if (g.__ioist_cleanup_done) return; cleanup(); };
-                if (document.readyState === 'complete') { setTimeout(runOnce, 0); }
-                else { window.addEventListener('load', runOnce, { once: true }); }
+                // Delay until load to avoid blocking rendering
+                if (document.readyState === 'complete') { cleanup(); }
+                else { window.addEventListener('load', function(){ cleanup(); }); }
 
                 // Intentionally no bfcache reload: keep current session smooth.
               })();
