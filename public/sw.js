@@ -1,6 +1,5 @@
-// Cache version - increment this when deploying updates
-const CACHE_VERSION = 'v2.0';
-const CACHE_NAME = `ifonlyisentthis-${CACHE_VERSION}`;
+// Stable cache name; we handle freshness via network fetch and activation cleanup
+const CACHE_NAME = 'ifonlyisentthis-static';
 
 // Only pre-cache static, versioned assets that are safe to cache long-term
 // Never pre-cache HTML routes to avoid serving stale pages
@@ -13,21 +12,16 @@ const urlsToCache = [
   '/opengraph-image.png'
 ];
 
-// Add timestamp to force cache refresh on updates
+// Add timestamp to force cache refresh on install (used only for pre-cache URLs)
 const CACHE_TIMESTAMP = Date.now();
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        // Add timestamp to URLs to force refresh
-        const urlsWithTimestamp = urlsToCache.map(url => 
-          `${url}?v=${CACHE_VERSION}&t=${CACHE_TIMESTAMP}`
-        );
-        return cache.addAll(urlsWithTimestamp);
-      })
+    caches.open(CACHE_NAME).then(cache => {
+      const urlsWithTimestamp = urlsToCache.map(url => `${url}?t=${CACHE_TIMESTAMP}`);
+      return cache.addAll(urlsWithTimestamp);
+    })
   );
-  // Skip waiting to activate immediately
   self.skipWaiting();
 });
 
@@ -59,7 +53,8 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       caches.match(request).then(cached => {
         if (cached) return cached;
-        return fetch(request).then(response => {
+        const freshRequest = new Request(request, { cache: 'reload' });
+        return fetch(freshRequest).then(response => {
           if (response && response.status === 200 && response.type === 'basic') {
             const cloned = response.clone();
             caches.open(CACHE_NAME).then(cache => cache.put(request, cloned));
@@ -76,7 +71,7 @@ self.addEventListener('activate', event => {
     const cacheNames = await caches.keys();
     await Promise.all(
       cacheNames.map(name => {
-        if (name !== CACHE_NAME) {
+        if (name !== CACHE_NAME && name.startsWith('ifonlyisentthis')) {
           return caches.delete(name);
         }
         return undefined;
