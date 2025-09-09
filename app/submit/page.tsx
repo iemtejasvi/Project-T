@@ -1138,17 +1138,20 @@ export default function SubmitPage() {
 
 
 
-                {/* Typewriter toggle */}
+                {/* Typewriter toggle (clean switch) */}
                 <div className="flex items-center justify-between lg:mt-2">
                   <label className="font-serif lg:text-base">Enable typewriter prompts on the card</label>
-                  <button
-                    type="button"
-                    onClick={() => setTypewriterEnabled(v => !v)}
-                    disabled={isFormDisabled}
-                    className={`px-4 py-2 rounded-xl border transition ${typewriterEnabled ? 'bg-[var(--accent)] text-[var(--text)]' : 'bg-transparent text-[var(--text)]/80'} ${isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {typewriterEnabled ? 'Yes' : 'No'}
-                  </button>
+                  <label className={`relative inline-flex items-center cursor-pointer ${isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={typewriterEnabled}
+                      onChange={(e) => setTypewriterEnabled(e.target.checked)}
+                      disabled={isFormDisabled}
+                    />
+                    <div className="w-14 h-8 bg-[var(--border)]/60 peer-focus:outline-none rounded-full peer peer-checked:bg-[var(--accent)] transition-colors"></div>
+                    <span className="absolute left-1 top-1 w-6 h-6 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-6"></span>
+                  </label>
                 </div>
 
                 {/* Full background is now always enabled; user toggle removed */}
