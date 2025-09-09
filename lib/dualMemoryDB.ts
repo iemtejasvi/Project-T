@@ -1,18 +1,16 @@
 // lib/dualMemoryDB.ts
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { supabase as existingSupabaseClient } from "./supabaseClient";
 
-// Database configurations - reuse clients to prevent multiple instances
-let dbAClient: SupabaseClient | null = null;
+// Database configurations - reuse existing client for dbA to prevent multiple instances
 let dbBClient: SupabaseClient | null = null;
 
 const dbA = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   get client() {
-    if (!dbAClient) {
-      dbAClient = createClient(this.url, this.key);
-    }
-    return dbAClient;
+    // Reuse the existing supabase client to prevent multiple instances
+    return existingSupabaseClient;
   }
 };
 
