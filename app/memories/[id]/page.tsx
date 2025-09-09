@@ -80,7 +80,6 @@ export default function MemoryDetail() {
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)]">Memory Detail</h1>
-          <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>
@@ -96,7 +95,7 @@ export default function MemoryDetail() {
                   href="/memories"
                   className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
                 >
-                  Back to Memories
+                  Back to Archive
                 </Link>
               </li>
             </ul>

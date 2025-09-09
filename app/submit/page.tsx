@@ -928,8 +928,7 @@ export default function SubmitPage() {
       </div>
       <header className="bg-[var(--card-bg)] shadow-lg">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-          <h1 className="text-4xl font-serif desktop-heading">Submit a Memory</h1>
-          <hr className="my-4 border-[var(--border)]" />
+          <h1 className="text-4xl font-serif desktop-heading">Confess a Memory</h1>
           <nav>
             <ul className="flex justify-center gap-6 desktop-nav-list">
               <li>
@@ -939,7 +938,7 @@ export default function SubmitPage() {
               </li>
               <li>
                 <Link href="/memories" className="hover:text-[var(--accent)] transition desktop-nav-link">
-                  Memories
+                  Archive
                 </Link>
               </li>
               <li>
