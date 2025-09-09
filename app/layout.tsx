@@ -753,11 +753,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var isProd = host === 'ifonlyisentthis.com' || host.endsWith('.ifonlyisentthis.com');
                 if (!isProd) { return; }
                 
-                // Ensure we don't loop reloads: mark one-time cleanup per session
-                if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
-                sessionStorage.setItem('ioist_cleanup_done', '1');
+                // In-page guards to prevent double execution
+                var g = window; 
+                if (g.__ioist_cleanup_done || g.__ioist_cleanup_in_progress) { return; }
 
                 var cleanup = async function() {
+                  if (g.__ioist_cleanup_done) { return; }
+                  g.__ioist_cleanup_in_progress = true;
+                  // Ensure we don't loop reloads: mark one-time cleanup per session
+                  if (sessionStorage.getItem('ioist_cleanup_done') !== '1') {
+                    sessionStorage.setItem('ioist_cleanup_done', '1');
+                  }
                   try {
                     // 1) Clear CacheStorage
                     if (window.caches && caches.keys) {
@@ -802,14 +808,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     var last = parseInt(sessionStorage.getItem('ioist_last_reload_ts') || '0', 10);
                     if (!last || (now - last) > 8000) {
                       sessionStorage.setItem('ioist_last_reload_ts', String(now));
+                      g.__ioist_cleanup_done = true;
                       window.location.reload();
                     }
                   } catch(e) {}
+                  g.__ioist_cleanup_done = true;
                 };
 
-                // Delay until load to avoid blocking rendering
-                if (document.readyState === 'complete') { cleanup(); }
-                else { window.addEventListener('load', function(){ cleanup(); }); }
+                // Delay until load to avoid blocking rendering and ensure single run
+                var runOnce = function(){ if (g.__ioist_cleanup_done) return; cleanup(); };
+                if (document.readyState === 'complete') { setTimeout(runOnce, 0); }
+                else { window.addEventListener('load', runOnce, { once: true }); }
 
                 // Intentionally no bfcache reload: keep current session smooth.
               })();
