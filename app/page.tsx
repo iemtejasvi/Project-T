@@ -279,17 +279,24 @@ export default function Home() {
         </div>
       </header>
 
-        <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
-          <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
-            {announcement ? (
+        {announcement && (
+          <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
+            <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
               <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-red-500 leading-tight">
                 📢 Announcement — {announcement}
               </h2>
-            ) : (
+            </div>
+          </section>
+        )}
+        
+        {/* Mobile typewriter section - only shows when no announcement */}
+        {!announcement && (
+          <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
+            <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
               <TypingEffect />
-            )}
-          </div>
-        </section>
+            </div>
+          </section>
+        )}
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
