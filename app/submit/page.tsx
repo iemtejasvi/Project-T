@@ -59,6 +59,7 @@ const colorOptions = [
 const specialEffects = [
   { value: "none", label: "None" },
   { value: "handwritten", label: "Handwritten Text" },
+  { value: "rough", label: "Rough Paper" },
   { value: "cursive", label: "Melting Text" }
 ];
 

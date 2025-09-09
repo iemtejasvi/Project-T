@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
+import RoughPaperText from './RoughPaperText';
 import "../app/globals.css";
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
@@ -281,6 +282,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         );
       case "handwritten":
         return <HandwrittenText message={memory.message} textClass={textClass} />;
+      case "rough":
+        // Use handwritten text sizing/feel; card-level background handles rough paper
+        return <p className={`${textClass} la-belle-aurore-regular pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{memory.message}</p>;
       default:
         return (
           <div className="space-y-2">
@@ -338,6 +342,34 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
+        {/* Rough paper defs and overlay for detail view */}
+        {memory.animation === "rough" && (
+          <>
+            <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+              <defs>
+                <filter id="roughpaper">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+                  <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
+                    <feDistantLight azimuth="45" elevation="35" />
+                  </feDiffuseLighting>
+                </filter>
+              </defs>
+            </svg>
+            <div
+              aria-hidden
+              className="absolute inset-0 rounded-[inherit]"
+              style={{
+                filter: "url(#roughpaper)",
+                background:
+                  effectiveColor && effectiveColor !== "default"
+                    ? `var(--color-${effectiveColor}-bg)`
+                    : "#e8e6df",
+                opacity: 0.55,
+                zIndex: 0,
+              }}
+            />
+          </>
+        )}
 
 
         {/* Header section */}
@@ -416,10 +448,38 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         >
           {/* FRONT */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] bg-gradient-to-br from-[var(--card-bg)]/99 via-[var(--card-bg)]/98 to-[var(--card-bg)]/99 backdrop-blur-[24px] p-5 flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : "bg-gradient-to-br from-[var(--card-bg)]/99 via-[var(--card-bg)]/98 to-[var(--card-bg)]/99 backdrop-blur-[24px]"} p-5 flex flex-col justify-between`}
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <div>
+            {/* Rough paper defs and overlay for front */}
+            {memory.animation === "rough" && (
+              <>
+                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+                  <defs>
+                    <filter id="roughpaper">
+                      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+                      <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
+                        <feDistantLight azimuth="45" elevation="35" />
+                      </feDiffuseLighting>
+                    </filter>
+                  </defs>
+                </svg>
+                <div
+                  aria-hidden
+                  className="absolute inset-0 rounded-[inherit]"
+                  style={{
+                    filter: "url(#roughpaper)",
+                    background:
+                      effectiveColor && effectiveColor !== "default"
+                        ? `var(--color-${effectiveColor}-bg)`
+                        : "#e8e6df",
+                    opacity: 0.55,
+                    zIndex: 0,
+                  }}
+                />
+              </>
+            )}
+            <div className="relative z-10">
               <div className="flex justify-between items-start">
                 <h3 className="text-xl font-bold text-[var(--text)] break-words overflow-hidden">
                   {memory.animation && memory.animation !== "none" && (
@@ -472,30 +532,72 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden">From: {memory.sender}</p>}
               <hr className="my-2 border-[#999999]" />
             </div>
-            <div className="text-xs text-[var(--text)] text-center font-normal">
+            <div className="text-xs text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
-            <div className="min-h-[2.5em] w-full">
+            <div className="min-h-[2.5em] w-full relative z-10">
                               <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>
           </div>
           {/* BACK */}
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] bg-gradient-to-br from-[var(--card-bg)]/99 via-[var(--card-bg)]/98 to-[var(--card-bg)]/99 backdrop-blur-[24px] p-5 flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : "bg-gradient-to-br from-[var(--card-bg)]/99 via-[var(--card-bg)]/98 to-[var(--card-bg)]/99 backdrop-blur-[24px]"} p-5 flex flex-col justify-start rotate-y-180`}
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <h3 className="text-lg italic text-[var(--text)] text-center">if only i sent this</h3>
-            <hr className="my-2 border-[#999999]" />
-            <ScrollableMessage
-              style={
-                {
+            {/* Rough paper defs and overlay for back */}
+            {memory.animation === "rough" && (
+              <>
+                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+                  <defs>
+                    <filter id="roughpaper">
+                      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+                      <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
+                        <feDistantLight azimuth="45" elevation="35" />
+                      </feDiffuseLighting>
+                    </filter>
+                  </defs>
+                </svg>
+                <div
+                  aria-hidden
+                  className="absolute inset-0 rounded-[inherit]"
+                  style={{
+                    filter: "url(#roughpaper)",
+                    background:
+                      effectiveColor && effectiveColor !== "default"
+                        ? `var(--color-${effectiveColor}-bg)`
+                        : "#e8e6df",
+                    opacity: 0.55,
+                    zIndex: 0,
+                  }}
+                />
+              </>
+            )}
+            <h3 className="text-lg italic text-[var(--text)] text-center relative z-10">if only i sent this</h3>
+            <hr className="my-2 border-[#999999] relative z-10" />
+            {memory.animation === "rough" ? (
+              <div 
+                className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
+                style={{
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
-                } as React.CSSProperties
-              }
-            >
-              {renderMessage(memory)}
-            </ScrollableMessage>
+                } as React.CSSProperties}
+              >
+                {renderMessage(memory)}
+              </div>
+            ) : (
+              <ScrollableMessage
+                style={
+                  {
+                    "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
+                    "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                  } as React.CSSProperties
+                }
+              >
+                <div className="relative z-10">
+                  {renderMessage(memory)}
+                </div>
+              </ScrollableMessage>
+            )}
           </div>
         </motion.div>
       </motion.div>

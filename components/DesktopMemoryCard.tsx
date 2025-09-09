@@ -3,6 +3,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
+import RoughPaperText from './RoughPaperText';
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
 interface Memory {
@@ -102,6 +103,9 @@ function renderMessageLarge(memory: Memory, effectiveColor: string) {
       );
     case "handwritten":
       return <HandwrittenText message={memory.message} textClass={textClass} />;
+    case "rough":
+      // Use handwritten text sizing/feel; card-level background handles rough paper
+      return <p className={`${textClass} la-belle-aurore-regular pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{memory.message}</p>;
     default:
       return (
         <div className="space-y-2">
@@ -241,9 +245,36 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         >
           {/* FRONT */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/96 to-[var(--card-bg)]/98 backdrop-blur-3xl ${large ? 'p-12' : 'p-8'} flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : "bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/96 to-[var(--card-bg)]/98 backdrop-blur-3xl"} ${large ? 'p-12' : 'p-8'} flex flex-col justify-between`}
             style={{ ...bgStyle, ...borderStyle }}
           >
+            {memory.animation === "rough" && (
+              <>
+                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+                  <defs>
+                    <filter id="roughpaper">
+                      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+                      <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
+                        <feDistantLight azimuth="45" elevation="35" />
+                      </feDiffuseLighting>
+                    </filter>
+                  </defs>
+                </svg>
+                <div
+                  aria-hidden
+                  className="absolute inset-0 rounded-[inherit]"
+                  style={{
+                    filter: "url(#roughpaper)",
+                    background:
+                      effectiveColor && effectiveColor !== "default"
+                        ? `var(--color-${effectiveColor}-bg)`
+                        : "#e8e6df",
+                    opacity: 0.55,
+                    zIndex: 0,
+                  }}
+                />
+              </>
+            )}
             {memory.pinned && (
               <span
                 className="absolute top-4 right-4 animate-pin-pop z-20"
@@ -283,7 +314,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 </span>
               </span>
             )}
-            <div className="pb-1">
+            <div className="pb-1 relative z-10">
               <h3 className={`${large ? 'text-5xl' : 'text-3xl'} font-bold text-[var(--text)] flex items-center gap-2 leading-tight`}>
                 {memory.animation && memory.animation !== "none" && (
                   <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
@@ -295,30 +326,72 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)] break-words overflow-hidden`}>From: {memory.sender}</p>}
               <hr className="my-2 border-[#999999]" />
             </div>
-            <div className="text-xl text-[var(--text)] text-center font-normal">
+            <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
-            <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)]">
+            <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)] relative z-10">
                               <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>
           </div>
           {/* BACK */}
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/96 to-[var(--card-bg)]/98 backdrop-blur-3xl ${large ? 'p-12' : 'p-8'} flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : "bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/96 to-[var(--card-bg)]/98 backdrop-blur-3xl"} ${large ? 'p-12' : 'p-8'} flex flex-col justify-start rotate-y-180`}
             style={{ ...bgStyle, ...borderStyle }}
           >
-            <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal`}>if only i sent this</p>
-            <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal !font-normal`}>if only i sent this</p>
-            <hr className="my-2 border-[#999999]" />
-            <ScrollableMessage
-              style={{
-                fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
-                "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
-              } as React.CSSProperties}
-            >
-              {renderMessageLarge(memory, effectiveColor)}
-            </ScrollableMessage>
+            {memory.animation === "rough" && (
+              <>
+                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+                  <defs>
+                    <filter id="roughpaper">
+                      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+                      <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
+                        <feDistantLight azimuth="45" elevation="35" />
+                      </feDiffuseLighting>
+                    </filter>
+                  </defs>
+                </svg>
+                <div
+                  aria-hidden
+                  className="absolute inset-0 rounded-[inherit]"
+                  style={{
+                    filter: "url(#roughpaper)",
+                    background:
+                      effectiveColor && effectiveColor !== "default"
+                        ? `var(--color-${effectiveColor}-bg)`
+                        : "#e8e6df",
+                    opacity: 0.55,
+                    zIndex: 0,
+                  }}
+                />
+              </>
+            )}
+            <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
+            <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
+            <hr className="my-2 border-[#999999] relative z-10" />
+            {memory.animation === "rough" ? (
+              <div 
+                className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
+                style={{
+                  fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
+                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
+                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                } as React.CSSProperties}
+              >
+                {renderMessageLarge(memory, effectiveColor)}
+              </div>
+            ) : (
+              <ScrollableMessage
+                style={{
+                  fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
+                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
+                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                } as React.CSSProperties}
+              >
+                <div className="relative z-10">
+                  {renderMessageLarge(memory, effectiveColor)}
+                </div>
+              </ScrollableMessage>
+            )}
           </div>
         </motion.div>
       </motion.div>
