@@ -12,27 +12,12 @@ interface SubmissionData {
   sub_tag?: string;
 }
 
-const twoMemoryLimitMessages = [
-  "Only 2 memories allowed. Some goodbyes must stay in your heart.",
-  "Only 2 memories allowed. Two pieces of your story, that's all we can hold.",
-  "Only 2 memories allowed. Two moments of love, the rest stays with you.",
-  "Only 2 memories allowed. Two fragments of forever, the rest is yours.",
-  "Only 2 memories allowed. Two echoes of your heart, the rest remains.",
-  "Only 2 memories allowed. Two pieces of your truth, the rest is private.",
-  "Only 2 memories allowed. Two moments of courage, the rest is strength.",
-  "Only 2 memories allowed. Two pieces of your soul, the rest is sacred.",
-  "Only 2 memories allowed. Two echoes of love, the rest is yours.",
-  "Only 2 memories allowed. Two pieces of your story, the rest is poetry.",
-  "Only 2 memories allowed. Two glimpses of forever, the rest is dream.",
-  "Only 2 memories allowed. Two moments of heart, the rest is prayer.",
-  "Only 2 memories allowed. Two pieces of truth, the rest is space.",
-  "Only 2 memories allowed. Two echoes of soul, the rest is light.",
-  "Only 2 memories allowed. Two pieces of love, the rest is song.",
-  "Only 2 memories allowed. Two moments of story, the rest is verse.",
-  "Only 2 memories allowed. Two pieces of heart, the rest is dream.",
-  "Only 2 memories allowed. Two echoes of truth, the rest is yours.",
-  "Only 2 memories allowed. Two moments of soul, the rest is sacred.",
-  "Only 2 memories allowed. Two pieces of love, the rest is private."
+// Submission cap
+const MAX_MEMORIES = 6;
+const limitMessages = [
+  `Only ${MAX_MEMORIES} memories allowed. Some goodbyes must stay in your heart.`,
+  `Only ${MAX_MEMORIES} memories allowed. That's all we can hold.`,
+  `Only ${MAX_MEMORIES} memories allowed. Share wisely.`,
 ];
 
 // Type definitions for API responses
@@ -458,8 +443,8 @@ export async function POST(request: NextRequest) {
               const uuidResult = await countMemories({ uuid: clientUUID });
               const totalCount = Math.max(ipResult.count, uuidResult.count);
 
-              if (totalCount >= 2) {
-                const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
+              if (totalCount >= MAX_MEMORIES) {
+                const randomMessage = limitMessages[Math.floor(Math.random() * limitMessages.length)];
                 return NextResponse.json(
                   { error: randomMessage },
                   { status: 429 }
@@ -469,8 +454,8 @@ export async function POST(request: NextRequest) {
               // Second check: Additional IP validation (in case UUID is spoofed)
               if (clientIP) {
                 const { count: ipCount } = await countMemories({ ip: clientIP });
-                if (ipCount >= 2) {
-                  const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
+                if (ipCount >= MAX_MEMORIES) {
+                  const randomMessage = limitMessages[Math.floor(Math.random() * limitMessages.length)];
                   return NextResponse.json(
                     { error: randomMessage },
                     { status: 429 }
@@ -481,8 +466,8 @@ export async function POST(request: NextRequest) {
               // Third check: Additional UUID validation (in case IP is spoofed)
               if (clientUUID) {
                 const { count: uuidCount } = await countMemories({ uuid: clientUUID });
-                if (uuidCount >= 2) {
-                  const randomMessage = twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)];
+                if (uuidCount >= MAX_MEMORIES) {
+                  const randomMessage = limitMessages[Math.floor(Math.random() * limitMessages.length)];
                   return NextResponse.json(
                     { error: randomMessage },
                     { status: 429 }

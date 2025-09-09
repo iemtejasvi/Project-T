@@ -136,13 +136,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const canSubmit = !isBanned && memoryCount < 2;
+    const MAX_MEMORIES = 6;
+    const canSubmit = !isBanned && memoryCount < MAX_MEMORIES;
 
     return NextResponse.json({
       canSubmit,
       isBanned,
       memoryCount,
-      hasReachedLimit: memoryCount >= 2,
+      hasReachedLimit: memoryCount >= MAX_MEMORIES,
       isOwner: false
     });
 
