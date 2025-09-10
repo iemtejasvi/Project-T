@@ -952,43 +952,278 @@ export default function SubmitPage() {
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 lg:py-16 relative z-10">
-        <div className="w-full max-w-5xl mx-auto lg:grid lg:grid-cols-[1fr_32px_1.2fr] lg:gap-0 lg:items-stretch relative">
-          {/* Info/Quote Panel (Desktop only) */}
-          <aside className="hidden lg:flex flex-col justify-center bg-[var(--card-bg)]/80 rounded-3xl shadow-2xl p-12 mr-0 animate-fade-in backdrop-blur-xl border border-[var(--accent)]/10">
-            <div className="mb-8">
-              <blockquote className="text-2xl font-serif italic text-[var(--accent)] mb-6 leading-snug drop-shadow-sm">&ldquo;Some words are too heavy to send, but too important to keep.&rdquo;</blockquote>
-              <h2 className="text-3xl font-serif font-bold mb-4 text-[var(--text)]">Why Unsent?</h2>
-              <p className="text-lg font-normal leading-relaxed text-[var(--text)] opacity-90">
-                A place for the messages you never sent, but never forgot.
-              </p>
+      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 lg:py-20 relative z-10">
+        <div className="w-full max-w-6xl mx-auto">
+          {/* Desktop Layout */}
+          <div className="hidden lg:grid lg:grid-cols-12 lg:gap-12 lg:items-start">
+            {/* Left Panel - Quote & Info */}
+            <div className="lg:col-span-5 lg:sticky lg:top-8">
+              <div className="bg-[var(--card-bg)]/60 backdrop-blur-xl rounded-3xl p-10 border border-[var(--accent)]/20 shadow-2xl">
+                <blockquote className="text-3xl font-serif italic text-[var(--accent)] mb-8 leading-relaxed">
+                  &ldquo;Some words are too heavy to send, but too important to keep.&rdquo;
+                </blockquote>
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-serif font-semibold mb-3 text-[var(--text)]">Guidelines</h2>
+                    <ul className="space-y-2 text-[var(--text)]/80">
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full"></span>
+                        Max 50 words. Short, sharp, honest.
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full"></span>
+                        English only. No hate, spam, or off-topic.
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full"></span>
+                        Special effects for ≤30 words.
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full"></span>
+                        6 memories per person. Make them count.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="mt-1 text-base text-[var(--text)] opacity-80">
-              <ul className="list-disc pl-5 space-y-2">
-                <li>Max 50 words. Short, sharp, honest.</li>
-                <li>English only. No hate, spam, or off-topic.</li>
-                <li>Special effects for short messages (&le;30 words).</li>
-                <li>6 memories per person. Make them count.</li>
-              </ul>
+
+            {/* Right Panel - Form */}
+            <div className="lg:col-span-7">
+              {submitted ? (
+                <div className="bg-[var(--secondary)] p-12 rounded-3xl shadow-2xl text-center animate-fade-in">
+                  <div className="text-4xl font-bold mb-6 animate-bounce">Sent!</div>
+                  <p className="text-lg mb-8 text-[var(--text)]/80">Your memory is pending approval. Please wait while we review it.</p>
+                  <Link 
+                    href="/"
+                    className="inline-block px-8 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
+                  >
+                    Return Home
+                  </Link>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleSubmit}
+                  className="bg-[var(--card-bg)]/80 backdrop-blur-2xl p-10 rounded-3xl shadow-2xl border border-[var(--accent)]/10 space-y-8"
+                >
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-600 text-center">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="block text-lg font-medium text-[var(--text)]">Recipient&apos;s Name*</label>
+                    <input
+                      type="text"
+                      value={recipient}
+                      onChange={(e) => setRecipient(e.target.value)}
+                      required
+                      disabled={isFormDisabled}
+                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                      }`}
+                      placeholder="Who is this for?"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="block text-lg font-medium text-[var(--text)]">Message* (max 50 words)</label>
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      required
+                      rows={6}
+                      disabled={isFormDisabled}
+                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 resize-none ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                      }`}
+                      placeholder="What did you never say?"
+                    />
+                    <div className="space-y-2">
+                      <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${
+                            wordCount <= 30
+                              ? "bg-[var(--accent)]"
+                              : wordCount <= 50
+                              ? "bg-[var(--secondary)]"
+                              : "bg-red-500"
+                          }`}
+                          style={{ width: `${percent}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="font-mono text-[var(--text)]/70">{wordCount} / 50</span>
+                        {wordCount > 30 && specialEffectVisible && (
+                          <span className="text-red-500 font-medium">
+                            Special effects disabled beyond 30 words.
+                          </span>
+                        )}
+                        {overLimit && (
+                          <span className="text-red-500 font-medium">{limitMsg}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-lg font-medium text-[var(--text)]">Your Name (optional)</label>
+                      <input
+                        type="text"
+                        value={sender}
+                        onChange={(e) => setSender(e.target.value)}
+                        disabled={isFormDisabled}
+                        className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                        }`}
+                        placeholder="Anonymous"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-lg font-medium text-[var(--text)]">Color Theme</label>
+                      <select
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
+                        disabled={isFormDisabled}
+                        className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                        }`}
+                      >
+                        {colorOptions.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-lg font-medium text-[var(--text)]">Special Effect</label>
+                    <select
+                      value={specialEffect}
+                      onChange={(e) => setSpecialEffect(e.target.value)}
+                      disabled={!isSpecialAllowed || isFormDisabled}
+                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 disabled:opacity-50 ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                      }`}
+                    >
+                      {specialEffects.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex items-center space-x-3 p-4 bg-[var(--secondary)]/30 rounded-2xl">
+                    <input
+                      id="enableTypewriter"
+                      type="checkbox"
+                      checked={enableTypewriter}
+                      onChange={(e) => setEnableTypewriter(e.target.checked)}
+                      disabled={isFormDisabled}
+                      className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    />
+                    <label htmlFor="enableTypewriter" className="text-[var(--text)] font-medium">
+                      Enable typewriter text on memory card
+                    </label>
+                  </div>
+
+                  {enableTypewriter && (
+                    <div className="space-y-4 p-6 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20 mt-4">
+                      <h3 className="text-lg font-semibold text-[var(--text)]">Typewriter Settings</h3>
+                      
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-[var(--text)]">Emotion Tag (optional)</label>
+                        <select
+                          value={tag}
+                          onChange={(e) => setTag(e.target.value)}
+                          disabled={isFormDisabled}
+                          className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
+                            isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                          }`}
+                        >
+                          <option value="">Mixed emotions</option>
+                          {typewriterTags.map((t) => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                        {!tag && (
+                          <p className="text-xs text-[var(--text)]/60 mt-1">
+                            Leave blank for a diverse mix of emotional prompts
+                          </p>
+                        )}
             </div>
-          </aside>
-          {/* Decorative divider */}
-          <div className="hidden lg:flex flex-col items-center justify-center">
-            <div className="h-2/3 w-[2px] bg-gradient-to-b from-[var(--accent)]/0 via-[var(--accent)]/40 to-[var(--accent)]/0 rounded-full relative">
+
+                      {tag && (
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-[var(--text)]">Specific Emotion (optional)</label>
+                          <select
+                            value={subTag}
+                            onChange={(e) => setSubTag(e.target.value)}
+                            disabled={isFormDisabled}
+                            className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
+                              isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                            }`}
+                          >
+                            <option value="">All {tag} emotions</option>
+                            {getSubTags(tag).map((st) => (
+                              <option key={st} value={st}>{st}</option>
+                            ))}
+                          </select>
+                          {!subTag && (
+                            <p className="text-xs text-[var(--text)]/60 mt-1">
+                              Leave blank to see all prompts from the {tag} category
+                            </p>
+                          )}
+            </div>
+                      )}
+            </div>
+                  )}
+
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || hasReachedLimit || isFormDisabled}
+                      className={`w-full px-8 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg transition-all duration-200 text-lg ${
+                        isSubmitting || hasReachedLimit || isFormDisabled
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : 'hover:scale-[1.02] hover:shadow-xl focus:ring-4 focus:ring-[var(--accent)]/30'
+                      }`}
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <InlineLoader />
+                          Submitting...
+          </div>
+                      ) : isBanned ? 'Banned from Submitting' :
+                       hasReachedLimit ? 'Memory Limit Reached' : 
+                       'Submit Memory'}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
-          {/* Form Card */}
-          <div className="w-full flex flex-col justify-center">
+
+          {/* Mobile Layout */}
+          <div className="lg:hidden">
             {!submitted && (
-              <div className="max-w-2xl w-full bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-60 p-6 rounded-2xl shadow-2xl mb-8 lg:hidden">
-                <p className="text-center italic font-medium">
+              <div className="bg-[var(--card-bg)]/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl mb-6">
+                <p className="text-center text-[var(--text)]/80">
                   Share your unsent message. Keep it honest, heartfelt, and in English only. <strong>Off-topic submissions will be rejected.</strong>
                 </p>
               </div>
             )}
 
             {submitted ? (
-              <div className="w-full bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
+              <div className="bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
                 <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
                 <p className="mb-6">Your memory is pending approval. Please wait while we review it.</p>
                 <Link 
@@ -1001,39 +1236,44 @@ export default function SubmitPage() {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="w-full max-w-2xl bg-[var(--card-bg)] backdrop-blur-sm bg-opacity-70 p-8 rounded-2xl shadow-2xl space-y-6 lg:max-w-xl lg:bg-[var(--card-bg)]/80 lg:backdrop-blur-2xl lg:p-10 lg:rounded-3xl lg:shadow-3xl lg:border lg:border-[var(--accent)]/10"
+                className="bg-[var(--card-bg)]/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl space-y-6"
               >
                 {error && (
-                  <p className="text-red-500 text-center font-medium">{error}</p>
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-center">
+                    {error}
+                  </div>
                 )}
 
                 <div>
-                  <label className="block font-serif">Recipient&apos;s Name*</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Recipient&apos;s Name*</label>
                   <input
                     type="text"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
                     required
                     disabled={isFormDisabled}
-                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                    className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition ${
                       isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                     }`}
+                    placeholder="Who is this for?"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-serif">Message* (max 50 words)</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Message* (max 50 words)</label>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     required
                     rows={5}
                     disabled={isFormDisabled}
-                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg lg:resize-none ${
+                    className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition resize-none ${
                       isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                     }`}
+                    placeholder="What did you never say?"
                   />
-                  <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden mt-2 lg:h-3 lg:shadow-sm">
+                  <div className="mt-2 space-y-1">
+                    <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
                         wordCount <= 30
@@ -1041,43 +1281,43 @@ export default function SubmitPage() {
                           : wordCount <= 50
                           ? "bg-[var(--secondary)]"
                           : "bg-red-500"
-                      } lg:animate-pulse-[0.8s]`}
+                        }`}
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs mt-1 lg:text-sm">
-                    <span className="lg:font-mono lg:tracking-wide">{wordCount} / 50</span>
+                    <div className="flex justify-between text-sm">
+                      <span className="font-mono text-[var(--text)]/70">{wordCount} / 50</span>
                     {wordCount > 30 && specialEffectVisible && (
-                      <span className="text-red-500 lg:font-medium">
-                        Special effects disabled beyond 30 words.
-                      </span>
+                        <span className="text-red-500">Special effects disabled beyond 30 words.</span>
                     )}
                     {overLimit && (
-                      <span className="text-red-500 lg:font-medium">{limitMsg}</span>
+                        <span className="text-red-500">{limitMsg}</span>
                     )}
+                    </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-serif">Your Name (optional)</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Your Name (optional)</label>
                   <input
                     type="text"
                     value={sender}
                     onChange={(e) => setSender(e.target.value)}
                     disabled={isFormDisabled}
-                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                    className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition ${
                       isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                     }`}
+                    placeholder="Anonymous"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-serif">Select a Color (optional)</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Color Theme</label>
                   <select
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
                     disabled={isFormDisabled}
-                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                    className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition ${
                       isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                     }`}
                   >
@@ -1090,12 +1330,12 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block font-serif">Special Effect</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Special Effect</label>
                   <select
                     value={specialEffect}
                     onChange={(e) => setSpecialEffect(e.target.value)}
                     disabled={!isSpecialAllowed || isFormDisabled}
-                    className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50 lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                    className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition disabled:opacity-50 ${
                       isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                     }`}
                   >
@@ -1107,83 +1347,69 @@ export default function SubmitPage() {
                   </select>
                 </div>
 
-                <div className="flex items-center space-x-2 lg:mt-2">
+                <div className="flex items-center space-x-3 p-3 bg-[var(--secondary)]/30 rounded-xl">
                   <input
-                    id="enableTypewriter"
+                    id="enableTypewriter-mobile"
                     type="checkbox"
                     checked={enableTypewriter}
                     onChange={(e) => setEnableTypewriter(e.target.checked)}
                     disabled={isFormDisabled}
-                    className={`h-5 w-5 accent-[var(--accent)] lg:rounded-xl lg:border-2 lg:border-[var(--accent)]/30 lg:focus:ring-2 lg:focus:ring-[var(--accent)]/40 ${
+                    className={`h-4 w-4 accent-[var(--accent)] rounded ${
                       isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   />
-                  <label htmlFor="enableTypewriter" className="font-serif lg:text-base">
+                  <label htmlFor="enableTypewriter-mobile" className="text-[var(--text)] text-sm">
                     Enable typewriter text on memory card
                   </label>
                 </div>
 
                 {enableTypewriter && (
-                  <>
+                  <div className="space-y-4 p-4 bg-[var(--secondary)]/20 rounded-xl mt-4">
                     <div>
-                      <label className="block font-serif">Select a Tag (optional - personalizes typewriter text)</label>
+                      <label className="block text-sm font-medium text-[var(--text)] mb-2">Emotion Tag (optional)</label>
                       <select
                         value={tag}
                         onChange={(e) => setTag(e.target.value)}
                         disabled={isFormDisabled}
-                        className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                        className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition ${
                           isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                         }`}
                       >
-                        <option value="">Select a tag (or leave blank for mixed emotions)</option>
+                        <option value="">Mixed emotions</option>
                         {typewriterTags.map((t) => (
                           <option key={t} value={t}>{t}</option>
                         ))}
                       </select>
-                      {!tag && (
-                        <p className="text-sm text-[var(--text)]/70 mt-1 italic">
-                          Leave blank to see a diverse mix of emotional prompts from all categories
-                        </p>
-                      )}
                     </div>
 
                     {tag && (
                       <div>
-                        <label className="block font-serif">Select a Sub-Emotion (optional)</label>
+                        <label className="block text-sm font-medium text-[var(--text)] mb-2">Specific Emotion (optional)</label>
                         <select
                           value={subTag}
                           onChange={(e) => setSubTag(e.target.value)}
                           disabled={isFormDisabled}
-                          className={`w-full mt-2 p-3 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition lg:p-4 lg:rounded-3xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-lg ${
+                          className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition ${
                             isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                           }`}
                         >
-                          <option value="">Select sub-emotion (or leave blank for mixed)</option>
+                          <option value="">All {tag} emotions</option>
                           {getSubTags(tag).map((st) => (
                             <option key={st} value={st}>{st}</option>
                           ))}
                         </select>
-                        {!subTag && (
-                          <p className="text-sm text-[var(--text)]/70 mt-1 italic">
-                            Leave blank to see all prompts from the {tag} category
-                          </p>
+                      </div>
                         )}
                       </div>
-                    )}
-                  </>
                 )}
 
-
-
-
-                <div className="text-center lg:flex-1 lg:flex lg:items-end">
                   <button
                     type="submit"
                     disabled={isSubmitting || hasReachedLimit || isFormDisabled}
-                    className={`w-full px-8 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg transition-transform lg:px-10 lg:py-4 lg:rounded-3xl lg:shadow-xl lg:text-xl lg:focus:ring-4 lg:focus:ring-[var(--accent)]/30 lg:focus:shadow-2xl ${
+                  className={`w-full px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-xl shadow-lg transition ${
                       isSubmitting || hasReachedLimit || isFormDisabled
                         ? 'opacity-50 cursor-not-allowed' 
-                        : 'hover:scale-105 lg:hover:scale-[1.04] lg:hover:shadow-2xl'
+                      : 'hover:scale-105'
                     }`}
                   >
                     {isSubmitting ? (
@@ -1195,7 +1421,6 @@ export default function SubmitPage() {
                      hasReachedLimit ? 'Memory Limit Reached' : 
                      'Submit Memory'}
                   </button>
-                </div>
               </form>
             )}
           </div>
