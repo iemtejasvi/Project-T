@@ -1,7 +1,11 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 
-const TypingEffect: React.FC = () => {
+interface TypingEffectProps {
+	className?: string;
+}
+
+const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
   const messages = useMemo(
     () => [
       "Never got used to your name not showing up in birthdays.",
@@ -192,7 +196,10 @@ const TypingEffect: React.FC = () => {
   }, [charIndex, isDeleting, isMistyped, currentIndex]);
 
   return (
-    <div className="min-h-[2.5rem] overflow-hidden text-center text-2xl sm:text-3xl md:text-4xl font-serif font-normal text-[var(--text)] transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
+    <div className={
+      "min-h-[2.5rem] overflow-hidden text-center text-2xl sm:text-3xl md:text-4xl font-serif font-normal text-[var(--text)] transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto" +
+      (className ? " " + className : "")
+    }>
       {displayText}
     </div>
   );

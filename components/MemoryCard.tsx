@@ -436,12 +436,40 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`flip-card w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
+        className={`flip-card relative overflow-hidden w-full max-w-xs sm:max-w-sm mx-auto perspective-1000 h-[300px] cursor-pointer ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
+        {/* Rough paper base for underside during flip */}
+        {memory.animation === "rough" && (
+          <>
+            <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+              <defs>
+                <filter id="roughpaper">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+                  <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
+                    <feDistantLight azimuth="45" elevation="35" />
+                  </feDiffuseLighting>
+                </filter>
+              </defs>
+            </svg>
+            <div
+              aria-hidden
+              className="absolute inset-0 rounded-[inherit]"
+              style={{
+                filter: "url(#roughpaper)",
+                background:
+                  effectiveColor && effectiveColor !== "default"
+                    ? `var(--color-${effectiveColor}-bg)`
+                    : "#e8e6df",
+                opacity: 0.55,
+                zIndex: 0,
+              }}
+            />
+          </>
+        )}
         <motion.div 
-          className="flip-card-inner relative w-full h-full"
+          className="flip-card-inner relative z-10 w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
         >

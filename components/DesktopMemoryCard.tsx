@@ -233,12 +233,39 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`flip-card w-full h-[420px] perspective-1000 cursor-pointer rounded-[2rem] hover:shadow-2xl mx-auto`}
+        className={`flip-card relative overflow-hidden w-full h-[420px] perspective-1000 cursor-pointer rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
+        {memory.animation === "rough" && (
+          <>
+            <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
+              <defs>
+                <filter id="roughpaper">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
+                  <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
+                    <feDistantLight azimuth="45" elevation="35" />
+                  </feDiffuseLighting>
+                </filter>
+              </defs>
+            </svg>
+            <div
+              aria-hidden
+              className="absolute inset-0 rounded-[inherit]"
+              style={{
+                filter: "url(#roughpaper)",
+                background:
+                  effectiveColor && effectiveColor !== "default"
+                    ? `var(--color-${effectiveColor}-bg)`
+                    : "#e8e6df",
+                opacity: 0.55,
+                zIndex: 0,
+              }}
+            />
+          </>
+        )}
         <motion.div
-          className="flip-card-inner relative w-full h-full"
+          className="flip-card-inner relative z-10 w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
         >

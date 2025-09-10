@@ -245,7 +245,7 @@ export default function Home() {
           {/* Typewriter effect - desktop only */}
           <div className="hidden lg:block mt-4">
             <div className="text-lg italic text-[var(--text)]/70">
-              <TypingEffect />
+              <TypingEffect className="lg:text-2xl" />
             </div>
           </div>
           <hr className="my-4 border-[var(--border)]" />
