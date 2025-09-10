@@ -204,7 +204,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
       : { borderColor: `var(--color-${effectiveColor}-border)` };
   const bgStyle =
     effectiveColor === "default"
-      ? { backgroundColor: "#F8F8F0" }
+      ? { backgroundColor: "#E8E0D0" }
       : memory.full_bg
       ? { backgroundColor: `var(--color-${effectiveColor}-bg)` }
       : {};
