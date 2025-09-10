@@ -324,6 +324,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           );
         case "handwritten":
           return <HandwrittenText message={memory.message} textClass={textClass} />;
+        case "rough":
+          // Use handwritten text sizing/feel; card-level background handles rough paper
+          return <p className={`${textClass} la-belle-aurore-regular pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{memory.message}</p>;
         default:
           return (
             <div className="space-y-2">
