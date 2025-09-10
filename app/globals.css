@@ -649,11 +649,11 @@ input::placeholder, textarea::placeholder {
   }
   
   /* Subsection headings (h3) */
-  h3.text-xl, h3.text-2xl {
+  h3.text-xl, h3.text-2xl, h3.text-4xl {
     font-size: 1.875rem !important; /* ~30px */
     letter-spacing: -0.005em;
     line-height: 1.15;
-    font-weight: 400;
+    font-weight: 600; /* a bit more emphasis */
   }
   
   /* Home & Memories nav buttons */
