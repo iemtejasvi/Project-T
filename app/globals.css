@@ -653,7 +653,7 @@ input::placeholder, textarea::placeholder {
     font-size: 1.875rem !important; /* ~30px */
     letter-spacing: -0.005em;
     line-height: 1.15;
-    font-weight: 600;
+    font-weight: 400;
   }
   
   /* Home & Memories nav buttons */
