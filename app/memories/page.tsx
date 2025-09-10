@@ -40,7 +40,7 @@ export default function Memories() {
     window.addEventListener("resize", checkDesktop);
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
-  const pageSize = isDesktop ? 20 : 10;
+  const pageSize = isDesktop ? 18 : 10;
 
   // Memoized filtered memories to prevent unnecessary recalculations
   const filteredMemories = useMemo(() => {

@@ -49,8 +49,8 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
 
   if (isDesktop) {
     return (
-      <div className="grid grid-cols-2 gap-x-32 gap-y-2 w-full px-8 max-w-screen-xl mx-auto items-start"
-           style={{ gridTemplateColumns: 'repeat(2, 350px)' }}>
+      <div className="grid grid-cols-3 gap-x-12 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+           style={{ gridTemplateColumns: 'repeat(3, 350px)' }}>
         {memories.map((memory) => (
           <div key={memory.id}>
             <DesktopMemoryCard memory={memory} />
@@ -72,10 +72,10 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
 export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
   return (
     <div
-      className="grid grid-cols-2 gap-x-32 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start"
-      style={{ gridTemplateColumns: 'repeat(2, 350px)' }}
+      className="grid grid-cols-3 gap-x-12 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+      style={{ gridTemplateColumns: 'repeat(3, 350px)' }}
     >
-      {memories.slice(0, 4).map((memory) => (
+      {memories.slice(0, 6).map((memory) => (
         <div key={memory.id}>
           <DesktopMemoryCard memory={memory} large />
         </div>

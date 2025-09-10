@@ -218,17 +218,12 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   // Prevent flip when clicking the arrow
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
-    if (target.closest(".desktop-arrow-link")) return;
+    if (target.closest('.open-card-btn')) return;
     setFlipped((f) => !f);
   };
 
   return (
     <div className={`relative group ${large ? 'my-2' : 'my-6'}`}>
-      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
-        <Link href={`/memories/${memory.id}`} className="desktop-arrow-link">
-          <span className={`arrow-icon ${large ? 'text-4xl' : 'text-2xl'}`} style={arrowStyle}>➜</span>
-        </Link>
-      </div>
       <motion.div
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
@@ -421,6 +416,16 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Minimal bottom-center open affordance */}
+      <div className="hidden lg:flex absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+        <Link href={`/memories/${memory.id}`} className="open-card-btn pointer-events-auto">
+          <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[10px] leading-none px-0 py-0 w-1.5 h-1.5 group-hover:px-2 group-hover:py-[2px] group-hover:w-auto group-hover:h-auto group-hover:border-[var(--border)]/60">
+            <span className="overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">open</span>
+            <span className="ml-1 opacity-0 group-hover:opacity-100">↗</span>
+          </span>
+        </Link>
+      </div>
     </div>
   );
 };

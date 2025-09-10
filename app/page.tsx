@@ -111,8 +111,8 @@ export default function Home() {
           { pinned: "desc", created_at: "desc" }
         );
         
-        // Limit to 4 for home page
-        const memoriesData = allMemoriesData.slice(0, 4);
+        // Limit to 6 for home page (3x2 grid on desktop)
+        const memoriesData = allMemoriesData.slice(0, 6);
 
         if (!isMounted) return;
 
