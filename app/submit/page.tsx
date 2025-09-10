@@ -1119,25 +1119,25 @@ export default function SubmitPage() {
                     </select>
                   </div>
 
-                  <div className="flex items-center space-x-3 p-4 bg-[var(--secondary)]/30 rounded-2xl">
-                    <input
-                      id="enableTypewriter"
-                      type="checkbox"
-                      checked={enableTypewriter}
-                      onChange={(e) => setEnableTypewriter(e.target.checked)}
-                      disabled={isFormDisabled}
-                      className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                    />
-                    <label htmlFor="enableTypewriter" className="text-[var(--text)] font-medium">
-                      Enable typewriter text on memory card
-                    </label>
-                  </div>
+                  <div className="space-y-4 p-6 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        id="enableTypewriter"
+                        type="checkbox"
+                        checked={enableTypewriter}
+                        onChange={(e) => setEnableTypewriter(e.target.checked)}
+                        disabled={isFormDisabled}
+                        className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      />
+                      <label htmlFor="enableTypewriter" className="text-[var(--text)] font-semibold text-lg">
+                        Enable typewriter text on memory card
+                      </label>
+                    </div>
 
-                  {enableTypewriter && (
-                    <div className="space-y-4 p-6 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20 mt-4">
-                      <h3 className="text-lg font-semibold text-[var(--text)]">Typewriter Settings</h3>
+                    {enableTypewriter && (
+                      <div className="space-y-4 pt-2">
                       
                       <div className="space-y-2">
                         <label className="block text-sm font-medium text-[var(--text)]">Emotion Tag (optional)</label>
@@ -1182,10 +1182,11 @@ export default function SubmitPage() {
                               Leave blank to see all prompts from the {tag} category
                             </p>
                           )}
-            </div>
+                        </div>
                       )}
-            </div>
+                    </div>
                   )}
+                  </div>
 
                   <div className="pt-4">
                     <button
@@ -1347,24 +1348,25 @@ export default function SubmitPage() {
                   </select>
                 </div>
 
-                <div className="flex items-center space-x-3 p-3 bg-[var(--secondary)]/30 rounded-xl">
-                  <input
-                    id="enableTypewriter-mobile"
-                    type="checkbox"
-                    checked={enableTypewriter}
-                    onChange={(e) => setEnableTypewriter(e.target.checked)}
-                    disabled={isFormDisabled}
-                    className={`h-4 w-4 accent-[var(--accent)] rounded ${
-                      isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  />
-                  <label htmlFor="enableTypewriter-mobile" className="text-[var(--text)] text-sm">
-                    Enable typewriter text on memory card
-                  </label>
-                </div>
+                <div className="space-y-4 p-4 bg-[var(--secondary)]/20 rounded-xl">
+                  <div className="flex items-center space-x-3">
+                    <input
+                      id="enableTypewriter-mobile"
+                      type="checkbox"
+                      checked={enableTypewriter}
+                      onChange={(e) => setEnableTypewriter(e.target.checked)}
+                      disabled={isFormDisabled}
+                      className={`h-4 w-4 accent-[var(--accent)] rounded ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    />
+                    <label htmlFor="enableTypewriter-mobile" className="text-[var(--text)] font-medium">
+                      Enable typewriter text on memory card
+                    </label>
+                  </div>
 
-                {enableTypewriter && (
-                  <div className="space-y-4 p-4 bg-[var(--secondary)]/20 rounded-xl mt-4">
+                  {enableTypewriter && (
+                    <div className="space-y-4 pt-2">
                     <div>
                       <label className="block text-sm font-medium text-[var(--text)] mb-2">Emotion Tag (optional)</label>
                       <select
@@ -1400,10 +1402,11 @@ export default function SubmitPage() {
                         </select>
                       </div>
                         )}
-                      </div>
-                )}
+                    </div>
+                  )}
+                </div>
 
-                  <button
+                <button
                     type="submit"
                     disabled={isSubmitting || hasReachedLimit || isFormDisabled}
                   className={`w-full px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-xl shadow-lg transition ${
