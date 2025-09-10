@@ -420,7 +420,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
       {/* Minimal bottom-center open affordance */}
       <div className="hidden lg:flex absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
         <Link href={`/memories/${memory.id}`} className="open-card-btn pointer-events-auto">
-          <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[10px] leading-none px-0 py-0 w-1.5 h-1.5 group-hover:px-2 group-hover:py-[2px] group-hover:w-auto group-hover:h-auto group-hover:border-[var(--border)]/60">
+          <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[10px] leading-none px-0 py-0 w-0 h-0 opacity-0 group-hover:px-2 group-hover:py-[2px] group-hover:w-auto group-hover:h-auto group-hover:opacity-100 group-hover:border-[var(--border)]/60">
             <span className="overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">open</span>
             <span className="ml-1 opacity-0 group-hover:opacity-100">↗</span>
           </span>
