@@ -77,7 +77,7 @@ export default function HowItWorks() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow py-12">
+      <main className="flex-grow pb-8">
         <article className="max-w-6xl mx-auto px-4 sm:px-6 bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] animate-slide-up mt-8">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">
             Using If Only I Sent This
