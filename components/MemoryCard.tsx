@@ -116,7 +116,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
   }
 
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
+    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[#000000] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
       {displayedText}
     </div>
   );
@@ -137,7 +137,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 ${
+      className={`flex-1 overflow-y-auto text-[#000000] whitespace-pre-wrap break-words hyphens-none pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
       style={style}
@@ -298,7 +298,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     if (!isClient) {
       return (
         <div className="w-full max-w-md mx-auto my-6 p-6 rounded-xl bg-[var(--card-bg)] flex items-center justify-center min-h-[300px]">
-          <div className="flex items-center gap-2 text-[var(--text)] opacity-60">
+          <div className="flex items-center gap-2 text-[#000000] opacity-60">
             <div className="w-2 h-2 rounded-full bg-current animate-pulse"></div>
             <div className="w-2 h-2 rounded-full bg-current animate-pulse" style={{ animationDelay: '0.2s' }}></div>
             <div className="w-2 h-2 rounded-full bg-current animate-pulse" style={{ animationDelay: '0.4s' }}></div>
@@ -388,36 +388,36 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 ★
               </motion.span>
             )}
-            <h3 className={`${isDesktop ? "text-5xl" : "text-2xl"} font-bold text-[var(--text)] text-center leading-tight drop-shadow-sm`}>
+            <h3 className={`${isDesktop ? "text-5xl" : "text-2xl"} font-bold text-[#000000] text-center leading-tight drop-shadow-sm`}>
               To: {memory.recipient}
             </h3>
           </div>
           
           {memory.sender && (
-            <p className={`${isDesktop ? "text-2xl" : "text-base"} italic text-[var(--text)] opacity-75 mb-3 sm:mb-4 text-center font-light tracking-wide`}>
+            <p className={`${isDesktop ? "text-2xl" : "text-base"} italic text-[#000000] opacity-75 mb-3 sm:mb-4 text-center font-light tracking-wide`}>
               From: {memory.sender}
             </p>
           )}
           
-          <hr className="my-2 border-[#999999] w-full" />
+          <hr className="my-2 border-[#000000] w-full" />
         </div>
 
         {/* Message section */}
         <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
-          <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
+          <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[#000000] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
             {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
           </div>
         </div>
 
         {/* Footer section */}
         <div className="w-full flex flex-col items-center relative z-10">
-          <hr className="my-2 border-[#999999] w-full" />
+          <hr className="my-2 border-[#000000] w-full" />
           
           <div className="flex flex-col items-center gap-1 sm:gap-2">
-            <span className={`${isDesktop ? "text-xl" : "text-xs"} text-[var(--text)] opacity-75 font-medium text-center tracking-wide`}>
+            <span className={`${isDesktop ? "text-xl" : "text-xs"} text-[#000000] opacity-75 font-medium text-center tracking-wide`}>
               {dateStr} • {dayStr} • {timeStr}
             </span>
-            <span className={`${isDesktop ? "text-base" : "text-xs"} text-[var(--text)] opacity-60 font-light text-center capitalize`}>
+            <span className={`${isDesktop ? "text-base" : "text-xs"} text-[#000000] opacity-60 font-light text-center capitalize`}>
               {effectiveColor}
             </span>
           </div>
@@ -511,7 +511,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             )}
             <div className="relative z-10">
               <div className="flex justify-between items-start">
-                <h3 className="text-xl font-bold text-[var(--text)] break-words overflow-hidden">
+                <h3 className="text-xl font-bold text-[#000000] break-words overflow-hidden">
                   {memory.animation && memory.animation !== "none" && (
                     <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                       ★
@@ -559,10 +559,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   </span>
                 )}
               </div>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden">From: {memory.sender}</p>}
-              <hr className="my-2 border-[#999999]" />
+              {memory.sender && <p className="mt-1 text-md italic text-[#000000] break-words overflow-hidden">From: {memory.sender}</p>}
+              <hr className="my-2 border-[#000000]" />
             </div>
-            <div className="text-xs text-[var(--text)] text-center font-normal relative z-10">
+            <div className="text-xs text-[#000000] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
             <div className="min-h-[2.5em] w-full relative z-10">
@@ -602,11 +602,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 />
               </>
             )}
-            <h3 className="text-lg italic text-[var(--text)] text-center relative z-10">if only i sent this</h3>
-            <hr className="my-2 border-[#999999] relative z-10" />
+            <h3 className="text-lg italic text-[#000000] text-center relative z-10">if only i sent this</h3>
+            <hr className="my-2 border-[#000000] relative z-10" />
             {memory.animation === "rough" ? (
               <div 
-                className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
+                className="flex-1 overflow-y-auto text-[#000000] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
                 style={{
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
