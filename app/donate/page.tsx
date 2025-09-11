@@ -21,7 +21,7 @@ export default function Donate() {
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 text-center">
           <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Support Us</h1>
-          <hr className="my-4 border-[#000000]" />
+          <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex justify-center gap-4 desktop-nav-list">
               <li>

@@ -12,7 +12,7 @@ export default function HowItWorks() {
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 sm:py-8 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] desktop-heading">How It Works</h1>
-          <hr className="my-4 border-[#000000]" />
+          <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>

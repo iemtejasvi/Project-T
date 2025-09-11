@@ -236,7 +236,7 @@ export default function Home() {
               <TypingEffect className="lg:text-2xl" />
             </div>
           </div>
-          <hr className="my-4 border-[#000000]" />
+          <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>

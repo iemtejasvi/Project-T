@@ -9,7 +9,7 @@ interface HandwrittenTextProps {
 const HandwrittenText: React.FC<HandwrittenTextProps> = ({ message, textClass }) => {
   return (
     <div className="handwritten-text pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased space-y-2">
-      <p className={`${textClass} la-belle-aurore-regular`} style={{ color: '#000000' }}>{message}</p>
+      <p className={`${textClass} la-belle-aurore-regular`}>{message}</p>
     </div>
   );
 };
