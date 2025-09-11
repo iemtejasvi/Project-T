@@ -399,7 +399,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             </p>
           )}
           
-          <hr className="my-2 border-[#999999] w-full" />
+          <hr className="my-2 border-[#000000] w-full" />
         </div>
 
         {/* Message section */}
@@ -411,7 +411,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
         {/* Footer section */}
         <div className="w-full flex flex-col items-center relative z-10">
-          <hr className="my-2 border-[#999999] w-full" />
+          <hr className="my-2 border-[#000000] w-full" />
           
           <div className="flex flex-col items-center gap-1 sm:gap-2">
             <span className={`${isDesktop ? "text-xl" : "text-xs"} text-[var(--text)] opacity-75 font-medium text-center tracking-wide`}>
@@ -560,7 +560,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 )}
               </div>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden">From: {memory.sender}</p>}
-              <hr className="my-2 border-[#999999]" />
+              <hr className="my-2 border-[#000000]" />
             </div>
             <div className="text-xs text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
@@ -603,7 +603,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               </>
             )}
             <h3 className="text-lg italic text-[var(--text)] text-center relative z-10">if only i sent this</h3>
-            <hr className="my-2 border-[#999999] relative z-10" />
+            <hr className="my-2 border-[#000000] relative z-10" />
             {memory.animation === "rough" ? (
               <div 
                 className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"

@@ -345,7 +345,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 <span className="break-words overflow-hidden leading-tight">To: {memory.recipient}</span>
               </h3>
               {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)] break-words overflow-hidden`}>From: {memory.sender}</p>}
-              <hr className="my-2 border-[#999999]" />
+              <hr className="my-2 border-[#000000]" />
             </div>
             <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
@@ -388,7 +388,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             )}
             <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
             <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
-            <hr className="my-2 border-[#999999] relative z-10" />
+            <hr className="my-2 border-[#000000] relative z-10" />
             {memory.animation === "rough" ? (
               <div 
                 className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"

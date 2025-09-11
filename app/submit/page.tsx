@@ -889,7 +889,7 @@ export default function SubmitPage() {
       <header className="bg-[var(--card-bg)] shadow-lg">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
           <h1 className="text-4xl font-serif desktop-heading">Submit a Memory</h1>
-          <hr className="my-4 border-[var(--border)]" />
+          <hr className="my-4 border-[#000000]" />
           <nav>
             <ul className="flex justify-center gap-6 desktop-nav-list">
               <li>

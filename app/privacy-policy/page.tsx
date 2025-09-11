@@ -6,7 +6,7 @@ export default function PrivacyPolicy() {
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 text-center">
           <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Privacy Policy</h1>
-          <hr className="my-4 border-[var(--border)]" />
+          <hr className="my-4 border-[#000000]" />
           <nav>
             <ul className="flex justify-center gap-4 desktop-nav-list">
               <li>
@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
                 </ul>
               </div>
             </div>
-            <hr className="my-8 border-[var(--border)]" />
+            <hr className="my-8 border-[#000000]" />
             <p className="text-[var(--text)] text-base sm:text-lg">
               Need something removed or have a question? Contact us via <Link href="/contact" className="text-[var(--accent)] hover:underline">Contact</Link>.
             </p>

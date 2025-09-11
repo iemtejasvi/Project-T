@@ -535,7 +535,7 @@ export default function AdminPanel() {
 
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex justify-between border-b border-[var(--border)]">
+        <div className="flex justify-between border-b border-[#000000]">
           {(["pending", "approved", "banned", "announcements", "maintenance"] as Tab[]).map((tab) => (
             <button
               key={tab}

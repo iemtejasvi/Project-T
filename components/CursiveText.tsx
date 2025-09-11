@@ -117,7 +117,7 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
       <p 
         className={`${textClass} ${pacifico.className}`}
         style={{ 
-          color: `var(--color-${effectiveColor}-border)`,
+          color: `#000000`,
           textShadow: `0px 0px 3px var(--color-${effectiveColor}-border), 
                        0px 0px 8px var(--color-${effectiveColor}-bg)`,
         }}
