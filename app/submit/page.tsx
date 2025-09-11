@@ -882,43 +882,7 @@ export default function SubmitPage() {
     return null;
   }
 
-  const getDryLeafColor = () => {
-    const now = new Date();
-    const hour = now.getHours();
-    
-    // Default theme for SSR
-    let theme = 'light';
-    
-    // Only access document on client side
-    if (typeof window !== 'undefined') {
-      theme = document.documentElement.getAttribute('data-theme') || 'light';
-    }
-    
-    // Time-based colors - dry leaf tones
-    let timeColor = '#8B7355'; // Default brown
-    if (hour >= 5 && hour < 12) {
-      timeColor = '#A0522D'; // Morning sienna
-    } else if (hour >= 12 && hour < 17) {
-      timeColor = '#6B4423'; // Afternoon dark brown
-    } else {
-      timeColor = '#5D4037'; // Night darker brown
-    }
-    
-    // Theme-based adjustments
-    if (theme === 'dark') {
-      return '#4A4A4A'; // Dark gray for dark theme
-    } else if (theme === 'sepia') {
-      return '#8B7355'; // Brown for sepia theme
-    }
-    
-    return timeColor;
-  };
-
-  const [dryLeafColor, setDryLeafColor] = useState('#8B7355'); // Default color
-
-  useEffect(() => {
-    setDryLeafColor(getDryLeafColor());
-  }, []);
+  // Removed decorative leaf color logic
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] lg:bg-gradient-to-br lg:from-[var(--background)] lg:to-[var(--card-bg)] lg:via-[var(--secondary)]/30 relative overflow-x-hidden">
