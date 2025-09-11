@@ -10,7 +10,7 @@ export default function HowItWorks() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-8 text-center">
+        <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 sm:py-8 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] desktop-heading">How It Works</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
@@ -58,6 +58,11 @@ export default function HowItWorks() {
                         Privacy Policy
                       </div>
                     </Link>
+                    <Link href="/terms">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                        Terms & Conditions
+                      </div>
+                    </Link>
                     <Link href="/donate">
                       <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
                         Donate
@@ -72,8 +77,8 @@ export default function HowItWorks() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <article className="bg-[var(--card-bg)] p-6 sm:p-8 rounded-lg shadow-md animate-slide-up">
+      <main className="flex-grow py-12">
+        <article className="max-w-6xl mx-auto px-4 sm:px-6 bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] animate-slide-up mt-8">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">
             Using If Only I Sent This
           </h2>
@@ -122,12 +127,12 @@ export default function HowItWorks() {
 
           <div className="mb-8">
             <h3 className="text-xl font-bold mb-2">Memories Page</h3>
-            <p className="mb-2">The memories page features:</p>
+            <p className="mb-2">Browse the archive and open memories individually:</p>
             <ul className="list-disc pl-6 space-y-1">
-              <li>All approved memories in chronological order</li>
-              <li>Pinned memories appear at the top</li>
-              <li>Detailed view of each memory</li>
-              <li>Option to share memories via URL</li>
+              <li>Click a card or its arrow to open the memory page</li>
+              <li>On desktop: hover a card and click the arrow to open the full page</li>
+              <li>Share a memory by copying its page URL</li>
+              <li>Pinned memories appear first, then newest</li>
             </ul>
           </div>
         </article>
@@ -135,8 +140,8 @@ export default function HowItWorks() {
 
       {/* Footer */}
       <footer className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          © {new Date().getFullYear()} — If Only I Sent This
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
+          © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
     </div>

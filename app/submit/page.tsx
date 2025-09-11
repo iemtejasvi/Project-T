@@ -922,10 +922,6 @@ export default function SubmitPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] lg:bg-gradient-to-br lg:from-[var(--background)] lg:to-[var(--card-bg)] lg:via-[var(--secondary)]/30 relative overflow-x-hidden">
-      {/* Floating dry leaf accent (desktop only) */}
-      <div className="hidden lg:block absolute left-[-120px] top-1/3 z-0 opacity-20 pointer-events-none select-none">
-        <span style={{ color: dryLeafColor }} className="text-[180px] drop-shadow-2xl blur-[3px] transform -rotate-12">🍂</span>
-      </div>
       <header className="bg-[var(--card-bg)] shadow-lg">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
           <h1 className="text-4xl font-serif desktop-heading">Submit a Memory</h1>
@@ -1432,7 +1428,7 @@ export default function SubmitPage() {
 
       <footer className="bg-[var(--card-bg)] shadow-inner">
         <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          © {new Date().getFullYear()} — If Only I Sent This
+          © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
     </div>

@@ -90,7 +90,7 @@ export default function MaintenancePage() {
       {/* Footer */}
       <div className="w-full text-center py-4 md:py-6 bg-[var(--card-bg)] border-t border-[var(--border)]">
         <p className="text-[var(--text)] text-sm md:text-base">
-          © {new Date().getFullYear()} — If Only I Sent This
+          © {new Date().getFullYear()} If Only I Sent This
         </p>
       </div>
     </div>
