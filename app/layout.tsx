@@ -796,15 +796,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     }
                   } catch(e) {}
 
-                  // Reload to get a clean, first-visit experience (with cooldown)
-                  try {
-                    var now = Date.now();
-                    var last = parseInt(sessionStorage.getItem('ioist_last_reload_ts') || '0', 10);
-                    if (!last || (now - last) > 8000) {
-                      sessionStorage.setItem('ioist_last_reload_ts', String(now));
-                      window.location.reload();
-                    }
-                  } catch(e) {}
+                  // Removed reload to prevent double-loads; cleanup only
                 };
 
                 // Delay until load to avoid blocking rendering
