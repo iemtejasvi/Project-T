@@ -75,7 +75,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 ${
+      className={`flex-1 overflow-y-auto text-black whitespace-pre-wrap break-words hyphens-none pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
       style={style}
@@ -186,7 +186,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
   if (isDisabled || prompts.length === 0) return null;
   
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-xl text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
+    <div className="min-h-[2rem] overflow-hidden text-center text-xl text-black font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
       {displayedText}
     </div>
   );
@@ -336,7 +336,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </span>
             )}
             <div className="pb-1 relative z-10">
-               <h3 className={`${large ? 'text-4xl' : 'text-2xl'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
+               <h3 className={`${large ? 'text-4xl' : 'text-2xl'} font-normal text-black flex items-center gap-2 leading-tight`}>
                 {memory.animation && memory.animation !== "none" && (
                   <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
                     ★
@@ -344,13 +344,13 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 )}
                 <span className="break-words overflow-hidden leading-tight">To: {memory.recipient}</span>
               </h3>
-              {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)] break-words overflow-hidden`}>From: {memory.sender}</p>}
-              <hr className="my-2 border-[#999999]" />
+              {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-black break-words overflow-hidden`}>From: {memory.sender}</p>}
+              <hr className="my-2 border-black" />
             </div>
-            <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
+            <div className="text-xl text-black text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
-            <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)] relative z-10">
+            <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-black relative z-10">
                               <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>
           </div>
@@ -386,12 +386,12 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 />
               </>
             )}
-            <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
-            <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
-            <hr className="my-2 border-[#999999] relative z-10" />
+            <p className={`hidden lg:block text-4xl italic text-black text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
+            <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-black text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
+            <hr className="my-2 border-black relative z-10" />
             {memory.animation === "rough" ? (
               <div 
-                className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
+                className="flex-1 overflow-y-auto text-black whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
                 style={{
                   fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
