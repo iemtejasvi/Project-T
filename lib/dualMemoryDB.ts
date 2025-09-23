@@ -20,6 +20,85 @@ function getNextDatabase(): 'A' | 'B' {
   return (Date.now() % 2 === 0) ? 'A' : 'B';
 }
 
+// Count statuses per DB
+export async function getStatusCounts() {
+  const statuses = ["pending", "approved", "banned"] as const;
+  type Status = typeof statuses[number];
+  type Counts = Record<Status, number | null>;
+  const now = new Date().toISOString(); // not used here but reserved for potential future constraints
+
+  async function countsFor(db: typeof dbA): Promise<Counts> {
+    const entries = await Promise.all(statuses.map(async (s) => {
+      const res = await db.client
+        .from('memories')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', s);
+      const count = (res as unknown as { count: number | null }).count ?? null;
+      return [s, count] as const;
+    }));
+    return Object.fromEntries(entries) as Counts;
+  }
+
+  const [A, B] = await Promise.all([countsFor(dbA), countsFor(dbB)]);
+  return { A, B };
+}
+
+// Measure a simple latency for each DB (ms)
+export async function measureDbLatency() {
+  function nowMs() {
+    if (typeof performance !== 'undefined' && performance.now) return performance.now();
+    return Date.now();
+  }
+  async function ping(db: typeof dbA) {
+    const t0 = nowMs();
+    await db.client.from('memories').select('id').limit(1);
+    const t1 = nowMs();
+    return t1 - t0;
+  }
+  const [A, B] = await Promise.all([ping(dbA), ping(dbB)]);
+  return { A, B };
+}
+
+// Count expired pinned across both DBs
+export async function getExpiredPinnedCount() {
+  const now = new Date().toISOString();
+  const [resA, resB] = await Promise.all([
+    dbA.client.from('memories').select('id', { count: 'exact', head: true }).eq('pinned', true).lte('pinned_until', now),
+    dbB.client.from('memories').select('id', { count: 'exact', head: true }).eq('pinned', true).lte('pinned_until', now),
+  ]);
+  const A = (resA as unknown as { count: number | null }).count ?? 0;
+  const B = (resB as unknown as { count: number | null }).count ?? 0;
+  return { A, B, total: (A || 0) + (B || 0) };
+}
+
+// Unpin all expired pins across both DBs
+export async function unpinExpiredMemories(): Promise<number> {
+  const now = new Date().toISOString();
+  const [idsARes, idsBRes] = await Promise.all([
+    dbA.client.from('memories').select('id').eq('pinned', true).lte('pinned_until', now),
+    dbB.client.from('memories').select('id').eq('pinned', true).lte('pinned_until', now),
+  ]);
+  const idsA = (idsARes.data || []).map(r => r.id as string);
+  const idsB = (idsBRes.data || []).map(r => r.id as string);
+  const unique = Array.from(new Set([...idsA, ...idsB]));
+  if (unique.length === 0) return 0;
+  await Promise.all(unique.map(id => updateMemory(id, { pinned: false, pinned_until: undefined })));
+  return unique.length;
+}
+
+// Simulate n round-robin selections using current time parity
+export function simulateRoundRobin(n = 20) {
+  const start = Date.now();
+  const picks: Array<'A' | 'B'> = [];
+  for (let i = 0; i < n; i++) {
+    const pick = ((start + i) % 2 === 0) ? 'A' : 'B';
+    picks.push(pick);
+  }
+  const A = picks.filter(p => p === 'A').length;
+  const B = picks.length - A;
+  return { picks, A, B };
+}
+
 // Interface for memory data
 interface MemoryData {
   id: string;
@@ -159,6 +238,10 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   if (filters.uuid) {
     filteredMemories = filteredMemories.filter(m => m.uuid === filters.uuid);
   }
+  if (typeof filters.pinned !== 'undefined') {
+    const pinnedFlag = String(filters.pinned).toLowerCase() === 'true';
+    filteredMemories = filteredMemories.filter(m => Boolean(m.pinned) === pinnedFlag);
+  }
   
   // Apply ordering - pinned first, then by created_at
   filteredMemories.sort((a, b) => {
@@ -176,6 +259,18 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
     return 0;
   });
   
+  // Fire-and-forget: auto-unpin any expired pinned memories we just fetched
+  try {
+    const nowTs = Date.now();
+    const expired = allMemories.filter(m => m.pinned && m.pinned_until && new Date(m.pinned_until).getTime() <= nowTs);
+    if (expired.length > 0) {
+      // De-duplicate by id
+      const ids = Array.from(new Set(expired.map(m => m.id)));
+      // Do not await to avoid blocking UI; errors are logged by updateMemory
+      Promise.all(ids.map(id => updateMemory(id, { pinned: false, pinned_until: undefined })) ).catch(() => {});
+    }
+  } catch {}
+
   return { data: filteredMemories, error: null };
 }
 

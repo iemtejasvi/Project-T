@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchMemories, updateMemory, deleteMemory, primaryDB, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory } from "@/lib/dualMemoryDB";
+import { fetchMemories, updateMemory, deleteMemory, primaryDB, secondaryDB, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -52,18 +52,29 @@ export default function AdminPanel() {
   const [dbStatus, setDbStatus] = useState<null | { databaseA: boolean; databaseB: boolean; bothHealthy: boolean; anyHealthy: boolean }>(null);
   const [dbCounts, setDbCounts] = useState<null | { A: number | null; B: number | null }>(null);
   const [recentRoutes, setRecentRoutes] = useState<Array<{ id: string; created_at: string; location: 'A' | 'B' | 'Both' | 'Unknown' }>>([]);
+  const [statusCounts, setStatusCounts] = useState<null | { A: Record<'pending' | 'approved' | 'banned', number | null>; B: Record<'pending' | 'approved' | 'banned', number | null> }>(null);
+  const [latency, setLatency] = useState<null | { A: number; B: number }>(null);
+  const [expiredPinned, setExpiredPinned] = useState<null | { A: number; B: number; total: number }>(null);
+  const [diffIds, setDiffIds] = useState<null | { onlyA: string[]; onlyB: string[]; both: string[] }>(null);
+  const [rrSim, setRrSim] = useState<{ A: number; B: number; picks: Array<'A'|'B'> } | null>(null);
 
   const loadDbHealth = useCallback(async () => {
     setDbHealthLoading(true);
     try {
-      const [status, counts, recents] = await Promise.all([
+      const [status, counts, recents, statuses, lat, exp] = await Promise.all([
         getDatabaseStatus(),
         getDatabaseCounts(),
-        fetchRecentMemories(10)
+        fetchRecentMemories(10),
+        getStatusCounts(),
+        measureDbLatency(),
+        getExpiredPinnedCount()
       ]);
 
       setDbStatus(status);
       setDbCounts({ A: counts.A, B: counts.B });
+      setStatusCounts(statuses);
+      setLatency(lat);
+      setExpiredPinned(exp);
 
       const enriched = await Promise.all(
         (recents || []).map(async (m) => {
@@ -72,6 +83,28 @@ export default function AdminPanel() {
         })
       );
       setRecentRoutes(enriched);
+
+      // Compute recent IDs divergence (last 50 from each)
+      const [a50, b50] = await Promise.all([
+        primaryDB.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50),
+        secondaryDB.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50)
+      ]);
+      const setA = new Set(((a50.data || []) as Array<{ id: string }>).map((r) => r.id));
+      const setB = new Set(((b50.data || []) as Array<{ id: string }>).map((r) => r.id));
+      const onlyA: string[] = [];
+      const onlyB: string[] = [];
+      const both: string[] = [];
+      for (const id of setA) {
+        if (setB.has(id)) both.push(id); else onlyA.push(id);
+      }
+      for (const id of setB) {
+        if (!setA.has(id)) onlyB.push(id);
+      }
+      setDiffIds({ onlyA, onlyB, both });
+
+      // Round-robin simulation (50 picks)
+      const sim = simulateRoundRobin(50);
+      setRrSim({ A: sim.A, B: sim.B, picks: sim.picks });
     } catch (err) {
       console.error('Error fetching DB health:', err);
     } finally {
@@ -610,7 +643,7 @@ export default function AdminPanel() {
                   onClick={() => { setSelectedTab("maintenance"); setAnnounceMenuOpen(false); }}
                   className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'maintenance' ? 'font-semibold' : ''}`}
                 >
-                  Full (Maintenance)
+                  Maintenance
                 </button>
                 <button
                   onClick={() => { setSelectedTab("dbhealth"); setAnnounceMenuOpen(false); }}
@@ -815,6 +848,57 @@ export default function AdminPanel() {
                       <div>Diff: <span className="font-mono">{typeof dbCounts?.A === 'number' && typeof dbCounts?.B === 'number' ? Math.abs((dbCounts?.A||0) - (dbCounts?.B||0)) : '—'}</span></div>
                     </div>
                   </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                    <h3 className="font-semibold mb-2">Status Counts</h3>
+                    <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
+                      <div className="font-semibold">DB A</div><div className="font-semibold">DB B</div>
+                      <div>Pending: {statusCounts?.A.pending ?? '—'}</div><div>Pending: {statusCounts?.B.pending ?? '—'}</div>
+                      <div>Approved: {statusCounts?.A.approved ?? '—'}</div><div>Approved: {statusCounts?.B.approved ?? '—'}</div>
+                      <div>Banned: {statusCounts?.A.banned ?? '—'}</div><div>Banned: {statusCounts?.B.banned ?? '—'}</div>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                    <h3 className="font-semibold mb-2">Latency (ms)</h3>
+                    <div className="text-sm space-y-1">
+                      <div>A: <span className="font-mono">{latency?.A?.toFixed?.(0) ?? '—'}</span></div>
+                      <div>B: <span className="font-mono">{latency?.B?.toFixed?.(0) ?? '—'}</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold">Expired Pins</h3>
+                    <span className="text-sm text-gray-600">(total: {expiredPinned?.total ?? '—'})</span>
+                    <button
+                      onClick={async () => { if (confirm('Unpin all expired memories now?')) { await unpinExpiredMemories(); await loadDbHealth(); } }}
+                      className="ml-auto px-3 py-1.5 rounded bg-amber-500 text-white text-sm hover:bg-amber-600"
+                    >
+                      Unpin expired now
+                    </button>
+                  </div>
+                  <div className="text-sm mt-2">A: {expiredPinned?.A ?? '—'} • B: {expiredPinned?.B ?? '—'}</div>
+                </div>
+                <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                  <h3 className="font-semibold mb-2">Recent ID Divergence (last 50 each)</h3>
+                  <div className="text-sm">
+                    <div>Only A: {diffIds?.onlyA.length ?? 0} • Only B: {diffIds?.onlyB.length ?? 0} • Both: {diffIds?.both.length ?? 0}</div>
+                    <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <div className="font-semibold">Sample Only A</div>
+                        <div className="font-mono break-all">{(diffIds?.onlyA || []).slice(0,5).join(', ') || '—'}</div>
+                      </div>
+                      <div>
+                        <div className="font-semibold">Sample Only B</div>
+                        <div className="font-mono break-all">{(diffIds?.onlyB || []).slice(0,5).join(', ') || '—'}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                  <h3 className="font-semibold mb-2">Round‑Robin Simulation (50 picks)</h3>
+                  <div className="text-sm">A: {rrSim?.A ?? '—'} • B: {rrSim?.B ?? '—'}</div>
                 </div>
                 <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
                   <h3 className="font-semibold mb-3">Last 10 Memories Routing</h3>
