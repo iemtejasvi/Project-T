@@ -310,13 +310,13 @@ export async function getDatabaseMetrics(): Promise<DBMetrics> {
   const t0A = Date.now();
   try {
     await dbA.client.from('memories').select('id', { head: true, count: 'exact' }).limit(1);
-  } catch (e) {}
+  } catch {}
   const latencyA = Date.now() - t0A;
 
   const t0B = Date.now();
   try {
     await dbB.client.from('memories').select('id', { head: true, count: 'exact' }).limit(1);
-  } catch (e) {}
+  } catch {}
   const latencyB = Date.now() - t0B;
 
   // Latest records and recent lists
@@ -358,8 +358,8 @@ export async function getDatabaseMetrics(): Promise<DBMetrics> {
   const splitTotal = listA100.length + listB100.length || 1;
   const splitA = Math.round((listA100.length / splitTotal) * 100);
   const splitB = 100 - splitA;
-  const latestFiveA = listA100.slice(0,5).map((m:any)=>m.id);
-  const latestFiveB = listB100.slice(0,5).map((m:any)=>m.id);
+  const latestFiveA = listA100.slice(0,5).map((m: LatestEntry)=>m.id);
+  const latestFiveB = listB100.slice(0,5).map((m: LatestEntry)=>m.id);
 
   let mostRecentDestination: 'A' | 'B' | null = null;
   if (latestA && latestB) {
