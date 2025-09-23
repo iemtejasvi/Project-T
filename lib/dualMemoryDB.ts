@@ -270,3 +270,90 @@ export async function fetchMemoryById(id: string) {
 // Export individual database clients for non-memory operations
 export const primaryDB = dbA.client; // For banned_users, announcements, etc.
 export const secondaryDB = dbB.client; // Backup reference
+
+// DB metrics for admin health view
+export async function getDatabaseMetrics() {
+  // Health checks
+  const [healthA, healthB] = await Promise.all([
+    testDatabaseConnection(dbA),
+    testDatabaseConnection(dbB)
+  ]);
+
+  // Counts
+  const [countARes, countBRes] = await Promise.allSettled([
+    dbA.client.from('memories').select('id', { count: 'exact', head: true }),
+    dbB.client.from('memories').select('id', { count: 'exact', head: true })
+  ]);
+  const countA = countARes.status === 'fulfilled' && !countARes.value.error ? (countARes.value.count || 0) : null;
+  const countB = countBRes.status === 'fulfilled' && !countBRes.value.error ? (countBRes.value.count || 0) : null;
+
+  // Measure simple read latency
+  const t0A = Date.now();
+  try {
+    await dbA.client.from('memories').select('id', { head: true, count: 'exact' }).limit(1);
+  } catch (e) {}
+  const latencyA = Date.now() - t0A;
+
+  const t0B = Date.now();
+  try {
+    await dbB.client.from('memories').select('id', { head: true, count: 'exact' }).limit(1);
+  } catch (e) {}
+  const latencyB = Date.now() - t0B;
+
+  // Latest records and recent lists
+  const [latestARes, latestBRes, recentARes, recentBRes, recent100ARes, recent100BRes] = await Promise.allSettled([
+    dbA.client.from('memories').select('id, recipient, created_at').order('created_at', { ascending: false }).limit(1),
+    dbB.client.from('memories').select('id, recipient, created_at').order('created_at', { ascending: false }).limit(1),
+    dbA.client.from('memories').select('id, recipient, created_at').order('created_at', { ascending: false }).limit(10),
+    dbB.client.from('memories').select('id, recipient, created_at').order('created_at', { ascending: false }).limit(10),
+    dbA.client.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(100),
+    dbB.client.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(100)
+  ]);
+
+  const latestA = latestARes.status === 'fulfilled' && !latestARes.value.error && latestARes.value.data?.[0]
+    ? latestARes.value.data[0]
+    : null;
+  const latestB = latestBRes.status === 'fulfilled' && !latestBRes.value.error && latestBRes.value.data?.[0]
+    ? latestBRes.value.data[0]
+    : null;
+
+  const recentA = recentARes.status === 'fulfilled' && !recentARes.value.error ? (recentARes.value.data || []).map((r:any)=>({ ...r, source:'A' })) : [];
+  const recentB = recentBRes.status === 'fulfilled' && !recentBRes.value.error ? (recentBRes.value.data || []).map((r:any)=>({ ...r, source:'B' })) : [];
+  const recentCombined = [...recentA, ...recentB]
+    .sort((a:any,b:any)=> new Date(b.created_at).getTime()-new Date(a.created_at).getTime())
+    .slice(0,10);
+
+  // Stats: last 24h counts and write split over last 100
+  const now = Date.now();
+  const cutoff = now - 24*60*60*1000;
+  const listA100 = recent100ARes.status === 'fulfilled' && !recent100ARes.value.error ? (recent100ARes.value.data || []) : [];
+  const listB100 = recent100BRes.status === 'fulfilled' && !recent100BRes.value.error ? (recent100BRes.value.data || []) : [];
+  const last24hA = listA100.filter((m:any)=> new Date(m.created_at).getTime() >= cutoff).length;
+  const last24hB = listB100.filter((m:any)=> new Date(m.created_at).getTime() >= cutoff).length;
+  const splitTotal = listA100.length + listB100.length || 1;
+  const splitA = Math.round((listA100.length / splitTotal) * 100);
+  const splitB = 100 - splitA;
+  const latestFiveA = listA100.slice(0,5).map((m:any)=>m.id);
+  const latestFiveB = listB100.slice(0,5).map((m:any)=>m.id);
+
+  let mostRecentDestination: 'A' | 'B' | null = null;
+  if (latestA && latestB) {
+    mostRecentDestination = new Date(latestA.created_at).getTime() >= new Date(latestB.created_at).getTime() ? 'A' : 'B';
+  } else if (latestA) {
+    mostRecentDestination = 'A';
+  } else if (latestB) {
+    mostRecentDestination = 'B';
+  }
+
+  return {
+    health: { A: healthA, B: healthB },
+    counts: { A: countA, B: countB },
+    latest: { A: latestA, B: latestB },
+    mostRecentDestination,
+    recent: recentCombined,
+    latencyMs: { A: latencyA, B: latencyB },
+    last24h: { A: last24hA, B: last24hB },
+    writeSplitPercent: { A: splitA, B: splitB },
+    latestIds: { A: latestFiveA, B: latestFiveB }
+  };
+}

@@ -47,25 +47,30 @@ export default function HowItWorks() {
                   More Options ▼
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute top-full mt-2 w-48 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
-                    <Link href="/contact">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                  <div className="absolute top-full mt-2 w-56 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl shadow-lg z-10 overflow-hidden">
+                    <Link href="/about" onClick={() => setDropdownOpen(false)}>
+                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
+                        About
+                      </div>
+                    </Link>
+                    <Link href="/contact" onClick={() => setDropdownOpen(false)}>
+                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
                         Contact
                       </div>
                     </Link>
-                    <Link href="/privacy-policy">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                    <Link href="/donate" onClick={() => setDropdownOpen(false)}>
+                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
+                        Donate
+                      </div>
+                    </Link>
+                    <Link href="/privacy-policy" onClick={() => setDropdownOpen(false)}>
+                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
                         Privacy Policy
                       </div>
                     </Link>
-                    <Link href="/terms">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                    <Link href="/terms" onClick={() => setDropdownOpen(false)}>
+                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
                         Terms & Conditions
-                      </div>
-                    </Link>
-                    <Link href="/donate">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
-                        Donate
                       </div>
                     </Link>
                   </div>
