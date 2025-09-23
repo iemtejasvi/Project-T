@@ -1,5 +1,4 @@
 import React from 'react';
-import Script from 'next/script';
 import "./globals.css";
 // Removed bleeding effect stylesheet
 import ThemeSwitcher from "@/components/ThemeSwitcher";
@@ -638,7 +637,14 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const canonicalUrl = 'https://www.ifonlyisentthis.com/';
+  let canonicalUrl = 'https://www.ifonlyisentthis.com/';
+  // Use usePathname only in client components
+  try {
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
+    canonicalUrl = 'https://www.ifonlyisentthis.com' + pathname;
+  } catch {
+    // fallback to root
+  }
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -659,8 +665,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <meta name="description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H" strategy="afterInteractive" />
-        <Script id="gtag-init" strategy="afterInteractive"
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H"></script>
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -670,7 +676,46 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `
           }}
         />
-        <Script id="org-json-ld" type="application/ld+json" strategy="afterInteractive"
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const hour = new Date().getHours();
+                let theme = "morning";
+                if (hour >= 12 && hour < 18) {
+                  theme = "evening";
+                } else if (hour >= 18 || hour < 6) {
+                  theme = "night";
+                }
+                const root = document.documentElement;
+                if (theme === "morning") {
+                  root.style.setProperty("--background", "#F5F5F5");
+                  root.style.setProperty("--text", "#4A4A4A");
+                  root.style.setProperty("--accent", "#AEDFF7");
+                  root.style.setProperty("--secondary", "#E8D8D8");
+                  root.style.setProperty("--card-bg", "#FDFDFD");
+                  root.style.setProperty("--border", "#D9D9D9");
+                } else if (theme === "evening") {
+                  root.style.setProperty("--background", "#F0ECE3");
+                  root.style.setProperty("--text", "#4A4A4A");
+                  root.style.setProperty("--accent", "#B0C4DE");
+                  root.style.setProperty("--secondary", "#D3C0B4");
+                  root.style.setProperty("--card-bg", "#FFF8F0");
+                  root.style.setProperty("--border", "#D9D9D9");
+                } else if (theme === "night") {
+                  root.style.setProperty("--background", "#E8E8E8");
+                  root.style.setProperty("--text", "#4A4A4A");
+                  root.style.setProperty("--accent", "#C0D6E4");
+                  root.style.setProperty("--secondary", "#DADADA");
+                  root.style.setProperty("--card-bg", "#F8F8F8");
+                  root.style.setProperty("--border", "#CCCCCC");
+                }
+              })();
+            `
+          }}
+        />
+        <script
+          type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -694,46 +739,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </style>
         <link rel="manifest" href="/site.webmanifest" />
-        <Script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8850424858354795" strategy="afterInteractive" crossOrigin="anonymous" />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8850424858354795" crossOrigin="anonymous"></script>
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
-        <Script id="theme-init" strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const hour = new Date().getHours();
-                  let theme = "morning";
-                  if (hour >= 12 && hour < 18) { theme = "evening"; }
-                  else if (hour >= 18 || hour < 6) { theme = "night"; }
-                  const root = document.documentElement;
-                  if (theme === "morning") {
-                    root.style.setProperty("--background", "#F5F5F5");
-                    root.style.setProperty("--text", "#4A4A4A");
-                    root.style.setProperty("--accent", "#AEDFF7");
-                    root.style.setProperty("--secondary", "#E8D8D8");
-                    root.style.setProperty("--card-bg", "#FDFDFD");
-                    root.style.setProperty("--border", "#D9D9D9");
-                  } else if (theme === "evening") {
-                    root.style.setProperty("--background", "#F0ECE3");
-                    root.style.setProperty("--text", "#4A4A4A");
-                    root.style.setProperty("--accent", "#B0C4DE");
-                    root.style.setProperty("--secondary", "#D3C0B4");
-                    root.style.setProperty("--card-bg", "#FFF8F0");
-                    root.style.setProperty("--border", "#D9D9D9");
-                  } else if (theme === "night") {
-                    root.style.setProperty("--background", "#E8E8E8");
-                    root.style.setProperty("--text", "#4A4A4A");
-                    root.style.setProperty("--accent", "#C0D6E4");
-                    root.style.setProperty("--secondary", "#DADADA");
-                    root.style.setProperty("--card-bg", "#F8F8F8");
-                    root.style.setProperty("--border", "#CCCCCC");
-                  }
-                } catch (e) {}
-              })();
-            `
-          }}
-        />
         <ThemeSwitcher />
         <UuidInitializer />
         {children}

@@ -47,30 +47,25 @@ export default function HowItWorks() {
                   More Options ▼
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute top-full mt-2 w-56 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl shadow-lg z-10 overflow-hidden">
-                    <Link href="/about" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
-                        About
-                      </div>
-                    </Link>
-                    <Link href="/contact" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
+                  <div className="absolute top-full mt-2 w-48 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
+                    <Link href="/contact">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
                         Contact
                       </div>
                     </Link>
-                    <Link href="/donate" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
-                        Donate
-                      </div>
-                    </Link>
-                    <Link href="/privacy-policy" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
+                    <Link href="/privacy-policy">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
                         Privacy Policy
                       </div>
                     </Link>
-                    <Link href="/terms" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">
+                    <Link href="/terms">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
                         Terms & Conditions
+                      </div>
+                    </Link>
+                    <Link href="/donate">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                        Donate
                       </div>
                     </Link>
                   </div>
@@ -83,7 +78,7 @@ export default function HowItWorks() {
 
       {/* Main Content */}
       <main className="flex-grow pb-8">
-        <article className="max-w-3xl lg:max-w-6xl mx-auto px-4 sm:px-6 bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] mt-8">
+        <article className="max-w-6xl mx-auto px-4 sm:px-6 bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] animate-slide-up mt-8">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">
             Using If Only I Sent This
           </h2>

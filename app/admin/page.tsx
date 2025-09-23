@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchMemories, updateMemory, deleteMemory, primaryDB, getDatabaseMetrics, DBMetrics } from "@/lib/dualMemoryDB";
+import { fetchMemories, updateMemory, deleteMemory, primaryDB } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -23,14 +23,13 @@ interface Memory {
   sub_tag?: string;
 }
 
-type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "db_health";
+type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance";
 
 export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
   const [memories, setMemories] = useState<Memory[]>([]);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  // Announcements/maintenance control uses a native select for consistent UI
   const [announcement, setAnnouncement] = useState("");
   const [announcementTimer, setAnnouncementTimer] = useState({
     days: "",
@@ -47,7 +46,6 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
-  const [dbMetrics, setDbMetrics] = useState<DBMetrics | null>(null);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -171,19 +169,6 @@ export default function AdminPanel() {
     fetchCurrentAnnouncement();
     fetchMaintenanceStatus();
   }, []);
-
-  useEffect(() => {
-    if (selectedTab === "db_health") {
-      (async () => {
-        try {
-          const m = await getDatabaseMetrics();
-          setDbMetrics(m);
-        } catch (e) {
-          console.error("Error fetching DB metrics", e);
-        }
-      })();
-    }
-  }, [selectedTab]);
 
   const fetchMaintenanceStatus = async () => {
     try {
@@ -551,7 +536,7 @@ export default function AdminPanel() {
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between border-b border-[var(--border)]">
-          {(["pending", "approved", "banned"] as Tab[]).map((tab) => (
+          {(["pending", "approved", "banned", "announcements", "maintenance"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
@@ -561,38 +546,9 @@ export default function AdminPanel() {
                   : "text-gray-600"
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === "maintenance" ? "Maint" : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
-
-          {/* Announcements button + Other select (native) */}
-          <button
-            onClick={() => setSelectedTab("announcements")}
-            className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
-              selectedTab === "announcements"
-                ? "border-b-2 border-blue-600 text-gray-900"
-                : "text-gray-600"
-            }`}
-          >
-            Announcements
-          </button>
-          <div className="ml-2 min-w-0">
-            <select
-              value={selectedTab === "maintenance" || selectedTab === "db_health" ? selectedTab : ""}
-              onChange={(e) => {
-                const v = e.target.value as Tab | "";
-                if (v === "maintenance" || v === "db_health") setSelectedTab(v);
-                else setSelectedTab("announcements");
-              }}
-              className="px-2 py-1 border border-[var(--border)] rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-[6.5rem] sm:w-auto truncate"
-            >
-              <option value="" disabled>
-                Other
-              </option>
-              <option value="maintenance">Maintenance</option>
-              <option value="db_health">DB Health</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -746,113 +702,6 @@ export default function AdminPanel() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        ) : selectedTab === "db_health" ? (
-          <div className="bg-[var(--card-bg)] p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl border border-[var(--border)]/60">
-            <div className="mb-6">
-              <h2 className="text-2xl font-serif text-[var(--text)]">Database Overview</h2>
-              <p className="text-sm text-[var(--text)]/60 mt-1">Live status, capacity and recent activity across DB A and DB B.</p>
-            </div>
-            <div className="space-y-8">
-              {!dbMetrics ? (
-                <div className="text-gray-600">Loading metrics...</div>
-              ) : (
-                <>
-                  {/* KPI Bar */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl bg-[var(--bg)] border border-[var(--border)]">
-                      <div className="text-xs uppercase tracking-wide text-[var(--text)]/60">Total Memories</div>
-                      <div className="mt-1 text-2xl font-semibold text-[var(--text)]">{(dbMetrics.counts.A ?? 0) + (dbMetrics.counts.B ?? 0)}</div>
-                    </div>
-                    <div className="p-4 rounded-xl bg-[var(--bg)] border border-[var(--border)]">
-                      <div className="text-xs uppercase tracking-wide text-[var(--text)]/60">Overall Health</div>
-                      <div className={`mt-1 text-2xl font-semibold ${dbMetrics.health.A && dbMetrics.health.B ? 'text-green-600' : dbMetrics.health.A || dbMetrics.health.B ? 'text-yellow-600' : 'text-red-600'}`}>{dbMetrics.health.A && dbMetrics.health.B ? 'Healthy' : dbMetrics.health.A || dbMetrics.health.B ? 'Degraded' : 'Down'}</div>
-                    </div>
-                    <div className="p-4 rounded-xl bg-[var(--bg)] border border-[var(--border)]">
-                      <div className="text-xs uppercase tracking-wide text-[var(--text)]/60">Most Recent Destination</div>
-                      <div className="mt-1 text-2xl font-semibold text-[var(--text)]">{dbMetrics.mostRecentDestination ? `DB ${dbMetrics.mostRecentDestination}` : '—'}</div>
-                    </div>
-                  </div>
-
-                  {/* DB Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {(['A','B'] as const).map((dbKey) => (
-                      <div key={dbKey} className="rounded-2xl bg-[var(--bg)] border border-[var(--border)] p-5">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="text-lg font-semibold text-[var(--text)]">Database {dbKey}</div>
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${dbMetrics.health[dbKey] ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>{dbMetrics.health[dbKey] ? 'Healthy' : 'Down'}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <div className="text-[var(--text)]/60">Memories</div>
-                            <div className="text-[var(--text)] font-medium">{dbMetrics.counts[dbKey] ?? '—'}</div>
-                          </div>
-                          <div>
-                            <div className="text-[var(--text)]/60">Latest Insert</div>
-                            <div className="text-[var(--text)] font-medium">{dbMetrics.latest[dbKey] ? new Date(dbMetrics.latest[dbKey].created_at).toLocaleString() : '—'}</div>
-                          </div>
-                          <div>
-                            <div className="text-[var(--text)]/60">Avg Read Latency</div>
-                            <div className="text-[var(--text)] font-medium">{dbMetrics.latencyMs[dbKey]} ms</div>
-                          </div>
-                          <div>
-                            <div className="text-[var(--text)]/60">Last 24h Inserts</div>
-                            <div className="text-[var(--text)] font-medium">{dbMetrics.last24h[dbKey]}</div>
-                          </div>
-                        </div>
-                        <div className="mt-4">
-                          <div className="text-[var(--text)]/60 text-xs mb-1">Latest IDs</div>
-                          <div className="flex flex-wrap gap-2">
-                            {dbMetrics.latestIds[dbKey].map((id:string) => (
-                              <span key={id} className="px-2 py-1 rounded border border-[var(--border)] bg-white/70 font-mono text-[10px]">{id}</span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Recent Table */}
-                  <div className="rounded-2xl bg-[var(--bg)] border border-[var(--border)]">
-                    <div className="px-5 py-4 flex items-center justify-between">
-                      <div className="font-semibold text-[var(--text)]">Recent Activity</div>
-                      <div className="text-xs text-[var(--text)]/60">Write Split (last 100): <span className="font-medium">A {dbMetrics.writeSplitPercent.A}%</span> · <span className="font-medium">B {dbMetrics.writeSplitPercent.B}%</span></div>
-                      <button
-                        onClick={async () => {
-                          const m = await getDatabaseMetrics();
-                          setDbMetrics(m);
-                        }}
-                        className="px-3 py-1.5 text-sm bg-[var(--accent)] text-[var(--text)] rounded-md border border-[var(--border)] hover:bg-blue-200"
-                      >
-                        Refresh
-                      </button>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm">
-                        <thead className="bg-[var(--card-bg)]/60">
-                          <tr className="text-[var(--text)]/70">
-                            <th className="py-2 pl-5 pr-4">ID</th>
-                            <th className="py-2 pr-4">Recipient</th>
-                            <th className="py-2 pr-4">Time</th>
-                            <th className="py-2 pr-5">DB</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dbMetrics.recent.map((r, idx:number) => (
-                            <tr key={`${r.source}-${r.id}`} className={`${idx % 2 === 0 ? 'bg-white/60' : 'bg-transparent'} border-t border-[var(--border)]`}>
-                              <td className="py-2 pl-5 pr-4 font-mono text-xs">{r.id}</td>
-                              <td className="py-2 pr-4">{r.recipient || '—'}</td>
-                              <td className="py-2 pr-4 whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</td>
-                              <td className="py-2 pr-5">{r.source}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
           </div>
         ) : (
