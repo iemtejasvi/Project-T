@@ -3,6 +3,7 @@ import "./globals.css";
 // Removed bleeding effect stylesheet
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
+import Script from "next/script";
 
 export const viewport = {
   width: 'device-width',
@@ -637,14 +638,6 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  let canonicalUrl = 'https://www.ifonlyisentthis.com/';
-  // Use usePathname only in client components
-  try {
-    const pathname = typeof window !== 'undefined' ? window.location.pathname : '/';
-    canonicalUrl = 'https://www.ifonlyisentthis.com' + pathname;
-  } catch {
-    // fallback to root
-  }
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -659,63 +652,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
         <meta name="referrer" content="no-referrer-when-downgrade" />
-        <link rel="canonical" href={canonicalUrl} />
         <link rel="alternate" hrefLang="en" href="https://www.ifonlyisentthis.com/" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <meta name="description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-LLWRNWWS0H');
-            `
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const hour = new Date().getHours();
-                let theme = "morning";
-                if (hour >= 12 && hour < 18) {
-                  theme = "evening";
-                } else if (hour >= 18 || hour < 6) {
-                  theme = "night";
-                }
-                const root = document.documentElement;
-                if (theme === "morning") {
-                  root.style.setProperty("--background", "#F5F5F5");
-                  root.style.setProperty("--text", "#4A4A4A");
-                  root.style.setProperty("--accent", "#AEDFF7");
-                  root.style.setProperty("--secondary", "#E8D8D8");
-                  root.style.setProperty("--card-bg", "#FDFDFD");
-                  root.style.setProperty("--border", "#D9D9D9");
-                } else if (theme === "evening") {
-                  root.style.setProperty("--background", "#F0ECE3");
-                  root.style.setProperty("--text", "#4A4A4A");
-                  root.style.setProperty("--accent", "#B0C4DE");
-                  root.style.setProperty("--secondary", "#D3C0B4");
-                  root.style.setProperty("--card-bg", "#FFF8F0");
-                  root.style.setProperty("--border", "#D9D9D9");
-                } else if (theme === "night") {
-                  root.style.setProperty("--background", "#E8E8E8");
-                  root.style.setProperty("--text", "#4A4A4A");
-                  root.style.setProperty("--accent", "#C0D6E4");
-                  root.style.setProperty("--secondary", "#DADADA");
-                  root.style.setProperty("--card-bg", "#F8F8F8");
-                  root.style.setProperty("--border", "#CCCCCC");
-                }
-              })();
-            `
-          }}
-        />
-        <script
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-LLWRNWWS0H');
+          `}
+        </Script>
+        <Script
+          id="ld-json-org"
           type="application/ld+json"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -739,76 +693,74 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </style>
         <link rel="manifest" href="/site.webmanifest" />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8850424858354795" crossOrigin="anonymous"></script>
+        <Script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8850424858354795" strategy="afterInteractive" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
         <UuidInitializer />
         {children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Run only in production on this domain (covers subdomains)
-                var host = window.location.hostname || '';
-                var isProd = host === 'ifonlyisentthis.com' || host.endsWith('.ifonlyisentthis.com');
-                if (!isProd) { return; }
-                
-                // Ensure we don't loop reloads: mark one-time cleanup per session
-                if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
-                sessionStorage.setItem('ioist_cleanup_done', '1');
+        <Script id="ioist-startup-cleanup" strategy="afterInteractive">
+          {`
+            (function() {
+              // Run only in production on this domain (covers subdomains)
+              var host = window.location.hostname || '';
+              var isProd = host === 'ifonlyisentthis.com' || host.endsWith('.ifonlyisentthis.com');
+              if (!isProd) { return; }
 
-                var cleanup = async function() {
-                  try {
-                    // 1) Clear CacheStorage
-                    if (window.caches && caches.keys) {
-                      var keys = await caches.keys();
-                      await Promise.all(keys.map(function(k){ return caches.delete(k); }));
-                    }
-                  } catch(e) {}
+              // Ensure we don't loop reloads: mark one-time cleanup per session
+              if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
+              sessionStorage.setItem('ioist_cleanup_done', '1');
 
-                  try {
-                    // 2) Unregister any service workers for this origin
-                    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
-                      var regs = await navigator.serviceWorker.getRegistrations();
-                      await Promise.all(regs.map(function(r){ return r.unregister(); }));
-                    }
-                  } catch(e) {}
+              var cleanup = async function() {
+                try {
+                  // 1) Clear CacheStorage
+                  if (window.caches && caches.keys) {
+                    var keys = await caches.keys();
+                    await Promise.all(keys.map(function(k){ return caches.delete(k); }));
+                  }
+                } catch(e) {}
 
-                  try {
-                    // 3) Clear storage (localStorage, sessionStorage, IndexedDB)
-                    localStorage.clear();
-                  } catch(e) {}
+                try {
+                  // 2) Unregister any service workers for this origin
+                  if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                    var regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(function(r){ return r.unregister(); }));
+                  }
+                } catch(e) {}
 
-                  try {
-                    // Preserve the marker while clearing sessionStorage
-                    var marker = sessionStorage.getItem('ioist_cleanup_done');
-                    sessionStorage.clear();
-                    sessionStorage.setItem('ioist_cleanup_done', marker || '1');
-                  } catch(e) {}
+                try {
+                  // 3) Clear storage (localStorage, sessionStorage, IndexedDB)
+                  localStorage.clear();
+                } catch(e) {}
 
-                  try {
-                    if (window.indexedDB && indexedDB.databases) {
-                      var dbs = await indexedDB.databases();
-                      await Promise.all((dbs || []).map(function(db){
-                        if (db && db.name) { return new Promise(function(res){ var del = indexedDB.deleteDatabase(db.name); del.onsuccess = del.onerror = del.onblocked = function(){ res(); }; }); }
-                        return Promise.resolve();
-                      }));
-                    }
-                  } catch(e) {}
+                try {
+                  // Preserve the marker while clearing sessionStorage
+                  var marker = sessionStorage.getItem('ioist_cleanup_done');
+                  sessionStorage.clear();
+                  sessionStorage.setItem('ioist_cleanup_done', marker || '1');
+                } catch(e) {}
 
-                  // Removed reload to prevent double-loads; cleanup only
-                };
+                try {
+                  if (window.indexedDB && indexedDB.databases) {
+                    var dbs = await indexedDB.databases();
+                    await Promise.all((dbs || []).map(function(db){
+                      if (db && db.name) { return new Promise(function(res){ var del = indexedDB.deleteDatabase(db.name); del.onsuccess = del.onerror = del.onblocked = function(){ res(); }; }); }
+                      return Promise.resolve();
+                    }));
+                  }
+                } catch(e) {}
 
-                // Delay until load to avoid blocking rendering
-                if (document.readyState === 'complete') { cleanup(); }
-                else { window.addEventListener('load', function(){ cleanup(); }); }
+                // Removed reload to prevent double-loads; cleanup only
+              };
 
-                // Intentionally no bfcache reload: keep current session smooth.
-              })();
-            `
-          }}
-        />
+              // Delay until load to avoid blocking rendering
+              if (document.readyState === 'complete') { cleanup(); }
+              else { window.addEventListener('load', function(){ cleanup(); }); }
+
+              // Intentionally no bfcache reload: keep current session smooth.
+            })();
+          `}
+        </Script>
       </body>
     </html>
   );

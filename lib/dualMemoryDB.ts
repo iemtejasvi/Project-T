@@ -185,6 +185,68 @@ export async function countMemories(filters: Record<string, string> = {}) {
   return { count: data.length, error: null };
 }
 
+// Get counts per database independently
+export async function getDatabaseCounts() {
+  try {
+    const [resA, resB] = await Promise.all([
+      dbA.client.from('memories').select('id', { count: 'exact', head: true }),
+      dbB.client.from('memories').select('id', { count: 'exact', head: true })
+    ]);
+
+    const countA = (resA as any).count ?? null;
+    const countB = (resB as any).count ?? null;
+
+    return { A: countA as number | null, B: countB as number | null, error: null };
+  } catch (err) {
+    console.error('Error getting database counts:', err);
+    return { A: null, B: null, error: err };
+  }
+}
+
+// Fetch recent memories across both DBs ordered purely by created_at desc
+export async function fetchRecentMemories(limit = 10) {
+  try {
+    const [resA, resB] = await Promise.all([
+      dbA.client.from('memories').select('id, created_at'),
+      dbB.client.from('memories').select('id, created_at')
+    ]);
+
+    const a = (resA.data || []).map(cleanMemoryData) as any[];
+    const b = (resB.data || []).map(cleanMemoryData) as any[];
+    const all = [...a, ...b]
+      .filter((m) => m.created_at)
+      .sort((m1, m2) => new Date(m2.created_at).getTime() - new Date(m1.created_at).getTime())
+      .slice(0, limit)
+      .map((m) => ({ id: m.id as string, created_at: m.created_at as string }));
+
+    return all;
+  } catch (err) {
+    console.error('Error fetching recent memories for health view:', err);
+    return [] as { id: string; created_at: string }[];
+  }
+}
+
+// Determine which database currently holds a memory by ID
+export async function locateMemory(id: string): Promise<'A' | 'B' | 'Both' | 'Unknown'> {
+  try {
+    const [resA, resB] = await Promise.all([
+      dbA.client.from('memories').select('id').eq('id', id).limit(1),
+      dbB.client.from('memories').select('id').eq('id', id).limit(1)
+    ]);
+
+    const inA = !resA.error && (resA.data?.length || 0) > 0;
+    const inB = !resB.error && (resB.data?.length || 0) > 0;
+
+    if (inA && inB) return 'Both';
+    if (inA) return 'A';
+    if (inB) return 'B';
+    return 'Unknown';
+  } catch (err) {
+    console.error('Error locating memory across DBs:', err);
+    return 'Unknown';
+  }
+}
+
 // Update memory in both databases (finds the record first)
 export async function updateMemory(id: string, updates: Partial<Omit<MemoryData, 'id'>>) {
   const updatePromises = [

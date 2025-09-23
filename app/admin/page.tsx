@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchMemories, updateMemory, deleteMemory, primaryDB } from "@/lib/dualMemoryDB";
+import { fetchMemories, updateMemory, deleteMemory, primaryDB, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -23,10 +23,11 @@ interface Memory {
   sub_tag?: string;
 }
 
-type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance";
+type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "dbhealth";
 
 export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
+  const [announceMenuOpen, setAnnounceMenuOpen] = useState(false);
   const [memories, setMemories] = useState<Memory[]>([]);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -46,6 +47,37 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
+  // DB Health state
+  const [dbHealthLoading, setDbHealthLoading] = useState(false);
+  const [dbStatus, setDbStatus] = useState<null | { databaseA: boolean; databaseB: boolean; bothHealthy: boolean; anyHealthy: boolean }>(null);
+  const [dbCounts, setDbCounts] = useState<null | { A: number | null; B: number | null }>(null);
+  const [recentRoutes, setRecentRoutes] = useState<Array<{ id: string; created_at: string; location: 'A' | 'B' | 'Both' | 'Unknown' }>>([]);
+
+  const loadDbHealth = useCallback(async () => {
+    setDbHealthLoading(true);
+    try {
+      const [status, counts, recents] = await Promise.all([
+        getDatabaseStatus(),
+        getDatabaseCounts(),
+        fetchRecentMemories(10)
+      ]);
+
+      setDbStatus(status);
+      setDbCounts({ A: counts.A, B: counts.B });
+
+      const enriched = await Promise.all(
+        (recents || []).map(async (m) => {
+          const loc = await locateMemory(m.id);
+          return { ...m, location: loc };
+        })
+      );
+      setRecentRoutes(enriched);
+    } catch (err) {
+      console.error('Error fetching DB health:', err);
+    } finally {
+      setDbHealthLoading(false);
+    }
+  }, []);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -164,6 +196,16 @@ export default function AdminPanel() {
       fetchMemoriesData();
     }
   }, [isAuthorized, selectedTab]);
+
+  // Fetch DB health when DB Health tab is active
+  useEffect(() => {
+    if (!isAuthorized || selectedTab !== 'dbhealth') return;
+    let mounted = true;
+    (async () => {
+      await loadDbHealth();
+    })();
+    return () => { mounted = false; };
+  }, [isAuthorized, selectedTab, loadDbHealth]);
 
   useEffect(() => {
     fetchCurrentAnnouncement();
@@ -535,20 +577,54 @@ export default function AdminPanel() {
 
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex justify-between border-b border-[var(--border)]">
-          {(["pending", "approved", "banned", "announcements", "maintenance"] as Tab[]).map((tab) => (
+        <div className="flex items-center gap-2 border-b border-[var(--border)]">
+          {(["pending", "approved", "banned"] as Tab[]).map((tab) => (
             <button
               key={tab}
-              onClick={() => setSelectedTab(tab)}
+              onClick={() => { setSelectedTab(tab); setAnnounceMenuOpen(false); }}
               className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
                 selectedTab === tab
                   ? "border-b-2 border-blue-600 text-gray-900"
                   : "text-gray-600"
               }`}
             >
-              {tab === "maintenance" ? "Maint" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
+          <div className="relative">
+            <button
+              onClick={() => setAnnounceMenuOpen((v) => !v)}
+              className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
+                ["announcements", "maintenance", "dbhealth"].includes(selectedTab)
+                  ? "border-b-2 border-blue-600 text-gray-900"
+                  : "text-gray-600"
+              }`}
+            >
+              Announcement ▾
+            </button>
+            {announceMenuOpen && (
+              <div className="absolute z-20 mt-2 w-56 bg-white border border-gray-200 rounded shadow-md">
+                <button
+                  onClick={() => { setSelectedTab("announcements"); setAnnounceMenuOpen(false); }}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'announcements' ? 'font-semibold' : ''}`}
+                >
+                  Announcements
+                </button>
+                <button
+                  onClick={() => { setSelectedTab("maintenance"); setAnnounceMenuOpen(false); }}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'maintenance' ? 'font-semibold' : ''}`}
+                >
+                  Full (Maintenance)
+                </button>
+                <button
+                  onClick={() => { setSelectedTab("dbhealth"); setAnnounceMenuOpen(false); }}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'dbhealth' ? 'font-semibold' : ''}`}
+                >
+                  DB Health
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -703,6 +779,77 @@ export default function AdminPanel() {
                 </div>
               </div>
             </div>
+          </div>
+        ) : selectedTab === "dbhealth" ? (
+          <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
+              <span className="text-lg sm:text-xl md:text-2xl">🗄️</span>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">Database Health</h2>
+              <button
+                onClick={loadDbHealth}
+                className="ml-auto px-3 py-1.5 rounded bg-blue-500 text-white text-sm hover:bg-blue-600"
+                title="Refresh"
+              >
+                Refresh
+              </button>
+            </div>
+            {dbHealthLoading ? (
+              <div className="py-6"><Loader text="Checking databases..." /></div>
+            ) : (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                    <h3 className="font-semibold mb-2">Status</h3>
+                    <ul className="space-y-1 text-sm">
+                      <li>
+                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${dbStatus?.databaseA ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                        Database A {dbStatus?.databaseA ? '(OK)' : '(Down)'}
+                      </li>
+                      <li>
+                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${dbStatus?.databaseB ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                        Database B {dbStatus?.databaseB ? '(OK)' : '(Down)'}
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                    <h3 className="font-semibold mb-2">Totals</h3>
+                    <div className="text-sm space-y-1">
+                      <div>Total A: <span className="font-mono">{dbCounts?.A ?? '—'}</span></div>
+                      <div>Total B: <span className="font-mono">{dbCounts?.B ?? '—'}</span></div>
+                      <div>Diff: <span className="font-mono">{typeof dbCounts?.A === 'number' && typeof dbCounts?.B === 'number' ? Math.abs((dbCounts?.A||0) - (dbCounts?.B||0)) : '—'}</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                  <h3 className="font-semibold mb-3">Last 10 Memories Routing</h3>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="text-left">
+                          <th className="py-2 pr-4">ID</th>
+                          <th className="py-2 pr-4">Created At</th>
+                          <th className="py-2">Located In</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentRoutes.map((r) => (
+                          <tr key={r.id} className="border-t border-[var(--border)]">
+                            <td className="py-2 pr-4 font-mono break-all">{r.id}</td>
+                            <td className="py-2 pr-4">{new Date(r.created_at).toLocaleString()}</td>
+                            <td className="py-2">
+                              {r.location === 'A' && <span className="text-green-600">Database A</span>}
+                              {r.location === 'B' && <span className="text-blue-600">Database B</span>}
+                              {r.location === 'Both' && <span className="text-amber-600">Both</span>}
+                              {r.location === 'Unknown' && <span className="text-gray-500">Unknown</span>}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <>

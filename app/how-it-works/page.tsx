@@ -10,7 +10,7 @@ export default function HowItWorks() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 sm:py-8 text-center">
+        <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-8 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] desktop-heading">How It Works</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
@@ -47,10 +47,20 @@ export default function HowItWorks() {
                   More Options ▼
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute top-full mt-2 w-48 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
+                  <div className="absolute top-full mt-2 w-56 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
+                    <Link href="/about">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                        About
+                      </div>
+                    </Link>
                     <Link href="/contact">
                       <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
                         Contact
+                      </div>
+                    </Link>
+                    <Link href="/donate">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                        Donate
                       </div>
                     </Link>
                     <Link href="/privacy-policy">
@@ -63,11 +73,6 @@ export default function HowItWorks() {
                         Terms & Conditions
                       </div>
                     </Link>
-                    <Link href="/donate">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
-                        Donate
-                      </div>
-                    </Link>
                   </div>
                 )}
               </li>
@@ -77,8 +82,8 @@ export default function HowItWorks() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow pb-8">
-        <article className="max-w-6xl mx-auto px-4 sm:px-6 bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] animate-slide-up mt-8">
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        <article className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] mt-2">
           <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">
             Using If Only I Sent This
           </h2>
@@ -140,7 +145,7 @@ export default function HowItWorks() {
 
       {/* Footer */}
       <footer className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
           © {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
