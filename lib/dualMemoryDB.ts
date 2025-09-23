@@ -193,8 +193,8 @@ export async function getDatabaseCounts() {
       dbB.client.from('memories').select('id', { count: 'exact', head: true })
     ]);
 
-    const countA = (resA as any).count ?? null;
-    const countB = (resB as any).count ?? null;
+    const countA = (resA as unknown as { count: number | null }).count ?? null;
+    const countB = (resB as unknown as { count: number | null }).count ?? null;
 
     return { A: countA as number | null, B: countB as number | null, error: null };
   } catch (err) {
@@ -204,25 +204,25 @@ export async function getDatabaseCounts() {
 }
 
 // Fetch recent memories across both DBs ordered purely by created_at desc
-export async function fetchRecentMemories(limit = 10) {
+export async function fetchRecentMemories(limit = 10): Promise<Array<{ id: string; created_at: string }>> {
   try {
     const [resA, resB] = await Promise.all([
       dbA.client.from('memories').select('id, created_at'),
       dbB.client.from('memories').select('id, created_at')
     ]);
 
-    const a = (resA.data || []).map(cleanMemoryData) as any[];
-    const b = (resB.data || []).map(cleanMemoryData) as any[];
+    type Row = { id: string; created_at: string | null };
+    const a = ((resA.data || []) as Row[]);
+    const b = ((resB.data || []) as Row[]);
     const all = [...a, ...b]
-      .filter((m) => m.created_at)
+      .filter((m): m is { id: string; created_at: string } => typeof m.created_at === 'string' && m.created_at.length > 0)
       .sort((m1, m2) => new Date(m2.created_at).getTime() - new Date(m1.created_at).getTime())
-      .slice(0, limit)
-      .map((m) => ({ id: m.id as string, created_at: m.created_at as string }));
+      .slice(0, limit);
 
     return all;
   } catch (err) {
     console.error('Error fetching recent memories for health view:', err);
-    return [] as { id: string; created_at: string }[];
+    return [];
   }
 }
 

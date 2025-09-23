@@ -200,11 +200,7 @@ export default function AdminPanel() {
   // Fetch DB health when DB Health tab is active
   useEffect(() => {
     if (!isAuthorized || selectedTab !== 'dbhealth') return;
-    let mounted = true;
-    (async () => {
-      await loadDbHealth();
-    })();
-    return () => { mounted = false; };
+    loadDbHealth();
   }, [isAuthorized, selectedTab, loadDbHealth]);
 
   useEffect(() => {
