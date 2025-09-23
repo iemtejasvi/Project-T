@@ -25,7 +25,6 @@ export async function getStatusCounts() {
   const statuses = ["pending", "approved", "banned"] as const;
   type Status = typeof statuses[number];
   type Counts = Record<Status, number | null>;
-  const now = new Date().toISOString(); // not used here but reserved for potential future constraints
 
   async function countsFor(db: typeof dbA): Promise<Counts> {
     const entries = await Promise.all(statuses.map(async (s) => {
