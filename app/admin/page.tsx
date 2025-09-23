@@ -26,7 +26,7 @@ interface Memory {
 type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "db_health";
 
 export default function AdminPanel() {
-  const [selectedTab, setSelectedTab] = useState<Tab>("announcements");
+  const [selectedTab, setSelectedTab] = useState<Tab>("pending");
   const [memories, setMemories] = useState<Memory[]>([]);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -576,7 +576,7 @@ export default function AdminPanel() {
           >
             Announcements
           </button>
-          <div className="ml-2">
+          <div className="ml-2 min-w-0">
             <select
               value={selectedTab === "maintenance" || selectedTab === "db_health" ? selectedTab : ""}
               onChange={(e) => {
@@ -584,7 +584,7 @@ export default function AdminPanel() {
                 if (v === "maintenance" || v === "db_health") setSelectedTab(v);
                 else setSelectedTab("announcements");
               }}
-              className="p-2 border border-[var(--border)] rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white max-w-[8rem] sm:max-w-none"
+              className="px-2 py-1 border border-[var(--border)] rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-[6.5rem] sm:w-auto truncate"
             >
               <option value="" disabled>
                 Other
