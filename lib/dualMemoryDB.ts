@@ -271,8 +271,27 @@ export async function fetchMemoryById(id: string) {
 export const primaryDB = dbA.client; // For banned_users, announcements, etc.
 export const secondaryDB = dbB.client; // Backup reference
 
+// Types for DB health metrics
+export interface LatestEntry {
+  id: string;
+  recipient?: string | null;
+  created_at: string;
+}
+
+export interface DBMetrics {
+  health: { A: boolean; B: boolean };
+  counts: { A: number | null; B: number | null };
+  latest: { A: LatestEntry | null; B: LatestEntry | null };
+  mostRecentDestination: 'A' | 'B' | null;
+  recent: Array<LatestEntry & { source: 'A' | 'B' }>;
+  latencyMs: { A: number; B: number };
+  last24h: { A: number; B: number };
+  writeSplitPercent: { A: number; B: number };
+  latestIds: { A: string[]; B: string[] };
+}
+
 // DB metrics for admin health view
-export async function getDatabaseMetrics() {
+export async function getDatabaseMetrics(): Promise<DBMetrics> {
   // Health checks
   const [healthA, healthB] = await Promise.all([
     testDatabaseConnection(dbA),
@@ -310,26 +329,32 @@ export async function getDatabaseMetrics() {
     dbB.client.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(100)
   ]);
 
-  const latestA = latestARes.status === 'fulfilled' && !latestARes.value.error && latestARes.value.data?.[0]
+  const latestA: LatestEntry | null = latestARes.status === 'fulfilled' && !latestARes.value.error && latestARes.value.data?.[0]
     ? latestARes.value.data[0]
     : null;
-  const latestB = latestBRes.status === 'fulfilled' && !latestBRes.value.error && latestBRes.value.data?.[0]
+  const latestB: LatestEntry | null = latestBRes.status === 'fulfilled' && !latestBRes.value.error && latestBRes.value.data?.[0]
     ? latestBRes.value.data[0]
     : null;
 
-  const recentA = recentARes.status === 'fulfilled' && !recentARes.value.error ? (recentARes.value.data || []).map((r:any)=>({ ...r, source:'A' })) : [];
-  const recentB = recentBRes.status === 'fulfilled' && !recentBRes.value.error ? (recentBRes.value.data || []).map((r:any)=>({ ...r, source:'B' })) : [];
-  const recentCombined = [...recentA, ...recentB]
-    .sort((a:any,b:any)=> new Date(b.created_at).getTime()-new Date(a.created_at).getTime())
+  const recentA: Array<LatestEntry & { source: 'A' | 'B' }> =
+    recentARes.status === 'fulfilled' && !recentARes.value.error
+      ? ((recentARes.value.data || []) as LatestEntry[]).map((r) => ({ ...r, source: 'A' }))
+      : [];
+  const recentB: Array<LatestEntry & { source: 'A' | 'B' }> =
+    recentBRes.status === 'fulfilled' && !recentBRes.value.error
+      ? ((recentBRes.value.data || []) as LatestEntry[]).map((r) => ({ ...r, source: 'B' }))
+      : [];
+  const recentCombined: Array<LatestEntry & { source: 'A' | 'B' }> = [...recentA, ...recentB]
+    .sort((a,b)=> new Date(b.created_at).getTime()-new Date(a.created_at).getTime())
     .slice(0,10);
 
   // Stats: last 24h counts and write split over last 100
   const now = Date.now();
   const cutoff = now - 24*60*60*1000;
-  const listA100 = recent100ARes.status === 'fulfilled' && !recent100ARes.value.error ? (recent100ARes.value.data || []) : [];
-  const listB100 = recent100BRes.status === 'fulfilled' && !recent100BRes.value.error ? (recent100BRes.value.data || []) : [];
-  const last24hA = listA100.filter((m:any)=> new Date(m.created_at).getTime() >= cutoff).length;
-  const last24hB = listB100.filter((m:any)=> new Date(m.created_at).getTime() >= cutoff).length;
+  const listA100: LatestEntry[] = recent100ARes.status === 'fulfilled' && !recent100ARes.value.error ? (recent100ARes.value.data || []) : [];
+  const listB100: LatestEntry[] = recent100BRes.status === 'fulfilled' && !recent100BRes.value.error ? (recent100BRes.value.data || []) : [];
+  const last24hA = listA100.filter((m)=> new Date(m.created_at).getTime() >= cutoff).length;
+  const last24hB = listB100.filter((m)=> new Date(m.created_at).getTime() >= cutoff).length;
   const splitTotal = listA100.length + listB100.length || 1;
   const splitA = Math.round((listA100.length / splitTotal) * 100);
   const splitB = 100 - splitA;

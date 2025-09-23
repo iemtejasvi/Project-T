@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchMemories, updateMemory, deleteMemory, primaryDB, getDatabaseMetrics } from "@/lib/dualMemoryDB";
+import { fetchMemories, updateMemory, deleteMemory, primaryDB, getDatabaseMetrics, DBMetrics } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -47,7 +47,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
-  const [dbMetrics, setDbMetrics] = useState<any>(null);
+  const [dbMetrics, setDbMetrics] = useState<DBMetrics | null>(null);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -839,7 +839,7 @@ export default function AdminPanel() {
                           </tr>
                         </thead>
                         <tbody>
-                          {dbMetrics.recent.map((r:any, idx:number) => (
+                          {dbMetrics.recent.map((r, idx:number) => (
                             <tr key={`${r.source}-${r.id}`} className={`${idx % 2 === 0 ? 'bg-white/60' : 'bg-transparent'} border-t border-[var(--border)]`}>
                               <td className="py-2 pl-5 pr-4 font-mono text-xs">{r.id}</td>
                               <td className="py-2 pr-4">{r.recipient || '—'}</td>
