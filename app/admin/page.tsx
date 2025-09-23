@@ -584,7 +584,7 @@ export default function AdminPanel() {
                 if (v === "maintenance" || v === "db_health") setSelectedTab(v);
                 else setSelectedTab("announcements");
               }}
-              className="p-2 border border-[var(--border)] rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="p-2 border border-[var(--border)] rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white max-w-[8rem] sm:max-w-none"
             >
               <option value="" disabled>
                 Other

@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 
 export default function AboutPage() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -18,32 +16,7 @@ export default function AboutPage() {
                 <Link href="/" className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link">Home</Link>
               </li>
               <li>
-                <Link href="/memories" className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link">Archive</Link>
-              </li>
-              <li>
-                <Link href="/submit" className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link">Confess</Link>
-              </li>
-              <li className="relative">
-                <button onClick={() => setDropdownOpen(!dropdownOpen)} className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link">More Options ▼</button>
-                {dropdownOpen && (
-                  <div className="absolute top-full mt-2 w-56 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl shadow-lg z-10 overflow-hidden">
-                    <Link href="/how-it-works" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">How It Works</div>
-                    </Link>
-                    <Link href="/contact" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">Contact</div>
-                    </Link>
-                    <Link href="/donate" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">Donate</div>
-                    </Link>
-                    <Link href="/privacy-policy" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">Privacy Policy</div>
-                    </Link>
-                    <Link href="/terms" onClick={() => setDropdownOpen(false)}>
-                      <div className="px-4 py-2 hover:bg-[var(--accent)]/30 transition-colors cursor-pointer">Terms & Conditions</div>
-                    </Link>
-                  </div>
-                )}
+                <Link href="/how-it-works" className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link">How It Works</Link>
               </li>
             </ul>
           </nav>
