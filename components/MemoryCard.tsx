@@ -440,7 +440,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`flip-card relative overflow-hidden w-full ${variant === "home" ? 'max-w-sm' : 'max-w-xs'} sm:max-w-sm mx-auto perspective-1000 ${variant === "home" ? 'h-[300px]' : 'h-[320px]'} cursor-pointer ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
+        className={`flip-card relative overflow-hidden w-full ${variant === "home" ? '' : 'max-w-xs'} sm:max-w-sm mx-auto perspective-1000 ${variant === "home" ? 'h-[300px]' : 'h-[320px]'} cursor-pointer ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
