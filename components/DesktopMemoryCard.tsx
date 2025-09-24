@@ -225,9 +225,9 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   return (
     <div className={`relative group ${large ? 'my-2' : 'my-6'}`}>
       <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+        whileHover={{ scale: 1.055, y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.20), 0 8px 16px rgba(0,0,0,0.08)", transition: { duration: 0.22, ease: 'easeOut' } }}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0, scale: 1.02, boxShadow: "0 8px 16px rgba(0,0,0,0.15)" }}
+        animate={{ opacity: 1, y: 0, scale: 1.035, boxShadow: "0 12px 28px rgba(0,0,0,0.18), 0 6px 12px rgba(0,0,0,0.08)" }}
         className={`flip-card relative overflow-hidden w-full h-[420px] perspective-1000 cursor-pointer rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
