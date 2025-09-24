@@ -201,7 +201,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   const borderStyle = {
     borderWidth: '1px',
     borderStyle: 'solid',
-    borderColor: 'black'
+    borderColor: 'var(--border)'
   };
   const bgStyle =
     effectiveColor === "default"

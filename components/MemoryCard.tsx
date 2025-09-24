@@ -237,7 +237,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   const borderStyle = {
     borderWidth: '1px',
     borderStyle: 'solid',
-    borderColor: 'black'
+    borderColor: 'var(--border)'
   };
 
   const bgStyle =
