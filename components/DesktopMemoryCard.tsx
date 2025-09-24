@@ -198,10 +198,11 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   if (!allowedColors.has(memory.color)) {
     effectiveColor = colorMapping[memory.color] || "default";
   }
-  const borderStyle =
-    effectiveColor === "default"
-      ? { borderColor: "#D9D9D9" }
-      : { borderColor: `var(--color-${effectiveColor}-border)` };
+  const borderStyle = {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'black'
+  };
   const bgStyle =
     effectiveColor === "default"
       ? { backgroundColor: "#E8E0D0" }

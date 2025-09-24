@@ -234,10 +234,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     effectiveColor = colorMapping[memory.color] || "default";
   }
 
-  const borderStyle =
-    effectiveColor === "default"
-      ? { borderColor: "#D9D9D9" }
-      : { borderColor: `var(--color-${effectiveColor}-border)` };
+  const borderStyle = {
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'black'
+  };
 
   const bgStyle =
     effectiveColor === "default"
