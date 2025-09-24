@@ -429,23 +429,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     );
   }
 
-  const isHomePage = variant === "home";
-
   return (
-    <div className={`relative group ${isHomePage ? 'my-6' : 'my-4 sm:my-6'}`}>
-      {!isHomePage && (
-        <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
-          <Link href={`/memories/${memory.id}`}>
-            <span className="arrow-icon" style={arrowStyle}>➜</span>
-          </Link>
-        </div>
-      )}
+    <div className="relative group my-4 sm:my-6">
+      <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
+        <Link href={`/memories/${memory.id}`}>
+          <span className="arrow-icon" style={arrowStyle}>➜</span>
+        </Link>
+      </div>
       <motion.div
-        whileHover={{ scale: 1.04, y: -2, boxShadow: "0 12px 28px rgba(0,0,0,0.12), 0 6px 12px rgba(0,0,0,0.06)" }}
+        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0, boxShadow: "0 8px 16px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04)" }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
-        className={`flip-card relative overflow-hidden w-full ${isHomePage ? 'max-w-md h-[290px]' : 'max-w-xs sm:max-w-sm h-[330px]'} mx-auto perspective-1000 cursor-pointer ${isHomePage ? "rounded-[1.75rem]" : "rounded-[2rem]"} transition-shadow duration-300`}
+        animate={{ opacity: 1, y: 0 }}
+        className={`flip-card relative overflow-hidden w-full ${variant === "home" ? 'max-w-sm' : 'max-w-xs'} sm:max-w-sm mx-auto perspective-1000 ${variant === "home" ? 'h-[300px]' : 'h-[320px]'} cursor-pointer ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -477,14 +472,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             />
           </>
         )}
-        <motion.div
+        <motion.div 
           className="flip-card-inner relative z-10 w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 400, damping: 35 }}
         >
           {/* FRONT */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden ${isHomePage ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : "bg-gradient-to-br from-[var(--card-bg)]/99 via-[var(--card-bg)]/98 to-[var(--card-bg)]/99 backdrop-blur-[24px]"} ${isHomePage ? 'p-6' : 'p-5'} flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : "bg-gradient-to-br from-[var(--card-bg)]/99 via-[var(--card-bg)]/98 to-[var(--card-bg)]/99 backdrop-blur-[24px]"} p-5 flex flex-col justify-between`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             {/* Rough paper defs and overlay for front */}
