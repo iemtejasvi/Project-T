@@ -236,19 +236,19 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
   const borderStyle =
     effectiveColor === "default"
-      ? { borderColor: "#D9D9D9" }
+      ? { borderColor: "var(--color-default-border)" }
       : { borderColor: `var(--color-${effectiveColor}-border)` };
 
   const bgStyle =
     effectiveColor === "default"
-      ? { backgroundColor: "#E8E0D0" }
+      ? { backgroundColor: "var(--color-default-bg)" }
       : memory.full_bg
       ? { backgroundColor: `var(--color-${effectiveColor}-bg)` }
       : {};
 
   const arrowStyle =
     effectiveColor === "default"
-      ? { color: "#D9D9D9" }
+      ? { color: "var(--color-default-border)" }
       : { color: `var(--color-${effectiveColor}-border)` };
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
@@ -365,7 +365,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 background:
                   effectiveColor && effectiveColor !== "default"
                     ? `var(--color-${effectiveColor}-bg)`
-                    : "#e8e6df",
+                    : "var(--color-default-bg)",
                 opacity: 0.55,
                 zIndex: 0,
               }}
@@ -399,7 +399,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             </p>
           )}
           
-          <hr className="my-2 border-[#999999] w-full" />
+          <hr className="my-2 border-[var(--separator)] w-full" />
         </div>
 
         {/* Message section */}
@@ -411,7 +411,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
         {/* Footer section */}
         <div className="w-full flex flex-col items-center relative z-10">
-          <hr className="my-2 border-[#999999] w-full" />
+          <hr className="my-2 border-[var(--separator)] w-full" />
           
           <div className="flex flex-col items-center gap-1 sm:gap-2">
             <span className={`${isDesktop ? "text-xl" : "text-xs"} text-[var(--text)] opacity-75 font-medium text-center tracking-wide`}>
@@ -464,7 +464,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 background:
                   effectiveColor && effectiveColor !== "default"
                     ? `var(--color-${effectiveColor}-bg)`
-                    : "#e8e6df",
+                    : "var(--color-default-bg)",
                 opacity: 0.55,
                 zIndex: 0,
               }}
@@ -502,7 +502,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                     background:
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
-                        : "#e8e6df",
+                        : "var(--color-default-bg)",
                     opacity: 0.55,
                     zIndex: 0,
                   }}
@@ -560,7 +560,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 )}
               </div>
               {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden">From: {memory.sender}</p>}
-              <hr className="my-2 border-[#999999]" />
+              <hr className="my-2 border-[var(--separator)]" />
             </div>
             <div className="text-xs text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
@@ -595,7 +595,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                     background:
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
-                        : "#e8e6df",
+                        : "var(--color-default-bg)",
                     opacity: 0.55,
                     zIndex: 0,
                   }}
@@ -603,13 +603,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               </>
             )}
             <h3 className="text-lg italic text-[var(--text)] text-center relative z-10">if only i sent this</h3>
-            <hr className="my-2 border-[#999999] relative z-10" />
+            <hr className="my-2 border-[var(--separator)] relative z-10" />
             {memory.animation === "rough" ? (
               <div 
                 className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
                 style={{
-                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                  "--scroll-track": effectiveColor === "default" ? "#EDE3D4" : `var(--color-${effectiveColor}-bg)`,
+                  "--scroll-thumb": effectiveColor === "default" ? "#8B6F47" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
                 {renderMessage(memory)}
@@ -618,8 +618,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               <ScrollableMessage
                 style={
                   {
-                    "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                    "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                    "--scroll-track": effectiveColor === "default" ? "#EDE3D4" : `var(--color-${effectiveColor}-bg)`,
+                    "--scroll-thumb": effectiveColor === "default" ? "#8B6F47" : `var(--color-${effectiveColor}-border)`
                   } as React.CSSProperties
                 }
               >

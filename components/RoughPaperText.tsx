@@ -34,7 +34,7 @@ const RoughPaperText: React.FC<RoughPaperTextProps> = ({ message, textClass, eff
           background:
             effectiveColor && effectiveColor !== "default"
               ? `var(--color-${effectiveColor}-bg)`
-              : "#e8e6df",
+              : "var(--color-default-bg)",
           opacity: 0.55,
         }}
       />

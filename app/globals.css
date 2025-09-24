@@ -3,113 +3,113 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Light, sad, 1980s-inspired color palette */
+/* Vintage, melancholic palette */
 :root {
-  --background: #F5F5F5;        /* Soft off-white */
-  --text: #4A4A4A;              /* Dark gray for readability */
-  --accent: #AEDFF7;            /* Muted sky blue */
-  --secondary: #E8D8D8;         /* Faded pink */
-  --card-bg: #F8F8F0;           /* Off white for cards */
-  --border: #D9D9D9;            /* Light gray border */
-  --scroll-bg: #F0F0F0;         /* Scrollbar track */
-  --shadow: rgba(0, 0, 0, 0.1);
-  --input-bg: #FFFFFF;          /* Input background */
-  --input-text: #4A4A4A;        /* Input text color */
+  --background: #F3EFE7;        /* Warm, aged off-white */
+  --text: #3C3A37;              /* Soft charcoal for readability */
+  --accent: #7C90A0;            /* Dusty blue */
+  --secondary: #E6DAD2;         /* Faded parchment pink-beige */
+  --card-bg: #F4EFE7;           /* Aged paper for cards */
+  --border: #C8B8A8;            /* Warm gray-brown border */
+  --separator: #B5A18E;         /* Slightly darker than border for separators */
+  --scroll-bg: #E9E3D8;         /* Scrollbar track */
+  --shadow: rgba(0, 0, 0, 0.08);
+  --input-bg: #FBFAF8;          /* Input background */
+  --input-text: #3C3A37;        /* Input text color */
 
-  /* Color option borders & backgrounds */
-  --color-default-border: #D9D9D9;
-  --color-default-bg: #F8F8F0;
-  --color-aqua-border:       #00FFFF;
-  --color-aqua-bg:           #E0FFFF;
-  --color-azure-border: #0F52BA;
-  --color-azure-bg:     #DDEEFF;
-  --color-berry-border:      #8A2BE2;
-  --color-berry-bg:          #E6D6FF;
-  --color-brass-border: #CD9575;
-  --color-brass-bg:     #F5E6D3;
-  --color-bronze-border:        #CD7F32;
-  --color-bronze-bg:            #F5E6D3;
-  --color-clay-border:  #A85D5C;
-  --color-clay-bg:      #F4E4E4;
-  --color-cloud-border:        #87CEEB;
-  --color-cloud-bg:            #E0F7FF;
-  --color-copper-border:        #B87333;
-  --color-copper-bg:            #F5E6D3;
-  --color-coral-border:    #FF7F50;
-  --color-coral-bg:        #FFEFE6;
-  --color-cream-border:         #FFFDD0;
-  --color-cream-bg:             #FFFFF0;
-  --color-cyan-border: #40E0D0;
-  --color-cyan-bg:     #E0FFFF;
-  --color-dune-border:          #C2B280;
-  --color-dune-bg:              #F5F2E9;
-  --color-garnet-border:        #800000;
-  --color-garnet-bg:            #F5E6E6;
-  --color-gold-border:      #FFD700;
-  --color-gold-bg:          #FFF9E6;
-  --color-honey-border:     #D4B16A;
-  --color-honey-bg:         #FDF6E3;
-  --color-ice-border: #6B8E9E;
-  --color-ice-bg:     #E6EEF2;
-  --color-ivory-border:   #E3D5B8;
-  --color-ivory-bg:       #FDFBF7;
-  --color-jade-border:   #50C878;
-  --color-jade-bg:       #E0FFE0;
-  --color-lilac-border: #B57EDC;
-  --color-lilac-bg:     #F0E6FF;
-  --color-mint-border:   #98FF98;
-  --color-mint-bg:       #E0FFE0;
-  --color-moss-border:        #4A5D23;
-  --color-moss-bg:           #E8EDE0;
-  --color-night-border:  #191970;
-  --color-night-bg:      #C0C0FF;
-  --color-ocean-border:          #000080;
-  --color-ocean-bg:              #E6E6F5;
-  --color-olive-border:    #808000;
-  --color-olive-bg:        #E6E6B3;
-  --color-peach-border:      #FFE5B4;
-  --color-peach-bg:          #FFF5E6;
-  --color-pearl-border:  #9966CC;
-  --color-pearl-bg:      #F2E6FF;
-  --color-pine-border:  #2E4D2E;
-  --color-pine-bg:      #E4EDE4;
-  --color-plum-border:          #722F37;
-  --color-plum-bg:              #F5E6E8;
-  --color-rose-border: #DC8E98;
-  --color-rose-bg:     #F8E6E8;
-  --color-rouge-border:      #E0115F;
-  --color-rouge-bg:          #FFD1DC;
-  --color-ruby-border: #FF4C4C;
-  --color-ruby-bg:     #FFD6D6;
-  --color-sage-border:       #9CAF88;
-  --color-sage-bg:           #E8F1E4;
-  --color-sand-border:         #F0E68C;
-  --color-sand-bg:             #F5F5DC;
-  --color-sepia-border:      #704214;
-  --color-sepia-bg:          #F4E4BC;
-  --color-sky-border: #CCCCFF;
-  --color-sky-bg:     #E6E6FF;
-  --color-slate-border:       #708090;
-  --color-slate-bg:          #E8ECF1;
-  --color-steel-border:   #383838;
-  --color-steel-bg:       #D3D3D3;
-  --color-sunny-border:      #FFF44F;
-  --color-sunny-bg:          #FFFBE6;
-  --color-teal-border:          #008080;
-  --color-teal-bg:              #E0F5F5;
-  --color-wine-border:    #800020;
-  --color-wine-bg:        #F5E6E8;
+  /* Color option borders & backgrounds (muted, dusty tones) */
+  --color-default-border: #C5B6A3;
+  --color-default-bg: #F4EFE7;
+  --color-aqua-border:   #5E8F8E;
+  --color-aqua-bg:       #E1ECEB;
+  --color-azure-border:  #5B6E91;
+  --color-azure-bg:      #E4E8F1;
+  --color-berry-border:  #7F5B8E;
+  --color-berry-bg:      #EDE3F2;
+  --color-brass-border:  #B08D57;
+  --color-brass-bg:      #F0E6D6;
+  --color-bronze-border: #A97142;
+  --color-bronze-bg:     #EFE1D5;
+  --color-clay-border:   #A5645C;
+  --color-clay-bg:       #F1E4E1;
+  --color-cloud-border:  #9BB6C7;
+  --color-cloud-bg:      #E7EFF4;
+  --color-copper-border: #C08457;
+  --color-copper-bg:     #F1E3DA;
+  --color-coral-border:  #C97A6A;
+  --color-coral-bg:      #F6E4DF;
+  --color-cream-border:  #E7DFC9;
+  --color-cream-bg:      #FAF6ED;
+  --color-cyan-border:   #5FA7A7;
+  --color-cyan-bg:       #E3F0EF;
+  --color-dune-border:   #B1A079;
+  --color-dune-bg:       #F2EDE0;
+  --color-garnet-border: #6F3B46;
+  --color-garnet-bg:     #F0E2E5;
+  --color-gold-border:   #C1A256;
+  --color-gold-bg:       #F7F1DC;
+  --color-honey-border:  #BFA26A;
+  --color-honey-bg:      #F5EEDC;
+  --color-ice-border:    #6C8494;
+  --color-ice-bg:        #E7EEF3;
+  --color-ivory-border:  #DCCEB5;
+  --color-ivory-bg:      #FAF7EF;
+  --color-jade-border:   #6D9F82;
+  --color-jade-bg:       #E3EFE8;
+  --color-lilac-border:  #9C84B8;
+  --color-lilac-bg:      #EEE8F5;
+  --color-mint-border:   #8DB8A9;
+  --color-mint-bg:       #E6F1ED;
+  --color-moss-border:   #5E6B4D;
+  --color-moss-bg:       #E8ECE4;
+  --color-night-border:  #2E3047;
+  --color-night-bg:      #DFE3EC;
+  --color-ocean-border:  #2D3E54;
+  --color-ocean-bg:      #E3E7EF;
+  --color-olive-border:  #6D6B3F;
+  --color-olive-bg:      #ECE9D9;
+  --color-peach-border:  #D7A27F;
+  --color-peach-bg:      #FAEDE2;
+  --color-pearl-border:  #8F7EA7;
+  --color-pearl-bg:      #EDE8F3;
+  --color-pine-border:   #3F5A4A;
+  --color-pine-bg:       #E6ECE8;
+  --color-plum-border:   #6E4B5C;
+  --color-plum-bg:       #EFE3E9;
+  --color-rose-border:   #B07C85;
+  --color-rose-bg:       #F3E6E9;
+  --color-rouge-border:  #A9506A;
+  --color-rouge-bg:      #F6DEE5;
+  --color-ruby-border:   #9B4C4C;
+  --color-ruby-bg:       #F3E3E3;
+  --color-sage-border:   #8E9A79;
+  --color-sage-bg:       #E9F0E4;
+  --color-sand-border:   #C9BD8A;
+  --color-sand-bg:       #F4F1E2;
+  --color-sepia-border:  #6E4B2A;
+  --color-sepia-bg:      #F1E4C9;
+  --color-sky-border:    #9FA6C6;
+  --color-sky-bg:        #ECEFF7;
+  --color-slate-border:  #6A7785;
+  --color-slate-bg:      #E9EDF2;
+  --color-steel-border:  #5A5A5A;
+  --color-steel-bg:      #DADADA;
+  --color-sunny-border:  #C5B05E;
+  --color-sunny-bg:      #F8F3DD;
+  --color-teal-border:   #4F7D7A;
+  --color-teal-bg:       #E1ECEB;
+  --color-wine-border:   #6B3947;
+  --color-wine-bg:       #F1E3E6;
 }
 
 /* Dark mode colors */
 [data-theme='dark'] {
-  --background: #1A1A1A;
   --text: #E0E0E0;
   --accent: #4A90E2;
   --secondary: #2D2D2D;
   --card-bg: #2D2D2D;
   --border: #404040;
-  --scroll-bg: #2D2D2D;
+  --separator: #3C3A37;
   --shadow: rgba(0, 0, 0, 0.3);
   --input-bg: #404040;          /* Dark mode input background */
   --input-text: #E0E0E0;        /* Dark mode input text color */
@@ -118,7 +118,7 @@
 body {
   background-color: var(--background);
   color: var(--text);
-  font-family: 'Playfair Display', serif;
+  font-family: 'EB Garamond', 'Playfair Display', serif;
 }
 
 /* Card flip styles */
@@ -138,31 +138,31 @@ body {
 /* Custom scrollbar for card messages (cute scrollbar) */
 .cute_scroll::-webkit-scrollbar {
   width: 10px;
-  background-color: var(--scroll-track, #f8bbd0);
+  background-color: var(--scroll-track, #EDE3D4);
 }
 .cute_scroll::-webkit-scrollbar-track {
-  -webkit-box-shadow: inset 0 0 6px #f06292;
+  -webkit-box-shadow: inset 0 0 6px #9a7f65;
   border-radius: 10px;
-  background-color: var(--scroll-track, #f8bbd0);
-  border-left: 3px solid white;
-  border-right: 3px solid white;
+  background-color: var(--scroll-track, #EDE3D4);
+  border-left: 3px solid #fffdf8;
+  border-right: 3px solid #fffdf8;
 }
 .cute_scroll::-webkit-scrollbar-thumb {
   border-radius: 20px;
-  -webkit-box-shadow: inset 0 0 0px #ad1457;
-  background-color: var(--scroll-thumb, #e91e63);
+  -webkit-box-shadow: inset 0 0 0px #6e4f3a;
+  background-color: var(--scroll-thumb, #8B6F47);
 }
 /* Firefox */
 .cute_scroll {
   scrollbar-width: thin;
-  scrollbar-color: var(--scroll-thumb, #e91e63) var(--scroll-track, #f8bbd0);
+  scrollbar-color: var(--scroll-thumb, #8B6F47) var(--scroll-track, #EDE3D4);
 }
 
 /* Hide scrollbar by default on desktop, show on hover/focus */
 @media (min-width: 1024px) {
   .cute_scroll::-webkit-scrollbar {
     width: 10px;
-    background: var(--scroll-track, #f8bbd0);
+    background: var(--scroll-track, #EDE3D4);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.4s;
@@ -174,7 +174,7 @@ body {
   }
   .cute_scroll::-webkit-scrollbar-thumb {
     border-radius: 20px;
-    background-color: var(--scroll-thumb, #e91e63);
+    background-color: var(--scroll-thumb, #8B6F47);
     transition: background-color 0.3s;
   }
   .cute_scroll {
@@ -182,7 +182,7 @@ body {
     scrollbar-color: transparent transparent;
   }
   .cute_scroll:hover, .cute_scroll:focus {
-    scrollbar-color: var(--scroll-thumb, #e91e63) var(--scroll-track, #f8bbd0);
+    scrollbar-color: var(--scroll-thumb, #8B6F47) var(--scroll-track, #EDE3D4);
   }
   .footer-copyright {
     font-size: 1.15rem !important;

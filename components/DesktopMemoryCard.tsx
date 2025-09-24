@@ -200,11 +200,11 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   }
   const borderStyle =
     effectiveColor === "default"
-      ? { borderColor: "#D9D9D9" }
+      ? { borderColor: "var(--color-default-border)" }
       : { borderColor: `var(--color-${effectiveColor}-border)` };
   const bgStyle =
     effectiveColor === "default"
-      ? { backgroundColor: "#E8E0D0" }
+      ? { backgroundColor: "var(--color-default-bg)" }
       : memory.full_bg
       ? { backgroundColor: `var(--color-${effectiveColor}-bg)` }
       : {};
@@ -213,7 +213,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
   const arrowStyle =
     effectiveColor === "default"
-      ? { color: "#D9D9D9" }
+      ? { color: "var(--color-default-border)" }
       : { color: `var(--color-${effectiveColor}-border)` };
   // Prevent flip when clicking the arrow
   const handleCardClick = (e: React.MouseEvent) => {
@@ -225,9 +225,9 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   return (
     <div className={`relative group ${large ? 'my-2' : 'my-6'}`}>
       <motion.div
-        whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.03, boxShadow: "0 16px 32px rgba(0,0,0,0.18)" }}
+        initial={{ opacity: 0, y: 20, scale: 1.01 }}
+        animate={{ opacity: 1, y: 0, scale: 1.01, boxShadow: "0 8px 18px rgba(0,0,0,0.14)" }}
         className={`flip-card relative overflow-hidden w-full h-[420px] perspective-1000 cursor-pointer rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
@@ -252,7 +252,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 background:
                   effectiveColor && effectiveColor !== "default"
                     ? `var(--color-${effectiveColor}-bg)`
-                    : "#e8e6df",
+                    : "var(--color-default-bg)",
                 opacity: 0.55,
                 zIndex: 0,
               }}
@@ -289,7 +289,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                     background:
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
-                        : "#e8e6df",
+                        : "var(--color-default-bg)",
                     opacity: 0.55,
                     zIndex: 0,
                   }}
@@ -345,7 +345,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 <span className="break-words overflow-hidden leading-tight">To: {memory.recipient}</span>
               </h3>
               {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)] break-words overflow-hidden`}>From: {memory.sender}</p>}
-              <hr className="my-2 border-[#999999]" />
+              <hr className="my-2 border-[var(--separator)]" />
             </div>
             <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
@@ -379,7 +379,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                     background:
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
-                        : "#e8e6df",
+                        : "var(--color-default-bg)",
                     opacity: 0.55,
                     zIndex: 0,
                   }}
@@ -388,14 +388,14 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             )}
             <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
             <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
-            <hr className="my-2 border-[#999999] relative z-10" />
+            <hr className="my-2 border-[var(--separator)] relative z-10" />
             {memory.animation === "rough" ? (
               <div 
                 className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
                 style={{
                   fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
-                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                  "--scroll-track": effectiveColor === "default" ? "#EDE3D4" : `var(--color-${effectiveColor}-bg)`,
+                  "--scroll-thumb": effectiveColor === "default" ? "#8B6F47" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
                 {renderMessageLarge(memory, effectiveColor)}
@@ -404,8 +404,8 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               <ScrollableMessage
                 style={{
                   fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
-                  "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                  "--scroll-track": effectiveColor === "default" ? "#EDE3D4" : `var(--color-${effectiveColor}-bg)`,
+                  "--scroll-thumb": effectiveColor === "default" ? "#8B6F47" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
                 <div className="relative z-10">
