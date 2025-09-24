@@ -302,14 +302,8 @@ export default function Home() {
           ) : isDesktop ? (
             <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
-            <div className="-mx-4 px-4">
-              <div className="flex overflow-x-auto scrollbar-hide gap-4 snap-x snap-mandatory">
-                {recentMemories.slice(0, 3).map((memory) => (
-                  <div key={memory.id} className="flex-shrink-0 snap-center">
-                    <MemoryCard memory={memory} variant="home" />
-                  </div>
-                ))}
-              </div>
+            <div>
+              {recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} variant="home" />)}
             </div>
           )
         ) : (
