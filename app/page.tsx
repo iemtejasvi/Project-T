@@ -140,9 +140,9 @@ export default function Home() {
 
     fetchData();
 
-    if (!localStorage.getItem("hasVisited")) {
+    if (!sessionStorage.getItem("hasVisited")) {
       setShowWelcome(true);
-      localStorage.setItem("hasVisited", "true");
+      sessionStorage.setItem("hasVisited", "true");
     }
 
     return () => {
@@ -164,10 +164,11 @@ export default function Home() {
     if (announcement && !isAnnouncementDismissed) {
       const viewedKey = `viewed_announcement_${announcement.id}`;
       if (!sessionStorage.getItem(viewedKey)) {
-        supabase.rpc('increment_announcement_view', { announcement_id_in: announcement.id }).then(({ error }) => {
+        (async () => {
+          const { error } = await supabase.rpc('increment_announcement_view', { announcement_id_in: announcement.id });
           if (error) console.error('Error tracking view:', error);
           else sessionStorage.setItem(viewedKey, 'true');
-        });
+        })();
       }
     }
   }, [announcement, isAnnouncementDismissed]);
