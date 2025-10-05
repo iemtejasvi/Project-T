@@ -296,13 +296,17 @@ export default function Home() {
         {announcement && !isAnnouncementDismissed && (
           <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
             <div 
-              className="p-4 rounded-lg shadow-md text-center relative"
+              className="p-4 rounded-lg shadow-md flex items-center justify-between gap-4"
               style={{
                 backgroundColor: announcement.background_color || '#ef4444',
                 color: announcement.text_color || '#ffffff'
               }}
             >
-              <h2 className="text-xl sm:text-2xl font-bold leading-tight">
+              {/* Spacer to balance the dismiss button */}
+              {announcement.is_dismissible && <div className="w-8 h-8 flex-shrink-0"></div>}
+
+              {/* Announcement Content */}
+              <h2 className="text-xl sm:text-2xl font-bold leading-tight text-center flex-grow">
                 <span>{announcement.icon || '📢'}</span>
                 {
                   announcement.link_url ? (
@@ -319,10 +323,12 @@ export default function Home() {
                   )
                 }
               </h2>
+
+              {/* Dismiss Button */}
               {announcement.is_dismissible && (
                 <button 
                   onClick={handleDismissAnnouncement}
-                  className="absolute top-2 right-3 text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity"
+                  className="w-8 h-8 flex-shrink-0 flex items-center justify-center text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
                   aria-label="Dismiss announcement"
                 >
                   &times;
@@ -333,7 +339,7 @@ export default function Home() {
         )}
         
         {/* Mobile typewriter section - only shows when no announcement */}
-        {!announcement && (
+        {(!announcement || isAnnouncementDismissed) && (
           <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
             <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
               <TypingEffect />
