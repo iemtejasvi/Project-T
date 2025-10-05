@@ -712,9 +712,16 @@ export default function SubmitPage() {
     setIsSubmitting(true);
 
     if (overLimit) {
-      setError("Submission not allowed. Maximum word limit is 50.");
-      setIsSubmitting(false);
-      return;
+      // Check if unlimited or global override
+      try {
+        const res = await fetch('/api/check-user-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uuid: localStorage.getItem('user_uuid') || getCookie('user_uuid') }) });
+        const status = await res.json();
+        if (!status.isUnlimited && !status.globalOverrideActive) {
+          setError("Submission not allowed. Maximum word limit is 50.");
+          setIsSubmitting(false);
+          return;
+        }
+      } catch {}
     }
     if (!recipient || !message) {
       setError("Please fill in recipient and message.");
