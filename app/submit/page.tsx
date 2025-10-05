@@ -1004,7 +1004,7 @@ export default function SubmitPage() {
                     </div>
                   )}
 
-                  <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
+                  <div className={`space-y-2`}>
                     <label className="block text-lg font-medium text-[var(--text)]">Recipient&apos;s Name*</label>
                     <input
                       type="text"
@@ -1032,7 +1032,7 @@ export default function SubmitPage() {
                       }`}
                       placeholder="What did you never say?"
                     />
-                    <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
+                    <div className={`space-y-2`}>
                       <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-300 ${
@@ -1060,7 +1060,7 @@ export default function SubmitPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
+                    <div className={`space-y-2`}>
                       <label className="block text-lg font-medium text-[var(--text)]">Your Name (optional)</label>
                       <input
                         type="text"
@@ -1074,7 +1074,7 @@ export default function SubmitPage() {
                       />
                     </div>
 
-                    <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
+                    <div className={`space-y-2`}>
                       <label className="block text-lg font-medium text-[var(--text)]">Color Theme</label>
                       <select
                         value={color}
@@ -1093,7 +1093,7 @@ export default function SubmitPage() {
                     </div>
                   </div>
 
-                  <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
+                  <div className={`space-y-2`}>
                     <label className="block text-lg font-medium text-[var(--text)]">Special Effect</label>
                     <select
                       value={specialEffect}
@@ -1131,7 +1131,7 @@ export default function SubmitPage() {
                     {enableTypewriter && (
                       <div className="space-y-4 pt-2">
                       
-                      <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
+                      <div className={`space-y-2`}>
                         <label className="block text-sm font-medium text-[var(--text)]">Emotion Tag (optional)</label>
                         <select
                           value={tag}
@@ -1154,7 +1154,7 @@ export default function SubmitPage() {
             </div>
 
                       {tag && (
-                        <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
+                        <div className={`space-y-2`}>
                           <label className="block text-sm font-medium text-[var(--text)]">Specific Emotion (optional)</label>
                           <select
                             value={subTag}
