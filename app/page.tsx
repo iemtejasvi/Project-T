@@ -30,15 +30,7 @@ interface Memory {
 
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
-  const [showWelcome, setShowWelcome] = useState<boolean>(() => {
-    if (typeof document === 'undefined') return false;
-    try {
-      const hasSession = document.cookie.split('; ').some(c => c.startsWith('ioist_session_seen='));
-      return !hasSession;
-    } catch {
-      return false;
-    }
-  });
+  const [showWelcome, setShowWelcome] = useState(false);
   const [announcement, setAnnouncement] = useState<{
     id: string;
     message: string;
@@ -148,38 +140,15 @@ export default function Home() {
 
     fetchData();
 
-    try {
-      const hasSession = typeof document !== 'undefined' && document.cookie.split('; ').some(c => c.startsWith('ioist_session_seen='));
-      if (!hasSession) {
-        setShowWelcome(true);
-        // Set a session cookie (no expires) so it clears only when the browser is closed
-        document.cookie = 'ioist_session_seen=1; path=/';
-      }
-    } catch {}
+    if (!sessionStorage.getItem("welcome_closed")) {
+      setShowWelcome(true);
+    }
 
     return () => {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, []); // Remove currentTime dependency
-
-  // Re-check session cookie on BFCache restore/visibility/focus to avoid stale state
-  useEffect(() => {
-    const resyncWelcome = () => {
-      try {
-        const hasSession = document.cookie.split('; ').some(c => c.startsWith('ioist_session_seen='));
-        setShowWelcome(!hasSession);
-      } catch {}
-    };
-    window.addEventListener('pageshow', resyncWelcome);
-    document.addEventListener('visibilitychange', resyncWelcome);
-    window.addEventListener('focus', resyncWelcome);
-    return () => {
-      window.removeEventListener('pageshow', resyncWelcome);
-      document.removeEventListener('visibilitychange', resyncWelcome);
-      window.removeEventListener('focus', resyncWelcome);
-    };
-  }, []);
 
   useEffect(() => {
     if (announcement?.id && localStorage.getItem(`dismissed_announcement_${announcement.id}`)) {
@@ -266,10 +235,10 @@ export default function Home() {
   }, []);
 
   const handleWelcomeClose = () => {
-    try {
-      document.cookie = 'ioist_session_seen=1; path=/';
-    } catch {}
     setShowWelcome(false);
+    try {
+      sessionStorage.setItem('welcome_closed', 'true');
+    } catch {}
   };
 
   
