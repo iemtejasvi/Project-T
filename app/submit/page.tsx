@@ -173,7 +173,7 @@ export default function SubmitPage() {
           body: JSON.stringify({ uuid: localStorage.getItem('user_uuid') || getCookie('user_uuid') })
         });
         const data = await res.json();
-        setIsUnlimitedUser(data.isUnlimited || data.globalOverrideActive);
+        setIsUnlimitedUser(data.isUnlimited || data.globalOverrideActive || data.isOwner);
       } catch {
         setIsUnlimitedUser(false);
       }
@@ -738,7 +738,7 @@ export default function SubmitPage() {
         });
         if (res.ok) {
           const status = await res.json();
-          allowed = status.isUnlimited || status.globalOverrideActive;
+          allowed = status.isUnlimited || status.globalOverrideActive || status.isOwner;
         }
       } catch {
         // network failure => treat as not allowed

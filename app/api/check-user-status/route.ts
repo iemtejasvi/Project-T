@@ -39,12 +39,12 @@ function getCookieValue(request: NextRequest, name: string): string | null {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { uuid } = body;
+    const body = await request.json().catch(() => ({} as any));
 
     // Get client IP and UUID
     const clientIP = getClientIP(request);
-    const clientUUID = uuid || getCookieValue(request, 'user_uuid');
+    // SECURITY: do not trust UUID provided in body; only use cookie value
+    const clientUUID = getCookieValue(request, 'user_uuid');
     
     // Owner exemption and localhost
     const host = request.headers.get('host') || '';

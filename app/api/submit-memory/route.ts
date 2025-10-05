@@ -371,40 +371,13 @@ export async function POST(request: NextRequest) {
 
     // Get client IP and UUID early
     let clientIP: string | null = await getClientIP(request);
-    const clientUUID: string | null = uuid || getCookieValue(request, 'user_uuid');
+    const clientUUID: string | null = getCookieValue(request, 'user_uuid');
 
-    // Determine global override & unlimited user status
+    // Flags are computed later after IP fallback and owner detection
     let isUnlimited = false;
     let globalOverrideActive = false;
-    {
-      const { data: settingsData } = await primaryDB
-        .from('site_settings')
-        .select('word_limit_disabled_until')
-        .eq('id', 1)
-        .single();
-      const until = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
-      globalOverrideActive = until ? new Date() < until : false;
-    }
-    if (clientIP || clientUUID) {
-      const queries = [] as string[];
-      if (clientIP) queries.push(`ip.eq.${clientIP}`);
-      if (clientUUID) queries.push(`uuid.eq.${clientUUID}`);
-      if (queries.length) {
-        const { data: unData } = await primaryDB.from('unlimited_users').select('id').or(queries.join(',')).limit(1);
-        isUnlimited = !!(unData && unData.length);
-      }
-    }
 
-    // Word count validation (skip if unlimited or override)
-    const wordCount = message.trim().split(/[\s.]+/).filter(word => word.length > 0).length;
-    if (wordCount > 50 && !isUnlimited && !globalOverrideActive) {
-      return NextResponse.json(
-        { error: 'Message exceeds 50 word limit.' },
-        { status: 400 }
-      );
-    }
-
-    // We already fetched clientIP / clientUUID above
+    // After IP fallback we will compute unlimited/override before checks
     
     // SUPER-ROBUST FALLBACK: If IP detection completely fails, 
     // try country services that can auto-detect IP too!
@@ -436,6 +409,39 @@ export async function POST(request: NextRequest) {
       console.log('✅ Localhost/Owner detected - skipping all limits');
       // Allow owner and localhost to submit without limits
     } else {
+      // Determine global override and unlimited status
+      {
+        const { data: settingsData } = await primaryDB
+          .from('site_settings')
+          .select('word_limit_disabled_until')
+          .eq('id', 1)
+          .single();
+        const until = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
+        globalOverrideActive = until ? new Date() < until : false;
+      }
+      if (clientIP || clientUUID) {
+        const unlimitedQueries: string[] = [];
+        if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
+        if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
+        if (unlimitedQueries.length) {
+          const { data: unData } = await primaryDB
+            .from('unlimited_users')
+            .select('id')
+            .or(unlimitedQueries.join(','))
+            .limit(1);
+          isUnlimited = !!(unData && unData.length);
+        }
+      }
+      // Enforce 50-word limit unless unlimited or global override
+      {
+        const wordCount = message.trim().split(/[\s.]+/).filter((word) => word.length > 0).length;
+        if (wordCount > 50 && !isUnlimited && !globalOverrideActive) {
+          return NextResponse.json(
+            { error: 'Message exceeds 50 word limit.' },
+            { status: 400 }
+          );
+        }
+      }
       // Enhanced ban check - multiple validation layers
       if (clientIP || clientUUID) {
         try {
