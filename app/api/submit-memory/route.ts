@@ -353,7 +353,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body: SubmissionData & { uuid?: string } = await request.json();
-    const { recipient, message, sender, color, animation, tag, sub_tag, uuid, enableTypewriter, typewriter_enabled } = body;
+    const { recipient, message, sender, color, animation, tag, sub_tag, enableTypewriter, typewriter_enabled } = body;
 
     // Normalize typewriter flag from either field name
     const normalizedTypewriterEnabled =

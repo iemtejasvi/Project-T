@@ -39,7 +39,7 @@ function getCookieValue(request: NextRequest, name: string): string | null {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json().catch(() => ({} as any));
+    // No request body needed
 
     // Get client IP and UUID
     const clientIP = getClientIP(request);
