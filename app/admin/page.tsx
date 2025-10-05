@@ -664,7 +664,7 @@ export default function AdminPanel() {
               {({announcements:"Announcements",maintenance:"Maintenance",unlimited:"Unlimited Users",dbhealth:"DB Health"} as Record<string,string>)[selectedTab] ?? "Menu"} ▾
             </button>
             {announceMenuOpen && (
-              <div className="absolute z-20 mt-2 w-56 bg-white border border-gray-200 rounded shadow-md">
+              <div className="absolute z-20 mt-2 w-56 max-w-[calc(100vw-1rem)] right-0 bg-white border border-gray-200 rounded shadow-md overflow-x-auto">
                 <button
                   onClick={() => { setSelectedTab("announcements"); setAnnounceMenuOpen(false); }}
                   className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'announcements' ? 'font-semibold' : ''}`}
