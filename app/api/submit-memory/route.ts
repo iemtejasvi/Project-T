@@ -553,13 +553,8 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString()
     };
 
-    // Cookie-assisted round-robin to avoid serverless state issues
-    const currentPref = getCookieValue(request, 'rr_db');
-    // First-time visitors get a randomized starting DB to avoid skew
-    const nextPreferred: 'A' | 'B' = currentPref === 'A' ? 'B' : (currentPref === 'B' ? 'A' : (Math.random() < 0.5 ? 'A' : 'B'));
-
-    // Insert into dual database system with round-robin and failover
-    const { data, error, database } = await insertMemory(submissionData, nextPreferred);
+    // Insert into dual database system. Utility picks DB via time-based round-robin and handles failover automatically.
+    const { data, error, database } = await insertMemory(submissionData);
 
     if (error) {
       console.error('Database insertion error:', error);
@@ -580,9 +575,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-    try {
-      res.headers.set('Set-Cookie', `rr_db=${nextPreferred}; Path=/; Max-Age=1800; SameSite=Lax; Secure`);
-    } catch {}
     return res;
 
   } catch (error) {
