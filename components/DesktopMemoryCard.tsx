@@ -212,10 +212,6 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
-  const arrowStyle =
-    effectiveColor === "default"
-      ? { color: "#D9D9D9" }
-      : { color: `var(--color-${effectiveColor}-border)` };
   // Prevent flip when clicking the arrow
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
