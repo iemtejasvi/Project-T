@@ -1104,8 +1104,12 @@ export default function AdminPanel() {
                       <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
                     )}
                     <div className="mt-3 text-sm text-gray-500 break-words space-y-0.5">
-                      <p>IP: {memory.ip || '-'}</p>
-                      <p>UUID: {memory.uuid || '-'}</p>
+                      <p className="flex items-center gap-1 cursor-pointer" onClick={() => memory.ip && navigator.clipboard.writeText(memory.ip)} title="Click to copy IP">
+                        IP: <span className="underline decoration-dotted">{memory.ip || '-'}</span>
+                      </p>
+                      <p className="flex items-center gap-1 cursor-pointer" onClick={() => memory.uuid && navigator.clipboard.writeText(memory.uuid)} title="Click to copy UUID">
+                        UUID: <span className="underline decoration-dotted break-all">{memory.uuid || '-'}</span>
+                      </p>
                       <p>Country: {memory.country || '-'}</p>
                     </div>
                     <small className="block mt-3 text-gray-500">
