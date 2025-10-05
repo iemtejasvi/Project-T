@@ -296,14 +296,14 @@ export default function Home() {
         {announcement && !isAnnouncementDismissed && (
           <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
             <div 
-              className="p-4 rounded-lg shadow-md flex items-center justify-between gap-4"
+              className="relative p-4 rounded-lg shadow-md md:flex md:items-center md:justify-between md:gap-4 animate-pulse-glow"
               style={{
                 backgroundColor: announcement.background_color || '#ef4444',
                 color: announcement.text_color || '#ffffff'
               }}
             >
-              {/* Spacer to balance the dismiss button */}
-              {announcement.is_dismissible && <div className="w-8 h-8 flex-shrink-0"></div>}
+              {/* Spacer for desktop to balance the dismiss button */}
+              {announcement.is_dismissible && <div className="hidden md:block w-8 h-8 flex-shrink-0"></div>}
 
               {/* Announcement Content */}
               <h2 className="text-xl sm:text-2xl font-bold leading-tight text-center flex-grow">
@@ -328,7 +328,7 @@ export default function Home() {
               {announcement.is_dismissible && (
                 <button 
                   onClick={handleDismissAnnouncement}
-                  className="w-8 h-8 flex-shrink-0 flex items-center justify-center text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
+                  className="absolute top-1 right-1 w-8 h-8 flex items-center justify-center text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10 md:relative md:top-auto md:right-auto"
                   aria-label="Dismiss announcement"
                 >
                   &times;
