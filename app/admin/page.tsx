@@ -55,6 +55,8 @@ export default function AdminPanel() {
     icon?: string | null;
     title?: string | null;
     is_dismissible?: boolean;
+    view_count?: number;
+    click_count?: number;
   } | null>(null);
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -284,7 +286,7 @@ export default function AdminPanel() {
     try {
       const { data, error } = await supabase
         .from("announcements")
-        .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
+        .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible, view_count, click_count")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(1);
@@ -722,6 +724,29 @@ export default function AdminPanel() {
                       <p className="text-xs sm:text-sm text-gray-500">
                         <strong>Dismissible:</strong> <span className={`font-semibold ${currentAnnouncement.is_dismissible ? 'text-green-600' : 'text-red-600'}`}>{currentAnnouncement.is_dismissible ? 'Yes' : 'No'}</span>
                       </p>
+
+                      {/* Analytics Section */}
+                      <div className="mt-4 pt-4 border-t border-[var(--border)]">
+                        <h4 className="text-sm font-semibold text-[var(--text)] mb-2">Analytics</h4>
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                          <div>
+                            <p className="text-lg font-bold text-gray-800">{currentAnnouncement.view_count ?? 0}</p>
+                            <p className="text-xs text-gray-500">Views</p>
+                          </div>
+                          <div>
+                            <p className="text-lg font-bold text-gray-800">{currentAnnouncement.click_count ?? 0}</p>
+                            <p className="text-xs text-gray-500">Clicks</p>
+                          </div>
+                          <div>
+                            <p className="text-lg font-bold text-gray-800">
+                              {currentAnnouncement.view_count && currentAnnouncement.view_count > 0 
+                                ? `${((currentAnnouncement.click_count ?? 0) / currentAnnouncement.view_count * 100).toFixed(1)}%`
+                                : '0%'}
+                            </p>
+                            <p className="text-xs text-gray-500">CTR</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <div className="flex flex-row items-center gap-2 self-start">
                       <button

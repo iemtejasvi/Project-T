@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabaseClient";
 import { fetchMemories, primaryDB } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
@@ -157,6 +158,19 @@ export default function Home() {
       setIsAnnouncementDismissed(false);
     }
   }, [announcement]);
+
+  // Track announcement view
+  useEffect(() => {
+    if (announcement && !isAnnouncementDismissed) {
+      const viewedKey = `viewed_announcement_${announcement.id}`;
+      if (!sessionStorage.getItem(viewedKey)) {
+        supabase.rpc('increment_announcement_view', { announcement_id_in: announcement.id }).then(({ error }) => {
+          if (error) console.error('Error tracking view:', error);
+          else sessionStorage.setItem(viewedKey, 'true');
+        });
+      }
+    }
+  }, [announcement, isAnnouncementDismissed]);
 
   const handleDismissAnnouncement = () => {
     if (announcement?.id) {
@@ -315,6 +329,10 @@ export default function Home() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline hover:opacity-80 transition-opacity ml-2"
+                      onClick={async () => {
+                        const { error } = await supabase.rpc('increment_announcement_click', { announcement_id_in: announcement.id });
+                        if (error) console.error('Error tracking click:', error);
+                      }}
                     >
                       {announcement.message}
                     </a>
