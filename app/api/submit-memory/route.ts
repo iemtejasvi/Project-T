@@ -369,18 +369,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Word count validation
+    // Get client IP and UUID early
+    let clientIP: string | null = await getClientIP(request);
+    const clientUUID: string | null = uuid || getCookieValue(request, 'user_uuid');
+
+    // Determine global override & unlimited user status
+    let isUnlimited = false;
+    let globalOverrideActive = false;
+    {
+      const { data: settingsData } = await primaryDB
+        .from('site_settings')
+        .select('word_limit_disabled_until')
+        .eq('id', 1)
+        .single();
+      const until = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
+      globalOverrideActive = until ? new Date() < until : false;
+    }
+    if (clientIP || clientUUID) {
+      const queries = [] as string[];
+      if (clientIP) queries.push(`ip.eq.${clientIP}`);
+      if (clientUUID) queries.push(`uuid.eq.${clientUUID}`);
+      if (queries.length) {
+        const { data: unData } = await primaryDB.from('unlimited_users').select('id').or(queries.join(',')).limit(1);
+        isUnlimited = !!(unData && unData.length);
+      }
+    }
+
+    // Word count validation (skip if unlimited or override)
     const wordCount = message.trim().split(/[\s.]+/).filter(word => word.length > 0).length;
-    if (wordCount > 50) {
+    if (wordCount > 50 && !isUnlimited && !globalOverrideActive) {
       return NextResponse.json(
         { error: 'Message exceeds 50 word limit.' },
         { status: 400 }
       );
     }
 
-    // Get client IP and UUID with multi-tier fallback system
-    let clientIP = await getClientIP(request);
-    const clientUUID = uuid || getCookieValue(request, 'user_uuid');
+    // We already fetched clientIP / clientUUID above
     
     // SUPER-ROBUST FALLBACK: If IP detection completely fails, 
     // try country services that can auto-detect IP too!
@@ -448,7 +472,7 @@ export async function POST(request: NextRequest) {
           if (clientIP) memoryQueries.push(`ip.eq.${clientIP}`);
           if (clientUUID) memoryQueries.push(`uuid.eq.${clientUUID}`);
           
-          if (memoryQueries.length > 0) {
+          if (!isUnlimited && !globalOverrideActive && memoryQueries.length > 0) {
             // First check: Count by IP/UUID across both databases
             if (clientIP && clientUUID) {
               // If we have both, check both IP and UUID across both databases
