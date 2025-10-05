@@ -30,10 +30,21 @@ interface Memory {
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [showWelcome, setShowWelcome] = useState(false);
-  const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState<{
+    id: string;
+    message: string;
+    expires_at: string;
+    link_url?: string | null;
+    background_color?: string | null;
+    text_color?: string | null;
+    icon?: string | null;
+    title?: string | null;
+    is_dismissible?: boolean;
+  } | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDesktop, setIsDesktop] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [isAnnouncementDismissed, setIsAnnouncementDismissed] = useState(false);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -71,7 +82,7 @@ export default function Home() {
         // Fetch announcement (always from primary database)
         const { data: announcementData, error: announcementError } = await primaryDB
           .from("announcements")
-          .select("id, message, expires_at")
+          .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
           .eq("is_active", true)
           .order("created_at", { ascending: false })
           .limit(1);
@@ -93,7 +104,7 @@ export default function Home() {
               .eq("id", announcementData[0].id);
             if (isMounted) setAnnouncement(null);
           } else {
-            if (isMounted) setAnnouncement(announcementData[0].message);
+            if (isMounted) setAnnouncement(announcementData[0]);
             
             // Schedule next check for this announcement
             const timeUntilExpiry = expiryTime.getTime() - now.getTime();
@@ -138,6 +149,21 @@ export default function Home() {
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, []); // Remove currentTime dependency
+
+  useEffect(() => {
+    if (announcement?.id && localStorage.getItem(`dismissed_announcement_${announcement.id}`)) {
+      setIsAnnouncementDismissed(true);
+    } else {
+      setIsAnnouncementDismissed(false);
+    }
+  }, [announcement]);
+
+  const handleDismissAnnouncement = () => {
+    if (announcement?.id) {
+      localStorage.setItem(`dismissed_announcement_${announcement.id}`, "true");
+      setIsAnnouncementDismissed(true);
+    }
+  };
 
   // Check expired pins only when there are active items
   useEffect(() => {
@@ -267,12 +293,41 @@ export default function Home() {
         </div>
       </header>
 
-        {announcement && (
+        {announcement && !isAnnouncementDismissed && (
           <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
-            <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
-              <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-red-500 leading-tight">
-                📢 Announcement — {announcement}
+            <div 
+              className="p-4 rounded-lg shadow-md text-center relative"
+              style={{
+                backgroundColor: announcement.background_color || '#ef4444',
+                color: announcement.text_color || '#ffffff'
+              }}
+            >
+              <h2 className="text-xl sm:text-2xl font-bold leading-tight">
+                <span>{announcement.icon || '📢'}</span>
+                {
+                  announcement.link_url ? (
+                    <a 
+                      href={announcement.link_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:opacity-80 transition-opacity ml-2"
+                    >
+                      {announcement.message}
+                    </a>
+                  ) : (
+                    <span className="ml-2">{announcement.message}</span>
+                  )
+                }
               </h2>
+              {announcement.is_dismissible && (
+                <button 
+                  onClick={handleDismissAnnouncement}
+                  className="absolute top-2 right-3 text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity"
+                  aria-label="Dismiss announcement"
+                >
+                  &times;
+                </button>
+              )}
             </div>
           </section>
         )}

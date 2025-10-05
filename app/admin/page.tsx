@@ -32,13 +32,30 @@ export default function AdminPanel() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [announcementLink, setAnnouncementLink] = useState("");
+  const [announcementBgColor, setAnnouncementBgColor] = useState("#ef4444"); // red-500
+  const [announcementTextColor, setAnnouncementTextColor] = useState("#ffffff");
+  const [announcementIcon, setAnnouncementIcon] = useState("📢");
+  const [announcementTitle, setAnnouncementTitle] = useState("Announcement");
+  const [announcementIsDismissible, setAnnouncementIsDismissible] = useState(false);
+
   const [announcementTimer, setAnnouncementTimer] = useState({
     days: "",
     hours: "",
     minutes: "",
     seconds: ""
   });
-  const [currentAnnouncement, setCurrentAnnouncement] = useState<{ id: string; message: string; expires_at: string } | null>(null);
+  const [currentAnnouncement, setCurrentAnnouncement] = useState<{ 
+    id: string; 
+    message: string; 
+    expires_at: string; 
+    link_url?: string | null;
+    background_color?: string | null;
+    text_color?: string | null;
+    icon?: string | null;
+    title?: string | null;
+    is_dismissible?: boolean;
+  } | null>(null);
   const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
   const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
@@ -267,7 +284,7 @@ export default function AdminPanel() {
     try {
       const { data, error } = await supabase
         .from("announcements")
-        .select("id, message, expires_at")
+        .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(1);
@@ -348,7 +365,13 @@ export default function AdminPanel() {
       .insert([{ 
         message: announcement, 
         is_active: true,
-        expires_at: expiresAt.toISOString()
+        expires_at: expiresAt.toISOString(),
+        link_url: announcementLink.trim() || null,
+        background_color: announcementBgColor,
+        text_color: announcementTextColor,
+        icon: announcementIcon.trim() || null,
+        title: announcementTitle.trim() || null,
+        is_dismissible: announcementIsDismissible
       }])
       .select()
       .single();
@@ -357,6 +380,12 @@ export default function AdminPanel() {
       console.error("Error creating announcement:", error);
     } else if (data) {
       setAnnouncement("");
+      setAnnouncementLink("");
+      setAnnouncementBgColor("#ef4444");
+      setAnnouncementTextColor("#ffffff");
+      setAnnouncementIcon("📢");
+      setAnnouncementTitle("Announcement");
+      setAnnouncementIsDismissible(false);
       setAnnouncementTimer({ days: "", hours: "", minutes: "", seconds: "" });
       setCurrentAnnouncement(data);
     }
@@ -662,22 +691,39 @@ export default function AdminPanel() {
         {selectedTab === "announcements" ? (
           <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
             <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
-              <span className="text-lg sm:text-xl md:text-2xl">📢</span>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">Announcements</h2>
+              <span className="text-lg sm:text-xl md:text-2xl">{currentAnnouncement?.icon || '📢'}</span>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">{currentAnnouncement?.title || 'Announcements'}</h2>
             </div>
             {currentAnnouncement ? (
               <div className="space-y-3 sm:space-y-4">
                 <div className="bg-[var(--bg)] p-3 sm:p-4 md:p-6 rounded-lg border border-[var(--border)]">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm sm:text-base md:text-lg text-[var(--text)] whitespace-pre-wrap break-words">
-                        {currentAnnouncement.message}
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div 
+                        className="p-4 rounded-lg shadow-inner"
+                        style={{
+                          backgroundColor: currentAnnouncement.background_color || '#ef4444',
+                          color: currentAnnouncement.text_color || '#ffffff'
+                        }}
+                      >
+                        <p className="font-bold text-lg">
+                          <span>{currentAnnouncement.icon || '📢'}</span>
+                          <span className="ml-2">{currentAnnouncement.message}</span>
+                        </p>
+                      </div>
+                      {currentAnnouncement.link_url && (
+                        <p className="text-xs sm:text-sm text-gray-500 break-all">
+                          <strong>Link:</strong> <a href={currentAnnouncement.link_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{currentAnnouncement.link_url}</a>
+                        </p>
+                      )}
+                      <p className="text-xs sm:text-sm text-gray-500">
+                        <strong>Expires in:</strong> {formatRemainingTime(currentAnnouncement.expires_at)}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-500 mt-2">
-                        Active Announcement • Expires in: {formatRemainingTime(currentAnnouncement.expires_at)}
+                      <p className="text-xs sm:text-sm text-gray-500">
+                        <strong>Dismissible:</strong> <span className={`font-semibold ${currentAnnouncement.is_dismissible ? 'text-green-600' : 'text-red-600'}`}>{currentAnnouncement.is_dismissible ? 'Yes' : 'No'}</span>
                       </p>
                     </div>
-                    <div className="flex flex-row items-center gap-2">
+                    <div className="flex flex-row items-center gap-2 self-start">
                       <button
                         onClick={handleRemoveAnnouncement}
                         className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap"
@@ -690,79 +736,124 @@ export default function AdminPanel() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleAnnouncementSubmit} className="space-y-3 sm:space-y-4 md:space-y-6">
+              <form onSubmit={handleAnnouncementSubmit} className="space-y-6">
+                {/* Live Preview */}
                 <div>
-                  <label htmlFor="announcement" className="block text-[var(--text)] mb-2 font-medium text-sm sm:text-base">
-                    Create New Announcement
-                  </label>
-                  <textarea
-                    id="announcement"
-                    value={announcement}
-                    onChange={(e) => setAnnouncement(e.target.value)}
-                    className="w-full p-3 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base"
-                    rows={4}
-                    placeholder="Type your announcement here..."
-                  />
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4 items-end">
-                  <div className="w-full sm:w-auto">
-                    <div className="grid grid-cols-4 gap-1 sm:gap-2">
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Days</label>
-                        <input
-                          type="number"
-                          value={announcementTimer.days}
-                          onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, days: e.target.value }))}
-                          min="0"
-                          className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Hours</label>
-                        <input
-                          type="number"
-                          value={announcementTimer.hours}
-                          onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, hours: e.target.value }))}
-                          min="0"
-                          max="23"
-                          className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Mins</label>
-                        <input
-                          type="number"
-                          value={announcementTimer.minutes}
-                          onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, minutes: e.target.value }))}
-                          min="0"
-                          max="59"
-                          className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                          placeholder="0"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1">Secs</label>
-                        <input
-                          type="number"
-                          value={announcementTimer.seconds}
-                          onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, seconds: e.target.value }))}
-                          min="0"
-                          max="59"
-                          className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
-                          placeholder="0"
-                        />
-                      </div>
-                    </div>
+                  <h3 className="text-lg font-medium text-[var(--text)] mb-2">Live Preview</h3>
+                  <div 
+                    className="p-4 rounded-lg shadow-md text-center relative"
+                    style={{
+                      backgroundColor: announcementBgColor || '#ef4444',
+                      color: announcementTextColor || '#ffffff'
+                    }}
+                  >
+                    <h2 className="text-xl sm:text-2xl font-bold leading-tight">
+                      <span>{announcementIcon || '📢'}</span>
+                      <span className="ml-2">{announcement || "Your announcement message..."}</span>
+                    </h2>
+                    {announcementIsDismissible && (
+                      <button type="button" className="absolute top-2 right-2 text-lg opacity-70 hover:opacity-100 transition-opacity">&times;</button>
+                    )}
                   </div>
+                </div>
+
+                {/* Form Sections */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column: Content & Styling */}
+                  <div className="space-y-4">
+                    {/* Content Section */}
+                    <fieldset className="border border-[var(--border)] p-4 rounded-lg">
+                      <legend className="text-md font-semibold text-[var(--text)] px-2">Content</legend>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label htmlFor="announcementIcon" className="block text-[var(--text)] mb-2 font-medium text-sm">Icon</label>
+                            <input id="announcementIcon" type="text" value={announcementIcon} onChange={(e) => setAnnouncementIcon(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="📢" />
+                          </div>
+                          <div>
+                            <label htmlFor="announcementTitle" className="block text-[var(--text)] mb-2 font-medium text-sm">Admin Title</label>
+                            <input id="announcementTitle" type="text" value={announcementTitle} onChange={(e) => setAnnouncementTitle(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="Announcement" />
+                          </div>
+                        </div>
+                        <div>
+                          <label htmlFor="announcement" className="block text-[var(--text)] mb-2 font-medium text-sm">Message</label>
+                          <textarea id="announcement" value={announcement} onChange={(e) => setAnnouncement(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" rows={3} placeholder="Type your announcement here..." required />
+                        </div>
+                        <div>
+                          <label htmlFor="announcementLink" className="block text-[var(--text)] mb-2 font-medium text-sm">Link URL (Optional)</label>
+                          <input id="announcementLink" type="url" value={announcementLink} onChange={(e) => setAnnouncementLink(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" />
+                        </div>
+                      </div>
+                    </fieldset>
+
+                    {/* Styling Section */}
+                    <fieldset className="border border-[var(--border)] p-4 rounded-lg">
+                      <legend className="text-md font-semibold text-[var(--text)] px-2">Styling</legend>
+                      <div className="flex items-center gap-6">
+                        <div>
+                          <label htmlFor="announcementBgColor" className="block text-[var(--text)] mb-2 font-medium text-sm">Background</label>
+                          <input id="announcementBgColor" type="color" value={announcementBgColor} onChange={(e) => setAnnouncementBgColor(e.target.value)} className="w-16 h-10 p-1 border border-[var(--border)] rounded-lg bg-transparent cursor-pointer" />
+                        </div>
+                        <div>
+                          <label htmlFor="announcementTextColor" className="block text-[var(--text)] mb-2 font-medium text-sm">Text</label>
+                          <input id="announcementTextColor" type="color" value={announcementTextColor} onChange={(e) => setAnnouncementTextColor(e.target.value)} className="w-16 h-10 p-1 border border-[var(--border)] rounded-lg bg-transparent cursor-pointer" />
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+
+                  {/* Right Column: Settings */}
+                  <div className="space-y-4">
+                    <fieldset className="border border-[var(--border)] p-4 rounded-lg">
+                      <legend className="text-md font-semibold text-[var(--text)] px-2">Settings</legend>
+                      <div className="space-y-4">
+                        {/* Dismissible Toggle */}
+                        <div>
+                          <label htmlFor="isDismissible" className="flex items-center justify-between cursor-pointer">
+                            <span className="font-medium text-sm text-[var(--text)]">Allow users to dismiss</span>
+                            <div className="relative">
+                              <input id="isDismissible" type="checkbox" checked={announcementIsDismissible} onChange={(e) => setAnnouncementIsDismissible(e.target.checked)} className="sr-only" />
+                              <div className={`block w-12 h-6 rounded-full transition-colors ${announcementIsDismissible ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                              <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${announcementIsDismissible ? 'transform translate-x-6' : ''}`}></div>
+                            </div>
+                          </label>
+                        </div>
+                        <hr className="border-[var(--border)]" />
+                        {/* Timer */}
+                        <div>
+                          <label className="block text-sm font-medium text-[var(--text)] mb-2">Duration</label>
+                          <div className="grid grid-cols-4 gap-2">
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">Days</label>
+                              <input type="number" value={announcementTimer.days} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, days: e.target.value }))} min="0" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">Hours</label>
+                              <input type="number" value={announcementTimer.hours} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, hours: e.target.value }))} min="0" max="23" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">Mins</label>
+                              <input type="number" value={announcementTimer.minutes} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, minutes: e.target.value }))} min="0" max="59" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">Secs</label>
+                              <input type="number" value={announcementTimer.seconds} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, seconds: e.target.value }))} min="0" max="59" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="0" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="w-full sm:w-auto px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:bg-blue-200 transition-colors flex items-center justify-center gap-2 font-medium text-sm whitespace-nowrap"
+                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-semibold text-base whitespace-nowrap disabled:bg-gray-400 disabled:cursor-not-allowed"
                     disabled={!announcement.trim() || calculateTotalSeconds(announcementTimer) <= 0}
                   >
-                    <span>📢</span>
-                    <span>Post Announcement</span>
+                    <span>{currentAnnouncement ? 'Update Announcement' : 'Post Announcement'}</span>
                   </button>
                 </div>
               </form>
