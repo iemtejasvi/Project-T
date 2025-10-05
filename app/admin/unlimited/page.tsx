@@ -22,7 +22,7 @@ export default function UnlimitedUsersPage() {
   useEffect(() => {
     (async () => {
       const { data, error } = await supabase
-        .from<UnlimitedUser, UnlimitedUser>("unlimited_users")
+        .from("unlimited_users")
         .select("id, ip, uuid, created_at")
         .order("created_at", { ascending: false });
       if (!error) setUsers(data || []);
