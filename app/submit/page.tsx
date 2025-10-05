@@ -1049,7 +1049,7 @@ export default function SubmitPage() {
                             Special effects disabled beyond 30 words.
                           </span>
                         )}
-                        {overLimit && (
+                        {overLimit && !isUnlimitedUser && (
                           <span className="text-red-500 font-medium">{limitMsg}</span>
                         )}
                       </div>
@@ -1280,7 +1280,7 @@ export default function SubmitPage() {
                     {wordCount > 30 && specialEffectVisible && (
                         <span className="text-red-500">Special effects disabled beyond 30 words.</span>
                     )}
-                    {overLimit && (
+                    {overLimit && !isUnlimitedUser && (
                         <span className="text-red-500">{limitMsg}</span>
                     )}
                     </div>
