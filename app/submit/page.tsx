@@ -150,25 +150,7 @@ export default function SubmitPage() {
   const [limitMsg, setLimitMsg] = useState("");
   const [specialEffectVisible, setSpecialEffectVisible] = useState(false);
   const [hasCrossed, setHasCrossed] = useState(false);
-  // Unlimited / override status
-  const [limitStatus, setLimitStatus] = useState<{ isUnlimited: boolean; override: boolean }>({ isUnlimited: false, override: false });
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/check-user-status', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uuid: localStorage.getItem('user_uuid') || getCookie('user_uuid') })
-        });
-        if (res.ok) {
-          const s = await res.json();
-          setLimitStatus({ isUnlimited: !!s.isUnlimited, override: !!s.globalOverrideActive });
-        }
-      } catch {}
-    })();
-  }, []);
-
-  const showWordCountUI = !(limitStatus.isUnlimited || limitStatus.override);
+  const [isUnlimitedUser, setIsUnlimitedUser] = useState(false);
 
   useEffect(() => {
     async function fetchIP() {
@@ -181,6 +163,21 @@ export default function SubmitPage() {
       }
     }
     fetchIP();
+
+    // Check unlimited status once on mount
+    (async () => {
+      try {
+        const res = await fetch('/api/check-user-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uuid: localStorage.getItem('user_uuid') || getCookie('user_uuid') })
+        });
+        const data = await res.json();
+        setIsUnlimitedUser(data.isUnlimited || data.globalOverrideActive);
+      } catch {
+        setIsUnlimitedUser(false);
+      }
+    })();
   }, []);
 
   const wordCount = message.trim() ? message.trim().split(/[\s.]+/).filter(word => word.length > 0).length : 0;
@@ -1007,7 +1004,7 @@ export default function SubmitPage() {
                     </div>
                   )}
 
-                  <div className="space-y-2" hidden={!showWordCountUI}>
+                  <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
                     <label className="block text-lg font-medium text-[var(--text)]">Recipient&apos;s Name*</label>
                     <input
                       type="text"
@@ -1023,7 +1020,7 @@ export default function SubmitPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="block text-lg font-medium text-[var(--text)]">Message* (max 50 words)</label>
+                    <label className="block text-lg font-medium text-[var(--text)]">Message* {!isUnlimitedUser && "(max 50 words)"} {isUnlimitedUser && <span className="text-pink-500">🌸 You’re special! No word limit.</span>}</label>
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
@@ -1035,7 +1032,7 @@ export default function SubmitPage() {
                       }`}
                       placeholder="What did you never say?"
                     />
-                    <div className="space-y-2" hidden={!showWordCountUI}>
+                    <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
                       <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-300 ${
@@ -1063,7 +1060,7 @@ export default function SubmitPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2" hidden={!showWordCountUI}>
+                    <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
                       <label className="block text-lg font-medium text-[var(--text)]">Your Name (optional)</label>
                       <input
                         type="text"
@@ -1077,7 +1074,7 @@ export default function SubmitPage() {
                       />
                     </div>
 
-                    <div className="space-y-2" hidden={!showWordCountUI}>
+                    <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
                       <label className="block text-lg font-medium text-[var(--text)]">Color Theme</label>
                       <select
                         value={color}
@@ -1096,7 +1093,7 @@ export default function SubmitPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-2" hidden={!showWordCountUI}>
+                  <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
                     <label className="block text-lg font-medium text-[var(--text)]">Special Effect</label>
                     <select
                       value={specialEffect}
@@ -1134,7 +1131,7 @@ export default function SubmitPage() {
                     {enableTypewriter && (
                       <div className="space-y-4 pt-2">
                       
-                      <div className="space-y-2" hidden={!showWordCountUI}>
+                      <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
                         <label className="block text-sm font-medium text-[var(--text)]">Emotion Tag (optional)</label>
                         <select
                           value={tag}
@@ -1157,7 +1154,7 @@ export default function SubmitPage() {
             </div>
 
                       {tag && (
-                        <div className="space-y-2" hidden={!showWordCountUI}>
+                        <div className={`space-y-2 ${isUnlimitedUser ? 'hidden' : ''}`}>
                           <label className="block text-sm font-medium text-[var(--text)]">Specific Emotion (optional)</label>
                           <select
                             value={subTag}
@@ -1256,7 +1253,7 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block font-medium text-[var(--text)] mb-2">Message* (max 50 words)</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Message* {!isUnlimitedUser && "(max 50 words)"} {isUnlimitedUser && <span className="text-pink-500">🌸 You’re special! No word limit.</span>}</label>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -1268,7 +1265,7 @@ export default function SubmitPage() {
                     }`}
                     placeholder="What did you never say?"
                   />
-                  <div className="mt-2 space-y-1" hidden={!showWordCountUI}>
+                  <div className="mt-2 space-y-1">
                     <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
