@@ -68,8 +68,19 @@ export async function POST(request: NextRequest) {
 
     let isBanned = false;
     let memoryCount = 0;
+    let isUnlimited = false;
 
-    if (clientIP || clientUUID) {
+    // Check global override first
+    const { data: settingsData } = await primaryDB
+      .from('site_settings')
+      .select('word_limit_disabled_until')
+      .eq('id', 1)
+      .single();
+    const overrideUntil = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
+    const now = new Date();
+    const globalOverrideActive = overrideUntil ? now < overrideUntil : false;
+
+    if (!globalOverrideActive && (clientIP || clientUUID)) {
       try {
         // Check ban status with multiple criteria
         const banQueries = [];
@@ -136,14 +147,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const canSubmit = !isBanned && memoryCount < 6;
+    // Unlimited check (either global override or specific user)
+    if (!isUnlimited && !globalOverrideActive && (clientIP || clientUUID)) {
+      const unlimitedQueries = [];
+      if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
+      if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
+      if (unlimitedQueries.length) {
+        const { data: unData } = await primaryDB.from('unlimited_users').select('id').or(unlimitedQueries.join(',')).limit(1);
+        isUnlimited = !!(unData && unData.length);
+      }
+    }
+
+    const canSubmit = !isBanned && (isUnlimited || globalOverrideActive || memoryCount < 6);
 
     return NextResponse.json({
       canSubmit,
       isBanned,
       memoryCount,
-      hasReachedLimit: memoryCount >= 6,
-      isOwner: false
+      hasReachedLimit: isUnlimited || globalOverrideActive ? false : memoryCount >= 6,
+      isOwner: false,
+      isUnlimited,
+      globalOverrideActive
     });
 
   } catch (error) {

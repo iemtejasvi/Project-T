@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import UnlimitedUsersPage from "./unlimited/page";
 import { fetchMemories, updateMemory, deleteMemory, primaryDB, secondaryDB, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
@@ -23,7 +24,7 @@ interface Memory {
   sub_tag?: string;
 }
 
-type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "dbhealth";
+type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "dbhealth" | "unlimited";
 
 export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
@@ -655,12 +656,12 @@ export default function AdminPanel() {
             <button
               onClick={() => setAnnounceMenuOpen((v) => !v)}
               className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
-                ["announcements", "maintenance", "dbhealth"].includes(selectedTab)
+                ["announcements", "maintenance", "unlimited", "dbhealth"].includes(selectedTab)
                   ? "border-b-2 border-blue-600 text-gray-900"
                   : "text-gray-600"
               }`}
             >
-              Announcement ▾
+              {({announcements:"Announcements",maintenance:"Maintenance",unlimited:"Unlimited Users",dbhealth:"DB Health"} as Record<string,string>)[selectedTab] ?? "Menu"} ▾
             </button>
             {announceMenuOpen && (
               <div className="absolute z-20 mt-2 w-56 bg-white border border-gray-200 rounded shadow-md">
@@ -677,6 +678,12 @@ export default function AdminPanel() {
                   Maintenance
                 </button>
                 <button
+                  onClick={() => { setSelectedTab("unlimited"); setAnnounceMenuOpen(false); }}
+                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'unlimited' ? 'font-semibold' : ''}`}
+                >
+                  Unlimited Users
+                </button>
+                <button
                   onClick={() => { setSelectedTab("dbhealth"); setAnnounceMenuOpen(false); }}
                   className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'dbhealth' ? 'font-semibold' : ''}`}
                 >
@@ -690,7 +697,9 @@ export default function AdminPanel() {
 
       {/* Content */}
       <main className="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
-        {selectedTab === "announcements" ? (
+        {selectedTab === "unlimited" ? (
+          <UnlimitedUsersPage />
+        ) : selectedTab === "announcements" ? (
           <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
             <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
               <span className="text-lg sm:text-xl md:text-2xl">{currentAnnouncement?.icon || '📢'}</span>
@@ -1094,9 +1103,10 @@ export default function AdminPanel() {
                     {memory.sender && (
                       <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
                     )}
-                    <div className="mt-3 text-sm text-gray-500 break-words">
-                      <p>IP: {memory.ip}</p>
-                      <p>Country: {memory.country}</p>
+                    <div className="mt-3 text-sm text-gray-500 break-words space-y-0.5">
+                      <p>IP: {memory.ip || '-'}</p>
+                      <p>UUID: {memory.uuid || '-'}</p>
+                      <p>Country: {memory.country || '-'}</p>
                     </div>
                     <small className="block mt-3 text-gray-500">
                       {new Date(memory.created_at).toLocaleString()}
