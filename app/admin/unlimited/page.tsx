@@ -116,7 +116,7 @@ export default function UnlimitedUsersPage() {
                   <th className="py-2">IP</th>
                   <th className="py-2">UUID</th>
                   <th className="py-2">Added</th>
-                  <th></th>
+                  <th className="w-24"></th>
                 </tr>
               </thead>
               <tbody>
@@ -125,7 +125,7 @@ export default function UnlimitedUsersPage() {
                     <td className="py-2 pr-2 break-all">{u.ip || "-"}</td>
                     <td className="py-2 pr-2 break-all">{u.uuid || "-"}</td>
                     <td className="py-2 pr-2">{new Date(u.created_at).toLocaleDateString()}</td>
-                    <td className="py-2 text-right">
+                    <td className="py-2 text-right w-24 whitespace-nowrap">
                       <button className="text-red-500 hover:text-red-700 transition" onClick={() => handleRemove(u.id)}>Remove</button>
                     </td>
                   </tr>
