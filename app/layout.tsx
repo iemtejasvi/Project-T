@@ -3,6 +3,7 @@ import "./globals.css";
 // Removed bleeding effect stylesheet
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
+import SessionInitializer from "@/components/SessionInitializer";
 import Script from "next/script";
 
 export const viewport = {
@@ -657,6 +658,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <meta name="description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
+        <Script id="ioist-session-init" strategy="beforeInteractive">{
+          `
+            try {
+              if (typeof document !== 'undefined') {
+                var seen = document.cookie.split('; ').some(function(c){ return c.indexOf('ioist_session_seen=') === 0; });
+                if (!seen) { document.cookie = 'ioist_session_seen=1; path=/'; }
+              }
+            } catch (e) {}
+          `
+        }</Script>
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H" strategy="afterInteractive" />
         <Script id="gtag-init" strategy="afterInteractive">
           {`
@@ -698,6 +709,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
         <UuidInitializer />
+        <SessionInitializer />
         {children}
         <Script id="ioist-startup-cleanup" strategy="afterInteractive">
           {`
@@ -734,10 +746,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 } catch(e) {}
 
                 try {
-                  // Preserve the marker while clearing sessionStorage
+                  // Preserve important session flags while clearing sessionStorage
                   var marker = sessionStorage.getItem('ioist_cleanup_done');
+                  var hasVisited = sessionStorage.getItem('hasVisited');
                   sessionStorage.clear();
                   sessionStorage.setItem('ioist_cleanup_done', marker || '1');
+                  if (hasVisited === 'true') { sessionStorage.setItem('hasVisited', 'true'); }
                 } catch(e) {}
 
                 try {

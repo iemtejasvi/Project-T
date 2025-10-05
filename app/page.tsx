@@ -30,7 +30,15 @@ interface Memory {
 
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [showWelcome, setShowWelcome] = useState<boolean>(() => {
+    if (typeof document === 'undefined') return false;
+    try {
+      const hasSession = document.cookie.split('; ').some(c => c.startsWith('ioist_session_seen='));
+      return !hasSession;
+    } catch {
+      return false;
+    }
+  });
   const [announcement, setAnnouncement] = useState<{
     id: string;
     message: string;
@@ -140,16 +148,38 @@ export default function Home() {
 
     fetchData();
 
-    if (!sessionStorage.getItem("hasVisited")) {
-      setShowWelcome(true);
-      sessionStorage.setItem("hasVisited", "true");
-    }
+    try {
+      const hasSession = typeof document !== 'undefined' && document.cookie.split('; ').some(c => c.startsWith('ioist_session_seen='));
+      if (!hasSession) {
+        setShowWelcome(true);
+        // Set a session cookie (no expires) so it clears only when the browser is closed
+        document.cookie = 'ioist_session_seen=1; path=/';
+      }
+    } catch {}
 
     return () => {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, []); // Remove currentTime dependency
+
+  // Re-check session cookie on BFCache restore/visibility/focus to avoid stale state
+  useEffect(() => {
+    const resyncWelcome = () => {
+      try {
+        const hasSession = document.cookie.split('; ').some(c => c.startsWith('ioist_session_seen='));
+        setShowWelcome(!hasSession);
+      } catch {}
+    };
+    window.addEventListener('pageshow', resyncWelcome);
+    document.addEventListener('visibilitychange', resyncWelcome);
+    window.addEventListener('focus', resyncWelcome);
+    return () => {
+      window.removeEventListener('pageshow', resyncWelcome);
+      document.removeEventListener('visibilitychange', resyncWelcome);
+      window.removeEventListener('focus', resyncWelcome);
+    };
+  }, []);
 
   useEffect(() => {
     if (announcement?.id && localStorage.getItem(`dismissed_announcement_${announcement.id}`)) {
@@ -235,7 +265,12 @@ export default function Home() {
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  const handleWelcomeClose = () => setShowWelcome(false);
+  const handleWelcomeClose = () => {
+    try {
+      document.cookie = 'ioist_session_seen=1; path=/';
+    } catch {}
+    setShowWelcome(false);
+  };
 
   
 
