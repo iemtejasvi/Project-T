@@ -109,7 +109,8 @@ export default function UnlimitedUsersPage() {
           {users.length === 0 ? (
             <p className="opacity-70">No unlimited users yet.</p>
           ) : (
-            <table className="w-full text-left">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left table-fixed">
               <thead>
                 <tr className="border-b border-[var(--border)] text-sm">
                   <th className="py-2">IP</th>
@@ -121,7 +122,7 @@ export default function UnlimitedUsersPage() {
               <tbody>
                 {users.map((u, idx) => (
                   <tr key={u.id} className={`border-b border-[var(--border)] text-sm ${idx % 2 === 0 ? 'bg-[var(--bg)]' : ''}`}>
-                    <td className="py-2 pr-2">{u.ip || "-"}</td>
+                    <td className="py-2 pr-2 break-all">{u.ip || "-"}</td>
                     <td className="py-2 pr-2 break-all">{u.uuid || "-"}</td>
                     <td className="py-2 pr-2">{new Date(u.created_at).toLocaleDateString()}</td>
                     <td className="py-2 text-right">
@@ -130,7 +131,8 @@ export default function UnlimitedUsersPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+              </table>
+            </div>
           )}
         </section>
 
