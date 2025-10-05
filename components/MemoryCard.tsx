@@ -378,18 +378,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         {/* Header section */}
         <div className="w-full flex flex-col items-center relative z-10">
           <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            {memory.animation && memory.animation !== "none" && (
-              <motion.span 
-                initial={{ opacity: 0, rotate: -180 }}
-                animate={{ opacity: 1, rotate: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className={`${isDesktop ? "text-4xl" : "text-xl"} drop-shadow-lg`}
-                style={{ ...arrowStyle }}
-              >
-                ★
-              </motion.span>
-            )}
-            <h3 className={`${isDesktop ? "text-5xl" : "text-2xl"} font-bold text-[var(--text)] text-center leading-tight drop-shadow-sm`}>
+                        <h3 className={`${isDesktop ? "text-5xl" : "text-2xl"} font-bold text-[var(--text)] text-center leading-tight drop-shadow-sm`}>
               To: {memory.recipient}
             </h3>
           </div>
@@ -513,12 +502,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             <div className="relative z-10">
               <div className="flex justify-between items-start">
                 <h3 className="text-xl font-bold text-[var(--text)] break-words overflow-hidden">
-                  {memory.animation && memory.animation !== "none" && (
-                    <span style={{ fontSize: "0.8rem", ...arrowStyle, marginRight: "4px" }}>
-                      ★
-                    </span>
-                  )}
-                  To: {memory.recipient}
+                                    To: {memory.recipient}
                 </h3>
                 {memory.pinned && (
                   <span

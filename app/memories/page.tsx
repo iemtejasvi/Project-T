@@ -237,7 +237,7 @@ export default function Memories() {
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={!hasPrevious}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-transparent text-[var(--text)] font-medium rounded-full border border-[var(--border)] shadow-sm hover:bg-[var(--card-bg)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                  className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
                 >
                   <span className="text-lg">←</span> Load Prev.
                 </button>
@@ -263,7 +263,7 @@ export default function Memories() {
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={!hasNext}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-transparent text-[var(--text)] font-medium rounded-full border border-[var(--border)] shadow-sm hover:bg-[var(--card-bg)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                  className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
                 >
                   Load More <span className="text-lg">→</span>
                 </button>

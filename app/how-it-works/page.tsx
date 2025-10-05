@@ -102,9 +102,6 @@ export default function HowItWorks() {
               <strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.
             </li>
             <li>
-              <strong>Stars:</strong> Special effects are marked with a ★ on cards.
-            </li>
-            <li>
               <strong>Quotes:</strong> Rotating quotes on the home page set the tone.
             </li>
           </ul>
