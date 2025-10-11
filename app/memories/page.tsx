@@ -70,7 +70,6 @@ export default function Memories() {
   
   const pageSize = isDesktop ? 18 : 10;
 
-  const hasPrevious = page > 0;
   const hasNext = page < totalPages - 1;
 
   const currentDisplayCount = useMemo(() => {
