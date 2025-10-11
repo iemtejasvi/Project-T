@@ -124,6 +124,7 @@ export default function Memories() {
   // Initial load
   useEffect(() => {
     fetchPageData(0, "", true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize]); // Re-fetch when screen size changes
 
   // Check expired pins only when there are ACTIVE pinned memories

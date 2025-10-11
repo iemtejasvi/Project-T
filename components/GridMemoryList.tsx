@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Loader from "./Loader";
+import React from "react";
 import MemoryCard from "./MemoryCard";
 import DesktopMemoryCard from "./DesktopMemoryCard";
 
@@ -27,20 +26,6 @@ interface GridMemoryListProps {
 }
 
 const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
-  // Initialize with SSR-safe default, then update on mount
-  const [isDesktop, setIsDesktop] = useState(() => {
-    // During SSR, assume desktop layout for better initial render
-    if (typeof window === 'undefined') return true;
-    return window.innerWidth >= 1024;
-  });
-  
-  useEffect(() => {
-    // Update immediately on mount for accurate detection
-    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
-    checkDesktop();
-    window.addEventListener("resize", checkDesktop);
-    return () => window.removeEventListener("resize", checkDesktop);
-  }, []);
 
   // Render both layouts with CSS to avoid hydration mismatch
   return (

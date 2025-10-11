@@ -1,5 +1,5 @@
 // lib/dualMemoryDB.ts
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 // Database configurations
 const dbA = {
@@ -227,7 +227,7 @@ export async function fetchMemoriesPaginated(
   orderBy: Record<string, string> = {}
 ) {
   // Build query with filters
-  function buildQuery(client: any) {
+  function buildQuery(client: SupabaseClient) {
     let query = client.from('memories').select('*', { count: 'exact' });
     
     // Apply filters
@@ -317,7 +317,7 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   // For backward compatibility, but now with query limits for better performance
   const limit = 1000; // Reasonable limit to prevent loading millions of records
   
-  function buildLimitedQuery(client: any) {
+  function buildLimitedQuery(client: SupabaseClient) {
     let query = client.from('memories').select('*');
     
     // Apply filters at database level

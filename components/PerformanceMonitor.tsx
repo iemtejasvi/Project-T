@@ -2,8 +2,19 @@
 import { useEffect, useState } from 'react';
 import { getPerformanceMonitor } from '@/lib/performanceMonitor';
 
+interface PerformanceStats {
+  avg: number;
+  min?: number;
+  max?: number;
+  count?: number;
+}
+
+interface PerformanceMetrics {
+  [operation: string]: PerformanceStats;
+}
+
 export default function PerformanceMonitor() {
-  const [metrics, setMetrics] = useState<any>({});
+  const [metrics, setMetrics] = useState<PerformanceMetrics>({});
   const [isOptimal, setIsOptimal] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -45,7 +56,7 @@ export default function PerformanceMonitor() {
         <div className="text-gray-400">Monitoring...</div>
       ) : (
         <div className="space-y-1">
-          {Object.entries(metrics).map(([op, stats]: [string, any]) => (
+          {Object.entries(metrics).map(([op, stats]) => (
             <div key={op} className="flex justify-between">
               <span className="text-gray-300 truncate mr-2" style={{ maxWidth: '200px' }}>
                 {op}:

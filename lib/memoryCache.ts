@@ -2,8 +2,27 @@
 import { fetchMemoriesPaginated } from './dualMemoryDB';
 import { getPerformanceMonitor } from './performanceMonitor';
 
+interface Memory {
+  id: string;
+  recipient: string;
+  message: string;
+  sender?: string;
+  created_at: string;
+  status: string;
+  color: string;
+  full_bg: boolean;
+  animation?: string;
+  pinned?: boolean;
+  pinned_until?: string;
+  ip?: string;
+  country?: string;
+  uuid?: string;
+  tag?: string;
+  sub_tag?: string;
+}
+
 interface CachedPage {
-  data: any[];
+  data: Memory[];
   totalCount: number;
   totalPages: number;
   timestamp: number;
@@ -71,7 +90,7 @@ class MemoryCache {
     filters: Record<string, string> = {},
     searchTerm: string = '',
     orderBy: Record<string, string> = {}
-  ): Promise<{ data: any[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }> {
+  ): Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }> {
     const monitor = getPerformanceMonitor();
     const cacheKey = this.getCacheKey({ page, pageSize, filters, searchTerm, orderBy });
     const cached = this.cache.get(cacheKey);
@@ -95,7 +114,7 @@ class MemoryCache {
     // Fetch fresh data
     monitor.startTimer('memory-fetch-fresh');
     const result = await fetchMemoriesPaginated(page, pageSize, filters, searchTerm, orderBy);
-    const fetchTime = monitor.endTimer('memory-fetch-fresh');
+    monitor.endTimer('memory-fetch-fresh');
     
     if (!result.error) {
       // Cache the result
