@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { primaryDB } from "@/lib/dualMemoryDB";
-import { fetchMemoriesWithCache } from "@/lib/memoryCache";
+import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
+import { storage } from "@/lib/persistentStorage";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
@@ -33,6 +34,7 @@ export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [memoriesLoading, setMemoriesLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [announcementTransitioning, setAnnouncementTransitioning] = useState(false);
   const [announcement, setAnnouncement] = useState<{
     id: string;
     message: string;
@@ -80,18 +82,31 @@ export default function Home() {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout;
 
-    // Preload Archives page data for instant navigation
-    async function preloadArchives() {
+    // Warm up cache for instant navigation everywhere
+    async function warmUpCacheForAllPages() {
       try {
-        // Preload first page of archives (both desktop and mobile sizes)
-        fetchMemoriesWithCache(0, 18, { status: "approved" }, '', { created_at: "desc" });
-        fetchMemoriesWithCache(0, 10, { status: "approved" }, '', { created_at: "desc" });
+        // Warm up cache with multiple pages for ultra-fast navigation
+        const pagesToWarm = [
+          // Home page memories
+          { page: 0, pageSize: 6 },
+          // Archives - desktop
+          { page: 0, pageSize: 18 },
+          { page: 1, pageSize: 18 },
+          { page: 2, pageSize: 18 },
+          { page: 3, pageSize: 18 },
+          { page: 4, pageSize: 18 },
+          // Archives - mobile
+          { page: 0, pageSize: 10 },
+          { page: 1, pageSize: 10 },
+          { page: 2, pageSize: 10 },
+          { page: 3, pageSize: 10 },
+          { page: 4, pageSize: 10 }
+        ];
         
-        // Also preload second page for smooth scrolling
-        fetchMemoriesWithCache(1, 18, { status: "approved" }, '', { created_at: "desc" });
-        fetchMemoriesWithCache(1, 10, { status: "approved" }, '', { created_at: "desc" });
+        await warmUpCache(pagesToWarm);
+        console.debug('🚀 Cache warmed up for lightning-fast navigation');
       } catch (err) {
-        console.debug("Archives preload error:", err);
+        console.debug("Cache warmup error:", err);
       }
     }
 
@@ -134,14 +149,15 @@ export default function Home() {
           if (isMounted) setAnnouncement(null);
         }
 
-        // Fetch only the first 6 memories for home page with caching for instant load
+        // Fetch recent memories with ultra cache for instant load
         setMemoriesLoading(true);
-        const memoriesResult = await fetchMemoriesWithCache(
+        const memoriesResult = await fetchWithUltraCache(
           0, // page
           6, // pageSize - only need 6 for home
           { status: "approved" },
           '', // no search on home
-          { created_at: "desc" }
+          { created_at: "desc" },
+          { maxAge: 1800000, staleWhileRevalidate: 3600000 } // 30min fresh, 1hr stale
         );
 
         if (!isMounted) return;
@@ -149,9 +165,8 @@ export default function Home() {
         if (memoriesResult.data) {
           setRecentMemories(memoriesResult.data);
           
-          // If loaded from cache, fetch fresh data in background
           if (memoriesResult.fromCache) {
-            console.debug('🚀 Instant load from cache, refreshing in background');
+            console.debug('⚡ Instant load from ultra cache');
           }
         } else {
           console.error("Error fetching memories");
@@ -165,12 +180,12 @@ export default function Home() {
 
     fetchData();
     
-    // Start preloading archives after a short delay to prioritize home page load
+    // Start warming up cache after initial load for instant navigation everywhere
     setTimeout(() => {
-      preloadArchives();
-    }, 1000);
+      warmUpCacheForAllPages();
+    }, 500); // Start sooner for better UX
 
-    if (!sessionStorage.getItem("welcome_closed")) {
+    if (!storage.isWelcomeClosed()) {
       setShowWelcome(true);
     }
 
@@ -181,7 +196,7 @@ export default function Home() {
   }, []); // Remove currentTime dependency
 
   useEffect(() => {
-    if (announcement?.id && localStorage.getItem(`dismissed_announcement_${announcement.id}`)) {
+    if (announcement?.id && storage.isAnnouncementDismissed(announcement.id)) {
       setIsAnnouncementDismissed(true);
     } else {
       setIsAnnouncementDismissed(false);
@@ -204,13 +219,21 @@ export default function Home() {
 
   const handleDismissAnnouncement = async () => {
     if (announcement?.id) {
-      localStorage.setItem(`dismissed_announcement_${announcement.id}`, "true");
-      setIsAnnouncementDismissed(true);
+      // Start transition to prevent visual artifacts
+      setAnnouncementTransitioning(true);
       
-      // If memories are not loaded or were cleared, reload them immediately
+      storage.setAnnouncementDismissed(announcement.id);
+      
+      // Small delay to ensure smooth transition
+      setTimeout(() => {
+        setIsAnnouncementDismissed(true);
+        setAnnouncementTransitioning(false);
+      }, 150);
+      
+      // Ensure memories are loaded if needed
       if (recentMemories.length === 0 && !memoriesLoading) {
         setMemoriesLoading(true);
-        const memoriesResult = await fetchMemoriesWithCache(
+        const memoriesResult = await fetchWithUltraCache(
           0,
           6,
           { status: "approved" },
@@ -283,9 +306,7 @@ export default function Home() {
 
   const handleWelcomeClose = () => {
     setShowWelcome(false);
-    try {
-      sessionStorage.setItem('welcome_closed', 'true');
-    } catch {}
+    storage.setWelcomeClosed();
   };
 
   
@@ -360,7 +381,7 @@ export default function Home() {
       </header>
 
         {announcement && !isAnnouncementDismissed && (
-          <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto">
+          <section className={`my-8 px-4 sm:px-6 max-w-5xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
             <div 
               className="relative p-4 rounded-lg shadow-md md:flex md:items-center md:justify-between md:gap-4 animate-pulse-glow"
               style={{
@@ -408,14 +429,16 @@ export default function Home() {
           </section>
         )}
         
-        {/* Mobile typewriter section - only shows when no announcement */}
-        {(!announcement || isAnnouncementDismissed) && (
-          <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
-            <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
-              <TypingEffect />
-            </div>
-          </section>
-        )}
+        {/* Mobile typewriter section - smooth transition when announcement dismissed */}
+        <section className={`my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden transition-all duration-500 ${
+          (!announcement || isAnnouncementDismissed) && !announcementTransitioning 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 -translate-y-2 pointer-events-none'
+        }`}>
+          <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+            <TypingEffect />
+          </div>
+        </section>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">

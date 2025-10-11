@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { updateMemory } from "@/lib/dualMemoryDB";
-import { fetchMemoriesWithCache, getMemoryCache } from "@/lib/memoryCache";
+import { fetchWithUltraCache, invalidateCache, warmUpCache, getCacheStats } from "@/lib/enhancedCache";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
  
@@ -36,9 +36,11 @@ export default function Memories() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoadingPage, setIsLoadingPage] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false); // Separate state for Load More
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [instantTransition, setInstantTransition] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSearchRef = useRef("");
+  const lastPageLoadTime = useRef<number>(0);
   
   // Responsive check for desktop - Initialize correctly on first render
   const [isDesktop, setIsDesktop] = useState(() => {
@@ -115,32 +117,47 @@ export default function Memories() {
         }
       }
       
-      const result = await fetchMemoriesWithCache(
+      const startTime = Date.now();
+      const result = await fetchWithUltraCache(
         pageNum,
         pageSize,
         { status: "approved" },
         search.trim(),
-        { created_at: "desc" }
+        { created_at: "desc" },
+        { maxAge: 1800000, staleWhileRevalidate: 3600000, prefetchDepth: 5 }
       );
 
       if (!isMounted) return;
 
       if (!result.data) {
         console.error("Error fetching memories");
-        // Provide empty fallback to prevent UI breaking
         setDisplayedMemories([]);
         setTotalCount(0);
         setTotalPages(0);
       } else {
-        // Always replace memories (don't accumulate)
+        // Track load time for performance
+        const loadTime = Date.now() - startTime;
+        lastPageLoadTime.current = loadTime;
+        
+        // Enable instant transitions if loading was very fast
+        if (loadTime < 50) {
+          setInstantTransition(true);
+        }
+        
+        // Update state with fetched data
         setDisplayedMemories(result.data || []);
         setTotalCount(result.totalCount || 0);
         setTotalPages(result.totalPages || 0);
         
-        // If fetching from cache, data loads instantly
         if (result.fromCache) {
-          console.debug('Loaded from cache - instant!');
+          console.debug(`⚡ Ultra-fast cache hit (${loadTime}ms)`);
+        } else {
+          console.debug(`📥 Fresh data fetched (${loadTime}ms)`);
         }
+        
+        // Log cache stats for monitoring
+        const stats = getCacheStats();
+        console.debug(`📊 Cache stats:`, stats);
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -164,16 +181,18 @@ export default function Memories() {
     setDisplayedMemories([]);
     fetchPageData(0, searchTerm, true);
     
-    // Prefetch Home page recent memories for instant navigation back
-    setTimeout(() => {
-      fetchMemoriesWithCache(
-        0,
-        6, // Home page shows 6 memories
-        { status: "approved" },
-        '',
-        { created_at: "desc" }
-      );
-    }, 500);
+    // Warm up cache for both Home and adjacent pages
+    setTimeout(async () => {
+      const pagesToWarm = [
+        // Home page
+        { page: 0, pageSize: 6 },
+        // Adjacent pages for current view
+        { page: 1, pageSize },
+        { page: 2, pageSize },
+      ];
+      await warmUpCache(pagesToWarm);
+      console.debug('🔥 Cache warmed for instant navigation');
+    }, 100); // Start immediately after initial load
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize]); // Re-fetch when screen size changes
 
@@ -210,8 +229,8 @@ export default function Memories() {
                 : memory
             )
           );
-          // Invalidate cache for this page
-          getMemoryCache().invalidate();
+          // Invalidate search results to force fresh fetch
+          invalidateCache(searchTerm);
         }
       } catch (err) {
         console.error("Error updating expired pins:", err);
@@ -266,17 +285,33 @@ export default function Memories() {
   const handleLoadMore = useCallback(async () => {
     const nextPage = page + 1;
     setPage(nextPage);
-    await fetchPageData(nextPage, searchTerm, true, true);
-    // Smooth scroll to top when loading next page
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // If last load was instant, don't show loader for better UX
+    const showLoader = lastPageLoadTime.current > 100;
+    await fetchPageData(nextPage, searchTerm, showLoader, true);
+    
+    // Instant scroll for cached pages, smooth for fresh
+    if (lastPageLoadTime.current < 50) {
+      window.scrollTo({ top: 0 });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [page, searchTerm, fetchPageData]);
 
   const handleLoadPrevious = useCallback(async () => {
     const prevPage = page - 1;
     setPage(prevPage);
-    await fetchPageData(prevPage, searchTerm, true, false);
-    // Smooth scroll to top when loading previous
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // If last load was instant, don't show loader
+    const showLoader = lastPageLoadTime.current > 100;
+    await fetchPageData(prevPage, searchTerm, showLoader, false);
+    
+    // Instant scroll for cached pages, smooth for fresh
+    if (lastPageLoadTime.current < 50) {
+      window.scrollTo({ top: 0 });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [page, searchTerm, fetchPageData]);
 
   
