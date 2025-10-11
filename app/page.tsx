@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchMemories, primaryDB } from "@/lib/dualMemoryDB";
+import { fetchMemoriesPaginated, primaryDB } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
@@ -117,14 +117,14 @@ export default function Home() {
           if (isMounted) setAnnouncement(null);
         }
 
-        // Fetch memories from both databases
-        const { data: allMemoriesData, error: memoriesError } = await fetchMemories(
+        // Fetch only the first 6 memories for home page (3x2 grid on desktop)
+        const { data: memoriesData, error: memoriesError } = await fetchMemoriesPaginated(
+          0, // page
+          6, // pageSize - only need 6 for home
           { status: "approved" },
-          { pinned: "desc", created_at: "desc" }
+          '', // no search on home
+          { created_at: "desc" }
         );
-        
-        // Limit to 6 for home page (3x2 grid on desktop)
-        const memoriesData = allMemoriesData.slice(0, 6);
 
         if (!isMounted) return;
 

@@ -27,44 +27,41 @@ interface GridMemoryListProps {
 }
 
 const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  // Initialize with SSR-safe default, then update on mount
+  const [isDesktop, setIsDesktop] = useState(() => {
+    // During SSR, assume desktop layout for better initial render
+    if (typeof window === 'undefined') return true;
+    return window.innerWidth >= 1024;
+  });
   
   useEffect(() => {
+    // Update immediately on mount for accurate detection
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
     checkDesktop();
-    setIsClient(true);
     window.addEventListener("resize", checkDesktop);
     return () => window.removeEventListener("resize", checkDesktop);
   }, []);
 
-  // Show loading state until client-side detection is complete
-  if (!isClient) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <Loader text="Loading memories..." />
-      </div>
-    );
-  }
-
-  if (isDesktop) {
-    return (
-      <div className="grid grid-cols-3 gap-x-12 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+  // Render both layouts with CSS to avoid hydration mismatch
+  return (
+    <>
+      {/* Desktop layout - hidden on mobile */}
+      <div className="hidden lg:grid grid-cols-3 gap-x-12 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
            style={{ gridTemplateColumns: 'repeat(3, 350px)' }}>
         {memories.map((memory) => (
-          <div key={memory.id}>
+          <div key={`desktop-${memory.id}`}>
             <DesktopMemoryCard memory={memory} />
           </div>
         ))}
       </div>
-    );
-  }
-  return (
-    <div className="flex flex-col gap-8">
-      {memories.map((memory) => (
-        <MemoryCard key={memory.id} memory={memory} />
-      ))}
-    </div>
+      
+      {/* Mobile layout - hidden on desktop */}
+      <div className="flex lg:hidden flex-col gap-8">
+        {memories.map((memory) => (
+          <MemoryCard key={`mobile-${memory.id}`} memory={memory} />
+        ))}
+      </div>
+    </>
   );
 };
 

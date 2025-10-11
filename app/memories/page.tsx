@@ -1,7 +1,8 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
-import { fetchMemories, updateMemory } from "@/lib/dualMemoryDB";
+import { updateMemory } from "@/lib/dualMemoryDB";
+import { fetchMemoriesWithCache, getMemoryCache } from "@/lib/memoryCache";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
  
@@ -27,11 +28,17 @@ interface Memory {
 }
 
 export default function Memories() {
-  const [allMemories, setAllMemories] = useState<Memory[]>([]);
+  const [displayedMemories, setDisplayedMemories] = useState<Memory[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [initialLoading, setInitialLoading] = useState(true);
   const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSearchRef = useRef("");
+  
   // Responsive check for desktop
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -42,34 +49,18 @@ export default function Memories() {
   }, []);
   const pageSize = isDesktop ? 18 : 10;
 
-  // Memoized filtered memories to prevent unnecessary recalculations
-  const filteredMemories = useMemo(() => {
-    const trimmedSearch = searchTerm.trim();
-    return allMemories.filter(memory => 
-      memory.recipient.toLowerCase().includes(trimmedSearch.toLowerCase())
-    );
-  }, [allMemories, searchTerm]);
-
-  // Memoized displayed memories
-  const displayedMemories = useMemo(() => {
-    const start = page * pageSize;
-    const end = start + pageSize;
-    return filteredMemories.slice(start, end);
-  }, [filteredMemories, page, pageSize]);
-
-  const totalPages = Math.ceil(filteredMemories.length / pageSize);
   const hasPrevious = page > 0;
   const hasNext = page < totalPages - 1;
 
   // Check if there are any ACTIVE pinned memories (not expired)
   const hasActivePinnedMemories = useMemo(() => {
     const now = new Date();
-    return allMemories.some(memory => 
+    return displayedMemories.some(memory => 
       memory.pinned && 
       memory.pinned_until && 
       new Date(memory.pinned_until) > now
     );
-  }, [allMemories]);
+  }, [displayedMemories]);
 
   // Update current time every second ONLY if there are ACTIVE pinned memories
   useEffect(() => {
@@ -81,51 +72,66 @@ export default function Memories() {
     return () => clearInterval(timer);
   }, [hasActivePinnedMemories]);
 
-  // Initial data fetch - only runs once
-  useEffect(() => {
+  // Fetch memories with caching and pagination
+  const fetchPageData = useCallback(async (
+    pageNum: number,
+    search: string,
+    showLoader = true
+  ) => {
     let isMounted = true;
+    
+    try {
+      if (showLoader) {
+        setIsLoadingPage(true);
+      }
+      
+      const result = await fetchMemoriesWithCache(
+        pageNum,
+        pageSize,
+        { status: "approved" },
+        search.trim(),
+        { created_at: "desc" }
+      );
 
-    async function fetchData() {
-      try {
-        setInitialLoading(true);
+      if (!isMounted) return;
+
+      if (!result.data) {
+        console.error("Error fetching memories");
+      } else {
+        setDisplayedMemories(result.data || []);
+        setTotalCount(result.totalCount || 0);
+        setTotalPages(result.totalPages || 0);
         
-        // Fetch memories from both databases
-        const { data: memoriesData, error: memoriesError } = await fetchMemories(
-          { status: "approved" },
-          { pinned: "desc", created_at: "desc" }
-        );
-
-        if (!isMounted) return;
-
-        if (memoriesError) {
-          console.error("Error fetching memories:", memoriesError);
-        } else {
-          if (isMounted) {
-            setAllMemories(memoriesData || []);
-          }
+        // If fetching from cache, data loads instantly
+        if (result.fromCache) {
+          console.debug('Loaded from cache - instant!');
         }
-      } catch (err) {
-        console.error("Unexpected error:", err);
-      } finally {
-        if (isMounted) {
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    } finally {
+      if (isMounted) {
+        setIsLoadingPage(false);
+        if (initialLoading) {
           setInitialLoading(false);
         }
       }
     }
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    
+    return () => { isMounted = false; };
+  }, [pageSize, initialLoading]);
+  
+  // Initial load
+  useEffect(() => {
+    fetchPageData(0, "", true);
+  }, [pageSize]); // Re-fetch when screen size changes
 
   // Check expired pins only when there are ACTIVE pinned memories
   useEffect(() => {
     if (!hasActivePinnedMemories) return;
 
     const now = new Date();
-    const expiredPins = allMemories.filter(memory => 
+    const expiredPins = displayedMemories.filter(memory => 
       memory.pinned && 
       memory.pinned_until && 
       new Date(memory.pinned_until) <= now
@@ -144,15 +150,17 @@ export default function Memories() {
           await updateMemory(id, { pinned: false, pinned_until: undefined });
         }
 
-        // Update local state without refetching
+        // Update local state
         if (isMounted) {
-          setAllMemories(prevMemories => 
+          setDisplayedMemories(prevMemories => 
             prevMemories.map(memory => 
               expiredPinIds.includes(memory.id) 
                 ? { ...memory, pinned: false, pinned_until: undefined }
                 : memory
             )
           );
+          // Invalidate cache for this page
+          getMemoryCache().invalidate();
         }
       } catch (err) {
         console.error("Error updating expired pins:", err);
@@ -164,16 +172,49 @@ export default function Memories() {
     return () => {
       isMounted = false;
     };
-  }, [currentTime, hasActivePinnedMemories, allMemories]);
+  }, [currentTime, hasActivePinnedMemories, displayedMemories]);
 
-  // Reset page when search changes
+  // Handle search with debouncing
   useEffect(() => {
-    setPage(0);
-  }, [searchTerm]);
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    // Don't search if term hasn't changed
+    if (searchTerm === lastSearchRef.current) {
+      return;
+    }
+    
+    // Set loading immediately for UX
+    if (searchTerm !== lastSearchRef.current) {
+      setIsLoadingPage(true);
+    }
+    
+    // Debounce search
+    searchTimeoutRef.current = setTimeout(() => {
+      lastSearchRef.current = searchTerm;
+      setPage(0);
+      fetchPageData(0, searchTerm, false);
+    }, searchTerm ? 300 : 0); // No delay when clearing search
+    
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchTerm, fetchPageData]);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   }, []);
+  
+  const handlePageChange = useCallback(async (newPage: number) => {
+    setPage(newPage);
+    await fetchPageData(newPage, searchTerm);
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [searchTerm, fetchPageData]);
 
   
 
@@ -235,8 +276,8 @@ export default function Memories() {
             {hasPrevious && (
               <div className="text-center mb-6">
                 <button
-                  onClick={() => setPage(page - 1)}
-                  disabled={!hasPrevious}
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={!hasPrevious || isLoadingPage}
                   className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
                 >
                   <span className="text-lg">←</span> Load Prev.
@@ -246,11 +287,15 @@ export default function Memories() {
             <div className="mb-4 opacity-75 text-center">
               <span className="block text-base sm:text-lg font-medium text-[var(--text)]">
                 {searchTerm
-                  ? `Showing ${(Math.min((page + 1) * pageSize, filteredMemories.length))} of ${filteredMemories.length} search results`
-                  : `Showing ${(Math.min((page + 1) * pageSize, allMemories.length))} of ${allMemories.length} memories`}
+                  ? `Showing ${displayedMemories.length} of ${totalCount} search results (Page ${page + 1}/${totalPages})`
+                  : `Showing ${displayedMemories.length} of ${totalCount} memories (Page ${page + 1}/${totalPages})`}
               </span>
             </div>
-            {isDesktop ? (
+            {isLoadingPage ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader text="Loading..." />
+              </div>
+            ) : isDesktop ? (
               <GridMemoryList memories={displayedMemories} />
             ) : (
               displayedMemories.map((memory) => (
@@ -261,8 +306,8 @@ export default function Memories() {
             {hasNext && (
               <div className="text-center mt-6">
                 <button
-                  onClick={() => setPage(page + 1)}
-                  disabled={!hasNext}
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={!hasNext || isLoadingPage}
                   className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
                 >
                   Load More <span className="text-lg">→</span>

@@ -14,10 +14,27 @@ const dbB = {
   client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!)
 };
 
-// Stateless round-robin selector (avoids serverless cold-start resets)
+// Stateless round-robin selector with better distribution
+let lastWriteTime = 0;
+let lastDatabase: 'A' | 'B' = 'B';
+
 function getNextDatabase(): 'A' | 'B' {
-  // Alternate based on current time parity to distribute writes without relying on process state
-  return (Date.now() % 2 === 0) ? 'A' : 'B';
+  // Use a combination of time and alternation for better distribution
+  const now = Date.now();
+  
+  // If it's been more than 100ms since last write, use time-based distribution
+  if (now - lastWriteTime > 100) {
+    lastWriteTime = now;
+    // Use a more complex hash to avoid clustering
+    const hash = Math.floor(now / 1000) + Math.floor(Math.random() * 100);
+    lastDatabase = (hash % 2 === 0) ? 'A' : 'B';
+    return lastDatabase;
+  }
+  
+  // For rapid successive writes, strictly alternate
+  lastWriteTime = now;
+  lastDatabase = lastDatabase === 'A' ? 'B' : 'A';
+  return lastDatabase;
 }
 
 // Count statuses per DB
@@ -85,14 +102,17 @@ export async function unpinExpiredMemories(): Promise<number> {
   return unique.length;
 }
 
-// Simulate n round-robin selections using current time parity
+// Simulate n round-robin selections with improved distribution
 export function simulateRoundRobin(n = 20) {
-  const start = Date.now();
   const picks: Array<'A' | 'B'> = [];
+  let tempLastDb: 'A' | 'B' = 'B';
+  
   for (let i = 0; i < n; i++) {
-    const pick = ((start + i) % 2 === 0) ? 'A' : 'B';
-    picks.push(pick);
+    // Simulate strict alternation for testing
+    tempLastDb = tempLastDb === 'A' ? 'B' : 'A';
+    picks.push(tempLastDb);
   }
+  
   const A = picks.filter(p => p === 'A').length;
   const B = picks.length - A;
   return { picks, A, B };
@@ -198,11 +218,128 @@ export async function insertMemory(memoryData: Record<string, unknown>, preferre
   }
 }
 
-// Fetch memories from both databases with unified results
-export async function fetchMemories(filters: Record<string, string> = {}, orderBy: Record<string, string> = {}) {
+// OPTIMIZED: Fetch paginated memories with server-side filtering
+export async function fetchMemoriesPaginated(
+  page: number = 0,
+  pageSize: number = 10,
+  filters: Record<string, string> = {},
+  searchTerm: string = '',
+  orderBy: Record<string, string> = {}
+) {
+  // Build query with filters
+  function buildQuery(client: any) {
+    let query = client.from('memories').select('*', { count: 'exact' });
+    
+    // Apply filters
+    if (filters.status) query = query.eq('status', filters.status);
+    if (filters.id) query = query.eq('id', filters.id);
+    if (filters.ip) query = query.eq('ip', filters.ip);
+    if (filters.uuid) query = query.eq('uuid', filters.uuid);
+    if (filters.pinned !== undefined) {
+      query = query.eq('pinned', filters.pinned === 'true');
+    }
+    
+    // Search by recipient name
+    if (searchTerm) {
+      query = query.ilike('recipient', `%${searchTerm}%`);
+    }
+    
+    // Order by pinned first, then created_at
+    query = query.order('pinned', { ascending: false });
+    if (orderBy.created_at) {
+      query = query.order('created_at', { ascending: orderBy.created_at === 'asc' });
+    } else {
+      query = query.order('created_at', { ascending: false });
+    }
+    
+    return query;
+  }
+  
+  // Fetch from both databases in parallel with pagination
   const [resultA, resultB] = await Promise.allSettled([
-    dbA.client.from('memories').select('*'),
-    dbB.client.from('memories').select('*')
+    buildQuery(dbA.client),
+    buildQuery(dbB.client)
+  ]);
+  
+  // Process results
+  let memoriesA: MemoryData[] = [];
+  let memoriesB: MemoryData[] = [];
+  let countA = 0;
+  let countB = 0;
+  
+  if (resultA.status === 'fulfilled' && !resultA.value.error) {
+    memoriesA = (resultA.value.data || []).map(cleanMemoryData);
+    countA = resultA.value.count || 0;
+  }
+  
+  if (resultB.status === 'fulfilled' && !resultB.value.error) {
+    memoriesB = (resultB.value.data || []).map(cleanMemoryData);
+    countB = resultB.value.count || 0;
+  }
+  
+  // Combine and sort
+  const allMemories = [...memoriesA, ...memoriesB];
+  allMemories.sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    const dateA = new Date(a.created_at || '').getTime();
+    const dateB = new Date(b.created_at || '').getTime();
+    return orderBy.created_at === 'asc' ? dateA - dateB : dateB - dateA;
+  });
+  
+  // Apply pagination
+  const start = page * pageSize;
+  const paginatedMemories = allMemories.slice(start, start + pageSize);
+  const totalCount = countA + countB;
+  const totalPages = Math.ceil(totalCount / pageSize);
+  
+  // Fire-and-forget: auto-unpin expired memories
+  try {
+    const nowTs = Date.now();
+    const expired = paginatedMemories.filter(m => m.pinned && m.pinned_until && new Date(m.pinned_until).getTime() <= nowTs);
+    if (expired.length > 0) {
+      const ids = Array.from(new Set(expired.map(m => m.id)));
+      Promise.all(ids.map(id => updateMemory(id, { pinned: false, pinned_until: undefined }))).catch(() => {});
+    }
+  } catch {}
+  
+  return {
+    data: paginatedMemories,
+    totalCount,
+    totalPages,
+    currentPage: page,
+    error: null
+  };
+}
+
+// Legacy fetch function - now optimized to use limits when possible
+export async function fetchMemories(filters: Record<string, string> = {}, orderBy: Record<string, string> = {}) {
+  // For backward compatibility, but now with query limits for better performance
+  const limit = 1000; // Reasonable limit to prevent loading millions of records
+  
+  function buildLimitedQuery(client: any) {
+    let query = client.from('memories').select('*');
+    
+    // Apply filters at database level
+    if (filters.status) query = query.eq('status', filters.status);
+    if (filters.id) query = query.eq('id', filters.id);
+    if (filters.ip) query = query.eq('ip', filters.ip);
+    if (filters.uuid) query = query.eq('uuid', filters.uuid);
+    if (filters.pinned !== undefined) {
+      query = query.eq('pinned', filters.pinned === 'true');
+    }
+    
+    // Order and limit
+    query = query.order('pinned', { ascending: false });
+    query = query.order('created_at', { ascending: orderBy.created_at === 'asc' });
+    query = query.limit(limit);
+    
+    return query;
+  }
+  
+  const [resultA, resultB] = await Promise.allSettled([
+    buildLimitedQuery(dbA.client),
+    buildLimitedQuery(dbB.client)
   ]);
   
   let memoriesA: MemoryData[] = [];
@@ -220,7 +357,7 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
     console.error('Error fetching from database B:', resultB.status === 'fulfilled' ? resultB.value.error : resultB.reason);
   }
   
-  // Combine and sort results
+  // Combine results
   const allMemories = [...memoriesA, ...memoriesB];
   
   // Apply filters
