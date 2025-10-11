@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { primaryDB } from "@/lib/dualMemoryDB";
-import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
+import { fetchWithUltraCache, warmUpCache, forceRefreshAllCaches } from "@/lib/enhancedCache";
+import { getRealtimeUpdateManager } from "@/lib/realtimeUpdates";
 import { storage } from "@/lib/persistentStorage";
 import { browserSession } from "@/lib/browserSession";
 import MemoryCard from "@/components/MemoryCard";
@@ -114,7 +115,9 @@ export default function Home() {
         await warmUpCache(pagesToWarm);
         // Silent cache warmup
         window.dispatchEvent(new CustomEvent('cache-warmed'));
-      } catch {}
+      } catch (err) {
+        // Silent error
+      }
     }
 
     async function fetchData() {
@@ -194,8 +197,8 @@ export default function Home() {
         } else {
           setRecentMemories([]);
         }
-      } catch (error) {
-        console.error("Unexpected error:", error);
+      } catch (err) {
+        console.error("Unexpected error:", err);
       }
     }
 

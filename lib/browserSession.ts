@@ -94,7 +94,7 @@ class BrowserSessionManager {
   /**
    * Store data that persists until browser restart
    */
-  setSessionData<T>(key: string, value: T): void {
+  setSessionData(key: string, value: any): void {
     const fullKey = `session_${key}`;
     sessionStorage.setItem(fullKey, JSON.stringify({
       value,
@@ -106,22 +106,19 @@ class BrowserSessionManager {
   /**
    * Get data that persists until browser restart
    */
-  getSessionData<T>(key: string): T | null {
+  getSessionData(key: string): any {
     const fullKey = `session_${key}`;
     const stored = sessionStorage.getItem(fullKey);
     
     if (stored) {
       try {
-        const data = JSON.parse(stored) as {
-          value: T;
-          sessionId: string | null;
-        };
+        const data = JSON.parse(stored);
         // Verify it's from the current session
         if (data.sessionId === this.sessionId) {
           return data.value;
         }
-      } catch (error) {
-        console.debug('Session data parse error:', error);
+      } catch (e) {
+        console.debug('Session data parse error:', e);
       }
     }
     
@@ -132,9 +129,15 @@ class BrowserSessionManager {
    * Check if data exists in current session
    */
   hasSessionData(key: string): boolean {
-    return this.getSessionData<unknown>(key) !== null;
+    return this.getSessionData(key) !== null;
   }
 }
 
 // Export singleton instance
 export const browserSession = new BrowserSessionManager();
+
+// Auto-initialize on load
+if (typeof window !== 'undefined') {
+  // Ensure session is initialized immediately
+  browserSession;
+}
