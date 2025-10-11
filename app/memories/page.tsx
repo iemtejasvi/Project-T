@@ -242,7 +242,7 @@ export default function Memories() {
     return () => {
       isMounted = false;
     };
-  }, [currentTime, hasActivePinnedMemories, displayedMemories]);
+  }, [currentTime, hasActivePinnedMemories, displayedMemories, searchTerm]);
 
   // Handle search with debouncing
   useEffect(() => {
