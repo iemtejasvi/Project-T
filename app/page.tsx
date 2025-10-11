@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { fetchMemoriesPaginated, primaryDB } from "@/lib/dualMemoryDB";
+import { primaryDB } from "@/lib/dualMemoryDB";
+import { fetchMemoriesWithCache, getMemoryCache } from "@/lib/memoryCache";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
@@ -30,6 +31,7 @@ interface Memory {
 
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
+  const [memoriesLoading, setMemoriesLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const [announcement, setAnnouncement] = useState<{
     id: string;
@@ -81,10 +83,13 @@ export default function Home() {
     // Preload Archives page data for instant navigation
     async function preloadArchives() {
       try {
-        const { fetchMemoriesWithCache } = await import("@/lib/memoryCache");
         // Preload first page of archives (both desktop and mobile sizes)
         fetchMemoriesWithCache(0, 18, { status: "approved" }, '', { created_at: "desc" });
         fetchMemoriesWithCache(0, 10, { status: "approved" }, '', { created_at: "desc" });
+        
+        // Also preload second page for smooth scrolling
+        fetchMemoriesWithCache(1, 18, { status: "approved" }, '', { created_at: "desc" });
+        fetchMemoriesWithCache(1, 10, { status: "approved" }, '', { created_at: "desc" });
       } catch (err) {
         console.debug("Archives preload error:", err);
       }
@@ -129,8 +134,9 @@ export default function Home() {
           if (isMounted) setAnnouncement(null);
         }
 
-        // Fetch only the first 6 memories for home page (3x2 grid on desktop)
-        const { data: memoriesData, error: memoriesError } = await fetchMemoriesPaginated(
+        // Fetch only the first 6 memories for home page with caching for instant load
+        setMemoriesLoading(true);
+        const memoriesResult = await fetchMemoriesWithCache(
           0, // page
           6, // pageSize - only need 6 for home
           { status: "approved" },
@@ -140,11 +146,18 @@ export default function Home() {
 
         if (!isMounted) return;
 
-        if (memoriesError) {
-          console.error("Error fetching memories:", memoriesError);
+        if (memoriesResult.data) {
+          setRecentMemories(memoriesResult.data);
+          
+          // If loaded from cache, fetch fresh data in background
+          if (memoriesResult.fromCache) {
+            console.debug('🚀 Instant load from cache, refreshing in background');
+          }
         } else {
-          if (isMounted) setRecentMemories(memoriesData || []);
+          console.error("Error fetching memories");
+          setRecentMemories([]);
         }
+        setMemoriesLoading(false);
       } catch (err) {
         console.error("Unexpected error:", err);
       }
@@ -189,10 +202,27 @@ export default function Home() {
     }
   }, [announcement, isAnnouncementDismissed]);
 
-  const handleDismissAnnouncement = () => {
+  const handleDismissAnnouncement = async () => {
     if (announcement?.id) {
       localStorage.setItem(`dismissed_announcement_${announcement.id}`, "true");
       setIsAnnouncementDismissed(true);
+      
+      // If memories are not loaded or were cleared, reload them immediately
+      if (recentMemories.length === 0 && !memoriesLoading) {
+        setMemoriesLoading(true);
+        const memoriesResult = await fetchMemoriesWithCache(
+          0,
+          6,
+          { status: "approved" },
+          '',
+          { created_at: "desc" }
+        );
+        
+        if (memoriesResult.data) {
+          setRecentMemories(memoriesResult.data);
+        }
+        setMemoriesLoading(false);
+      }
     }
   };
 
@@ -391,7 +421,15 @@ export default function Home() {
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
           Recent Memories
         </h2>
-        {recentMemories.length > 0 ? (
+        {memoriesLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"></div>
+              <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+            </div>
+          </div>
+        ) : recentMemories.length > 0 ? (
           !isClient ? (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-1">

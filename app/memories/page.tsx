@@ -163,6 +163,17 @@ export default function Memories() {
     setPage(0);
     setDisplayedMemories([]);
     fetchPageData(0, searchTerm, true);
+    
+    // Prefetch Home page recent memories for instant navigation back
+    setTimeout(() => {
+      fetchMemoriesWithCache(
+        0,
+        6, // Home page shows 6 memories
+        { status: "approved" },
+        '',
+        { created_at: "desc" }
+      );
+    }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize]); // Re-fetch when screen size changes
 
