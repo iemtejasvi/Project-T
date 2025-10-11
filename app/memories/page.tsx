@@ -2,7 +2,8 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { updateMemory } from "@/lib/dualMemoryDB";
-import { fetchWithUltraCache, invalidateCache, warmUpCache, getCacheStats } from "@/lib/enhancedCache";
+import { fetchWithUltraCache, invalidateCache, warmUpCache, getCacheStats, forceRefreshAllCaches } from "@/lib/enhancedCache";
+import { getRealtimeUpdateManager } from "@/lib/realtimeUpdates";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
  
@@ -124,7 +125,7 @@ export default function Memories() {
         { status: "approved" },
         search.trim(),
         { created_at: "desc" },
-        { maxAge: 1800000, staleWhileRevalidate: 3600000, prefetchDepth: 5 }
+        { maxAge: 300000, staleWhileRevalidate: 600000, prefetchDepth: 5 } // 5min fresh for always-current content
       );
 
       if (!isMounted) return;
@@ -181,6 +182,15 @@ export default function Memories() {
     setDisplayedMemories([]);
     fetchPageData(0, searchTerm, true);
     
+    // Listen for real-time updates
+    const handleRefreshArchives = () => {
+      console.debug('🔄 Refreshing archives...');
+      fetchPageData(page, searchTerm, false);
+    };
+    
+    window.addEventListener('refresh-archives', handleRefreshArchives);
+    window.addEventListener('content-updated', handleRefreshArchives);
+    
     // Warm up cache for both Home and adjacent pages
     setTimeout(async () => {
       const pagesToWarm = [
@@ -193,6 +203,11 @@ export default function Memories() {
       await warmUpCache(pagesToWarm);
       console.debug('🔥 Cache warmed for instant navigation');
     }, 100); // Start immediately after initial load
+    
+    return () => {
+      window.removeEventListener('refresh-archives', handleRefreshArchives);
+      window.removeEventListener('content-updated', handleRefreshArchives);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize]); // Re-fetch when screen size changes
 

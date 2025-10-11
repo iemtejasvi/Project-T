@@ -40,15 +40,18 @@ class UltraCache {
   private cache: Map<string, CachedData>;
   private prefetchQueue: Set<string>;
   private pendingFetches: Map<string, Promise<any>>;
-  private readonly maxAge: number = 1800000; // 30 minutes cache (increased for better performance)
-  private readonly staleWhileRevalidate: number = 3600000; // 1 hour stale-while-revalidate
+  private lastFetchTime: Map<string, number>;
+  private readonly maxAge: number = 300000; // 5 minutes cache for fresher content
+  private readonly staleWhileRevalidate: number = 600000; // 10 minutes stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
   private readonly prefetchDepth: number = 5; // Prefetch 5 pages ahead
+  private readonly minRefreshInterval: number = 10000; // Minimum 10 seconds between refreshes
   
   constructor() {
     this.cache = new Map();
     this.prefetchQueue = new Set();
     this.pendingFetches = new Map();
+    this.lastFetchTime = new Map();
     
     // Initialize cache with localStorage if available
     if (typeof window !== 'undefined') {
@@ -57,14 +60,24 @@ class UltraCache {
       // Save to localStorage periodically
       setInterval(() => this.persistToLocalStorage(), 30000); // Save every 30s
       
-      // Clean up old entries less frequently
-      setInterval(() => this.cleanupOldEntries(), 600000); // Clean every 10 minutes
+      // Clean up old entries more frequently for fresher content
+      setInterval(() => this.cleanupOldEntries(), 300000); // Clean every 5 minutes
       
       // Process prefetch queue
       setInterval(() => this.processPrefetchQueue(), 100); // Process queue frequently
       
+      // Check for fresh content periodically
+      setInterval(() => this.checkForFreshContent(), 30000); // Check every 30s
+      
       // Save on page unload
       window.addEventListener('beforeunload', () => this.persistToLocalStorage());
+      
+      // Listen for visibility change to refresh when page becomes visible
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          this.checkForFreshContent();
+        }
+      });
     }
   }
   
@@ -168,13 +181,17 @@ class UltraCache {
     
     const cached = this.cache.get(cacheKey);
     const now = Date.now();
+    const lastFetch = this.lastFetchTime.get(cacheKey) || 0;
     
-    // Return cached data if fresh
-    if (cached && (now - cached.timestamp) < this.maxAge) {
+    // Force refresh if it's been too long since last actual fetch
+    const shouldForceRefresh = (now - lastFetch) > this.maxAge * 2;
+    
+    // Return cached data if fresh and not forcing refresh
+    if (cached && !shouldForceRefresh && (now - cached.timestamp) < this.maxAge) {
       monitor.startTimer('cache-hit');
       
-      // Mark as stale if getting old
-      if (now - cached.timestamp > this.maxAge / 2) {
+      // Always revalidate in background to ensure fresh content
+      if (now - cached.timestamp > this.minRefreshInterval) {
         cached.isStale = true;
         this.revalidateInBackground(page, pageSize, filters, searchTerm, orderBy);
       }
@@ -237,16 +254,31 @@ class UltraCache {
       
       if (!result.error) {
         const cacheKey = this.getCacheKey(page, pageSize, filters, searchTerm, orderBy);
+        const now = Date.now();
+        
+        // Track when we last fetched fresh data
+        this.lastFetchTime.set(cacheKey, now);
+        
+        // Check if data has changed
+        const existingCache = this.cache.get(cacheKey);
+        const hasChanged = !existingCache || 
+          existingCache.totalCount !== result.totalCount ||
+          JSON.stringify(existingCache.data) !== JSON.stringify(result.data);
         
         // Cache the result
         this.cache.set(cacheKey, {
           data: result.data,
           totalCount: result.totalCount,
           totalPages: result.totalPages,
-          timestamp: Date.now(),
-          etag: `${result.totalCount}-${Date.now()}`,
+          timestamp: now,
+          etag: `${result.totalCount}-${now}`,
           isStale: false
         });
+        
+        // If data changed, invalidate related caches
+        if (hasChanged) {
+          this.invalidateRelatedCaches(page, pageSize, filters, searchTerm, orderBy);
+        }
         
         this.enforceMaxSize();
         
@@ -451,6 +483,66 @@ class UltraCache {
       pendingFetches: this.pendingFetches.size
     };
   }
+  
+  // Check for fresh content on critical pages
+  private async checkForFreshContent(): Promise<void> {
+    // Check home page and first archive page
+    const criticalPages = [
+      { page: 0, pageSize: 6 }, // Home
+      { page: 0, pageSize: 18 }, // Archives desktop
+      { page: 0, pageSize: 10 }, // Archives mobile
+    ];
+    
+    for (const { page, pageSize } of criticalPages) {
+      const cacheKey = this.getCacheKey(page, pageSize, { status: 'approved' }, '', { created_at: 'desc' });
+      const cached = this.cache.get(cacheKey);
+      
+      if (cached) {
+        // Force revalidation of critical pages
+        this.revalidateInBackground(page, pageSize, { status: 'approved' }, '', { created_at: 'desc' });
+      }
+    }
+  }
+  
+  // Invalidate related caches when data changes
+  private invalidateRelatedCaches(
+    page: number,
+    pageSize: number,
+    filters: Record<string, string>,
+    searchTerm: string,
+    orderBy: Record<string, string>
+  ): void {
+    // If first page changed, invalidate all subsequent pages
+    if (page === 0) {
+      const keysToInvalidate: string[] = [];
+      
+      this.cache.forEach((_, key) => {
+        // Check if it's a related page (same filters, search, order)
+        if (key.includes(JSON.stringify(filters)) && 
+            key.includes(searchTerm) && 
+            key.includes(JSON.stringify(orderBy))) {
+          keysToInvalidate.push(key);
+        }
+      });
+      
+      // Mark all related pages as stale
+      keysToInvalidate.forEach(key => {
+        const cached = this.cache.get(key);
+        if (cached) {
+          cached.isStale = true;
+        }
+      });
+    }
+  }
+  
+  // Force refresh all caches
+  forceRefreshAll(): void {
+    this.cache.forEach((value, key) => {
+      value.isStale = true;
+    });
+    this.lastFetchTime.clear();
+    console.debug('🔄 Forced refresh of all caches');
+  }
 }
 
 // Singleton instance
@@ -489,4 +581,43 @@ export async function warmUpCache(pages: { page: number, pageSize: number }[]) {
 export function getCacheStats() {
   const cache = getUltraCache();
   return cache.getStats();
+}
+
+export function forceRefreshAllCaches() {
+  const cache = getUltraCache();
+  cache.forceRefreshAll();
+}
+
+// Hook for real-time updates
+export function setupRealtimeUpdates() {
+  if (typeof window !== 'undefined') {
+    // Listen for custom events that indicate data changes
+    window.addEventListener('memory-added', () => {
+      console.debug('🔄 New memory detected, refreshing caches...');
+      forceRefreshAllCaches();
+    });
+    
+    window.addEventListener('memory-updated', () => {
+      console.debug('🔄 Memory update detected, refreshing caches...');
+      forceRefreshAllCaches();
+    });
+    
+    window.addEventListener('feature-changed', () => {
+      console.debug('🔄 Feature change detected, refreshing caches...');
+      forceRefreshAllCaches();
+    });
+    
+    // Listen for storage events (changes from other tabs)
+    window.addEventListener('storage', (e) => {
+      if (e.key && e.key.includes('memory') || e.key && e.key.includes('feature')) {
+        console.debug('🔄 Storage change detected, refreshing caches...');
+        forceRefreshAllCaches();
+      }
+    });
+  }
+}
+
+// Auto-setup real-time updates
+if (typeof window !== 'undefined') {
+  setupRealtimeUpdates();
 }

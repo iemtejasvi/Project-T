@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { primaryDB } from "@/lib/dualMemoryDB";
-import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
+import { fetchWithUltraCache, warmUpCache, forceRefreshAllCaches } from "@/lib/enhancedCache";
+import { getRealtimeUpdateManager } from "@/lib/realtimeUpdates";
 import { storage } from "@/lib/persistentStorage";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
@@ -50,6 +51,7 @@ export default function Home() {
   const [isDesktop, setIsDesktop] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isAnnouncementDismissed, setIsAnnouncementDismissed] = useState(false);
+  const [announcementCheckComplete, setAnnouncementCheckComplete] = useState(false);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -105,6 +107,9 @@ export default function Home() {
         
         await warmUpCache(pagesToWarm);
         console.debug('🚀 Cache warmed up for lightning-fast navigation');
+        
+        // Trigger event for other components
+        window.dispatchEvent(new CustomEvent('cache-warmed'));
       } catch (err) {
         console.debug("Cache warmup error:", err);
       }
@@ -135,9 +140,19 @@ export default function Home() {
               .from("announcements")
               .delete()
               .eq("id", announcementData[0].id);
-            if (isMounted) setAnnouncement(null);
+            if (isMounted) {
+              setAnnouncement(null);
+              setAnnouncementCheckComplete(true);
+            }
           } else {
-            if (isMounted) setAnnouncement(announcementData[0]);
+            // Check dismissal status BEFORE setting announcement
+            const isDismissed = storage.isAnnouncementDismissed(announcementData[0].id);
+            
+            if (isMounted) {
+              setAnnouncement(announcementData[0]);
+              setIsAnnouncementDismissed(isDismissed);
+              setAnnouncementCheckComplete(true);
+            }
             
             // Schedule next check for this announcement
             const timeUntilExpiry = expiryTime.getTime() - now.getTime();
@@ -146,7 +161,10 @@ export default function Home() {
             }, timeUntilExpiry);
           }
         } else {
-          if (isMounted) setAnnouncement(null);
+          if (isMounted) {
+            setAnnouncement(null);
+            setAnnouncementCheckComplete(true);
+          }
         }
 
         // Fetch recent memories with ultra cache for instant load
@@ -157,7 +175,7 @@ export default function Home() {
           { status: "approved" },
           '', // no search on home
           { created_at: "desc" },
-          { maxAge: 1800000, staleWhileRevalidate: 3600000 } // 30min fresh, 1hr stale
+          { maxAge: 300000, staleWhileRevalidate: 600000 } // 5min fresh, 10min stale for always-fresh content
         );
 
         if (!isMounted) return;
@@ -180,6 +198,17 @@ export default function Home() {
 
     fetchData();
     
+    // Listen for real-time updates
+    const handleRefreshMemories = () => {
+      if (isMounted) {
+        console.debug('🔄 Refreshing home memories...');
+        fetchData();
+      }
+    };
+    
+    window.addEventListener('refresh-home-memories', handleRefreshMemories);
+    window.addEventListener('content-updated', handleRefreshMemories);
+    
     // Start warming up cache after initial load for instant navigation everywhere
     setTimeout(() => {
       warmUpCacheForAllPages();
@@ -192,16 +221,19 @@ export default function Home() {
     return () => {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener('refresh-home-memories', handleRefreshMemories);
+      window.removeEventListener('content-updated', handleRefreshMemories);
     };
   }, []); // Remove currentTime dependency
 
-  useEffect(() => {
-    if (announcement?.id && storage.isAnnouncementDismissed(announcement.id)) {
-      setIsAnnouncementDismissed(true);
-    } else {
-      setIsAnnouncementDismissed(false);
-    }
-  }, [announcement]);
+  // No longer needed - we check dismissal status before setting announcement
+  // useEffect(() => {
+  //   if (announcement?.id && storage.isAnnouncementDismissed(announcement.id)) {
+  //     setIsAnnouncementDismissed(true);
+  //   } else {
+  //     setIsAnnouncementDismissed(false);
+  //   }
+  // }, [announcement]);
 
   // Track announcement view
   useEffect(() => {
@@ -380,7 +412,7 @@ export default function Home() {
         </div>
       </header>
 
-        {announcement && !isAnnouncementDismissed && (
+        {announcement && !isAnnouncementDismissed && announcementCheckComplete && (
           <section className={`my-8 px-4 sm:px-6 max-w-5xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
             <div 
               className="relative p-4 rounded-lg shadow-md md:flex md:items-center md:justify-between md:gap-4 animate-pulse-glow"
@@ -431,7 +463,7 @@ export default function Home() {
         
         {/* Mobile typewriter section - smooth transition when announcement dismissed */}
         <section className={`my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden transition-all duration-500 ${
-          (!announcement || isAnnouncementDismissed) && !announcementTransitioning 
+          (!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete
             ? 'opacity-100 translate-y-0' 
             : 'opacity-0 -translate-y-2 pointer-events-none'
         }`}>
