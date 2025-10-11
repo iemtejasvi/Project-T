@@ -2,8 +2,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { updateMemory } from "@/lib/dualMemoryDB";
-import { fetchWithUltraCache, invalidateCache, warmUpCache, getCacheStats, forceRefreshAllCaches } from "@/lib/enhancedCache";
-import { getRealtimeUpdateManager } from "@/lib/realtimeUpdates";
+import { fetchWithUltraCache, invalidateCache, warmUpCache } from "@/lib/enhancedCache";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
  
@@ -38,7 +37,6 @@ export default function Memories() {
   const [totalPages, setTotalPages] = useState(0);
   const [isLoadingPage, setIsLoadingPage] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [instantTransition, setInstantTransition] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSearchRef = useRef("");
   const lastPageLoadTime = useRef<number>(0);
@@ -140,11 +138,6 @@ export default function Memories() {
         // Track load time for performance
         const loadTime = Date.now() - startTime;
         lastPageLoadTime.current = loadTime;
-        
-        // Enable instant transitions if loading was very fast
-        if (loadTime < 50) {
-          setInstantTransition(true);
-        }
         
         // Update state with fetched data
         setDisplayedMemories(result.data || []);
@@ -250,7 +243,7 @@ export default function Memories() {
     return () => {
       isMounted = false;
     };
-  }, [currentTime, hasActivePinnedMemories, displayedMemories]);
+  }, [currentTime, hasActivePinnedMemories, displayedMemories, searchTerm]);
 
   // Handle search with debouncing
   useEffect(() => {

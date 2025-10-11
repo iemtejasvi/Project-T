@@ -39,7 +39,7 @@ interface CacheOptions {
 class UltraCache {
   private cache: Map<string, CachedData>;
   private prefetchQueue: Set<string>;
-  private pendingFetches: Map<string, Promise<any>>;
+  private pendingFetches: Map<string, Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }>>;
   private lastFetchTime: Map<string, number>;
   private readonly maxAge: number = 180000; // 3 minutes cache for ultra-fresh content
   private readonly staleWhileRevalidate: number = 300000; // 5 minutes stale-while-revalidate
@@ -106,9 +106,10 @@ class UltraCache {
         const now = Date.now();
         
         // Restore entries that aren't too old
-        Object.entries(parsed).forEach(([key, value]: [string, any]) => {
-          if (now - value.timestamp < this.staleWhileRevalidate) {
-            this.cache.set(key, value);
+        Object.entries(parsed).forEach(([key, value]) => {
+          const cachedValue = value as CachedData;
+          if (now - cachedValue.timestamp < this.staleWhileRevalidate) {
+            this.cache.set(key, cachedValue);
           } else {
             // Silent fresh fetch
           }
@@ -116,7 +117,7 @@ class UltraCache {
         
         // Silent operation for seamless experience
       }
-    } catch (err) {
+    } catch {
       // Silent restore error
     }
   }
@@ -134,7 +135,7 @@ class UltraCache {
       });
       
       localStorage.setItem('ultraCache', JSON.stringify(toStore));
-    } catch (err) {
+    } catch {
       // Ignore storage errors (quota exceeded, etc)
       // Silent persist error
     }
@@ -181,6 +182,10 @@ class UltraCache {
     const monitor = getPerformanceMonitor();
     const cacheKey = this.getCacheKey(page, pageSize, filters, searchTerm, orderBy);
     
+    // Use options or defaults
+    const maxAge = options.maxAge || this.maxAge;
+    const staleWhileRevalidate = options.staleWhileRevalidate || this.staleWhileRevalidate;
+    
     // Check if already fetching
     if (this.pendingFetches.has(cacheKey)) {
       console.debug('⏳ Waiting for pending fetch...');
@@ -192,10 +197,10 @@ class UltraCache {
     const lastFetch = this.lastFetchTime.get(cacheKey) || 0;
     
     // Force refresh if it's been too long since last actual fetch
-    const shouldForceRefresh = (now - lastFetch) > this.maxAge * 2;
+    const shouldForceRefresh = (now - lastFetch) > maxAge * 2;
     
     // Return cached data if fresh and not forcing refresh
-    if (cached && !shouldForceRefresh && (now - cached.timestamp) < this.maxAge) {
+    if (cached && !shouldForceRefresh && (now - cached.timestamp) < maxAge) {
       monitor.startTimer('cache-hit');
       
       // Always revalidate in background to ensure fresh content
@@ -220,7 +225,7 @@ class UltraCache {
     }
     
     // Return stale data while revalidating if within stale window
-    if (cached && (now - cached.timestamp) < this.staleWhileRevalidate) {
+    if (cached && (now - cached.timestamp) < staleWhileRevalidate) {
       console.debug(`♻️ Serving stale-while-revalidate for page ${page}`);
       
       // Revalidate in background
@@ -374,13 +379,11 @@ class UltraCache {
     for (let i = 1; i <= this.prefetchDepth; i++) {
       // Prefetch next pages
       if (currentPage + i < totalPages) {
-        const key = this.getCacheKey(currentPage + i, pageSize, filters, searchTerm, orderBy);
         this.prefetchQueue.add(JSON.stringify({ page: currentPage + i, pageSize, filters, searchTerm, orderBy }));
       }
       
       // Prefetch previous pages
       if (currentPage - i >= 0) {
-        const key = this.getCacheKey(currentPage - i, pageSize, filters, searchTerm, orderBy);
         this.prefetchQueue.add(JSON.stringify({ page: currentPage - i, pageSize, filters, searchTerm, orderBy }));
       }
     }
@@ -419,7 +422,13 @@ class UltraCache {
         params.orderBy
       );
       
-      this.pendingFetches.set(cacheKey, fetchPromise);
+      this.pendingFetches.set(cacheKey, fetchPromise.then(result => ({
+        data: result.data,
+        totalCount: result.totalCount,
+        totalPages: result.totalPages,
+        currentPage: params.page,
+        fromCache: false
+      })));
       
       const result = await fetchPromise;
       
@@ -436,7 +445,7 @@ class UltraCache {
         this.enforceMaxSize();
         console.debug(`📥 Prefetched page ${params.page}`);
       }
-    } catch (err) {
+    } catch {
       // Ignore prefetch errors
     } finally {
       const params = JSON.parse(item);
@@ -545,7 +554,7 @@ class UltraCache {
   
   // Force refresh all caches
   forceRefreshAll(): void {
-    this.cache.forEach((value, key) => {
+    this.cache.forEach((value) => {
       value.isStale = true;
     });
     this.lastFetchTime.clear();

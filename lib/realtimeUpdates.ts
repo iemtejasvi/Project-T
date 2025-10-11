@@ -59,14 +59,13 @@ class RealtimeUpdateManager {
       // Check if there are new updates by looking at localStorage timestamp
       const lastUpdateKey = 'last_content_update';
       const storedLastUpdate = localStorage.getItem(lastUpdateKey);
-      const currentLastUpdate = now.toString();
       
       if (storedLastUpdate && parseInt(storedLastUpdate) > this.lastCheckTime - 20000) {
         // New content detected (within last 20 seconds)
         // Silent refresh
         this.triggerContentRefresh();
       }
-    } catch (err) {
+    } catch {
       // Silent error
     }
   }

@@ -6,7 +6,7 @@ class PersistentStorage {
    * Set a value with automatic persistence across sessions
    * Uses localStorage with fallback to sessionStorage and cookies
    */
-  set(key: string, value: any, options?: { expires?: number }): void {
+  set(key: string, value: unknown, options?: { expires?: number }): void {
     const fullKey = `${this.prefix}${key}`;
     const data = {
       value,
@@ -17,11 +17,11 @@ class PersistentStorage {
     try {
       // Primary: localStorage (persists across sessions)
       localStorage.setItem(fullKey, JSON.stringify(data));
-    } catch (e) {
+    } catch {
       try {
         // Fallback: sessionStorage
         sessionStorage.setItem(fullKey, JSON.stringify(data));
-      } catch (e2) {
+      } catch {
         // Last resort: cookies
         this.setCookie(fullKey, JSON.stringify(data), options?.expires);
       }
@@ -31,7 +31,7 @@ class PersistentStorage {
   /**
    * Get a value from storage, checking all storage types
    */
-  get(key: string): any {
+  get(key: string): unknown {
     const fullKey = `${this.prefix}${key}`;
     
     // Try localStorage first
@@ -48,7 +48,7 @@ class PersistentStorage {
         
         return data.value;
       }
-    } catch (e) {
+    } catch {
       // Ignore errors
     }
     
@@ -66,7 +66,7 @@ class PersistentStorage {
         
         return data.value;
       }
-    } catch (e) {
+    } catch {
       // Ignore errors
     }
     
@@ -83,7 +83,7 @@ class PersistentStorage {
         }
         
         return data.value;
-      } catch (e) {
+      } catch {
         return cookieValue; // Return raw value if not JSON
       }
     }
@@ -99,13 +99,13 @@ class PersistentStorage {
     
     try {
       localStorage.removeItem(fullKey);
-    } catch (e) {
+    } catch {
       // Ignore errors
     }
     
     try {
       sessionStorage.removeItem(fullKey);
-    } catch (e) {
+    } catch {
       // Ignore errors
     }
     
@@ -131,7 +131,7 @@ class PersistentStorage {
           localStorage.removeItem(key);
         }
       });
-    } catch (e) {
+    } catch {
       // Ignore errors
     }
     
@@ -143,7 +143,7 @@ class PersistentStorage {
           sessionStorage.removeItem(key);
         }
       });
-    } catch (e) {
+    } catch {
       // Ignore errors
     }
     
@@ -206,8 +206,8 @@ class PersistentStorage {
     const nameEQ = `${name}=`;
     const cookies = document.cookie.split(';');
     
-    for (let cookie of cookies) {
-      let c = cookie.trim();
+    for (const cookie of cookies) {
+      const c = cookie.trim();
       if (c.indexOf(nameEQ) === 0) {
         return decodeURIComponent(c.substring(nameEQ.length));
       }
@@ -255,8 +255,8 @@ class PersistentStorage {
           localStorage.removeItem(key);
         }
       });
-    } catch (e) {
-      console.debug('Migration error:', e);
+    } catch {
+      // Ignore migration errors
     }
   }
 }

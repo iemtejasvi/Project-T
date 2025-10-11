@@ -4,8 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { primaryDB } from "@/lib/dualMemoryDB";
-import { fetchWithUltraCache, warmUpCache, forceRefreshAllCaches } from "@/lib/enhancedCache";
-import { getRealtimeUpdateManager } from "@/lib/realtimeUpdates";
+import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
 import { storage } from "@/lib/persistentStorage";
 import { browserSession } from "@/lib/browserSession";
 import MemoryCard from "@/components/MemoryCard";
@@ -115,7 +114,7 @@ export default function Home() {
         await warmUpCache(pagesToWarm);
         // Silent cache warmup
         window.dispatchEvent(new CustomEvent('cache-warmed'));
-      } catch (err) {
+      } catch {
         // Silent error
       }
     }

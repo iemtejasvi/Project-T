@@ -94,7 +94,7 @@ class BrowserSessionManager {
   /**
    * Store data that persists until browser restart
    */
-  setSessionData(key: string, value: any): void {
+  setSessionData(key: string, value: unknown): void {
     const fullKey = `session_${key}`;
     sessionStorage.setItem(fullKey, JSON.stringify({
       value,
@@ -106,7 +106,7 @@ class BrowserSessionManager {
   /**
    * Get data that persists until browser restart
    */
-  getSessionData(key: string): any {
+  getSessionData(key: string): unknown {
     const fullKey = `session_${key}`;
     const stored = sessionStorage.getItem(fullKey);
     
@@ -139,5 +139,5 @@ export const browserSession = new BrowserSessionManager();
 // Auto-initialize on load
 if (typeof window !== 'undefined') {
   // Ensure session is initialized immediately
-  browserSession;
+  void browserSession;
 }
