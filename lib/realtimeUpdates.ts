@@ -31,7 +31,7 @@ class RealtimeUpdateManager {
     
     // Listen for online/offline events
     window.addEventListener('online', () => {
-      console.debug('📶 Back online, checking for updates...');
+      // Silent online check
       this.checkForUpdates();
     });
   }
@@ -63,11 +63,11 @@ class RealtimeUpdateManager {
       
       if (storedLastUpdate && parseInt(storedLastUpdate) > this.lastCheckTime - 20000) {
         // New content detected (within last 20 seconds)
-        console.debug('🆕 New content detected, refreshing...');
+        // Silent refresh
         this.triggerContentRefresh();
       }
     } catch (err) {
-      console.debug('Update check error:', err);
+      // Silent error
     }
   }
   
@@ -91,7 +91,7 @@ class RealtimeUpdateManager {
   
   // Call this when new content is added
   notifyContentAdded(type: 'memory' | 'feature' | 'announcement'): void {
-    console.debug(`📝 New ${type} added, notifying all tabs...`);
+    // Silent notification
     
     // Update timestamp
     localStorage.setItem('last_content_update', Date.now().toString());
@@ -106,7 +106,7 @@ class RealtimeUpdateManager {
   
   // Call this when content is updated
   notifyContentUpdated(type: 'memory' | 'feature' | 'announcement'): void {
-    console.debug(`✏️ ${type} updated, notifying all tabs...`);
+    // Silent update
     
     // Update timestamp
     localStorage.setItem('last_content_update', Date.now().toString());

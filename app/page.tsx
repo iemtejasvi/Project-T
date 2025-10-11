@@ -7,6 +7,7 @@ import { primaryDB } from "@/lib/dualMemoryDB";
 import { fetchWithUltraCache, warmUpCache, forceRefreshAllCaches } from "@/lib/enhancedCache";
 import { getRealtimeUpdateManager } from "@/lib/realtimeUpdates";
 import { storage } from "@/lib/persistentStorage";
+import { browserSession } from "@/lib/browserSession";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
@@ -33,7 +34,7 @@ interface Memory {
 
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
-  const [memoriesLoading, setMemoriesLoading] = useState(true);
+  const [memoriesLoading, setMemoriesLoading] = useState(false); // Start with false for instant perceived load
   const [showWelcome, setShowWelcome] = useState(false);
   const [announcementTransitioning, setAnnouncementTransitioning] = useState(false);
   const [announcement, setAnnouncement] = useState<{
@@ -83,6 +84,12 @@ export default function Home() {
   useEffect(() => {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout;
+    
+    // Check if new browser session to handle cookie clears
+    if (browserSession.isNewBrowserSession()) {
+      // Browser was restarted - cookies may have been cleared
+      storage.migrate(); // Re-migrate any persistent data
+    }
 
     // Warm up cache for instant navigation everywhere
     async function warmUpCacheForAllPages() {
@@ -106,12 +113,10 @@ export default function Home() {
         ];
         
         await warmUpCache(pagesToWarm);
-        console.debug('🚀 Cache warmed up for lightning-fast navigation');
-        
-        // Trigger event for other components
+        // Silent cache warmup
         window.dispatchEvent(new CustomEvent('cache-warmed'));
       } catch (err) {
-        console.debug("Cache warmup error:", err);
+        // Silent error
       }
     }
 
@@ -168,14 +173,14 @@ export default function Home() {
         }
 
         // Fetch recent memories with ultra cache for instant load
-        setMemoriesLoading(true);
+        // Don't show loading for cached content
         const memoriesResult = await fetchWithUltraCache(
           0, // page
           6, // pageSize - only need 6 for home
           { status: "approved" },
           '', // no search on home
           { created_at: "desc" },
-          { maxAge: 300000, staleWhileRevalidate: 600000 } // 5min fresh, 10min stale for always-fresh content
+          { maxAge: 180000, staleWhileRevalidate: 300000 } // 3min fresh, 5min stale for ultra-fresh content
         );
 
         if (!isMounted) return;
@@ -183,14 +188,15 @@ export default function Home() {
         if (memoriesResult.data) {
           setRecentMemories(memoriesResult.data);
           
-          if (memoriesResult.fromCache) {
-            console.debug('⚡ Instant load from ultra cache');
+          // Only show loading if this was NOT from cache
+          if (!memoriesResult.fromCache && memoriesResult.data.length === 0) {
+            setMemoriesLoading(true);
+            // Hide loader after a brief moment
+            setTimeout(() => setMemoriesLoading(false), 500);
           }
         } else {
-          console.error("Error fetching memories");
           setRecentMemories([]);
         }
-        setMemoriesLoading(false);
       } catch (err) {
         console.error("Unexpected error:", err);
       }
@@ -199,10 +205,10 @@ export default function Home() {
     fetchData();
     
     // Listen for real-time updates
-    const handleRefreshMemories = () => {
+    const handleRefreshMemories = async () => {
       if (isMounted) {
-        console.debug('🔄 Refreshing home memories...');
-        fetchData();
+        // Silent background refresh
+        await fetchData();
       }
     };
     

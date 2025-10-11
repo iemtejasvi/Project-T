@@ -32,7 +32,7 @@ export default function Memories() {
   const [displayedMemories, setDisplayedMemories] = useState<Memory[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(false); // Start false for instant perceived load
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -110,14 +110,6 @@ export default function Memories() {
     let isMounted = true;
     
     try {
-      if (showLoader) {
-        if (isLoadMore) {
-          setIsLoadingMore(true);
-        } else {
-          setIsLoadingPage(true);
-        }
-      }
-      
       const startTime = Date.now();
       const result = await fetchWithUltraCache(
         pageNum,
@@ -125,10 +117,19 @@ export default function Memories() {
         { status: "approved" },
         search.trim(),
         { created_at: "desc" },
-        { maxAge: 300000, staleWhileRevalidate: 600000, prefetchDepth: 5 } // 5min fresh for always-current content
+        { maxAge: 180000, staleWhileRevalidate: 300000, prefetchDepth: 5 } // 3min fresh for ultra-current content
       );
 
       if (!isMounted) return;
+      
+      // Only show loader for non-cached, slow loads
+      if (showLoader && !result.fromCache && (Date.now() - startTime) > 100) {
+        if (isLoadMore) {
+          setIsLoadingMore(true);
+        } else {
+          setIsLoadingPage(true);
+        }
+      }
 
       if (!result.data) {
         console.error("Error fetching memories");
@@ -150,15 +151,7 @@ export default function Memories() {
         setTotalCount(result.totalCount || 0);
         setTotalPages(result.totalPages || 0);
         
-        if (result.fromCache) {
-          console.debug(`⚡ Ultra-fast cache hit (${loadTime}ms)`);
-        } else {
-          console.debug(`📥 Fresh data fetched (${loadTime}ms)`);
-        }
-        
-        // Log cache stats for monitoring
-        const stats = getCacheStats();
-        console.debug(`📊 Cache stats:`, stats);
+        // Silent operation for seamless experience
       }
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -183,9 +176,9 @@ export default function Memories() {
     fetchPageData(0, searchTerm, true);
     
     // Listen for real-time updates
-    const handleRefreshArchives = () => {
-      console.debug('🔄 Refreshing archives...');
-      fetchPageData(page, searchTerm, false);
+    const handleRefreshArchives = async () => {
+      // Silent background refresh - no loading indicators
+      await fetchPageData(page, searchTerm, false);
     };
     
     window.addEventListener('refresh-archives', handleRefreshArchives);
@@ -201,7 +194,7 @@ export default function Memories() {
         { page: 2, pageSize },
       ];
       await warmUpCache(pagesToWarm);
-      console.debug('🔥 Cache warmed for instant navigation');
+      // Silent cache warmup
     }, 100); // Start immediately after initial load
     
     return () => {
@@ -301,8 +294,8 @@ export default function Memories() {
     const nextPage = page + 1;
     setPage(nextPage);
     
-    // If last load was instant, don't show loader for better UX
-    const showLoader = lastPageLoadTime.current > 100;
+    // Never show loader for cached content
+    const showLoader = lastPageLoadTime.current > 50;
     await fetchPageData(nextPage, searchTerm, showLoader, true);
     
     // Instant scroll for cached pages, smooth for fresh
@@ -379,7 +372,7 @@ export default function Memories() {
             className="max-w-xs sm:w-[400px] mx-auto block p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
           />
         </div>
-        {initialLoading ? (
+        {initialLoading && displayedMemories.length === 0 ? (
           <div className="flex items-center justify-center py-16">
             <Loader text="Loading memories..." />
           </div>

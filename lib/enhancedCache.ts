@@ -41,8 +41,8 @@ class UltraCache {
   private prefetchQueue: Set<string>;
   private pendingFetches: Map<string, Promise<any>>;
   private lastFetchTime: Map<string, number>;
-  private readonly maxAge: number = 300000; // 5 minutes cache for fresher content
-  private readonly staleWhileRevalidate: number = 600000; // 10 minutes stale-while-revalidate
+  private readonly maxAge: number = 180000; // 3 minutes cache for ultra-fresh content
+  private readonly staleWhileRevalidate: number = 300000; // 5 minutes stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
   private readonly prefetchDepth: number = 5; // Prefetch 5 pages ahead
   private readonly minRefreshInterval: number = 10000; // Minimum 10 seconds between refreshes
@@ -67,7 +67,7 @@ class UltraCache {
       setInterval(() => this.processPrefetchQueue(), 100); // Process queue frequently
       
       // Check for fresh content periodically
-      setInterval(() => this.checkForFreshContent(), 30000); // Check every 30s
+      setInterval(() => this.checkForFreshContent(), 20000); // Check every 20s for fresher content
       
       // Save on page unload
       window.addEventListener('beforeunload', () => this.persistToLocalStorage());
@@ -75,8 +75,14 @@ class UltraCache {
       // Listen for visibility change to refresh when page becomes visible
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
-          this.checkForFreshContent();
+          // Immediate background refresh when tab becomes visible
+          setTimeout(() => this.checkForFreshContent(), 100);
         }
+      });
+      
+      // Listen for focus to ensure fresh content
+      window.addEventListener('focus', () => {
+        setTimeout(() => this.checkForFreshContent(), 100);
       });
     }
   }
@@ -103,13 +109,15 @@ class UltraCache {
         Object.entries(parsed).forEach(([key, value]: [string, any]) => {
           if (now - value.timestamp < this.staleWhileRevalidate) {
             this.cache.set(key, value);
+          } else {
+            // Silent fresh fetch
           }
         });
         
-        console.debug(`✨ Restored ${this.cache.size} cache entries from localStorage`);
+        // Silent operation for seamless experience
       }
     } catch (err) {
-      console.debug('Cache restore error:', err);
+      // Silent restore error
     }
   }
   
@@ -128,7 +136,7 @@ class UltraCache {
       localStorage.setItem('ultraCache', JSON.stringify(toStore));
     } catch (err) {
       // Ignore storage errors (quota exceeded, etc)
-      console.debug('Cache persist error:', err);
+      // Silent persist error
     }
   }
   
@@ -200,7 +208,7 @@ class UltraCache {
       this.prefetchAdjacentPages(page, pageSize, filters, searchTerm, orderBy, cached.totalPages);
       
       monitor.endTimer('cache-hit');
-      console.debug(`⚡ Instant cache hit for page ${page}`);
+      // Silent cache hit - no console spam for seamless experience
       
       return {
         data: cached.data,
@@ -541,7 +549,7 @@ class UltraCache {
       value.isStale = true;
     });
     this.lastFetchTime.clear();
-    console.debug('🔄 Forced refresh of all caches');
+    // Silent force refresh for seamless experience
   }
 }
 
