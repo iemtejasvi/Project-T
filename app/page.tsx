@@ -466,16 +466,14 @@ export default function Home() {
           </section>
         )}
         
-        {/* Mobile typewriter section - smooth transition when announcement dismissed */}
-        <section className={`my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden transition-all duration-500 ${
-          (!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete
-            ? 'opacity-100 translate-y-0' 
-            : 'opacity-0 -translate-y-2 pointer-events-none'
-        }`}>
-          <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
-            <TypingEffect />
-          </div>
-        </section>
+        {/* Mobile typewriter section - only render when announcement is dismissed */}
+        {((!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete) && (
+          <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden animate-fade-in">
+            <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+              <TypingEffect />
+            </div>
+          </section>
+        )}
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
