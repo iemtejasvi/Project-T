@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { primaryDB } from "@/lib/dualMemoryDB";
-import { fetchMemoriesWithCache, getMemoryCache } from "@/lib/memoryCache";
+import { fetchMemoriesWithCache } from "@/lib/memoryCache";
 import MemoryCard from "@/components/MemoryCard";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
