@@ -116,7 +116,14 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
   }
 
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-sm text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
+    <div className="min-h-[2rem] text-center text-sm text-[var(--text)] font-serif transition-all duration-300 break-words" style={{ 
+      wordWrap: 'break-word',
+      overflowWrap: 'break-word',
+      hyphens: 'none',
+      WebkitHyphens: 'none',
+      msHyphens: 'none',
+      MozHyphens: 'none'
+    }}>
       {displayedText}
     </div>
   );

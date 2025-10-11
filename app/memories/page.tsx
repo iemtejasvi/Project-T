@@ -36,21 +36,47 @@ export default function Memories() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoadingPage, setIsLoadingPage] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // Separate state for Load More
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSearchRef = useRef("");
   
-  // Responsive check for desktop
-  const [isDesktop, setIsDesktop] = useState(false);
+  // Responsive check for desktop - Initialize correctly on first render
+  const [isDesktop, setIsDesktop] = useState(() => {
+    // Safe initial check for SSR
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024;
+    }
+    return false;
+  });
+  
   useEffect(() => {
-    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
-    checkDesktop();
+    let resizeTimeout: NodeJS.Timeout;
+    const checkDesktop = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setIsDesktop(window.innerWidth >= 1024);
+      }, 150); // Debounce resize events
+    };
+    
+    // Check immediately
+    setIsDesktop(window.innerWidth >= 1024);
+    
     window.addEventListener("resize", checkDesktop);
-    return () => window.removeEventListener("resize", checkDesktop);
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener("resize", checkDesktop);
+    };
   }, []);
+  
   const pageSize = isDesktop ? 18 : 10;
 
   const hasPrevious = page > 0;
   const hasNext = page < totalPages - 1;
+
+  const currentDisplayCount = useMemo(() => {
+    const calculatedCount = page * pageSize + displayedMemories.length;
+    return Math.min(totalCount, calculatedCount);
+  }, [page, pageSize, displayedMemories.length, totalCount]);
 
   // Check if there are any ACTIVE pinned memories (not expired)
   const hasActivePinnedMemories = useMemo(() => {
@@ -76,13 +102,18 @@ export default function Memories() {
   const fetchPageData = useCallback(async (
     pageNum: number,
     search: string,
-    showLoader = true
+    showLoader = true,
+    isLoadMore = false
   ) => {
     let isMounted = true;
     
     try {
       if (showLoader) {
-        setIsLoadingPage(true);
+        if (isLoadMore) {
+          setIsLoadingMore(true);
+        } else {
+          setIsLoadingPage(true);
+        }
       }
       
       const result = await fetchMemoriesWithCache(
@@ -97,7 +128,12 @@ export default function Memories() {
 
       if (!result.data) {
         console.error("Error fetching memories");
+        // Provide empty fallback to prevent UI breaking
+        setDisplayedMemories([]);
+        setTotalCount(0);
+        setTotalPages(0);
       } else {
+        // Always replace memories (don't accumulate)
         setDisplayedMemories(result.data || []);
         setTotalCount(result.totalCount || 0);
         setTotalPages(result.totalPages || 0);
@@ -112,6 +148,7 @@ export default function Memories() {
     } finally {
       if (isMounted) {
         setIsLoadingPage(false);
+        setIsLoadingMore(false);
         if (initialLoading) {
           setInitialLoading(false);
         }
@@ -121,9 +158,12 @@ export default function Memories() {
     return () => { isMounted = false; };
   }, [pageSize, initialLoading]);
   
-  // Initial load
+  // Initial load and re-fetch when page size changes
   useEffect(() => {
-    fetchPageData(0, "", true);
+    // Reset page when page size changes to avoid confusion
+    setPage(0);
+    setDisplayedMemories([]);
+    fetchPageData(0, searchTerm, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize]); // Re-fetch when screen size changes
 
@@ -192,6 +232,9 @@ export default function Memories() {
       setIsLoadingPage(true);
     }
     
+    // Reset memories when searching
+    setDisplayedMemories([]);
+    
     // Debounce search
     searchTimeoutRef.current = setTimeout(() => {
       lastSearchRef.current = searchTerm;
@@ -210,12 +253,21 @@ export default function Memories() {
     setSearchTerm(e.target.value);
   }, []);
   
-  const handlePageChange = useCallback(async (newPage: number) => {
-    setPage(newPage);
-    await fetchPageData(newPage, searchTerm);
-    // Smooth scroll to top
+  const handleLoadMore = useCallback(async () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await fetchPageData(nextPage, searchTerm, true, true);
+    // Smooth scroll to top when loading next page
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [searchTerm, fetchPageData]);
+  }, [page, searchTerm, fetchPageData]);
+
+  const handleLoadPrevious = useCallback(async () => {
+    const prevPage = page - 1;
+    setPage(prevPage);
+    await fetchPageData(prevPage, searchTerm, true, false);
+    // Smooth scroll to top when loading previous
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [page, searchTerm, fetchPageData]);
 
   
 
@@ -273,23 +325,23 @@ export default function Memories() {
           </div>
         ) : displayedMemories.length > 0 ? (
           <>
-            {/* Load Previous Button */}
-            {hasPrevious && (
+            {/* Previous Page Button - only show if not on first page */}
+            {page > 0 && (
               <div className="text-center mb-6">
                 <button
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={!hasPrevious || isLoadingPage}
+                  onClick={handleLoadPrevious}
+                  disabled={isLoadingPage || isLoadingMore}
                   className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
                 >
-                  <span className="text-lg">←</span> Load Prev.
+                  <span className="text-lg">←</span> Previous
                 </button>
               </div>
             )}
             <div className="mb-4 opacity-75 text-center">
               <span className="block text-base sm:text-lg font-medium text-[var(--text)]">
                 {searchTerm
-                  ? `Showing ${displayedMemories.length} of ${totalCount} search results (Page ${page + 1}/${totalPages})`
-                  : `Showing ${displayedMemories.length} of ${totalCount} memories (Page ${page + 1}/${totalPages})`}
+                  ? `Showing ${currentDisplayCount} of ${totalCount} search results`
+                  : `Showing ${currentDisplayCount} of ${totalCount} memories`}
               </span>
             </div>
             {isLoadingPage ? (
@@ -306,13 +358,19 @@ export default function Memories() {
             {/* Load More Button */}
             {hasNext && (
               <div className="text-center mt-6">
-                <button
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={!hasNext || isLoadingPage}
-                  className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
-                >
-                  Load More <span className="text-lg">→</span>
-                </button>
+                {isLoadingMore ? (
+                  <div className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 opacity-50">
+                    <Loader text="Loading more..." />
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={!hasNext || isLoadingMore}
+                    className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
+                  >
+                    Load More <span className="text-lg">→</span>
+                  </button>
+                )}
               </div>
             )}
           </>

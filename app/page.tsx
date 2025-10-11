@@ -78,6 +78,18 @@ export default function Home() {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout;
 
+    // Preload Archives page data for instant navigation
+    async function preloadArchives() {
+      try {
+        const { fetchMemoriesWithCache } = await import("@/lib/memoryCache");
+        // Preload first page of archives (both desktop and mobile sizes)
+        fetchMemoriesWithCache(0, 18, { status: "approved" }, '', { created_at: "desc" });
+        fetchMemoriesWithCache(0, 10, { status: "approved" }, '', { created_at: "desc" });
+      } catch (err) {
+        console.debug("Archives preload error:", err);
+      }
+    }
+
     async function fetchData() {
       try {
         // Fetch announcement (always from primary database)
@@ -139,6 +151,11 @@ export default function Home() {
     }
 
     fetchData();
+    
+    // Start preloading archives after a short delay to prioritize home page load
+    setTimeout(() => {
+      preloadArchives();
+    }, 1000);
 
     if (!sessionStorage.getItem("welcome_closed")) {
       setShowWelcome(true);

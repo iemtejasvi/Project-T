@@ -38,15 +38,15 @@ interface CacheKey {
 
 class MemoryCache {
   private cache: Map<string, CachedPage>;
-  private readonly maxAge: number = 30000; // Cache for 30 seconds
-  private readonly maxSize: number = 50; // Max 50 cached pages
+  private readonly maxAge: number = 600000; // Cache for 10 minutes (future-proof for 100 years)
+  private readonly maxSize: number = 200; // Max 200 cached pages for future scalability
   
   constructor() {
     this.cache = new Map();
     
     // Periodically clean up old cache entries
     if (typeof window !== 'undefined') {
-      setInterval(() => this.cleanupOldEntries(), 60000); // Clean every minute
+      setInterval(() => this.cleanupOldEntries(), 300000); // Clean every 5 minutes for efficiency
     }
   }
   
@@ -108,6 +108,12 @@ class MemoryCache {
       };
       monitor.endTimer('memory-fetch-cached');
       console.debug(`✨ Instant load from cache for page ${page}`);
+      
+      // Refresh cache in background if it's getting old (but still valid)
+      if (now - cached.timestamp > this.maxAge / 2) {
+        this.refreshInBackground(page, pageSize, filters, searchTerm, orderBy);
+      }
+      
       return result;
     }
     
@@ -137,6 +143,31 @@ class MemoryCache {
     };
   }
   
+  private async refreshInBackground(
+    page: number,
+    pageSize: number,
+    filters: Record<string, string>,
+    searchTerm: string,
+    orderBy: Record<string, string>
+  ): Promise<void> {
+    // Fire and forget background refresh
+    fetchMemoriesPaginated(page, pageSize, filters, searchTerm, orderBy)
+      .then(result => {
+        if (!result.error) {
+          const cacheKey = this.getCacheKey({ page, pageSize, filters, searchTerm, orderBy });
+          this.cache.set(cacheKey, {
+            data: result.data,
+            totalCount: result.totalCount,
+            totalPages: result.totalPages,
+            timestamp: Date.now()
+          });
+        }
+      })
+      .catch(() => {
+        // Ignore background refresh errors
+      });
+  }
+  
   private async prefetchAdjacentPages(
     currentPage: number,
     pageSize: number,
@@ -145,19 +176,26 @@ class MemoryCache {
     orderBy: Record<string, string>,
     totalPages: number
   ): Promise<void> {
-    // Prefetch next and previous pages
+    // Aggressively prefetch adjacent pages for instant navigation
     const pagesToPrefetch = [];
     
+    // Prefetch previous 2 pages
     if (currentPage > 0) {
       pagesToPrefetch.push(currentPage - 1);
     }
+    if (currentPage > 1) {
+      pagesToPrefetch.push(currentPage - 2);
+    }
+    
+    // Prefetch next 3 pages for smooth scrolling
     if (currentPage < totalPages - 1) {
       pagesToPrefetch.push(currentPage + 1);
     }
-    
-    // Also prefetch the next 2 pages for smooth scrolling
     if (currentPage < totalPages - 2) {
       pagesToPrefetch.push(currentPage + 2);
+    }
+    if (currentPage < totalPages - 3) {
+      pagesToPrefetch.push(currentPage + 3);
     }
     
     // Fetch in parallel but don't wait for completion

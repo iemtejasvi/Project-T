@@ -186,7 +186,14 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
   if (isDisabled || prompts.length === 0) return null;
   
   return (
-    <div className="min-h-[2rem] overflow-hidden text-center text-xl text-[var(--text)] font-serif transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto">
+    <div className="min-h-[2rem] text-center text-xl text-[var(--text)] font-serif transition-all duration-300 break-words" style={{ 
+      wordWrap: 'break-word',
+      overflowWrap: 'break-word',
+      hyphens: 'none',
+      WebkitHyphens: 'none',
+      msHyphens: 'none',
+      MozHyphens: 'none'
+    }}>
       {displayedText}
     </div>
   );
@@ -342,7 +349,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
-            <div className="text-xl min-h-[2.5em] mt-2 font-serif text-center text-[var(--text)] relative z-10">
+            <div className="text-xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5' }}>
                               <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>
           </div>
