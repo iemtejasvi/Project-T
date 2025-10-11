@@ -88,6 +88,11 @@ export default function Home() {
     if (browserSession.isNewBrowserSession()) {
       // Browser was restarted - cookies may have been cleared
       storage.migrate(); // Re-migrate any persistent data
+      
+      // Show welcome on new browser session
+      if (isMounted && !browserSession.isWelcomeDismissed()) {
+        setShowWelcome(true);
+      }
     }
 
     // Warm up cache for instant navigation everywhere
@@ -214,12 +219,22 @@ export default function Home() {
     window.addEventListener('refresh-home-memories', handleRefreshMemories);
     window.addEventListener('content-updated', handleRefreshMemories);
     
+    // Listen for new browser sessions (shouldn't happen on this page load, but for completeness)
+    const handleNewBrowserSession = () => {
+      if (isMounted && !browserSession.isWelcomeDismissed()) {
+        setShowWelcome(true);
+      }
+    };
+    
+    window.addEventListener('browser-session-started', handleNewBrowserSession);
+    
     // Start warming up cache after initial load for instant navigation everywhere
     setTimeout(() => {
       warmUpCacheForAllPages();
     }, 500); // Start sooner for better UX
 
-    if (!storage.isWelcomeClosed()) {
+    // Show welcome if not dismissed in this browser session
+    if (!browserSession.isWelcomeDismissed()) {
       setShowWelcome(true);
     }
 
@@ -228,6 +243,7 @@ export default function Home() {
       if (timeoutId) clearTimeout(timeoutId);
       window.removeEventListener('refresh-home-memories', handleRefreshMemories);
       window.removeEventListener('content-updated', handleRefreshMemories);
+      window.removeEventListener('browser-session-started', handleNewBrowserSession);
     };
   }, []); // Remove currentTime dependency
 
@@ -343,7 +359,8 @@ export default function Home() {
 
   const handleWelcomeClose = () => {
     setShowWelcome(false);
-    storage.setWelcomeClosed();
+    // Dismiss welcome for this browser session only
+    browserSession.setWelcomeDismissed();
   };
 
   
