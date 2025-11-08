@@ -14,8 +14,8 @@ export default function ThemeSwitcher() {
       theme = "night";
     }
 
-    // Desktop detection
-    const isDesktop = window.innerWidth >= 1024;
+    // Desktop detection using matchMedia (respects "request desktop site")
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
     
     const root = document.documentElement;
     
