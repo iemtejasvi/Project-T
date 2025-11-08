@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { addSecurityHeaders } from './lib/securityHeaders';
 
 export async function middleware(request: NextRequest) {
   // Skip maintenance check for admin and maintenance pages
   if (request.nextUrl.pathname.startsWith('/admin') || 
       request.nextUrl.pathname.startsWith('/maintenance')) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    return addSecurityHeaders(response);
   }
 
   // Skip maintenance check for localhost/development
@@ -17,23 +19,25 @@ export async function middleware(request: NextRequest) {
                      hostname.endsWith('.local');
   
   if (isLocalhost) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    return addSecurityHeaders(response);
   }
 
   try {
     // Check maintenance status from Supabase (always use primary database)
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/maintenance?id=eq.1&select=is_active`, {
+    const maintenanceResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/maintenance?id=eq.1&select=is_active`, {
       headers: {
         'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
       },
     });
 
-    if (response.ok) {
-      const data = await response.json();
+    if (maintenanceResponse.ok) {
+      const data = await maintenanceResponse.json();
       if (data && data.length > 0 && data[0].is_active) {
         // Redirect to maintenance page
-        return NextResponse.redirect(new URL('/maintenance', request.url));
+        const redirectResponse = NextResponse.redirect(new URL('/maintenance', request.url));
+        return addSecurityHeaders(redirectResponse);
       }
     }
   } catch (error) {
@@ -41,7 +45,8 @@ export async function middleware(request: NextRequest) {
     console.error('Error checking maintenance status:', error);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  return addSecurityHeaders(response);
 }
 
 export const config = {

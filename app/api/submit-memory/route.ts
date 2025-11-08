@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insertMemory, countMemories, primaryDB } from '@/lib/dualMemoryDB';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { validateMemoryInput, sanitizeString } from '@/lib/inputSanitizer';
+import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
 
 interface SubmissionData {
   recipient: string;
@@ -350,9 +353,58 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
 }
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  
   try {
-    // Parse request body
-    const body: SubmissionData & { uuid?: string } = await request.json();
+    // 1. SECURITY: Validate request origin and method
+    const requestValidation = validateRequest(request);
+    if (!requestValidation.valid) {
+      console.warn('🚨 Invalid request:', requestValidation.error);
+      return createSecureErrorResponse(requestValidation.error || 'Invalid request', 403, { origin });
+    }
+    
+    // 2. SECURITY: Detect suspicious patterns
+    const suspiciousCheck = detectSuspiciousRequest(request);
+    if (suspiciousCheck.suspicious) {
+      console.warn('⚠️ Suspicious request detected:', suspiciousCheck.reasons);
+      // Log but don't block - could be false positive
+    }
+    
+    // Get client IP and UUID early for rate limiting
+    let clientIP: string | null = await getClientIP(request);
+    const clientUUID: string | null = getCookieValue(request, 'user_uuid');
+    
+    // 3. SECURITY: Rate limiting - check BEFORE parsing body
+    const rateLimitKey = generateRateLimitKey(clientIP, clientUUID);
+    const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.SUBMIT_MEMORY);
+    
+    if (!rateLimit.allowed) {
+      console.warn(`🚫 Rate limit exceeded for ${rateLimitKey}`);
+      return createSecureErrorResponse(
+        'Too many requests. Please slow down and try again later.',
+        429,
+        { 
+          origin,
+          details: { 
+            retryAfter: rateLimit.retryAfter,
+            resetIn: rateLimit.resetIn 
+          }
+        }
+      );
+    }
+    
+    // 4. SECURITY: Parse and validate request body with size limit
+    let body: SubmissionData & { uuid?: string };
+    try {
+      const text = await request.text();
+      if (text.length > 100000) { // 100KB limit
+        return createSecureErrorResponse('Request body too large', 413, { origin });
+      }
+      body = JSON.parse(text);
+    } catch (parseError) {
+      return createSecureErrorResponse('Invalid JSON in request body', 400, { origin });
+    }
+    
     const { recipient, message, sender, color, animation, tag, sub_tag, enableTypewriter, typewriter_enabled } = body;
 
     // Normalize typewriter flag from either field name
@@ -361,17 +413,32 @@ export async function POST(request: NextRequest) {
         ? enableTypewriter
         : (typeof typewriter_enabled === 'boolean' ? typewriter_enabled : undefined);
 
-    // Basic validation
-    if (!recipient || !message) {
-      return NextResponse.json(
-        { error: 'Missing required fields: recipient and message are required.' },
-        { status: 400 }
+    // 5. SECURITY: Comprehensive input validation and sanitization
+    const validation = validateMemoryInput({
+      recipient,
+      message,
+      sender,
+      color,
+      animation,
+      tag,
+      sub_tag
+    });
+    
+    if (!validation.valid) {
+      console.warn('❌ Input validation failed:', validation.errors);
+      return createSecureErrorResponse(
+        validation.errors[0] || 'Invalid input data',
+        400,
+        { origin, details: { errors: validation.errors } }
       );
     }
-
-    // Get client IP and UUID early
-    let clientIP: string | null = await getClientIP(request);
-    const clientUUID: string | null = getCookieValue(request, 'user_uuid');
+    
+    // Use sanitized values
+    const sanitizedRecipient = validation.sanitized.recipient as string;
+    const sanitizedMessage = validation.sanitized.message as string;
+    const sanitizedSender = validation.sanitized.sender as string | undefined;
+    const sanitizedColor = (validation.sanitized.color as string) || 'default';
+    const sanitizedAnimation = validation.sanitized.animation as string | undefined;
 
     // Flags are computed later after IP fallback and owner detection
     let isUnlimited = false;
@@ -535,20 +602,20 @@ export async function POST(request: NextRequest) {
       country = result.country;
     }
 
-    // Prepare submission data
+    // Prepare submission data with sanitized values
     const submissionData = {
-      recipient: recipient.trim(),
-      message: message.trim(),
-      sender: sender?.trim() || null,
+      recipient: sanitizedRecipient,
+      message: sanitizedMessage,
+      sender: sanitizedSender || null,
       status: 'pending',
-      color: color || 'default',
+      color: sanitizedColor,
       full_bg: true,
-      animation: animation || null,
+      animation: sanitizedAnimation || null,
       ip: clientIP,
       country: country,
       uuid: clientUUID,
-      tag: normalizedTypewriterEnabled ? tag : null,
-      sub_tag: normalizedTypewriterEnabled ? sub_tag : null,
+      tag: normalizedTypewriterEnabled ? (tag ? sanitizeString(tag).slice(0, 50) : null) : null,
+      sub_tag: normalizedTypewriterEnabled ? (sub_tag ? sanitizeString(sub_tag).slice(0, 50) : null) : null,
       typewriter_enabled: normalizedTypewriterEnabled ?? false,
       created_at: new Date().toISOString()
     };
@@ -558,52 +625,65 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Database insertion error:', error);
-      return NextResponse.json(
-        { error: `Failed to submit memory: ${error.message}` },
-        { status: 500 }
+      return createSecureErrorResponse(
+        'Failed to submit memory. Please try again.',
+        500,
+        { origin }
       );
     }
 
-    console.log(`Memory successfully stored in database ${database}`);
+    console.log(`✅ Memory successfully stored in database ${database} from ${rateLimitKey}`);
 
-    // Success response with toggled rr cookie
-    const res = NextResponse.json(
+    // Success response with security headers
+    return createSecureResponse(
       { 
         success: true, 
         message: 'Memory submitted successfully and is pending approval.',
         data: { id: data.id }
       },
-      { status: 201 }
+      201,
+      { origin }
     );
-    return res;
 
   } catch (error) {
-    console.error('Unexpected server error:', error);
-    return NextResponse.json(
-      { error: 'An unexpected server error occurred. Please try again.' },
-      { status: 500 }
+    console.error('❌ Unexpected server error:', error);
+    return createSecureErrorResponse(
+      'An unexpected server error occurred. Please try again.',
+      500,
+      { origin }
     );
   }
 }
 
 // Handle other HTTP methods
-export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST to submit memories.' },
-    { status: 405 }
+export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  return createSecureErrorResponse(
+    'Method not allowed. Use POST to submit memories.',
+    405,
+    { origin }
   );
 }
 
-export async function PUT() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST to submit memories.' },
-    { status: 405 }
+export async function PUT(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  return createSecureErrorResponse(
+    'Method not allowed. Use POST to submit memories.',
+    405,
+    { origin }
   );
 }
 
-export async function DELETE() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST to submit memories.' },
-    { status: 405 }
+export async function DELETE(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  return createSecureErrorResponse(
+    'Method not allowed. Use POST to submit memories.',
+    405,
+    { origin }
   );
+}
+
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  return createSecureResponse(null, 204, { origin });
 }

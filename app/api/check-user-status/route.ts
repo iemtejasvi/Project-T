@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { countMemories, primaryDB } from '@/lib/dualMemoryDB';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { createSecureResponse, createSecureErrorResponse, validateRequest } from '@/lib/securityHeaders';
 
 function getClientIP(request: NextRequest): string | null {
   // Try multiple headers for IP detection
@@ -38,13 +40,31 @@ function getCookieValue(request: NextRequest, name: string): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  
   try {
-    // No request body needed
-
-    // Get client IP and UUID
+    // 1. SECURITY: Validate request
+    const requestValidation = validateRequest(request);
+    if (!requestValidation.valid) {
+      return createSecureErrorResponse(requestValidation.error || 'Invalid request', 403, { origin });
+    }
+    
+    // 2. Get client IP and UUID
     const clientIP = getClientIP(request);
     // SECURITY: do not trust UUID provided in body; only use cookie value
     const clientUUID = getCookieValue(request, 'user_uuid');
+    
+    // 3. SECURITY: Rate limiting
+    const rateLimitKey = generateRateLimitKey(clientIP, clientUUID);
+    const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.CHECK_STATUS);
+    
+    if (!rateLimit.allowed) {
+      return createSecureErrorResponse(
+        'Too many requests. Please slow down.',
+        429,
+        { origin, details: { retryAfter: rateLimit.retryAfter } }
+      );
+    }
     
     // Owner exemption and localhost
     const host = request.headers.get('host') || '';
@@ -58,12 +78,12 @@ export async function POST(request: NextRequest) {
                        !clientIP; // No IP detected = likely localhost
     
     if (clientIP === '103.161.233.157' || isLocalhost) {
-      return NextResponse.json({
+      return createSecureResponse({
         canSubmit: true,
         isBanned: false,
         memoryCount: 0,
         isOwner: true
-      });
+      }, 200, { origin });
     }
 
     let isBanned = false;
@@ -96,9 +116,10 @@ export async function POST(request: NextRequest) {
 
           if (banError) {
             console.error('Ban check error:', banError);
-            return NextResponse.json(
-              { error: 'Server error during validation.' },
-              { status: 500 }
+            return createSecureErrorResponse(
+              'Server error during validation.',
+              500,
+              { origin }
             );
           }
 
@@ -129,9 +150,10 @@ export async function POST(request: NextRequest) {
 
             if (countError) {
               console.error('Memory count error:', countError);
-              return NextResponse.json(
-                { error: 'Server error during validation.' },
-                { status: 500 }
+              return createSecureErrorResponse(
+                'Server error during validation.',
+                500,
+                { origin }
               );
             }
 
@@ -140,9 +162,10 @@ export async function POST(request: NextRequest) {
         }
       } catch (error) {
         console.error('Validation error:', error);
-        return NextResponse.json(
-          { error: 'Server error during validation.' },
-          { status: 500 }
+        return createSecureErrorResponse(
+          'Server error during validation.',
+          500,
+          { origin }
         );
       }
     }
@@ -160,7 +183,7 @@ export async function POST(request: NextRequest) {
 
     const canSubmit = !isBanned && (isUnlimited || globalOverrideActive || memoryCount < 6);
 
-    return NextResponse.json({
+    return createSecureResponse({
       canSubmit,
       isBanned,
       memoryCount,
@@ -168,21 +191,28 @@ export async function POST(request: NextRequest) {
       isOwner: false,
       isUnlimited,
       globalOverrideActive
-    });
-
+    }, 200, { origin });
   } catch (error) {
     console.error('Unexpected server error:', error);
-    return NextResponse.json(
-      { error: 'An unexpected server error occurred.' },
-      { status: 500 }
+    return createSecureErrorResponse(
+      'An unexpected server error occurred.',
+      500,
+      { origin }
     );
   }
 }
 
 // Handle other HTTP methods
-export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST to check user status.' },
-    { status: 405 }
+export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  return createSecureErrorResponse(
+    'Method not allowed. Use POST to check user status.',
+    405,
+    { origin }
   );
+}
+
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+  return createSecureResponse(null, 204, { origin });
 }

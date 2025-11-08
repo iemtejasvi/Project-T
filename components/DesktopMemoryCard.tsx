@@ -274,9 +274,9 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   return (
     <div className={`relative group ${large ? 'my-2' : 'my-6'}`}>
       <motion.div
-        whileHover={{ scale: 1.055, y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.20), 0 8px 16px rgba(0,0,0,0.08)", transition: { duration: 0.22, ease: 'easeOut' } }}
+        whileHover={{ scale: 1.06, y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.20), 0 8px 16px rgba(0,0,0,0.08)", transition: { duration: 0.22, ease: 'easeOut' } }}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0, scale: 1.035, boxShadow: "0 12px 28px rgba(0,0,0,0.18), 0 6px 12px rgba(0,0,0,0.08)" }}
+        animate={{ opacity: 1, y: 0, scale: 1.045, boxShadow: "0 16px 36px rgba(0,0,0,0.20), 0 8px 16px rgba(0,0,0,0.10)" }}
         className={`flip-card relative overflow-hidden w-full h-[420px] perspective-1000 cursor-pointer rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
@@ -464,7 +464,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
       {/* Minimal bottom-center open affordance */}
       <div className="hidden lg:flex absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
         <Link href={`/memories/${memory.id}`} className="open-card-btn pointer-events-auto">
-          <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[14px] leading-none px-0 py-0 w-0 h-0 opacity-0 group-hover:px-4 group-hover:py-[6px] group-hover:w-auto group-hover:h-auto group-hover:opacity-100 group-hover:border-[var(--border)]/60">
+          <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[17px] leading-none px-0 py-0 w-0 h-0 opacity-0 group-hover:px-5 group-hover:py-[8px] group-hover:w-auto group-hover:h-auto group-hover:opacity-100 group-hover:border-[var(--border)]/60">
             <span className="overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">open</span>
             <span className="ml-1 opacity-0 group-hover:opacity-100">↗</span>
           </span>
