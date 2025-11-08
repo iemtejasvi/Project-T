@@ -60,6 +60,51 @@ const colorMapping: Record<string, string> = {
   khaki: "sand"
 };
 
+// Direct hex values with more saturated/visible colors (20-30% darker than CSS variables)
+const colorBgMap: Record<string, string> = {
+  default: "#E8E0D0",
+  aqua: "#B8D8D8",      // was #E0EBEB
+  azure: "#C0D0DB",     // was #E4E8EB
+  berry: "#D1C3D8",     // was #E9E3E8
+  brass: "#E0D8C8",     // was #F0EDE8
+  bronze: "#DDC7B0",    // was #EDE7E0
+  clay: "#E0C5B2",      // was #F0E5E2
+  cloud: "#DCDFF1",     // was #ECEFF1
+  copper: "#E0C8B3",    // was #F0E8E3
+  coral: "#E3C6B2",     // was #F3E6E2
+  cream: "#E5E3CD",     // was #F5F3ED
+  cyan: "#C2DCDC",      // was #E2ECEC
+  dune: "#E2DECA",      // was #F2F0EA
+  garnet: "#D8C0C0",    // was #E8E0E0
+  gold: "#E3E0C4",      // was #F3F0E4
+  honey: "#E3CDC3",     // was #F3EDE3
+  ice: "#C7CBCD",       // was #E7EBED
+  ivory: "#E6E5D2",     // was #F6F5F2
+  jade: "#C5DCC8",      // was #E5ECE8
+  lilac: "#DBC8DD",     // was #EBE8ED
+  mint: "#C9E0C9",      // was #E9F0E9
+  moss: "#C6D8C2",      // was #E6E8E2
+  night: "#C1C3D9",     // was #E1E3E9
+  ocean: "#C2C6DA",     // was #E2E6EA
+  olive: "#DCDAC2",     // was #EAEAE2
+  peach: "#E5CDC7",     // was #F5EDE7
+  pearl: "#DCC9DE",     // was #ECE9EE
+  pine: "#C2D6C3",      // was #E2E6E3
+  plum: "#D7C2C4",      // was #E7E2E4
+  rose: "#E2CACB",      // was #F2EAEB
+  rouge: "#E0C6C8",     // was #F0E6E8
+  ruby: "#E1C3C3",      // was #F1E3E3
+  sage: "#DADCC8",      // was #EAECE8
+  sand: "#E5E2CA",      // was #F5F2EA
+  sepia: "#D9D5C2",     // was #E9E5E2
+  sky: "#DBDFE4",       // was #EBEFF4
+  slate: "#D6D8DA",     // was #E6E8EA
+  steel: "#D8D9DA",     // was #E8E9EA
+  sunny: "#E6E4C9",     // was #F6F4E9
+  teal: "#C2DBDA",      // was #E2EBEA
+  wine: "#D9C3C4"       // was #E9E3E4
+};
+
 const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsScroll, setNeedsScroll] = useState(false);
@@ -212,9 +257,9 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   };
   const bgStyle =
     effectiveColor === "default"
-      ? { backgroundColor: "#E8E0D0" }
+      ? { backgroundColor: colorBgMap.default }
       : memory.full_bg
-      ? { backgroundColor: `var(--color-${effectiveColor}-bg)` }
+      ? { backgroundColor: colorBgMap[effectiveColor] || colorBgMap.default }
       : {};
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
@@ -270,7 +315,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         >
           {/* FRONT */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : "bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/96 to-[var(--card-bg)]/98 backdrop-blur-3xl"} ${large ? 'p-12' : 'p-8'} flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-between`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             {memory.animation === "rough" && (
@@ -355,7 +400,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
           </div>
           {/* BACK */}
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : "bg-gradient-to-br from-[var(--card-bg)]/98 via-[var(--card-bg)]/96 to-[var(--card-bg)]/98 backdrop-blur-3xl"} ${large ? 'p-12' : 'p-8'} flex flex-col justify-start rotate-y-180`}
+            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-start rotate-y-180`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             {memory.animation === "rough" && (

@@ -158,31 +158,46 @@ body {
   scrollbar-color: var(--scroll-thumb, #e91e63) var(--scroll-track, #f8bbd0);
 }
 
-/* Hide scrollbar by default on desktop, show on hover/focus */
+/* Premium minimal scrollbar for desktop cards - hidden by default, shows on card hover */
 @media (min-width: 1024px) {
   .cute_scroll::-webkit-scrollbar {
-    width: 10px;
-    background: var(--scroll-track, #f8bbd0);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s;
+    width: 6px;
+    background: transparent;
   }
-  .cute_scroll:hover::-webkit-scrollbar,
-  .cute_scroll:focus::-webkit-scrollbar {
-    opacity: 1;
-    pointer-events: auto;
+  
+  .cute_scroll::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 8px;
+    margin: 8px 0;
   }
+  
   .cute_scroll::-webkit-scrollbar-thumb {
-    border-radius: 20px;
-    background-color: var(--scroll-thumb, #e91e63);
-    transition: background-color 0.3s;
+    background: transparent;
+    border-radius: 8px;
+    transition: background 0.2s ease;
   }
+  
+  /* Show scrollbar when card is hovered */
+  .flip-card:hover .cute_scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03);
+  }
+  
+  .flip-card:hover .cute_scroll::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+  }
+  
+  .flip-card:hover .cute_scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+  
+  /* Firefox */
   .cute_scroll {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
   }
-  .cute_scroll:hover, .cute_scroll:focus {
-    scrollbar-color: var(--scroll-thumb, #e91e63) var(--scroll-track, #f8bbd0);
+  
+  .flip-card:hover .cute_scroll {
+    scrollbar-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.03);
   }
   .footer-copyright {
     font-size: 1.15rem !important;
@@ -623,69 +638,374 @@ input::placeholder, textarea::placeholder {
 
 /* --- Desktop premium polish for Home & Memories nav/buttons/headings --- */
 @media (min-width: 1024px) {
-  /* Home & Memories main heading */
-  .home-desktop-heading, .memories-desktop-heading, .desktop-heading {
-    font-size: 3.5rem !important; /* was 2.75rem, now ~56px */
+  /* Main page titles - large and prominent desktop */
+  .home-desktop-heading,
+  .memories-desktop-heading {
+    font-size: 4.5rem !important; /* 72px - large and prominent */
+    font-weight: 500;
     letter-spacing: -0.02em;
-    line-height: 1.05;
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    line-height: 1.2;
+    color: var(--text);
+    opacity: 0.9;
+    position: relative;
+    padding-bottom: 0.5rem;
   }
   
-  /* All page headings (h1) */
-  h1.text-3xl, h1.text-4xl {
-    font-size: 3.25rem !important; /* ~52px */
+  .home-desktop-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0.3;
+    border-radius: 1px;
+  }
+  
+  .memories-desktop-heading::after {
+    content: none; /* No underline on archive page */
+  }
+  
+  /* Section headings */
+  h2 {
+    font-size: 2.75rem !important; /* 44px - large */
+    font-weight: 500;
     letter-spacing: -0.015em;
-    line-height: 1.08;
-    font-weight: 700;
+    line-height: 1.3;
+    color: var(--text);
+    opacity: 0.85;
   }
   
-  /* Section headings (h2) */
-  h2.text-2xl, h2.text-3xl {
-    font-size: 2.5rem !important; /* ~40px */
+  /* Subsection headings */
+  h3 {
+    font-size: 2rem !important; /* 32px - large */
+    font-weight: 500;
     letter-spacing: -0.01em;
-    line-height: 1.1;
-    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text);
+    opacity: 0.85;
   }
   
-  /* Subsection headings (h3) */
+  /* All page headings (h1) - Large and prominent */
+  h1, h1.text-3xl, h1.text-4xl, h1.text-2xl, h1.text-5xl {
+    font-size: 3.5rem !important; /* ~56px - large */
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+    font-weight: 500;
+    opacity: 0.9;
+  }
+  
+  /* Section headings (h2) - Large */
+  h2.text-2xl, h2.text-3xl {
+    font-size: 2.5rem !important; /* ~40px - large */
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    font-weight: 500;
+    opacity: 0.85;
+  }
+  
+  /* Subsection headings (h3) - Large */
   h3.text-xl, h3.text-2xl, h3.text-4xl {
-    font-size: 1.875rem !important; /* ~30px */
+    font-size: 1.875rem !important; /* ~30px - large */
     letter-spacing: -0.005em;
-    line-height: 1.15;
-    font-weight: 600; /* a bit more emphasis */
+    line-height: 1.3;
+    font-weight: 500;
+    opacity: 0.85;
   }
   
-  /* Home & Memories nav buttons */
+  /* Navigation links - larger desktop size */
   .desktop-nav-link {
-    font-size: 1.25rem !important; /* was 1.18rem, now ~20px */
-    padding: 0.75rem 1.5rem !important;
-    border-radius: 0.875rem;
+    font-size: 1.125rem !important; /* 18px - larger */
+    font-weight: 400;
+    letter-spacing: 0;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: color 0.2s ease;
+  }
+  
+  .desktop-nav-link:hover {
+    color: var(--accent) !important;
+  }
+  
+  /* Buttons - larger desktop size */
+  .btn {
+    font-size: 1.0625rem !important; /* 17px - larger */
+    font-weight: 400;
+    letter-spacing: 0;
+    padding: 0.75rem 1.75rem;
+    border-radius: 0.5rem;
+    transition: opacity 0.2s ease;
+    box-shadow: none;
+  }
+  
+  .btn:hover {
+    opacity: 0.8;
+  }
+  
+  .btn-large {
+    font-size: 1.25rem !important; /* 20px - larger */
     font-weight: 500;
-    letter-spacing: 0.01em;
+    padding: 0.875rem 2.25rem;
+    letter-spacing: 0;
+    transition: opacity 0.2s ease;
   }
   
-  /* All buttons - make them more premium */
-  button, .btn {
-    font-size: 1.125rem !important; /* ~18px */
-    padding: 0.75rem 1.5rem !important;
-    border-radius: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
+  .btn-large:hover {
+    opacity: 0.8;
   }
   
-  /* Large buttons (submit, etc.) */
-  button.px-10, button.px-6, .btn-large {
-    font-size: 1.25rem !important; /* ~20px */
-    padding: 1rem 2rem !important;
-    border-radius: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+  /* All buttons - comprehensive coverage for all pages */
+  button, .btn, .btn-large, 
+  button[type="submit"], button[type="button"],
+  input[type="submit"], input[type="button"] {
+    font-size: 1.0625rem !important; /* 17px - larger */
+    font-weight: 400;
+    padding: 0.75rem 1.75rem !important;
+    transition: opacity 0.2s ease;
   }
   
-  /* Tighten nav gap just a bit */
+  /* Large buttons - all variants */
+  button.text-lg, button.px-8, button.px-10, button.px-12,
+  .btn-large, button[class*="large"] {
+    font-size: 1.25rem !important; /* 20px - larger */
+    font-weight: 500 !important;
+    padding: 0.875rem 2.25rem !important;
+  }
+  
+  button:hover:not(:disabled), .btn:hover:not(:disabled), .btn-large:hover:not(:disabled),
+  input[type="submit"]:hover, input[type="button"]:hover {
+    opacity: 0.8;
+  }
+  
+  /* Nav list spacing - Professional balance */
   .desktop-nav-list {
-    gap: 0 !important; /* no space between buttons */
+    gap: 0.375rem !important; /* refined spacing */
+  }
+  
+  /* Input fields - Minimal and light */
+  input[type="text"], input[type="email"], textarea, select {
+    font-size: 0.9375rem !important; /* 15px */
+    font-weight: 400;
+    padding: 0.625rem 0.875rem !important;
+    border-radius: 0.375rem !important;
+    background: rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  
+  input:focus, textarea:focus, select:focus {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border-color: var(--accent) !important;
+    outline: none;
+  }
+  
+  /* Professional link styling */
+  a {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Memory Card Typography - Corporate Premium */
+  
+  /* Crisp text rendering for all card elements */
+  .flip-card-front, .flip-card-back {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Desktop Memory Card - Large variant recipient */
+  .flip-card-front h3.text-4xl,
+  .flip-card-front h3.text-5xl {
+    font-size: 2.25rem !important; /* ~36px - more minimal */
+    font-weight: 500 !important; /* Medium - sweet spot */
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    color: var(--text) !important;
+    opacity: 0.9 !important;
+  }
+  
+  /* Desktop Memory Card - Standard recipient */
+  .flip-card-front h3.text-2xl {
+    font-size: 1.625rem !important; /* ~26px - more minimal */
+    font-weight: 500 !important; /* Medium - sweet spot */
+    letter-spacing: -0.008em;
+    line-height: 1.3;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.9 !important;
+  }
+  
+  /* Desktop Memory Card - Mobile/Home variant recipient */
+  h3.text-xl.font-bold {
+    font-size: 1.25rem !important; /* ~20px - minimal */
+    font-weight: 500 !important; /* Medium */
+    letter-spacing: -0.005em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.9 !important;
+  }
+  
+  /* Sender (From:) - Large variant */
+  .flip-card-front p.text-3xl {
+    font-size: 1.875rem !important; /* ~30px - more minimal */
+    font-weight: 400 !important; /* Regular - lighter */
+    letter-spacing: -0.005em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.75 !important; /* More subtle */
+  }
+  
+  /* Sender (From:) - Standard & mobile variants */
+  .flip-card-front p.text-2xl,
+  .flip-card-front p.text-base {
+    font-size: 1.375rem !important; /* ~22px - more minimal */
+    font-weight: 400 !important; /* Regular - lighter */
+    letter-spacing: -0.003em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.75 !important;
+  }
+  
+  /* Sender - Small variant */
+  p.text-md.italic {
+    font-size: 1.0625rem !important; /* ~17px */
+    font-weight: 400 !important; /* Regular */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.75 !important;
+  }
+  
+  /* Date displays - Large cards - darker and visible */
+  .flip-card-front div.text-xl {
+    font-size: 1.125rem !important; /* ~18px - more minimal */
+    font-weight: 400 !important; /* Regular */
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.9 !important; /* Darker - visible */
+  }
+  
+  /* Typewriter text - Large cards - darker and visible */
+  .flip-card-front div.text-xl.font-serif {
+    font-size: 1.125rem !important; /* ~18px */
+    font-weight: 400 !important; /* Regular - consistent weight */
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.9 !important; /* Much darker - visible */
+  }
+  
+  /* Message text on card fronts - matching font weight */
+  .flip-card-front p.text-4xl,
+  .flip-card-front p.text-2xl,
+  .flip-card-front div.text-4xl,
+  .flip-card-front div.text-2xl,
+  .flip-card-front p.la-belle-aurore-regular {
+    font-weight: 400 !important; /* Regular - consistent */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Date displays - Standard cards - darker and visible */
+  .flip-card-front div.text-xs,
+  .flip-card-front span.text-xs,
+  .flip-card-front p.text-xs,
+  .flip-card-front div.text-base,
+  .flip-card-front span.text-base {
+    font-size: 0.9375rem !important; /* ~15px - more minimal */
+    font-weight: 400 !important; /* Regular - consistent */
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.9 !important; /* Darker - visible */
+  }
+  
+  /* Desktop card front date/time with opacity - darker and visible */
+  span.text-xl.opacity-75 {
+    font-size: 1.25rem !important; /* ~20px */
+    font-weight: 400 !important; /* Regular */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.9 !important; /* Darker - visible */
+  }
+  
+  /* Color label */
+  span.text-base.opacity-60 {
+    font-size: 1rem !important; /* ~16px */
+    font-weight: 400 !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text) !important;
+    opacity: 0.55 !important; /* More subtle */
+  }
+  
+  /* Pagination buttons - smaller and minimal */
+  .pagination-btn {
+    font-size: 0.875rem !important; /* 14px - smaller */
+    padding: 0.5rem 1.25rem !important; /* Smaller padding */
+    font-weight: 400 !important;
+    box-shadow: none !important; /* Remove shadow */
+  }
+  
+  .pagination-btn:hover:not(:disabled) {
+    box-shadow: none !important; /* Remove hover shadow */
+    opacity: 0.8;
+  }
+  
+  .pagination-btn span {
+    font-size: 1rem !important; /* Smaller arrows */
+  }
+  
+  /* Card back (flipped) - "if only i sent this" text - lighter */
+  .flip-card-back p.italic {
+    font-weight: 300 !important; /* Light */
+    opacity: 0.8 !important;
+  }
+  
+  /* Message text on card back - all variants - lighter */
+  .flip-card-back div.overflow-y-auto,
+  .flip-card-back p.text-4xl,
+  .flip-card-back p.text-3xl,
+  .flip-card-back p.text-2xl,
+  .flip-card-back p.text-xl,
+  .flip-card-back div.text-4xl,
+  .flip-card-back div.text-2xl,
+  .flip-card-back .la-belle-aurore-regular,
+  .flip-card-back .space-y-2 p {
+    font-weight: 300 !important; /* Light */
+    opacity: 0.9 !important; /* Slightly darker */
+  }
+  
+  /* Individual card detail page - lighter message text - comprehensive */
+  div.text-5xl.font-serif p,
+  div.text-5xl.font-serif div,
+  div.text-5xl.font-serif .space-y-2 p,
+  p.text-5xl,
+  p.text-4xl,
+  div.text-4xl,
+  .cursive-char,
+  .handwritten-text,
+  p.la-belle-aurore-regular,
+  div.font-serif p.text-5xl,
+  div.font-serif p.text-4xl,
+  div.font-serif div.text-5xl,
+  div.font-serif div.text-4xl {
+    font-weight: 300 !important; /* Light */
+    opacity: 0.9 !important; /* Slightly darker */
   }
 }
 

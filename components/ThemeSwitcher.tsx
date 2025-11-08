@@ -13,59 +13,60 @@ export default function ThemeSwitcher() {
     } else if (hour >= 18 || hour < 6) {
       theme = "night";
     }
+
+    // Desktop detection
+    const isDesktop = window.innerWidth >= 1024;
+    
     const root = document.documentElement;
-    if (theme === "morning") {
-      root.style.setProperty("--background", "#F5F5F5");
-      root.style.setProperty("--text", "#4A4A4A");
-      root.style.setProperty("--accent", "#AEDFF7");
-      root.style.setProperty("--secondary", "#E8D8D8");
-      root.style.setProperty("--card-bg", "#FDFDFD");
-      root.style.setProperty("--border", "#D9D9D9");
-    } else if (theme === "evening") {
-      root.style.setProperty("--background", "#F0ECE3");
-      root.style.setProperty("--text", "#4A4A4A");
-      root.style.setProperty("--accent", "#B0C4DE");
-      root.style.setProperty("--secondary", "#D3C0B4");
-      root.style.setProperty("--card-bg", "#FFF8F0");
-      root.style.setProperty("--border", "#D9D9D9");
-    } else if (theme === "night") {
-      root.style.setProperty("--background", "#E8E8E8");
-      root.style.setProperty("--text", "#4A4A4A");
-      root.style.setProperty("--accent", "#C0D6E4");
-      root.style.setProperty("--secondary", "#DADADA");
-      root.style.setProperty("--card-bg", "#F8F8F8");
-      root.style.setProperty("--border", "#CCCCCC");
+    
+    // Desktop: Consistent premium theme (no time-based changes)
+    // Mobile: Time-based themes for variety
+    if (isDesktop) {
+      // Rich, sophisticated darker theme for desktop
+      root.style.setProperty("--background", "#DDDBD8");
+      root.style.setProperty("--bg", "#DDDBD8");
+      root.style.setProperty("--text", "#1F1D1D");
+      root.style.setProperty("--accent", "#4A6A8A");
+      root.style.setProperty("--secondary", "#A8A4A0");
+      root.style.setProperty("--card-bg", "#E8E6E0");
+      root.style.setProperty("--border", "#B0ACA8");
+    } else {
+      // Mobile: Keep time-based themes
+      if (theme === "morning") {
+        const bgColor = "#F5F5F5";
+        root.style.setProperty("--background", bgColor);
+        root.style.setProperty("--bg", bgColor);
+        root.style.setProperty("--text", "#4A4A4A");
+        root.style.setProperty("--accent", "#AEDFF7");
+        root.style.setProperty("--secondary", "#E8D8D8");
+        root.style.setProperty("--card-bg", "#FDFDFD");
+        root.style.setProperty("--border", "#D9D9D9");
+      } else if (theme === "evening") {
+        const bgColor = "#F0ECE3";
+        root.style.setProperty("--background", bgColor);
+        root.style.setProperty("--bg", bgColor);
+        root.style.setProperty("--text", "#4A4A4A");
+        root.style.setProperty("--accent", "#B0C4DE");
+        root.style.setProperty("--secondary", "#D3C0B4");
+        root.style.setProperty("--card-bg", "#FFF8F0");
+        root.style.setProperty("--border", "#D9D9D9");
+      } else if (theme === "night") {
+        const bgColor = "#E8E8E8";
+        root.style.setProperty("--background", bgColor);
+        root.style.setProperty("--bg", bgColor);
+        root.style.setProperty("--text", "#4A4A4A");
+        root.style.setProperty("--accent", "#C0D6E4");
+        root.style.setProperty("--secondary", "#DADADA");
+        root.style.setProperty("--card-bg", "#F8F8F8");
+        root.style.setProperty("--border", "#CCCCCC");
+      }
     }
 
-    // Set constant card color variables (they remain the same regardless of theme)
-    const cardColors = {
-      plain: { border: "#D9D9D9", bg: "#F8F8F0" },
-      mint: { border: "#98FF98", bg: "#E0FFE0" },
-      ruby: { border: "#FF4C4C", bg: "#FFD6D6" },
-      azure: { border: "#0F52BA", bg: "#DDEEFF" },
-      lilac: { border: "#B57EDC", bg: "#F0E6FF" },
-      coral: { border: "#FF7F50", bg: "#FFEFE6" },
-      olive: { border: "#808000", bg: "#E6E6B3" },
-      cyan: { border: "#40E0D0", bg: "#E0FFFF" },
-      pearl: { border: "#9966CC", bg: "#F2E6FF" },
-      gold: { border: "#FFD700", bg: "#FFF9E6" },
-      night: { border: "#191970", bg: "#C0C0FF" },
-      jade: { border: "#50C878", bg: "#E0FFE0" },
-      rouge: { border: "#E0115F", bg: "#FFD1DC" },
-      sky: { border: "#CCCCFF", bg: "#E6E6FF" },
-      peach: { border: "#FFE5B4", bg: "#FFF5E6" },
-      cloud: { border: "#87CEEB", bg: "#E0F7FF" },
-      sunny: { border: "#FFF44F", bg: "#FFFBE6" },
-      aqua: { border: "#00FFFF", bg: "#E0FFFF" },
-      berry: { border: "#8A2BE2", bg: "#E6D6FF" },
-      steel: { border: "#383838", bg: "#D3D3D3" }
-    };
+    // Card colors are now managed directly in components with inline styles
+    // to avoid overwriting the 40+ color definitions in globals.css
 
-    for (const [color, values] of Object.entries(cardColors)) {
-      root.style.setProperty(`--color-${color}-border`, values.border);
-      root.style.setProperty(`--color-${color}-bg`, values.bg);
-    }
   }, []);
+
 
   return null;
 }

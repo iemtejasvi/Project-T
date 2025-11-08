@@ -396,7 +396,7 @@ export default function Home() {
 
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] home-desktop-heading">If Only I Sent This</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] home-desktop-heading lg:tracking-tight lg:leading-tight">If Only I Sent This</h1>
           {/* Typewriter effect - desktop only */}
           <div className="hidden lg:block mt-4">
             <div className="text-lg italic text-[var(--text)]/70">

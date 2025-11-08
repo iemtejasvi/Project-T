@@ -52,7 +52,7 @@ export default function MemoryDetail() {
   if (memory === false) return <p className="p-6 text-center text-[var(--text)] text-xl font-semibold">Memory not found.</p>;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--background)" }}>
       {/* Rough paper background effect for individual memory pages */}
       {memory && memory.animation === "rough" && (
         <>
