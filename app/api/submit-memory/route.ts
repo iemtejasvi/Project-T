@@ -401,7 +401,7 @@ export async function POST(request: NextRequest) {
         return createSecureErrorResponse('Request body too large', 413, { origin });
       }
       body = JSON.parse(text);
-    } catch (parseError) {
+    } catch {
       return createSecureErrorResponse('Invalid JSON in request body', 400, { origin });
     }
     
