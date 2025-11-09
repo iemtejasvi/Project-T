@@ -301,7 +301,7 @@ export default function AdminPanel() {
         // Check if announcement has expired
         if (new Date(data[0].expires_at) < new Date()) {
           // Delete expired announcement
-          await supabase
+          await primaryDB
             .from("announcements")
             .delete()
             .eq("id", data[0].id);
@@ -358,12 +358,12 @@ export default function AdminPanel() {
     expiresAt.setSeconds(expiresAt.getSeconds() + totalSeconds);
 
     // Delete all announcements
-    await supabase
+    await primaryDB
       .from("announcements")
       .delete();
 
     // Create new announcement
-    const { data, error } = await supabase
+    const { data, error } = await primaryDB
       .from("announcements")
       .insert([{ 
         message: announcement, 
@@ -397,7 +397,7 @@ export default function AdminPanel() {
   const handleRemoveAnnouncement = async () => {
     if (!currentAnnouncement) return;
     
-    const { error } = await supabase
+    const { error } = await primaryDB
       .from("announcements")
       .delete()
       .eq("id", currentAnnouncement.id);
@@ -419,7 +419,7 @@ export default function AdminPanel() {
     try {
       if (maintenanceMode) {
         // Disable maintenance mode
-        const { error } = await supabase
+        const { error } = await primaryDB
           .from("maintenance")
           .update({ is_active: false, message: "" })
           .eq("id", 1);
@@ -434,7 +434,7 @@ export default function AdminPanel() {
         // Enable maintenance mode
         const message = prompt("Enter maintenance message (optional):") || "Site is under maintenance. Please check back later.";
         
-        const { error } = await supabase
+        const { error } = await primaryDB
           .from("maintenance")
           .upsert({ 
             id: 1, 
@@ -512,10 +512,10 @@ export default function AdminPanel() {
     }
     // Unban by IP and UUID
     if (memory.ip) {
-      await supabase.from("banned_users").delete().eq("ip", memory.ip);
+      await primaryDB.from("banned_users").delete().eq("ip", memory.ip);
     }
     if (memory.uuid) {
-      await supabase.from("banned_users").delete().eq("uuid", memory.uuid);
+      await primaryDB.from("banned_users").delete().eq("uuid", memory.uuid);
     }
     setSelectedTab("banned");
     refreshMemories();
@@ -560,7 +560,7 @@ export default function AdminPanel() {
       if (currentAnnouncement) {
         const expiry = new Date(currentAnnouncement.expires_at);
         if (currentTime >= expiry) {
-          await supabase
+          await primaryDB
             .from("announcements")
             .delete()
             .eq("id", currentAnnouncement.id);
@@ -1291,10 +1291,10 @@ export default function AdminPanel() {
                         return;
                       }
                       if (user.ip) {
-                        await supabase.from("banned_users").delete().eq("ip", user.ip);
+                        await primaryDB.from("banned_users").delete().eq("ip", user.ip);
                       }
                       if (user.uuid) {
-                        await supabase.from("banned_users").delete().eq("uuid", user.uuid);
+                        await primaryDB.from("banned_users").delete().eq("uuid", user.uuid);
                       }
                       setBannedUsers((prev) => prev.filter((b) => b !== user));
                     }}
