@@ -70,14 +70,16 @@ export async function POST(request: NextRequest) {
     const host = request.headers.get('host') || '';
     const isLocalhost = host.includes('localhost') || 
                        host.includes('127.0.0.1') ||
-                       host.includes('192.168.1.41') || // Your local network IP
                        host.startsWith('localhost:') ||
                        clientIP === '127.0.0.1' || 
                        clientIP === '::1' ||
-                       clientIP === '192.168.1.41' ||
                        !clientIP; // No IP detected = likely localhost
     
-    if (clientIP === '103.161.233.157' || isLocalhost) {
+    // Check if IP matches owner (from environment variable)
+    const ownerIP = process.env.OWNER_IP_ADDRESS;
+    const isOwner = ownerIP && clientIP === ownerIP;
+    
+    if (isOwner || isLocalhost) {
       return createSecureResponse({
         canSubmit: true,
         isBanned: false,
