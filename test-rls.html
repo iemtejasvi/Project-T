@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RLS Test Suite</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        .test-result {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-result.pass {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .test-result.fail {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .icon {
+            font-size: 24px;
+        }
+        .test-name {
+            font-weight: 600;
+            flex: 1;
+        }
+        .test-status {
+            font-weight: 600;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .summary.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .summary.failure {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 RLS Test Suite</h1>
+        <p class="subtitle">Test Row Level Security on your Supabase databases</p>
+        
+        <div class="input-group">
+            <label for="supabaseUrl">Supabase URL</label>
+            <input 
+                type="text" 
+                id="supabaseUrl" 
+                placeholder="https://xxxxx.supabase.co"
+                value=""
+            >
+        </div>
+        
+        <div class="input-group">
+            <label for="anonKey">Anon Key (Public)</label>
+            <input 
+                type="text" 
+                id="anonKey" 
+                placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                value=""
+            >
+        </div>
+        
+        <button id="runTests" onclick="runRLSTests()">
+            Run RLS Tests
+        </button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function runRLSTests() {
+            const button = document.getElementById('runTests');
+            const resultsDiv = document.getElementById('results');
+            const supabaseUrl = document.getElementById('supabaseUrl').value.trim();
+            const anonKey = document.getElementById('anonKey').value.trim();
+            
+            // Validation
+            if (!supabaseUrl || !anonKey) {
+                alert('Please enter both Supabase URL and Anon Key');
+                return;
+            }
+            
+            // Disable button and show loading
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner"></span> Running Tests...';
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<p style="text-align: center; color: #666;">Testing RLS policies...</p>';
+            
+            try {
+                // Initialize Supabase client
+                const { createClient } = supabase;
+                const client = createClient(supabaseUrl, anonKey);
+                
+                const results = [];
+                
+                // TEST 1: Try INSERT (should FAIL)
+                console.log('🧪 Testing INSERT with anon key...');
+                const { data: insertData, error: insertError } = await client
+                    .from('memories')
+                    .insert([{
+                        recipient: 'RLS Test',
+                        message: 'This should be blocked',
+                        status: 'pending'
+                    }]);
+                
+                results.push({
+                    name: 'INSERT Blocked',
+                    expected: 'BLOCKED',
+                    actual: insertError ? 'BLOCKED' : 'ALLOWED',
+                    pass: !!insertError,
+                    error: insertError?.message || null
+                });
+                
+                // TEST 2: Try UPDATE (should FAIL)
+                console.log('🧪 Testing UPDATE with anon key...');
+                const { data: updateData, error: updateError } = await client
+                    .from('memories')
+                    .update({ status: 'approved' })
+                    .eq('id', 'fake-id-test');
+                
+                results.push({
+                    name: 'UPDATE Blocked',
+                    expected: 'BLOCKED',
+                    actual: updateError ? 'BLOCKED' : 'ALLOWED',
+                    pass: !!updateError,
+                    error: updateError?.message || null
+                });
+                
+                // TEST 3: Try DELETE (should FAIL)
+                console.log('🧪 Testing DELETE with anon key...');
+                const { data: deleteData, error: deleteError } = await client
+                    .from('memories')
+                    .delete()
+                    .eq('id', 'fake-id-test');
+                
+                results.push({
+                    name: 'DELETE Blocked',
+                    expected: 'BLOCKED',
+                    actual: deleteError ? 'BLOCKED' : 'ALLOWED',
+                    pass: !!deleteError,
+                    error: deleteError?.message || null
+                });
+                
+                // TEST 4: Try SELECT (should SUCCEED)
+                console.log('🧪 Testing SELECT with anon key...');
+                const { data: selectData, error: selectError } = await client
+                    .from('memories')
+                    .select('id, recipient, message, status')
+                    .eq('status', 'approved')
+                    .limit(5);
+                
+                results.push({
+                    name: 'SELECT Allowed',
+                    expected: 'ALLOWED',
+                    actual: selectError ? 'BLOCKED' : 'ALLOWED',
+                    pass: !selectError,
+                    error: selectError?.message || null
+                });
+                
+                // Display results
+                displayResults(results);
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="test-result fail">
+                        <span class="icon">❌</span>
+                        <div>
+                            <div class="test-name">Test Failed</div>
+                            <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                                ${error.message}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Run RLS Tests';
+            }
+        }
+        
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            const allPassed = results.every(r => r.pass);
+            
+            let html = '<h3 style="margin-top: 0;">Test Results:</h3>';
+            
+            results.forEach(result => {
+                html += `
+                    <div class="test-result ${result.pass ? 'pass' : 'fail'}">
+                        <span class="icon">${result.pass ? '✅' : '❌'}</span>
+                        <div style="flex: 1;">
+                            <div class="test-name">${result.name}</div>
+                            <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                                Expected: ${result.expected} | Actual: ${result.actual}
+                            </div>
+                            ${result.error ? `<div style="color: #999; font-size: 12px; margin-top: 3px; font-family: monospace;">${result.error}</div>` : ''}
+                        </div>
+                        <span class="test-status">${result.pass ? 'PASS' : 'FAIL'}</span>
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div class="summary ${allPassed ? 'success' : 'failure'}">
+                    ${allPassed ? '✅ ALL TESTS PASSED! RLS is working correctly!' : '❌ SOME TESTS FAILED! RLS needs attention.'}
+                </div>
+            `;
+            
+            html += `
+                <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #2196F3;">
+                    <strong>📊 Summary:</strong><br>
+                    Passed: ${results.filter(r => r.pass).length}/${results.length}<br>
+                    Failed: ${results.filter(r => !r.pass).length}/${results.length}
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+            
+            // Log to console
+            console.log('🔒 RLS TEST RESULTS:', results);
+        }
+    </script>
+</body>
+</html>
