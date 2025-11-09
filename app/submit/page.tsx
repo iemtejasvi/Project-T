@@ -854,62 +854,87 @@ export default function SubmitPage() {
       return;
     }
 
-    // Process submission and wait for validation
-    try {
-      const response = await fetch('/api/submit-memory', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submission),
-      });
+    // Client-side word length validation (same as server)
+    const MAX_WORD_LENGTH = 15;
+    const checkWordLength = (text: string) => {
+      const words = text.split(/\s+/).filter(word => word.length > 0);
+      for (const word of words) {
+        const cleanWord = word.replace(/^[.,!?;:'"]+|[.,!?;:'"]+$/g, '');
+        if (cleanWord.length > MAX_WORD_LENGTH) {
+          return {
+            valid: false,
+            error: `Word too long: "${cleanWord.substring(0, 30)}..." (${cleanWord.length} characters). Maximum word length is ${MAX_WORD_LENGTH} characters. Please use spaces between words.`
+          };
+        }
+      }
+      return { valid: true };
+    };
 
-      const result = await response.json();
+    // Check message for long words
+    const messageCheck = checkWordLength(message);
+    if (!messageCheck.valid) {
+      setError(messageCheck.error || "Message contains words that are too long.");
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
+    // Check recipient for long words
+    const recipientCheck = checkWordLength(recipient);
+    if (!recipientCheck.valid) {
+      setError("Recipient name is too long or contains concatenated words. Please use spaces.");
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // All client-side validation passed - show success immediately for smooth UX
+    setSubmitted(true);
+    setError("");
+    setIsSubmitting(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Process submission in background (non-blocking)
+    fetch('/api/submit-memory', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submission),
+    }).then(response => {
+      return response.json().then(result => ({ response, result }));
+    }).then(({ response, result }) => {
       if (!response.ok) {
-        // Handle all error cases
-        if (response.status === 400) {
-          // Validation error (e.g., long words, invalid input)
-          setError(result.error || "Invalid input. Please check your submission.");
-          setIsSubmitting(false);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (response.status === 403) {
-          // Banned user
+        // Handle critical errors that should override success
+        if (response.status === 403) {
+          // Banned user - critical error
+          setSubmitted(false);
           setError(result.error || "You are banned from submitting memories.");
           setIsBanned(true);
           setHasReachedLimit(true);
           setIsFormDisabled(true);
-          setIsSubmitting(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (response.status === 429) {
-          // Rate limit or memory limit reached
+          // Rate limit or memory limit reached - critical error
+          setSubmitted(false);
           setError(result.error || "Too many requests. Please slow down.");
           setHasReachedLimit(true);
           setIsFormDisabled(true);
-          setIsSubmitting(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-          // Other server errors
-          setError(result.error || "Server error. Please try again later.");
-          setIsSubmitting(false);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          // Other errors (400, 500, etc) - log but keep success shown
+          // Client-side validation should have caught most issues
+          console.error('Background submission failed:', result.error);
         }
-        return;
+      } else {
+        // Successfully submitted - user already sees success
+        console.log('Memory submitted successfully in background');
       }
-
-      // Success - show success message
-      setSubmitted(true);
-      setError("");
-      setIsSubmitting(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      console.log('Memory submitted successfully');
-      
-    } catch (err) {
-      console.error('Submission error:', err);
-      setError("Network error. Please check your connection and try again.");
-      setIsSubmitting(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    }).catch(err => {
+      // Network or parsing error - log but don't disturb user experience
+      console.error('Background submission error:', err);
+      // Keep success message shown since validation passed
+    });
   };
 
   // Helper function to get cookie value
