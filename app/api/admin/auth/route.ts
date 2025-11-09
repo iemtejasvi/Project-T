@@ -21,11 +21,11 @@ export async function POST(request: NextRequest) {
     
     const sessionToken = generateSessionToken(username);
     
-    // Set secure HTTP-only cookie
+    // Set secure HTTP-only cookie (30 days)
     const response = createSecureResponse({ success: true }, 200, { origin });
     response.headers.set(
       'Set-Cookie',
-      `admin_session=${sessionToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${24 * 60 * 60}${
+      `admin_session=${sessionToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}${
         process.env.NODE_ENV === 'production' ? '; Secure' : ''
       }`
     );

@@ -46,7 +46,7 @@ export function verifyAdminCredentials(username: string, password: string): bool
  */
 export function generateSessionToken(username: string): string {
   const token = crypto.randomUUID();
-  const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+  const expiresAt = Date.now() + (30 * 24 * 60 * 60 * 1000); // 30 days
   
   sessions.set(token, { username, expiresAt });
   
