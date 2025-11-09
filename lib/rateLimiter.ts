@@ -22,7 +22,7 @@ export const RATE_LIMITS = {
   SUBMIT_MEMORY: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 3,      // 3 requests per minute
-    blockDuration: 5 * 60 * 1000 // Block for 5 minutes if exceeded
+    blockDuration: 60 * 1000 // Block for 1 minute if exceeded
   },
   
   // API reads - more lenient
@@ -82,14 +82,14 @@ export function checkRateLimit(
   // Reset if window expired or no entry exists
   if (!entry || entry.resetTime < now) {
     entry = {
-      count: 0,
+      count: 1, // Start at 1 for this request
       resetTime: now + config.windowMs
     };
     rateLimitStore.set(key, entry);
+  } else {
+    // Increment request count for existing entry
+    entry.count++;
   }
-  
-  // Increment request count
-  entry.count++;
   
   // Check if limit exceeded
   if (entry.count > config.maxRequests) {
