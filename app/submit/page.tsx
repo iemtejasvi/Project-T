@@ -854,24 +854,8 @@ export default function SubmitPage() {
       return;
     }
 
-    // Client-side word length validation (same as server)
-    const MAX_WORD_LENGTH = 15;
-    const checkWordLength = (text: string) => {
-      const words = text.split(/\s+/).filter(word => word.length > 0);
-      for (const word of words) {
-        const cleanWord = word.replace(/^[.,!?;:'"]+|[.,!?;:'"]+$/g, '');
-        if (cleanWord.length > MAX_WORD_LENGTH) {
-          return {
-            valid: false,
-            error: `Word too long: "${cleanWord.substring(0, 30)}..." (${cleanWord.length} characters). Maximum word length is ${MAX_WORD_LENGTH} characters. Please use spaces between words.`
-          };
-        }
-      }
-      return { valid: true };
-    };
-
-    // Check message for long words
-    const messageCheck = checkWordLength(message);
+    // Client-side word length validation (with fun error messages!)
+    const messageCheck = hasSuspiciouslyLongWords(message);
     if (!messageCheck.valid) {
       setError(messageCheck.error || "Message contains words that are too long.");
       setIsSubmitting(false);
@@ -880,9 +864,9 @@ export default function SubmitPage() {
     }
 
     // Check recipient for long words
-    const recipientCheck = checkWordLength(recipient);
+    const recipientCheck = hasSuspiciouslyLongWords(recipient);
     if (!recipientCheck.valid) {
-      setError("Recipient name is too long or contains concatenated words. Please use spaces.");
+      setError(recipientCheck.error || "Recipient name is too long or contains concatenated words. Please use spaces.");
       setIsSubmitting(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
