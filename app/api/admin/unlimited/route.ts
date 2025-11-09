@@ -1,10 +1,16 @@
 import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/dualMemoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { isAdminAuthenticated } from '@/lib/adminAuth';
 
 // Add unlimited user
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
+  
+  // Check authentication
+  if (!isAdminAuthenticated(request)) {
+    return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
   
   try {
     const body = await request.json();
@@ -28,6 +34,11 @@ export async function POST(request: NextRequest) {
 // Remove unlimited user
 export async function DELETE(request: NextRequest) {
   const origin = request.headers.get('origin');
+  
+  // Check authentication
+  if (!isAdminAuthenticated(request)) {
+    return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
   
   try {
     const { searchParams } = new URL(request.url);
@@ -57,6 +68,11 @@ export async function DELETE(request: NextRequest) {
 // Update site settings (global word limit)
 export async function PATCH(request: NextRequest) {
   const origin = request.headers.get('origin');
+  
+  // Check authentication
+  if (!isAdminAuthenticated(request)) {
+    return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
   
   try {
     const body = await request.json();

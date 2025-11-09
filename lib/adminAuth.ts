@@ -1,0 +1,98 @@
+// lib/adminAuth.ts
+// Simple admin authentication for API routes
+// In production, use proper auth like NextAuth.js or Clerk
+
+import { NextRequest } from 'next/server';
+
+// Admin credentials - MUST be set in environment variables
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-this-password-immediately';
+
+// Simple session store (use Redis in production)
+const sessions = new Map<string, { username: string; expiresAt: number }>();
+
+// Clean up expired sessions every hour
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, session] of sessions.entries()) {
+    if (session.expiresAt < now) {
+      sessions.delete(token);
+    }
+  }
+}, 60 * 60 * 1000);
+
+/**
+ * Verify admin credentials
+ */
+export function verifyAdminCredentials(username: string, password: string): boolean {
+  // In production, use bcrypt to compare hashed passwords
+  return username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
+}
+
+/**
+ * Generate a session token
+ */
+export function generateSessionToken(username: string): string {
+  const token = crypto.randomUUID();
+  const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+  
+  sessions.set(token, { username, expiresAt });
+  
+  return token;
+}
+
+/**
+ * Verify session token
+ */
+export function verifySessionToken(token: string): boolean {
+  const session = sessions.get(token);
+  
+  if (!session) return false;
+  
+  if (session.expiresAt < Date.now()) {
+    sessions.delete(token);
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * Middleware to check if request is from authenticated admin
+ */
+export function isAdminAuthenticated(request: NextRequest): boolean {
+  // Check for session token in cookie
+  const cookies = request.headers.get('cookie');
+  if (!cookies) return false;
+  
+  const sessionToken = cookies
+    .split(';')
+    .map(c => c.trim())
+    .find(c => c.startsWith('admin_session='))
+    ?.split('=')[1];
+  
+  if (!sessionToken) return false;
+  
+  return verifySessionToken(sessionToken);
+}
+
+/**
+ * Extract session token from request
+ */
+export function getSessionToken(request: NextRequest): string | null {
+  const cookies = request.headers.get('cookie');
+  if (!cookies) return null;
+  
+  return cookies
+    .split(';')
+    .map(c => c.trim())
+    .find(c => c.startsWith('admin_session='))
+    ?.split('=')[1] || null;
+}
+
+/**
+ * Delete session
+ */
+export function deleteSession(token: string): void {
+  sessions.delete(token);
+}

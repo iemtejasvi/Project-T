@@ -1,9 +1,15 @@
 import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/dualMemoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { isAdminAuthenticated } from '@/lib/adminAuth';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
+  
+  // Check authentication
+  if (!isAdminAuthenticated(request)) {
+    return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
   
   try {
     const body = await request.json();
