@@ -854,53 +854,62 @@ export default function SubmitPage() {
       return;
     }
 
-    // Instantly show success to user for better UX
-    setSubmitted(true);
-    setError("");
-    setIsSubmitting(false);
-    
-    // Scroll to top to show success message immediately
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Process submission and wait for validation
+    try {
+      const response = await fetch('/api/submit-memory', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submission),
+      });
 
-    // Process submission in background (non-blocking)
-    fetch('/api/submit-memory', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(submission),
-    }).then(response => {
-      return response.json().then(result => ({ response, result }));
-    }).then(({ response, result }) => {
+      const result = await response.json();
+
       if (!response.ok) {
-        // Handle critical errors that should override success
-        if (response.status === 403) {
-          // Banned user - critical error
-          setSubmitted(false);
+        // Handle all error cases
+        if (response.status === 400) {
+          // Validation error (e.g., long words, invalid input)
+          setError(result.error || "Invalid input. Please check your submission.");
+          setIsSubmitting(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (response.status === 403) {
+          // Banned user
           setError(result.error || "You are banned from submitting memories.");
           setIsBanned(true);
           setHasReachedLimit(true);
           setIsFormDisabled(true);
+          setIsSubmitting(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (response.status === 429) {
-          // Memory limit reached - critical error
-          setSubmitted(false);
-          setError(result.error || "Memory limit reached.");
+          // Rate limit or memory limit reached
+          setError(result.error || "Too many requests. Please slow down.");
           setHasReachedLimit(true);
           setIsFormDisabled(true);
+          setIsSubmitting(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-          // Other errors (network/server) - log but keep success shown
-          console.error('Background submission failed:', result.error);
-          // User already saw success, so don't disturb their experience
+          // Other server errors
+          setError(result.error || "Server error. Please try again later.");
+          setIsSubmitting(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-      } else {
-        // Successfully submitted - user already sees success
-        console.log('Memory submitted successfully in background');
+        return;
       }
-    }).catch(err => {
-      // Network or parsing error - log but don't disturb user experience
-      console.error('Background submission error:', err);
-      // Keep success message shown since user already saw it
-    });
+
+      // Success - show success message
+      setSubmitted(true);
+      setError("");
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      console.log('Memory submitted successfully');
+      
+    } catch (err) {
+      console.error('Submission error:', err);
+      setError("Network error. Please check your connection and try again.");
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   // Helper function to get cookie value
