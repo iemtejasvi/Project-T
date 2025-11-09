@@ -5,8 +5,14 @@
 import { NextRequest } from 'next/server';
 
 // Admin credentials - MUST be set in environment variables
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-this-password-immediately';
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+// Fail safely if credentials not set
+if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+  console.error('🚨 SECURITY ERROR: ADMIN_USERNAME or ADMIN_PASSWORD not set in environment variables!');
+  console.error('Admin authentication will fail until these are configured.');
+}
 
 // Simple session store (use Redis in production)
 const sessions = new Map<string, { username: string; expiresAt: number }>();
@@ -25,6 +31,12 @@ setInterval(() => {
  * Verify admin credentials
  */
 export function verifyAdminCredentials(username: string, password: string): boolean {
+  // Fail safely if credentials not configured
+  if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+    console.error('🚨 Cannot verify credentials: ADMIN credentials not set in environment');
+    return false;
+  }
+  
   // In production, use bcrypt to compare hashed passwords
   return username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
 }

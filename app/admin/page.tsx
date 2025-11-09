@@ -420,9 +420,7 @@ export default function AdminPanel() {
   };
 
   const toggleMaintenanceMode = async () => {
-    const password = prompt("Please enter the maintenance password:");
-    if (password !== "2000@") {
-      alert("Incorrect password. Maintenance mode toggle aborted.");
+    if (!confirm('Are you sure you want to toggle maintenance mode?')) {
       return;
     }
 
@@ -490,9 +488,7 @@ export default function AdminPanel() {
   }
 
   async function deleteMemoryById(id: string) {
-    const password = prompt("Please enter the delete password:");
-    if (password !== "2000@") {
-      alert("Incorrect password. Delete aborted.");
+    if (!confirm('Are you sure you want to delete this memory? This cannot be undone.')) {
       return;
     }
     try {
@@ -512,9 +508,7 @@ export default function AdminPanel() {
   }
 
   async function banMemory(memory: Memory) {
-    const password = prompt("Please enter the ban password:");
-    if (password !== "2000@") {
-      alert("Incorrect password. Ban aborted.");
+    if (!confirm(`Are you sure you want to ban this user and delete their memory? This cannot be undone.\n\nIP: ${memory.ip || 'N/A'}\nUUID: ${memory.uuid || 'N/A'}`)) {
       return;
     }
     // First delete the memory
@@ -560,9 +554,7 @@ export default function AdminPanel() {
   }
 
   async function unbanMemory(memory: Memory) {
-    const password = prompt("Please enter the unban password:");
-    if (password !== "2000@") {
-      alert("Incorrect password. Unban aborted.");
+    if (!confirm(`Are you sure you want to unban this user?\n\nIP: ${memory.ip || 'N/A'}\nUUID: ${memory.uuid || 'N/A'}`)) {
       return;
     }
     // Unban by IP and UUID
@@ -1382,9 +1374,7 @@ export default function AdminPanel() {
                   </div>
                   <button
                     onClick={async () => {
-                      const password = prompt("Please enter the unban password:");
-                      if (password !== "2000@") {
-                        alert("Incorrect password. Unban aborted.");
+                      if (!confirm(`Unban this user?\n\nIP: ${user.ip || 'N/A'}\nUUID: ${user.uuid || 'N/A'}`)) {
                         return;
                       }
                       const params = new URLSearchParams();
