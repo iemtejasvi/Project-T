@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { typewriterTags, typewriterSubTags } from "@/components/typewriterPrompts";
-import { hasSuspiciouslyLongWords } from '@/lib/inputSanitizer';
+import { hasSuspiciouslyLongWords } from "@/lib/inputSanitizer";
 import InlineLoader from "@/components/InlineLoader";
 
 interface IPData {
