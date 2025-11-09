@@ -242,14 +242,43 @@ export function hasSuspiciouslyLongWords(input: string): { valid: boolean; error
   const words = input.split(/\s+/).filter(word => word.length > 0);
   const MAX_WORD_LENGTH = 15; // No single word should exceed this
   
+  // Fun messages for caught cheaters
+  const funMessages = [
+    "Nice try! 😏 That's not a word, that's a whole sentence smooshed together.",
+    "Clever! But we're onto your word-concatenation tricks. 🕵️",
+    "Not today, friend! Use the spacebar—it's there for a reason. ⌨️",
+    "Whoa there! That's one looong 'word'. Try adding some spaces?",
+    "Smooth move! But we've seen this trick before. 🎭",
+    "Gotcha! 🎯 No bypassing the word limit with mega-words.",
+    "Creative thinking! But nope, spaces are mandatory here. ✨",
+    "LOL nice attempt! But that word needs some breathing room. 💨",
+    "Sneaky! But we're not falling for the old concatenation trick. 🦊",
+    "That word is having an identity crisis. Break it up! 🔨",
+    "Pro tip: The spacebar is your friend. Use it! 👍",
+    "Busted! 🚨 That 'word' is way too suspicious.",
+    "Did you just mash your keyboard? 😅 Try using actual words.",
+    "Word limit hack detected! Please play fair. 🎮",
+    "Nope! 🙅 That's not how words work, buddy.",
+    "System says: 'Please use real words, not word-sausages.' 🌭",
+    "Error 404: Spaces not found. Please add some! 🔍",
+    "That's not a word, that's a URL! 😂 Add some spaces.",
+    "Rejected! ❌ Try writing like a normal human would.",
+    "Computer says no. 🤖 Use. The. Spacebar.",
+    "Achievement Unlocked: 'Too Clever For Your Own Good' 🏆 (Now add spaces)",
+    "We see what you did there... and we're not impressed. 😎",
+    "Bruh. 🤦 Just use spaces like everyone else.",
+    "That word is thicc. Too thicc. Trim it down! 🍔"
+  ];
+  
   for (const word of words) {
     // Remove common punctuation from ends
     const cleanWord = word.replace(/^[.,!?;:'"]+|[.,!?;:'"]+$/g, '');
     
     if (cleanWord.length > MAX_WORD_LENGTH) {
+      const randomMessage = funMessages[Math.floor(Math.random() * funMessages.length)];
       return {
         valid: false,
-        error: `Word too long: "${cleanWord.substring(0, 50)}..." (${cleanWord.length} characters). Maximum word length is ${MAX_WORD_LENGTH} characters. Please use spaces between words.`
+        error: `${randomMessage}\n\nWord detected: "${cleanWord.substring(0, 30)}..." (${cleanWord.length} characters)\nMaximum: ${MAX_WORD_LENGTH} characters per word.`
       };
     }
   }
