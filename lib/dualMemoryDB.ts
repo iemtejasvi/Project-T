@@ -1,6 +1,16 @@
 // lib/dualMemoryDB.ts
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
+// Validate that SERVICE_ROLE_KEY is set
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('🚨 CRITICAL: SUPABASE_SERVICE_ROLE_KEY is not set! Admin operations will fail.');
+  console.error('Current keys available:', {
+    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    hasUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL
+  });
+}
+
 // Database configurations with both anon (read) and service role (write) clients
 const dbA = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,6 +29,11 @@ const dbA = {
     }
   )
 };
+
+// Validate Database B SERVICE_ROLE_KEY
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY_B) {
+  console.error('🚨 CRITICAL: SUPABASE_SERVICE_ROLE_KEY_B is not set! Database B operations will fail.');
+}
 
 const dbB = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL_B!,
