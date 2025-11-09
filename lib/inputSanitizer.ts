@@ -240,7 +240,7 @@ export function containsNoSqlInjection(input: string): boolean {
  */
 export function hasSuspiciouslyLongWords(input: string): { valid: boolean; error?: string } {
   const words = input.split(/\s+/).filter(word => word.length > 0);
-  const MAX_WORD_LENGTH = 45; // No single word should exceed this
+  const MAX_WORD_LENGTH = 15; // No single word should exceed this
   
   for (const word of words) {
     // Remove common punctuation from ends
