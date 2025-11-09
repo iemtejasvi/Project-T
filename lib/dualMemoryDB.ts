@@ -1,17 +1,41 @@
 // lib/dualMemoryDB.ts
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// Database configurations
+// Database configurations with both anon (read) and service role (write) clients
 const dbA = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  // Read client (anon key) - respects RLS
+  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!),
+  // Write client (service role) - bypasses RLS for server-side operations
+  writeClient: createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
 };
 
 const dbB = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL_B!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!,
-  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!)
+  // Read client (anon key) - respects RLS
+  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL_B!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!),
+  // Write client (service role) - bypasses RLS for server-side operations
+  writeClient: createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL_B!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY_B || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_B!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
 };
 
 // Stateless round-robin selector with better distribution
@@ -175,7 +199,7 @@ export async function insertMemory(memoryData: Record<string, unknown>, preferre
   
   // Try primary database first
   try {
-    const { data, error } = await primaryClient.client
+    const { data, error } = await primaryClient.writeClient
       .from('memories')
       .insert([cleanedData])
       .select()
@@ -193,7 +217,7 @@ export async function insertMemory(memoryData: Record<string, unknown>, preferre
     // Failover to secondary database
     console.log(`Failing over to database ${secondaryDB}`);
     try {
-      const { data, error } = await secondaryClient.client
+      const { data, error } = await secondaryClient.writeClient
         .from('memories')
         .insert([cleanedData])
         .select()
@@ -481,8 +505,8 @@ export async function locateMemory(id: string): Promise<'A' | 'B' | 'Both' | 'Un
 // Update memory in both databases (finds the record first)
 export async function updateMemory(id: string, updates: Partial<Omit<MemoryData, 'id'>>) {
   const updatePromises = [
-    dbA.client.from('memories').update(updates).eq('id', id).select(),
-    dbB.client.from('memories').update(updates).eq('id', id).select()
+    dbA.writeClient.from('memories').update(updates).eq('id', id).select(),
+    dbB.writeClient.from('memories').update(updates).eq('id', id).select()
   ];
   
   const [resultA, resultB] = await Promise.allSettled(updatePromises);
@@ -505,8 +529,8 @@ export async function updateMemory(id: string, updates: Partial<Omit<MemoryData,
 // Delete memory from both databases
 export async function deleteMemory(id: string) {
   const deletePromises = [
-    dbA.client.from('memories').delete().eq('id', id).select(),
-    dbB.client.from('memories').delete().eq('id', id).select()
+    dbA.writeClient.from('memories').delete().eq('id', id).select(),
+    dbB.writeClient.from('memories').delete().eq('id', id).select()
   ];
   
   const [resultA, resultB] = await Promise.allSettled(deletePromises);
@@ -561,5 +585,6 @@ export async function fetchMemoryById(id: string) {
 }
 
 // Export individual database clients for non-memory operations
-export const primaryDB = dbA.client; // For banned_users, announcements, etc.
-export const secondaryDB = dbB.client; // Backup reference
+// Using writeClient to allow server-side operations that bypass RLS
+export const primaryDB = dbA.writeClient; // For banned_users, announcements, maintenance, etc.
+export const secondaryDB = dbB.writeClient; // Backup reference

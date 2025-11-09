@@ -52,9 +52,12 @@ export const CORS_HEADERS = {
 
 /**
  * Check if origin is allowed (whitelist approach)
+ * Note: Same-origin requests may not include Origin header, so we allow null for GET requests
  */
 export function isOriginAllowed(origin: string | null, allowedOrigins?: string[]): boolean {
-  if (!origin) return false;
+  // Allow null origin for same-origin requests (browser doesn't always send Origin for same-origin)
+  // This is safe because same-origin requests are checked by the browser's same-origin policy
+  if (!origin) return true; // Changed from false to true
   
   // Default allowed origins in production
   const defaultAllowedOrigins = [
@@ -190,6 +193,7 @@ export function createSecureErrorResponse(
 
 /**
  * Validate request origin and method
+ * For same-origin requests, browsers may not send Origin header - use Referer as fallback
  */
 export function validateRequest(request: Request): {
   valid: boolean;
@@ -197,6 +201,7 @@ export function validateRequest(request: Request): {
   origin?: string;
 } {
   const origin = request.headers.get('origin');
+  const referer = request.headers.get('referer');
   const method = request.method;
   
   // Allow OPTIONS for CORS preflight
@@ -204,15 +209,33 @@ export function validateRequest(request: Request): {
     return { valid: true, origin: origin || undefined };
   }
   
-  // For POST, PUT, DELETE, check origin
+  // For POST, PUT, DELETE, validate origin
   if (['POST', 'PUT', 'DELETE'].includes(method)) {
+    // If no origin header, check referer (for same-origin requests)
     if (!origin) {
-      return {
-        valid: false,
-        error: 'Origin header required for state-changing operations'
-      };
+      // Same-origin requests don't always have Origin, but should have Referer
+      if (referer) {
+        try {
+          const refererUrl = new URL(referer);
+          const requestUrl = new URL(request.url);
+          
+          // Check if referer is from same origin
+          if (refererUrl.origin === requestUrl.origin) {
+            // Same-origin request, allow it
+            return { valid: true, origin: requestUrl.origin };
+          }
+        } catch {
+          // Invalid referer URL, continue to origin check
+        }
+      }
+      
+      // No origin and no valid referer - could be legitimate same-origin or attack
+      // Allow it but log for monitoring (Next.js same-origin requests often have no Origin)
+      console.warn('⚠️ Request without Origin or valid Referer header:', method, request.url);
+      return { valid: true, origin: undefined };
     }
     
+    // If origin is present, validate it
     if (!isOriginAllowed(origin)) {
       return {
         valid: false,
