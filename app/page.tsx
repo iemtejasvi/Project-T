@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { primaryDB } from "@/lib/dualMemoryDB";
+import { primaryDBRead } from "@/lib/dualMemoryDB";
 import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
 import { storage } from "@/lib/persistentStorage";
 import { browserSession } from "@/lib/browserSession";
@@ -127,7 +127,7 @@ export default function Home() {
     async function fetchData() {
       try {
         // Fetch announcement (always from primary database)
-        const { data: announcementData, error: announcementError } = await primaryDB
+        const { data: announcementData, error: announcementError } = await primaryDBRead
           .from("announcements")
           .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
           .eq("is_active", true)
@@ -144,11 +144,12 @@ export default function Home() {
           
           // Check if announcement has expired
           if (now >= expiryTime) {
-            // Delete expired announcement
-            await primaryDB
-              .from("announcements")
-              .delete()
-              .eq("id", announcementData[0].id);
+            // Delete expired announcement via API
+            await fetch('/api/admin/delete-announcement', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: announcementData[0].id })
+            });
             if (isMounted) {
               setAnnouncement(null);
               setAnnouncementCheckComplete(true);
