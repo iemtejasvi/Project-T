@@ -70,9 +70,28 @@ export function verifySessionToken(token: string): boolean {
 }
 
 /**
+ * Get client IP from request
+ */
+function getClientIP(request: NextRequest): string | null {
+  return request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+         request.headers.get('x-real-ip') ||
+         null;
+}
+
+/**
  * Middleware to check if request is from authenticated admin
  */
 export function isAdminAuthenticated(request: NextRequest): boolean {
+  // Check if IP matches admin IP (auto-login for owner)
+  const adminIP = process.env.ADMIN_IP_ADDRESS;
+  if (adminIP) {
+    const clientIP = getClientIP(request);
+    if (clientIP === adminIP) {
+      console.log('✅ Admin IP detected - auto-authenticated');
+      return true;
+    }
+  }
+  
   // Check for session token in cookie
   const cookies = request.headers.get('cookie');
   if (!cookies) return false;

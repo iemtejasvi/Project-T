@@ -228,6 +228,10 @@ export default function AdminPanel() {
         if (data.authenticated) {
           setIsAuthorized(true);
           setAuthChecked(true);
+          // If IP-based auth, show notification
+          if (data.autoAuth) {
+            console.log(' Authenticated via IP address');
+          }
         } else {
           // Not authenticated - redirect to login
           setAuthChecked(true);

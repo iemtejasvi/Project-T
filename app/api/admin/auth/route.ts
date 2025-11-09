@@ -42,9 +42,19 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
   
+  // Check if authenticated via IP
+  const adminIP = process.env.ADMIN_IP_ADDRESS;
+  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+                   request.headers.get('x-real-ip') ||
+                   null;
+  const autoAuth = adminIP && clientIP === adminIP;
+  
   const isAuthenticated = isAdminAuthenticated(request);
   
-  return createSecureResponse({ authenticated: isAuthenticated }, 200, { origin });
+  return createSecureResponse({ 
+    authenticated: isAuthenticated,
+    autoAuth: autoAuth 
+  }, 200, { origin });
 }
 
 // Logout
