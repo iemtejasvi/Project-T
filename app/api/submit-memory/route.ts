@@ -374,9 +374,13 @@ export async function POST(request: NextRequest) {
     let clientIP: string | null = await getClientIP(request);
     const clientUUID: string | null = getCookieValue(request, 'user_uuid');
     
+    console.log(`🔍 Rate limit check - IP: ${clientIP}, UUID: ${clientUUID}`);
+    
     // 3. SECURITY: Rate limiting - check BEFORE parsing body
     const rateLimitKey = generateRateLimitKey(clientIP, clientUUID, 'submit');
     const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.SUBMIT_MEMORY);
+    
+    console.log(`⏱️  Rate limit result - Key: ${rateLimitKey}, Allowed: ${rateLimit.allowed}, Remaining: ${rateLimit.remaining}`);
     
     if (!rateLimit.allowed) {
       console.warn(`🚫 Rate limit exceeded for ${rateLimitKey}`);

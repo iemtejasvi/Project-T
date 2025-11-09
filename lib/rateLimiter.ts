@@ -86,13 +86,17 @@ export function checkRateLimit(
       resetTime: now + config.windowMs
     };
     rateLimitStore.set(key, entry);
+    console.log(`🆕 Rate limit: NEW entry for ${key}, count: 1/${config.maxRequests}`);
   } else {
     // Increment request count for existing entry
     entry.count++;
+    console.log(`📊 Rate limit: ${key}, count: ${entry.count}/${config.maxRequests}`);
   }
   
   // Check if limit exceeded
   if (entry.count > config.maxRequests) {
+    console.log(`🚫 Rate limit EXCEEDED for ${key}: ${entry.count} > ${config.maxRequests}`);
+
     // Block the identifier if blockDuration is specified
     if (config.blockDuration) {
       entry.blockedUntil = now + config.blockDuration;
