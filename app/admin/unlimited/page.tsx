@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { primaryDB } from "@/lib/dualMemoryDB";
 
 interface UnlimitedUser {
   id: string;
@@ -21,14 +21,14 @@ export default function UnlimitedUsersPage() {
   // Fetch existing data
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
+      const { data, error } = await primaryDB
         .from("unlimited_users")
         .select("id, ip, uuid, created_at")
         .order("created_at", { ascending: false });
       if (!error) setUsers(data || []);
 
       // fetch settings
-      const { data: settings } = await supabase
+      const { data: settings } = await primaryDB
         .from("site_settings")
         .select("word_limit_disabled_until")
         .single();
@@ -42,7 +42,7 @@ export default function UnlimitedUsersPage() {
   const handleAdd = async () => {
     if (!ip && !uuid) return;
     setLoading(true);
-    const { error } = await supabase.from("unlimited_users").insert({ ip: ip || null, uuid: uuid || null });
+    const { error } = await primaryDB.from("unlimited_users").insert({ ip: ip || null, uuid: uuid || null });
     if (!error) {
       setUsers(prev => [{ id: crypto.randomUUID(), ip, uuid, created_at: new Date().toISOString() }, ...prev]);
       setIp("");
@@ -54,7 +54,7 @@ export default function UnlimitedUsersPage() {
   };
 
   const handleRemove = async (id: string) => {
-    const { error } = await supabase.from("unlimited_users").delete().eq("id", id);
+    const { error } = await primaryDB.from("unlimited_users").delete().eq("id", id);
     if (!error) {
       setUsers(prev => prev.filter(u => u.id !== id));
     }
@@ -63,7 +63,7 @@ export default function UnlimitedUsersPage() {
   const handleSaveGlobal = async () => {
     setSavingGlobal(true);
     const until = globalUntil ? new Date(globalUntil).toISOString() : null;
-    await supabase.from("site_settings").upsert({ id: 1, word_limit_disabled_until: until });
+    await primaryDB.from("site_settings").upsert({ id: 1, word_limit_disabled_until: until });
     setSavingGlobal(false);
   };
 
