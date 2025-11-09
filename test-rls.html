@@ -139,28 +139,53 @@
         <h1>🔒 RLS Test Suite</h1>
         <p class="subtitle">Test Row Level Security on your Supabase databases</p>
         
+        <h2 style="color: #667eea; margin-top: 0;">Database A (Primary)</h2>
+        
         <div class="input-group">
-            <label for="supabaseUrl">Supabase URL</label>
+            <label for="supabaseUrlA">Supabase URL - Database A</label>
             <input 
                 type="text" 
-                id="supabaseUrl" 
+                id="supabaseUrlA" 
                 placeholder="https://xxxxx.supabase.co"
                 value=""
             >
         </div>
         
         <div class="input-group">
-            <label for="anonKey">Anon Key (Public)</label>
+            <label for="anonKeyA">Anon Key - Database A</label>
             <input 
                 type="text" 
-                id="anonKey" 
+                id="anonKeyA" 
+                placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                value=""
+            >
+        </div>
+
+        <h2 style="color: #667eea; margin-top: 30px;">Database B (Secondary)</h2>
+        <p style="color: #666; font-size: 14px; margin-top: -10px;">Leave empty to test only Database A</p>
+        
+        <div class="input-group">
+            <label for="supabaseUrlB">Supabase URL - Database B (Optional)</label>
+            <input 
+                type="text" 
+                id="supabaseUrlB" 
+                placeholder="https://yyyyy.supabase.co"
+                value=""
+            >
+        </div>
+        
+        <div class="input-group">
+            <label for="anonKeyB">Anon Key - Database B (Optional)</label>
+            <input 
+                type="text" 
+                id="anonKeyB" 
                 placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                 value=""
             >
         </div>
         
         <button id="runTests" onclick="runRLSTests()">
-            Run RLS Tests
+            Test Both Databases
         </button>
         
         <div id="results"></div>
@@ -170,14 +195,19 @@
         async function runRLSTests() {
             const button = document.getElementById('runTests');
             const resultsDiv = document.getElementById('results');
-            const supabaseUrl = document.getElementById('supabaseUrl').value.trim();
-            const anonKey = document.getElementById('anonKey').value.trim();
+            
+            const supabaseUrlA = document.getElementById('supabaseUrlA').value.trim();
+            const anonKeyA = document.getElementById('anonKeyA').value.trim();
+            const supabaseUrlB = document.getElementById('supabaseUrlB').value.trim();
+            const anonKeyB = document.getElementById('anonKeyB').value.trim();
             
             // Validation
-            if (!supabaseUrl || !anonKey) {
-                alert('Please enter both Supabase URL and Anon Key');
+            if (!supabaseUrlA || !anonKeyA) {
+                alert('Please enter Supabase URL and Anon Key for Database A');
                 return;
             }
+            
+            const testDatabaseB = supabaseUrlB && anonKeyB;
             
             // Disable button and show loading
             button.disabled = true;
@@ -186,78 +216,20 @@
             resultsDiv.innerHTML = '<p style="text-align: center; color: #666;">Testing RLS policies...</p>';
             
             try {
-                // Initialize Supabase client
-                const { createClient } = supabase;
-                const client = createClient(supabaseUrl, anonKey);
+                const allResults = {};
                 
-                const results = [];
+                // Test Database A
+                console.log('🧪 Testing Database A...');
+                allResults.databaseA = await testDatabase(supabaseUrlA, anonKeyA, 'Database A');
                 
-                // TEST 1: Try INSERT (should FAIL)
-                console.log('🧪 Testing INSERT with anon key...');
-                const { data: insertData, error: insertError } = await client
-                    .from('memories')
-                    .insert([{
-                        recipient: 'RLS Test',
-                        message: 'This should be blocked',
-                        status: 'pending'
-                    }]);
+                // Test Database B if credentials provided
+                if (testDatabaseB) {
+                    console.log('🧪 Testing Database B...');
+                    allResults.databaseB = await testDatabase(supabaseUrlB, anonKeyB, 'Database B');
+                }
                 
-                results.push({
-                    name: 'INSERT Blocked',
-                    expected: 'BLOCKED',
-                    actual: insertError ? 'BLOCKED' : 'ALLOWED',
-                    pass: !!insertError,
-                    error: insertError?.message || null
-                });
-                
-                // TEST 2: Try UPDATE (should FAIL)
-                console.log('🧪 Testing UPDATE with anon key...');
-                const { data: updateData, error: updateError } = await client
-                    .from('memories')
-                    .update({ status: 'approved' })
-                    .eq('id', 'fake-id-test');
-                
-                results.push({
-                    name: 'UPDATE Blocked',
-                    expected: 'BLOCKED',
-                    actual: updateError ? 'BLOCKED' : 'ALLOWED',
-                    pass: !!updateError,
-                    error: updateError?.message || null
-                });
-                
-                // TEST 3: Try DELETE (should FAIL)
-                console.log('🧪 Testing DELETE with anon key...');
-                const { data: deleteData, error: deleteError } = await client
-                    .from('memories')
-                    .delete()
-                    .eq('id', 'fake-id-test');
-                
-                results.push({
-                    name: 'DELETE Blocked',
-                    expected: 'BLOCKED',
-                    actual: deleteError ? 'BLOCKED' : 'ALLOWED',
-                    pass: !!deleteError,
-                    error: deleteError?.message || null
-                });
-                
-                // TEST 4: Try SELECT (should SUCCEED)
-                console.log('🧪 Testing SELECT with anon key...');
-                const { data: selectData, error: selectError } = await client
-                    .from('memories')
-                    .select('id, recipient, message, status')
-                    .eq('status', 'approved')
-                    .limit(5);
-                
-                results.push({
-                    name: 'SELECT Allowed',
-                    expected: 'ALLOWED',
-                    actual: selectError ? 'BLOCKED' : 'ALLOWED',
-                    pass: !selectError,
-                    error: selectError?.message || null
-                });
-                
-                // Display results
-                displayResults(results);
+                // Display combined results
+                displayCombinedResults(allResults);
                 
             } catch (error) {
                 resultsDiv.innerHTML = `
@@ -273,15 +245,131 @@
                 `;
             } finally {
                 button.disabled = false;
-                button.innerHTML = 'Run RLS Tests';
+                button.innerHTML = 'Test Both Databases';
             }
         }
         
-        function displayResults(results) {
-            const resultsDiv = document.getElementById('results');
-            const allPassed = results.every(r => r.pass);
+        async function testDatabase(supabaseUrl, anonKey, dbName) {
+            const { createClient } = supabase;
+            const client = createClient(supabaseUrl, anonKey);
             
+            const results = [];
+            
+            // TEST 1: Try INSERT (should FAIL)
+            console.log(`🧪 ${dbName}: Testing INSERT...`);
+            const { data: insertData, error: insertError } = await client
+                .from('memories')
+                .insert([{
+                    recipient: 'RLS Test',
+                    message: 'This should be blocked',
+                    status: 'pending'
+                }]);
+            
+            results.push({
+                name: 'INSERT Blocked',
+                expected: 'BLOCKED',
+                actual: insertError ? 'BLOCKED' : 'ALLOWED',
+                pass: !!insertError,
+                error: insertError?.message || null
+            });
+            
+            // TEST 2: Try UPDATE (should FAIL)
+            console.log(`🧪 ${dbName}: Testing UPDATE...`);
+            const { data: updateData, error: updateError } = await client
+                .from('memories')
+                .update({ status: 'approved' })
+                .eq('id', 'fake-id-test');
+            
+            results.push({
+                name: 'UPDATE Blocked',
+                expected: 'BLOCKED',
+                actual: updateError ? 'BLOCKED' : 'ALLOWED',
+                pass: !!updateError,
+                error: updateError?.message || null
+            });
+            
+            // TEST 3: Try DELETE (should FAIL)
+            console.log(`🧪 ${dbName}: Testing DELETE...`);
+            const { data: deleteData, error: deleteError } = await client
+                .from('memories')
+                .delete()
+                .eq('id', 'fake-id-test');
+            
+            results.push({
+                name: 'DELETE Blocked',
+                expected: 'BLOCKED',
+                actual: deleteError ? 'BLOCKED' : 'ALLOWED',
+                pass: !!deleteError,
+                error: deleteError?.message || null
+            });
+            
+            // TEST 4: Try SELECT (should SUCCEED)
+            console.log(`🧪 ${dbName}: Testing SELECT...`);
+            const { data: selectData, error: selectError } = await client
+                .from('memories')
+                .select('id, recipient, message, status')
+                .eq('status', 'approved')
+                .limit(5);
+            
+            results.push({
+                name: 'SELECT Allowed',
+                expected: 'ALLOWED',
+                actual: selectError ? 'BLOCKED' : 'ALLOWED',
+                pass: !selectError,
+                error: selectError?.message || null
+            });
+            
+            return results;
+        }
+        
+        function displayCombinedResults(allResults) {
+            const resultsDiv = document.getElementById('results');
             let html = '<h3 style="margin-top: 0;">Test Results:</h3>';
+            
+            let totalPassed = 0;
+            let totalTests = 0;
+            
+            // Display Database A results
+            if (allResults.databaseA) {
+                html += '<h4 style="color: #667eea; margin-top: 20px; margin-bottom: 15px;">📊 Database A (Primary)</h4>';
+                html += renderDatabaseResults(allResults.databaseA);
+                totalPassed += allResults.databaseA.filter(r => r.pass).length;
+                totalTests += allResults.databaseA.length;
+            }
+            
+            // Display Database B results
+            if (allResults.databaseB) {
+                html += '<h4 style="color: #764ba2; margin-top: 30px; margin-bottom: 15px;">📊 Database B (Secondary)</h4>';
+                html += renderDatabaseResults(allResults.databaseB);
+                totalPassed += allResults.databaseB.filter(r => r.pass).length;
+                totalTests += allResults.databaseB.length;
+            }
+            
+            // Overall summary
+            const allPassed = totalPassed === totalTests;
+            html += `
+                <div class="summary ${allPassed ? 'success' : 'failure'}" style="margin-top: 30px;">
+                    ${allPassed ? '✅ ALL TESTS PASSED ON ALL DATABASES!' : '❌ SOME TESTS FAILED! Check results above.'}
+                </div>
+            `;
+            
+            html += `
+                <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #2196F3;">
+                    <strong>📊 Overall Summary:</strong><br>
+                    Total Passed: ${totalPassed}/${totalTests}<br>
+                    Total Failed: ${totalTests - totalPassed}/${totalTests}<br>
+                    ${allResults.databaseB ? 'Databases Tested: 2' : 'Databases Tested: 1'}
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+            
+            // Log to console
+            console.log('🔒 COMBINED RLS TEST RESULTS:', allResults);
+        }
+        
+        function renderDatabaseResults(results) {
+            let html = '';
             
             results.forEach(result => {
                 html += `
@@ -299,24 +387,16 @@
                 `;
             });
             
+            const passed = results.filter(r => r.pass).length;
+            const total = results.length;
+            
             html += `
-                <div class="summary ${allPassed ? 'success' : 'failure'}">
-                    ${allPassed ? '✅ ALL TESTS PASSED! RLS is working correctly!' : '❌ SOME TESTS FAILED! RLS needs attention.'}
+                <div style="margin-top: 10px; padding: 10px; background: ${passed === total ? '#d4edda' : '#f8d7da'}; border-radius: 6px; text-align: center; font-weight: 600;">
+                    ${passed}/${total} tests passed
                 </div>
             `;
             
-            html += `
-                <div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #2196F3;">
-                    <strong>📊 Summary:</strong><br>
-                    Passed: ${results.filter(r => r.pass).length}/${results.length}<br>
-                    Failed: ${results.filter(r => !r.pass).length}/${results.length}
-                </div>
-            `;
-            
-            resultsDiv.innerHTML = html;
-            
-            // Log to console
-            console.log('🔒 RLS TEST RESULTS:', results);
+            return html;
         }
     </script>
 </body>
