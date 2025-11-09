@@ -585,6 +585,11 @@ export async function fetchMemoryById(id: string) {
 }
 
 // Export individual database clients for non-memory operations
-// Using writeClient to allow server-side operations that bypass RLS
+// SECURITY: Only export writeClient for SERVER-SIDE use (API routes)
+// NEVER import these in client-side components (pages, layouts, etc)
 export const primaryDB = dbA.writeClient; // For banned_users, announcements, maintenance, etc.
 export const secondaryDB = dbB.writeClient; // Backup reference
+
+// Export read-only clients for client-side use
+export const primaryDBRead = dbA.client;
+export const secondaryDBRead = dbB.client;

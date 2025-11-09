@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import UnlimitedUsersPage from "./unlimited/page";
-import { fetchMemories, primaryDB, secondaryDB, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
+import { fetchMemories, primaryDBRead, secondaryDBRead, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -108,8 +108,8 @@ export default function AdminPanel() {
 
       // Compute recent IDs divergence (last 50 from each)
       const [a50, b50] = await Promise.all([
-        primaryDB.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50),
-        secondaryDB.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50)
+        primaryDBRead.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50),
+        secondaryDBRead.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50)
       ]);
       const setA = new Set(((a50.data || []) as Array<{ id: string }>).map((r) => r.id));
       const setB = new Set(((b50.data || []) as Array<{ id: string }>).map((r) => r.id));
@@ -315,11 +315,12 @@ export default function AdminPanel() {
       if (data?.[0]) {
         // Check if announcement has expired
         if (new Date(data[0].expires_at) < new Date()) {
-          // Delete expired announcement
-          await primaryDB
-            .from("announcements")
-            .delete()
-            .eq("id", data[0].id);
+          // Delete expired announcement via API
+          await fetch('/api/admin/delete-announcement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: data[0].id })
+          });
           setCurrentAnnouncement(null);
         } else {
           setCurrentAnnouncement(data[0]);
@@ -656,10 +657,11 @@ export default function AdminPanel() {
       if (currentAnnouncement) {
         const expiry = new Date(currentAnnouncement.expires_at);
         if (currentTime >= expiry) {
-          await primaryDB
-            .from("announcements")
-            .delete()
-            .eq("id", currentAnnouncement.id);
+          await fetch('/api/admin/delete-announcement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: currentAnnouncement.id })
+          });
           setCurrentAnnouncement(null);
           await fetchCurrentAnnouncement(); // Refresh announcement state
         }
@@ -694,7 +696,7 @@ export default function AdminPanel() {
   // Fetch banned users when banned tab is selected
   useEffect(() => {
     if (selectedTab === "banned") {
-      primaryDB
+      primaryDBRead
         .from("banned_users")
         .select("ip, uuid, country")
         .then(({ data, error }) => {
