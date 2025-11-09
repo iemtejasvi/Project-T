@@ -236,6 +236,28 @@ export function containsNoSqlInjection(input: string): boolean {
 }
 
 /**
+ * Check for suspiciously long words (concatenated to bypass word limits)
+ */
+export function hasSuspiciouslyLongWords(input: string): { valid: boolean; error?: string } {
+  const words = input.split(/\s+/).filter(word => word.length > 0);
+  const MAX_WORD_LENGTH = 45; // No single word should exceed this
+  
+  for (const word of words) {
+    // Remove common punctuation from ends
+    const cleanWord = word.replace(/^[.,!?;:'"]+|[.,!?;:'"]+$/g, '');
+    
+    if (cleanWord.length > MAX_WORD_LENGTH) {
+      return {
+        valid: false,
+        error: `Word too long: "${cleanWord.substring(0, 50)}..." (${cleanWord.length} characters). Maximum word length is ${MAX_WORD_LENGTH} characters. Please use spaces between words.`
+      };
+    }
+  }
+  
+  return { valid: true };
+}
+
+/**
  * Comprehensive input validation for memory submission
  */
 export function validateMemoryInput(data: {
@@ -266,7 +288,13 @@ export function validateMemoryInput(data: {
     } else if (containsSqlInjection(recipient) || containsNoSqlInjection(recipient)) {
       errors.push('Recipient contains invalid characters');
     } else {
-      sanitized.recipient = recipient;
+      // Check for suspiciously long words
+      const wordCheck = hasSuspiciouslyLongWords(recipient);
+      if (!wordCheck.valid) {
+        errors.push('Recipient name is too long or contains concatenated words');
+      } else {
+        sanitized.recipient = recipient;
+      }
     }
   }
   
@@ -282,7 +310,13 @@ export function validateMemoryInput(data: {
     } else if (containsSqlInjection(message) || containsNoSqlInjection(message)) {
       errors.push('Message contains invalid characters');
     } else {
-      sanitized.message = message;
+      // Check for suspiciously long words (concatenated to bypass limits)
+      const wordCheck = hasSuspiciouslyLongWords(message);
+      if (!wordCheck.valid) {
+        errors.push(wordCheck.error || 'Message contains suspiciously long words');
+      } else {
+        sanitized.message = message;
+      }
     }
   }
   
