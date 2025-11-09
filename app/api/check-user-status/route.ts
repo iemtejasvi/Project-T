@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     const clientUUID = getCookieValue(request, 'user_uuid');
     
     // 3. SECURITY: Rate limiting
-    const rateLimitKey = generateRateLimitKey(clientIP, clientUUID);
+    const rateLimitKey = generateRateLimitKey(clientIP, clientUUID, 'status');
     const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.CHECK_STATUS);
     
     if (!rateLimit.allowed) {

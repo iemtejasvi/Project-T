@@ -175,15 +175,29 @@ export function unblockIdentifier(identifier: string) {
 
 /**
  * Generate a rate limit key from IP and UUID with fallback
+ * @param ip - Client IP address
+ * @param uuid - Client UUID
+ * @param endpoint - Endpoint name to create separate buckets per API
+ * @param fallback - Fallback identifier
  */
-export function generateRateLimitKey(ip: string | null, uuid: string | null, fallback: string = 'anonymous'): string {
+export function generateRateLimitKey(
+  ip: string | null, 
+  uuid: string | null, 
+  endpoint: string = 'general',
+  fallback: string = 'anonymous'
+): string {
+  let identifier: string;
+  
   if (ip && ip.length > 6) {
-    return `ip:${ip}`;
+    identifier = `ip:${ip}`;
+  } else if (uuid && uuid.length > 10) {
+    identifier = `uuid:${uuid}`;
+  } else {
+    identifier = `fallback:${fallback}`;
   }
-  if (uuid && uuid.length > 10) {
-    return `uuid:${uuid}`;
-  }
-  return `fallback:${fallback}`;
+  
+  // Add endpoint to create separate rate limit buckets per API
+  return `${endpoint}:${identifier}`;
 }
 
 // Auto-cleanup every 10 minutes
