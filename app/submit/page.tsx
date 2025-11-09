@@ -763,11 +763,9 @@ export default function SubmitPage() {
 
     // Enhanced ban and limit checking
     if (ipData?.ip || uuid) {
-      // Owner exemption - skip all checks for owner IP
-      if (ipData?.ip === '103.161.233.157') {
-        // Skip all checks for owner
-      } else {
-        try {
+      // Check ban status and limits
+      // Note: Owner bypass is handled server-side via OWNER_IP_ADDRESS env var
+      try {
           // Check if banned by IP or UUID with more specific query
           const banQuery = [];
           if (ipData?.ip) banQuery.push(`ip.eq.${ipData.ip}`);
@@ -823,12 +821,11 @@ export default function SubmitPage() {
               return;
             }
           }
-        } catch (err) {
-          console.error("Unexpected error during validation:", err);
-          setError("An unexpected error occurred. Please try again.");
-          setIsSubmitting(false);
-          return;
-        }
+      } catch (err) {
+        console.error("Unexpected error during validation:", err);
+        setError("An unexpected error occurred. Please try again.");
+        setIsSubmitting(false);
+        return;
       }
     }
 
