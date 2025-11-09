@@ -72,8 +72,7 @@ export async function POST(request: NextRequest) {
                        host.includes('127.0.0.1') ||
                        host.startsWith('localhost:') ||
                        clientIP === '127.0.0.1' || 
-                       clientIP === '::1' ||
-                       !clientIP; // No IP detected = likely localhost
+                       clientIP === '::1';
     
     // Check if IP matches owner (from environment variable)
     const ownerIP = process.env.OWNER_IP_ADDRESS;
