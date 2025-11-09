@@ -477,40 +477,49 @@ export default function AdminPanel() {
   };
 
   async function updateMemoryStatus(id: string, newStatus: string) {
-    try {
-      const response = await fetch('/api/admin/update-memory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, updates: { status: newStatus } })
-      });
-      const result = await response.json();
-      if (!response.ok || result.error) {
-        console.error(result.error || 'Update failed');
+    // Optimistic update - update UI immediately
+    setMemories(prev => prev.map(m => 
+      m.id === id ? { ...m, status: newStatus } : m
+    ));
+
+    // Background API call
+    fetch('/api/admin/update-memory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, updates: { status: newStatus } })
+    }).then(response => response.json()).then(result => {
+      if (result.error) {
+        console.error('Update failed:', result.error);
+        refreshMemories(); // Revert on error
       }
-    } catch (error) {
+    }).catch(error => {
       console.error('Update error:', error);
-    }
-    refreshMemories();
+      refreshMemories(); // Revert on error
+    });
   }
 
   async function deleteMemoryById(id: string) {
     if (!confirm('Are you sure you want to delete this memory? This cannot be undone.')) {
       return;
     }
-    try {
-      const response = await fetch('/api/admin/delete-memory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-      const result = await response.json();
-      if (!response.ok || result.error) {
-        console.error(result.error || 'Delete failed');
+
+    // Optimistic update - remove from UI immediately
+    setMemories(prev => prev.filter(m => m.id !== id));
+
+    // Background API call
+    fetch('/api/admin/delete-memory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    }).then(response => response.json()).then(result => {
+      if (result.error) {
+        console.error('Delete failed:', result.error);
+        refreshMemories(); // Restore on error
       }
-    } catch (error) {
+    }).catch(error => {
       console.error('Delete error:', error);
-    }
-    refreshMemories();
+      refreshMemories(); // Restore on error
+    });
   }
 
   async function banMemory(memory: Memory) {
@@ -581,21 +590,25 @@ export default function AdminPanel() {
 
   async function togglePin(memory: Memory) {
     if (memory.pinned) {
-      // If already pinned, just unpin it
-      try {
-        const response = await fetch('/api/admin/update-memory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: memory.id, updates: { pinned: false, pinned_until: null } })
-        });
-        const result = await response.json();
-        if (!response.ok || result.error) {
+      // Optimistic update - unpin immediately in UI
+      setMemories(prev => prev.map(m => 
+        m.id === memory.id ? { ...m, pinned: false, pinned_until: undefined } : m
+      ));
+
+      // Background API call
+      fetch('/api/admin/update-memory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: memory.id, updates: { pinned: false, pinned_until: null } })
+      }).then(response => response.json()).then(result => {
+        if (result.error) {
           console.error(result.error);
+          refreshMemories(); // Revert on error
         }
-      } catch (error) {
+      }).catch(error => {
         console.error(error);
-      }
-      refreshMemories();
+        refreshMemories(); // Revert on error
+      });
       return;
     }
 
@@ -609,20 +622,25 @@ export default function AdminPanel() {
     const pinnedUntil = new Date();
     pinnedUntil.setSeconds(pinnedUntil.getSeconds() + totalSeconds);
 
-    try {
-      const response = await fetch('/api/admin/update-memory', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: memory.id, updates: { pinned: true, pinned_until: pinnedUntil.toISOString() } })
-      });
-      const result = await response.json();
-      if (!response.ok || result.error) {
+    // Optimistic update - pin immediately in UI
+    setMemories(prev => prev.map(m => 
+      m.id === memory.id ? { ...m, pinned: true, pinned_until: pinnedUntil.toISOString() } : m
+    ));
+
+    // Background API call
+    fetch('/api/admin/update-memory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: memory.id, updates: { pinned: true, pinned_until: pinnedUntil.toISOString() } })
+    }).then(response => response.json()).then(result => {
+      if (result.error) {
         console.error(result.error);
+        refreshMemories(); // Revert on error
       }
-    } catch (error) {
+    }).catch(error => {
       console.error(error);
-    }
-    refreshMemories();
+      refreshMemories(); // Revert on error
+    });
   }
 
   // Add interval for checking expired items ONLY when there are active items
