@@ -357,31 +357,28 @@ export default function AdminPanel() {
     const expiresAt = new Date();
     expiresAt.setSeconds(expiresAt.getSeconds() + totalSeconds);
 
-    // Delete all announcements
-    await primaryDB
-      .from("announcements")
-      .delete();
-
-    // Create new announcement
-    const { data, error } = await primaryDB
-      .from("announcements")
-      .insert([{ 
-        message: announcement, 
-        is_active: true,
-        expires_at: expiresAt.toISOString(),
-        link_url: announcementLink.trim() || null,
-        background_color: announcementBgColor,
-        text_color: announcementTextColor,
-        icon: announcementIcon.trim() || null,
-        title: announcementTitle.trim() || null,
-        is_dismissible: announcementIsDismissible
-      }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error creating announcement:", error);
-    } else if (data) {
+    try {
+      const response = await fetch('/api/admin/announcements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: announcement,
+          is_active: true,
+          expires_at: expiresAt.toISOString(),
+          link_url: announcementLink.trim() || null,
+          background_color: announcementBgColor,
+          text_color: announcementTextColor,
+          icon: announcementIcon.trim() || null,
+          title: announcementTitle.trim() || null,
+          is_dismissible: announcementIsDismissible
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || result.error) {
+        console.error("Error creating announcement:", result.error);
+      } else if (result.data) {
       setAnnouncement("");
       setAnnouncementLink("");
       setAnnouncementBgColor("#ef4444");
@@ -390,22 +387,30 @@ export default function AdminPanel() {
       setAnnouncementTitle("Announcement");
       setAnnouncementIsDismissible(false);
       setAnnouncementTimer({ days: "", hours: "", minutes: "", seconds: "" });
-      setCurrentAnnouncement(data);
+      setCurrentAnnouncement(result.data);
+      }
+    } catch (error) {
+      console.error("Error creating announcement:", error);
     }
   };
 
   const handleRemoveAnnouncement = async () => {
     if (!currentAnnouncement) return;
     
-    const { error } = await primaryDB
-      .from("announcements")
-      .delete()
-      .eq("id", currentAnnouncement.id);
-
-    if (error) {
+    try {
+      const response = await fetch(`/api/admin/announcements?id=${currentAnnouncement.id}`, {
+        method: 'DELETE'
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || result.error) {
+        console.error("Error removing announcement:", result.error);
+      } else {
+        setCurrentAnnouncement(null);
+      }
+    } catch (error) {
       console.error("Error removing announcement:", error);
-    } else {
-      setCurrentAnnouncement(null);
     }
   };
 
@@ -419,13 +424,16 @@ export default function AdminPanel() {
     try {
       if (maintenanceMode) {
         // Disable maintenance mode
-        const { error } = await primaryDB
-          .from("maintenance")
-          .update({ is_active: false, message: "" })
-          .eq("id", 1);
-
-        if (error) {
-          console.error("Error disabling maintenance mode:", error);
+        const response = await fetch('/api/admin/maintenance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: 1, is_active: false, message: "" })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || result.error) {
+          console.error("Error disabling maintenance mode:", result.error);
         } else {
           setMaintenanceMode(false);
           setMaintenanceMessage("");
@@ -434,17 +442,21 @@ export default function AdminPanel() {
         // Enable maintenance mode
         const message = prompt("Enter maintenance message (optional):") || "Site is under maintenance. Please check back later.";
         
-        const { error } = await primaryDB
-          .from("maintenance")
-          .upsert({ 
-            id: 1, 
-            is_active: true, 
+        const response = await fetch('/api/admin/maintenance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: 1,
+            is_active: true,
             message: message,
             updated_at: new Date().toISOString()
-          });
-
-        if (error) {
-          console.error("Error enabling maintenance mode:", error);
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || result.error) {
+          console.error("Error enabling maintenance mode:", result.error);
         } else {
           setMaintenanceMode(true);
           setMaintenanceMessage(message);
@@ -523,11 +535,18 @@ export default function AdminPanel() {
     if (memory.uuid) banEntry.uuid = memory.uuid;
     if (memory.country) banEntry.country = memory.country;
     if (banEntry.ip || banEntry.uuid) {
-      const { error: banError } = await primaryDB
-        .from("banned_users")
-        .insert([banEntry]);
-      if (banError) {
-        console.error("Error banning user:", banError);
+      try {
+        const response = await fetch('/api/admin/ban', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(banEntry)
+        });
+        const result = await response.json();
+        if (!response.ok || result.error) {
+          console.error("Error banning user:", result.error);
+        }
+      } catch (error) {
+        console.error("Error banning user:", error);
       }
     }
     
@@ -542,11 +561,16 @@ export default function AdminPanel() {
       return;
     }
     // Unban by IP and UUID
-    if (memory.ip) {
-      await primaryDB.from("banned_users").delete().eq("ip", memory.ip);
-    }
-    if (memory.uuid) {
-      await primaryDB.from("banned_users").delete().eq("uuid", memory.uuid);
+    try {
+      const params = new URLSearchParams();
+      if (memory.ip) params.append('ip', memory.ip);
+      if (memory.uuid) params.append('uuid', memory.uuid);
+      
+      await fetch(`/api/admin/ban?${params.toString()}`, {
+        method: 'DELETE'
+      });
+    } catch (error) {
+      console.error("Error unbanning:", error);
     }
     setSelectedTab("banned");
     refreshMemories();
@@ -1341,12 +1365,13 @@ export default function AdminPanel() {
                         alert("Incorrect password. Unban aborted.");
                         return;
                       }
-                      if (user.ip) {
-                        await primaryDB.from("banned_users").delete().eq("ip", user.ip);
-                      }
-                      if (user.uuid) {
-                        await primaryDB.from("banned_users").delete().eq("uuid", user.uuid);
-                      }
+                      const params = new URLSearchParams();
+                      if (user.ip) params.append('ip', user.ip);
+                      if (user.uuid) params.append('uuid', user.uuid);
+                      
+                      await fetch(`/api/admin/ban?${params.toString()}`, {
+                        method: 'DELETE'
+                      });
                       setBannedUsers((prev) => prev.filter((b) => b !== user));
                     }}
                     className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm"

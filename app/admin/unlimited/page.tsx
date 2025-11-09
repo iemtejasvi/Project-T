@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { primaryDB } from "@/lib/dualMemoryDB";
+import { supabase } from "@/lib/supabaseClient";
 
 interface UnlimitedUser {
   id: string;
@@ -21,14 +21,14 @@ export default function UnlimitedUsersPage() {
   // Fetch existing data
   useEffect(() => {
     (async () => {
-      const { data, error } = await primaryDB
+      const { data, error } = await supabase
         .from("unlimited_users")
         .select("id, ip, uuid, created_at")
         .order("created_at", { ascending: false });
       if (!error) setUsers(data || []);
 
       // fetch settings
-      const { data: settings } = await primaryDB
+      const { data: settings } = await supabase
         .from("site_settings")
         .select("word_limit_disabled_until")
         .single();
@@ -42,28 +42,54 @@ export default function UnlimitedUsersPage() {
   const handleAdd = async () => {
     if (!ip && !uuid) return;
     setLoading(true);
-    const { error } = await primaryDB.from("unlimited_users").insert({ ip: ip || null, uuid: uuid || null });
-    if (!error) {
-      setUsers(prev => [{ id: crypto.randomUUID(), ip, uuid, created_at: new Date().toISOString() }, ...prev]);
-      setIp("");
-      setUuid("");
-    } else {
-      console.error('Insert error', error?.message || error);
+    try {
+      const response = await fetch('/api/admin/unlimited', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip: ip || null, uuid: uuid || null })
+      });
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        console.error('Insert error', result.error);
+      } else {
+        setUsers(prev => [{ id: crypto.randomUUID(), ip, uuid, created_at: new Date().toISOString() }, ...prev]);
+        setIp("");
+        setUuid("");
+      }
+    } catch (error) {
+      console.error('Insert error', error);
     }
     setLoading(false);
   };
 
   const handleRemove = async (id: string) => {
-    const { error } = await primaryDB.from("unlimited_users").delete().eq("id", id);
-    if (!error) {
-      setUsers(prev => prev.filter(u => u.id !== id));
+    try {
+      const response = await fetch(`/api/admin/unlimited?id=${id}`, {
+        method: 'DELETE'
+      });
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        console.error('Delete error', result.error);
+      } else {
+        setUsers(prev => prev.filter(u => u.id !== id));
+      }
+    } catch (error) {
+      console.error('Delete error', error);
     }
   };
 
   const handleSaveGlobal = async () => {
     setSavingGlobal(true);
     const until = globalUntil ? new Date(globalUntil).toISOString() : null;
-    await primaryDB.from("site_settings").upsert({ id: 1, word_limit_disabled_until: until });
+    try {
+      await fetch('/api/admin/unlimited', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 1, word_limit_disabled_until: until })
+      });
+    } catch (error) {
+      console.error('Update settings error', error);
+    }
     setSavingGlobal(false);
   };
 
