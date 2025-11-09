@@ -213,23 +213,28 @@ export default function AdminPanel() {
     });
   }, [isAuthorized, selectedTab]);
 
-  // Check for admin secret from query string
+  // Check authentication with API
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const secret = params.get("secret");
-    const ADMIN_SECRET = "K9mP2vL8xQ";
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/admin/auth');
+        const data = await response.json();
+        
+        if (data.authenticated) {
+          setIsAuthorized(true);
+        } else {
+          // Not authenticated - redirect to login
+          window.location.href = '/admin/login';
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        window.location.href = '/admin/login';
+      } finally {
+        setAuthChecked(true);
+      }
+    }
     
-    // Debug logging
-    console.log("Admin secret check:", { 
-      secret, 
-      ADMIN_SECRET, 
-      matches: secret === ADMIN_SECRET,
-      url: window.location.href,
-      search: window.location.search
-    });
-    
-    setIsAuthorized(secret === ADMIN_SECRET);
-    setAuthChecked(true);
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -687,6 +692,15 @@ export default function AdminPanel() {
     );
   }
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/auth', { method: 'DELETE' });
+      window.location.href = '/admin/login';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   if (!isAuthorized) {
     return (
       <div className="p-6 text-center text-red-600">Access Denied. Please provide a valid secret.</div>
@@ -700,11 +714,19 @@ export default function AdminPanel() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-6">
           <h1 className="text-4xl font-bold text-gray-900">Admin Panel</h1>
           <nav>
-            <ul className="flex gap-6">
+            <ul className="flex gap-6 items-center">
               <li>
                 <Link href="/" className="hover:text-blue-600 transition-colors duration-200">
                   Home
                 </Link>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+                >
+                  Logout
+                </button>
               </li>
             </ul>
           </nav>
