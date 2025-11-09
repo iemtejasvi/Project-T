@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import UnlimitedUsersPage from "./unlimited/page";
-import { fetchMemories, updateMemory, deleteMemory, primaryDB, secondaryDB, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
+import { fetchMemories, primaryDB, secondaryDB, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -456,8 +456,19 @@ export default function AdminPanel() {
   };
 
   async function updateMemoryStatus(id: string, newStatus: string) {
-    const { error } = await updateMemory(id, { status: newStatus });
-    if (error) console.error(error.message || error);
+    try {
+      const response = await fetch('/api/admin/update-memory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, updates: { status: newStatus } })
+      });
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        console.error(result.error || 'Update failed');
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+    }
     refreshMemories();
   }
 
@@ -467,8 +478,19 @@ export default function AdminPanel() {
       alert("Incorrect password. Delete aborted.");
       return;
     }
-    const { error } = await deleteMemory(id);
-    if (error) console.error(error.message || error);
+    try {
+      const response = await fetch('/api/admin/delete-memory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        console.error(result.error || 'Delete failed');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+    }
     refreshMemories();
   }
 
@@ -479,10 +501,19 @@ export default function AdminPanel() {
       return;
     }
     // First delete the memory
-    const { error: deleteError } = await deleteMemory(memory.id);
-    
-    if (deleteError) {
-      console.error("Error deleting memory:", deleteError);
+    try {
+      const response = await fetch('/api/admin/delete-memory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: memory.id })
+      });
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        console.error("Error deleting memory:", result.error);
+        return;
+      }
+    } catch (error) {
+      console.error("Error deleting memory:", error);
       return;
     }
 
@@ -524,11 +555,19 @@ export default function AdminPanel() {
   async function togglePin(memory: Memory) {
     if (memory.pinned) {
       // If already pinned, just unpin it
-      const { error } = await updateMemory(memory.id, { 
-        pinned: false,
-        pinned_until: undefined
-      });
-      if (error) console.error(error);
+      try {
+        const response = await fetch('/api/admin/update-memory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: memory.id, updates: { pinned: false, pinned_until: null } })
+        });
+        const result = await response.json();
+        if (!response.ok || result.error) {
+          console.error(result.error);
+        }
+      } catch (error) {
+        console.error(error);
+      }
       refreshMemories();
       return;
     }
@@ -543,11 +582,19 @@ export default function AdminPanel() {
     const pinnedUntil = new Date();
     pinnedUntil.setSeconds(pinnedUntil.getSeconds() + totalSeconds);
 
-    const { error } = await updateMemory(memory.id, { 
-      pinned: true,
-      pinned_until: pinnedUntil.toISOString()
-    });
-    if (error) console.error(error);
+    try {
+      const response = await fetch('/api/admin/update-memory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: memory.id, updates: { pinned: true, pinned_until: pinnedUntil.toISOString() } })
+      });
+      const result = await response.json();
+      if (!response.ok || result.error) {
+        console.error(result.error);
+      }
+    } catch (error) {
+      console.error(error);
+    }
     refreshMemories();
   }
 
@@ -576,7 +623,11 @@ export default function AdminPanel() {
       let needsRefresh = false;
       for (const memory of pinnedMemories || []) {
         if (memory.pinned_until && new Date(memory.pinned_until) <= currentTime) {
-          await updateMemory(memory.id, { pinned: false, pinned_until: undefined });
+          await fetch('/api/admin/update-memory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: memory.id, updates: { pinned: false, pinned_until: null } })
+          });
           needsRefresh = true;
         }
       }
