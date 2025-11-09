@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import UnlimitedUsersPage from "./unlimited/page";
 import { fetchMemories, primaryDB, secondaryDB, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
@@ -27,6 +28,7 @@ interface Memory {
 type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "dbhealth" | "unlimited";
 
 export default function AdminPanel() {
+  const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
   const [announceMenuOpen, setAnnounceMenuOpen] = useState(false);
   const [memories, setMemories] = useState<Memory[]>([]);
@@ -217,25 +219,29 @@ export default function AdminPanel() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const response = await fetch('/api/admin/auth');
+        const response = await fetch('/api/admin/auth', {
+          credentials: 'include', // Ensure cookies are sent
+          cache: 'no-store' // Don't cache auth checks
+        });
         const data = await response.json();
         
         if (data.authenticated) {
           setIsAuthorized(true);
+          setAuthChecked(true);
         } else {
           // Not authenticated - redirect to login
-          window.location.href = '/admin/login';
+          setAuthChecked(true);
+          router.push('/admin/login');
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        window.location.href = '/admin/login';
-      } finally {
         setAuthChecked(true);
+        router.push('/admin/login');
       }
     }
     
     checkAuth();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (isAuthorized) {
@@ -686,10 +692,14 @@ export default function AdminPanel() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/auth', { method: 'DELETE' });
-      window.location.href = '/admin/login';
+      await fetch('/api/admin/auth', { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      router.push('/admin/login');
     } catch (error) {
       console.error('Logout failed:', error);
+      router.push('/admin/login');
     }
   };
 
