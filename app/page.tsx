@@ -586,7 +586,7 @@ export default function Home() {
             stay within search snippet length while inviting clicks.
           </p>
           <p>
-            For outbound links, use rel="noopener noreferrer nofollow" where appropriate, and point to
+            For outbound links, use rel=&quot;noopener noreferrer nofollow&quot; where appropriate, and point to
             non-competing resources that genuinely help the reader.
             For internal links, re-use a consistent anchor phrase for the keyword you want to rank for.
           </p>
@@ -630,10 +630,10 @@ export default function Home() {
             Christmas breakup stories, New Year closure notes, and Valentine confession dumps.
           </p>
           <p>
-            Visitors hunting for phrases like “sites like the unsent project,” “anonymous message wall,” “unsent letters
-            to ex,” “memory dropbox,” or “calm confession journal” will find the same emotional resonance without ads or
-            chaotic color palettes. Regional storytellers from Mumbai, Manila, Lagos, London, and São Paulo each receive
-            equal placement via our moderation and tagging systems.
+            Visitors hunting for phrases like &ldquo;sites like the unsent project,&rdquo; &ldquo;anonymous message wall,&rdquo;
+            &ldquo;unsent letters to ex,&rdquo; &ldquo;memory dropbox,&rdquo; or &ldquo;calm confession journal&rdquo; will find the same
+            emotional resonance without ads or chaotic color palettes. Regional storytellers from Mumbai, Manila, Lagos,
+            London, and São Paulo each receive equal placement via our moderation and tagging systems.
           </p>
           <ul>
             <li>
