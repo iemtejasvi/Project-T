@@ -18,7 +18,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
                 >
                   Home
                 </Link>
@@ -26,7 +26,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/memories"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
                 >
                   Archive
                 </Link>
@@ -34,7 +34,7 @@ export default function HowItWorks() {
               <li>
                 <Link
                   href="/submit"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
                 >
                   Confess
                 </Link>
@@ -42,34 +42,34 @@ export default function HowItWorks() {
               <li className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
+                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
                 >
                   More Options ▼
                 </button>
                 {dropdownOpen && (
                   <div className="absolute top-full mt-2 w-56 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
                     <Link href="/about">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
                         About
                       </div>
                     </Link>
                     <Link href="/contact">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
                         Contact
                       </div>
                     </Link>
                     <Link href="/donate">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
                         Donate
                       </div>
                     </Link>
                     <Link href="/privacy-policy">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
                         Privacy Policy
                       </div>
                     </Link>
                     <Link href="/terms">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] transition-colors cursor-pointer">
+                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
                         Terms & Conditions
                       </div>
                     </Link>

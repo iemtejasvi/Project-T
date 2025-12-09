@@ -329,6 +329,7 @@ export default function Memories() {
               <li>
                 <Link
                   href="/"
+                  prefetch={false}
                   className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
                   Home
@@ -337,6 +338,7 @@ export default function Memories() {
               <li>
                 <Link
                   href="/submit"
+                  prefetch={false}
                   className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
                   Confess
@@ -345,6 +347,7 @@ export default function Memories() {
               <li>
                 <Link
                   href="/how-it-works"
+                  prefetch={false}
                   className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
                   How It Works

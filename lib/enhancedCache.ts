@@ -44,7 +44,7 @@ class UltraCache {
   private readonly maxAge: number = 180000; // 3 minutes cache for ultra-fresh content
   private readonly staleWhileRevalidate: number = 300000; // 5 minutes stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
-  private readonly prefetchDepth: number = 5; // Prefetch 5 pages ahead
+  private readonly prefetchDepth: number = 2; // Prefetch nearby pages only to reduce extra Supabase calls
   private readonly minRefreshInterval: number = 10000; // Minimum 10 seconds between refreshes
   
   constructor() {
@@ -63,8 +63,8 @@ class UltraCache {
       // Clean up old entries more frequently for fresher content
       setInterval(() => this.cleanupOldEntries(), 300000); // Clean every 5 minutes
       
-      // Process prefetch queue
-      setInterval(() => this.processPrefetchQueue(), 100); // Process queue frequently
+      // Process prefetch queue (slightly slower to avoid bursty background traffic)
+      setInterval(() => this.processPrefetchQueue(), 250);
       
       // Check for fresh content periodically
       setInterval(() => this.checkForFreshContent(), 20000); // Check every 20s for fresher content

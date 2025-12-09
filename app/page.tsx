@@ -405,7 +405,7 @@ export default function Home() {
             </p>
             <button
               onClick={handleWelcomeClose}
-              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded hover:bg-blue-200 transition duration-200"
+              className="px-4 py-2 bg-[var(--text)] text-[var(--background)] rounded shadow-sm hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--accent)]"
             >
               Got It
             </button>
@@ -426,23 +426,24 @@ export default function Home() {
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>
-                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
+                <Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
+                <Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Archive
                 </Link>
               </li>
               <li>
-                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
+                <Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Confess
                 </Link>
               </li>
               <li>
                 <Link
                   href="/how-it-works"
+                  prefetch={false}
                   className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
                 >
                   How It Works
@@ -564,6 +565,7 @@ export default function Home() {
         <div className="text-right mt-4">
           <Link
             href="/memories"
+            prefetch={false}
             className="text-[var(--text)] underline decoration-[var(--accent)] underline-offset-2 hover:opacity-80"
           >
             See All →

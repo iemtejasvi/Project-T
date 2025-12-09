@@ -25,12 +25,12 @@ export default function Donate() {
           <nav>
             <ul className="flex justify-center gap-4 desktop-nav-list">
               <li>
-                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors desktop-nav-link">
+                <Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors desktop-nav-link">
+                <Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   How It Works
                 </Link>
               </li>

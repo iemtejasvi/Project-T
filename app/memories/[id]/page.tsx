@@ -86,7 +86,7 @@ export default function MemoryDetail() {
               <li>
                 <Link
                   href="/"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
                   Home
                 </Link>
@@ -94,7 +94,7 @@ export default function MemoryDetail() {
               <li>
                 <Link
                   href="/memories"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
                   Back to Archive
                 </Link>

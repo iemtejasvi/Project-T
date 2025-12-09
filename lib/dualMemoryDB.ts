@@ -178,11 +178,14 @@ async function testDatabaseConnection(db: typeof dbA): Promise<boolean> {
   }
 }
 
-// Helper function to clean memory data (convert null to undefined)
+// Helper function to clean memory data (convert null to undefined) without using Object.fromEntries
 function cleanMemoryData(data: Record<string, unknown>): MemoryData {
-  const cleaned = Object.fromEntries(
-    Object.entries(data).map(([key, value]) => [key, value === null ? undefined : value])
-  );
+  const cleaned: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    cleaned[key] = value === null ? undefined : value;
+  }
+
   return cleaned as MemoryData;
 }
 
@@ -250,7 +253,7 @@ export async function fetchMemoriesPaginated(
   searchTerm: string = '',
   orderBy: Record<string, string> = {}
 ) {
-  // Build query with filters
+  // Build query with filters and apply a pagination window per database
   function buildQuery(client: SupabaseClient) {
     let query = client.from('memories').select('*', { count: 'exact' });
     
@@ -274,6 +277,13 @@ export async function fetchMemoriesPaginated(
       query = query.order('created_at', { ascending: orderBy.created_at === 'asc' });
     } else {
       query = query.order('created_at', { ascending: false });
+    }
+
+    // Apply a range window so we only fetch what we need for the first N pages,
+    // instead of loading the full table from each database.
+    const endIndex = (page + 1) * pageSize - 1;
+    if (endIndex >= 0) {
+      query = query.range(0, endIndex);
     }
     
     return query;
