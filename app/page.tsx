@@ -618,7 +618,7 @@ export default function Home() {
           </ul>
           <p>
             Each submission encourages short paragraphs, active voice, descriptive alt text for any branded imagery, and
-            outbound resources marked with rel="noopener noreferrer nofollow" to keep readers focused on your story.
+            outbound resources marked with rel=&quot;noopener noreferrer nofollow&quot; to keep readers focused on your story.
           </p>
         </section>
 
