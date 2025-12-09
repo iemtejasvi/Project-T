@@ -29,7 +29,8 @@ export const SECURITY_HEADERS = {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://*.supabase.co https://api.ipify.org https://ipapi.co https://ip-api.com https://httpbin.org https://ipinfo.io https://icanhazip.com https://api.ip2location.io https://ipwhois.app https://www.google-analytics.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net",
+    "connect-src 'self' https://*.supabase.co https://api.ipify.org https://ipapi.co https://ip-api.com https://httpbin.org https://ipinfo.io https://icanhazip.com https://api.ip2location.io https://ipwhois.app https://www.google-analytics.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://ep1.adtrafficquality.google",
+    "frame-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -37,7 +38,10 @@ export const SECURITY_HEADERS = {
   ].join('; '),
   
   // Strict Transport Security (force HTTPS)
-  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload'
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  
+  // Cross-Origin-Opener-Policy for better isolation
+  'Cross-Origin-Opener-Policy': 'same-origin'
 } as const;
 
 /**

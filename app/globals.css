@@ -6,7 +6,7 @@
 :root {
   --background: #F3F2EE;        /* Aged, warm off-white */
   --text: #5a524c;              /* Soft, dark sepia */
-  --accent: #9FB1BF;            /* Dusty, muted blue */
+  --accent: #6f859b;            /* Dusty, muted blue with stronger contrast */
   --secondary: #D4C8C1;         /* Faded, dusty rose-beige */
   --card-bg: #F9F8F6;           /* Lighter aged paper for cards */
   --border: #D1CBC1;            /* Soft, warm gray border */
@@ -721,7 +721,6 @@ input::placeholder, textarea::placeholder {
     letter-spacing: 0;
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
-    transition: color 0.2s ease;
   }
   
   .desktop-nav-link:hover {

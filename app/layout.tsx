@@ -998,7 +998,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         
         <link rel="manifest" href="/site.webmanifest" />
-        <Script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8850424858354795" strategy="afterInteractive" crossOrigin="anonymous" />
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8850424858354795"
+          strategy="lazyOnload"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />

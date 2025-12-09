@@ -118,27 +118,16 @@ export default function Home() {
       }
     }
 
-    // Warm up cache for instant navigation everywhere
+    // Warm up cache for instant navigation without over-fetching
     async function warmUpCacheForAllPages() {
       try {
-        // Warm up cache with multiple pages for ultra-fast navigation
+        // Keep warmup lightweight: home + first archive pages only
         const pagesToWarm = [
-          // Home page memories
-          { page: 0, pageSize: 6 },
-          // Archives - desktop
-          { page: 0, pageSize: 18 },
-          { page: 1, pageSize: 18 },
-          { page: 2, pageSize: 18 },
-          { page: 3, pageSize: 18 },
-          { page: 4, pageSize: 18 },
-          // Archives - mobile
-          { page: 0, pageSize: 10 },
-          { page: 1, pageSize: 10 },
-          { page: 2, pageSize: 10 },
-          { page: 3, pageSize: 10 },
-          { page: 4, pageSize: 10 }
+          { page: 0, pageSize: 6 },   // Home page memories
+          { page: 0, pageSize: 18 },  // Archive (desktop) first page
+          { page: 0, pageSize: 10 },  // Archive (mobile) first page
         ];
-        
+
         await warmUpCache(pagesToWarm);
         // Silent cache warmup
         window.dispatchEvent(new CustomEvent('cache-warmed'));
