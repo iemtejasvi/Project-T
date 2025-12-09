@@ -388,11 +388,17 @@ export default function Home() {
             <h2 className="text-xl font-bold text-[var(--text)] mb-4">Welcome</h2>
             <p className="text-[var(--text)] mb-6">
               A space for unsent memories. Check out{" "}
-              <Link href="/how-it-works" className="text-[var(--accent)] hover:underline whitespace-nowrap">
+              <Link
+                href="/how-it-works"
+                className="text-[var(--text)] underline decoration-[var(--accent)] underline-offset-2 whitespace-nowrap"
+              >
                 How It Works
               </Link>
               {" "}or{" "}
-              <Link href="/donate" className="text-[var(--accent)] hover:underline whitespace-nowrap">
+              <Link
+                href="/donate"
+                className="text-[var(--text)] underline decoration-[var(--accent)] underline-offset-2 whitespace-nowrap"
+              >
                 Support Us
               </Link>
               .
@@ -420,24 +426,24 @@ export default function Home() {
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>
-                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link">
+                <Link href="/" className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link">
+                <Link href="/memories" className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Archive
                 </Link>
               </li>
               <li>
-                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link">
+                <Link href="/submit" className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Confess
                 </Link>
               </li>
               <li>
                 <Link
                   href="/how-it-works"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 whitespace-nowrap desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
                 >
                   How It Works
                 </Link>
@@ -496,19 +502,20 @@ export default function Home() {
           </section>
         )}
         
-        {/* Mobile typewriter section - only render when announcement is dismissed */}
-        {((!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete) && (
-          <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden animate-fade-in">
-            <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center">
+        {/* Mobile typewriter section - keep layout stable and avoid fade-in CLS */}
+        <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
+          <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center min-h-[72px]">
+            {(!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete && (
               <TypingEffect />
-            </div>
-          </section>
-        )}
+            )}
+          </div>
+        </section>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
           Recent Memories
         </h2>
+        <section className="min-h-[520px]">
         {memoriesLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-1">
@@ -552,9 +559,13 @@ export default function Home() {
             <p className="text-[var(--text)] opacity-70 text-lg">No memories yet.</p>
           </div>
         )}
+        </section>
 
         <div className="text-right mt-4">
-          <Link href="/memories" className="text-[var(--accent)] hover:underline">
+          <Link
+            href="/memories"
+            className="text-[var(--text)] underline decoration-[var(--accent)] underline-offset-2 hover:opacity-80"
+          >
             See All →
           </Link>
         </div>

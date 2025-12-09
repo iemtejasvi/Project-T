@@ -329,7 +329,7 @@ export default function Memories() {
               <li>
                 <Link
                   href="/"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
                   Home
                 </Link>
@@ -337,7 +337,7 @@ export default function Memories() {
               <li>
                 <Link
                   href="/submit"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
                   Confess
                 </Link>
@@ -345,7 +345,7 @@ export default function Memories() {
               <li>
                 <Link
                   href="/how-it-works"
-                  className="text-[var(--text)] hover:text-[var(--accent)] transition-colors duration-200 desktop-nav-link"
+                  className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
                   How It Works
                 </Link>

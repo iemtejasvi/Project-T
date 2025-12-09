@@ -5,6 +5,11 @@ import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 import Script from "next/script";
 
+const GA_MEASUREMENT_ID = 'G-LLWRNWWS0H';
+const ADSENSE_CLIENT_ID = 'ca-pub-8850424858354795';
+const ENABLE_ANALYTICS = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true';
+const ENABLE_ADS = process.env.NEXT_PUBLIC_ENABLE_ADS === 'true';
+
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -971,16 +976,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://www.google-analytics.com" />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://ppkbuhaklzbgwvaaoudn.supabase.co" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://goltnprxtenbrkxcvsha.supabase.co" crossOrigin="anonymous" />
         <meta name="description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H" strategy="afterInteractive" />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-LLWRNWWS0H');
-          `}
-        </Script>
+        {ENABLE_ANALYTICS && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `}
+            </Script>
+          </>
+        )}
         <Script
           id="ld-json-org"
           type="application/ld+json"
@@ -998,11 +1009,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         
         <link rel="manifest" href="/site.webmanifest" />
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8850424858354795"
-          strategy="lazyOnload"
-          crossOrigin="anonymous"
-        />
+        {ENABLE_ADS && (
+          <Script
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+            strategy="lazyOnload"
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
