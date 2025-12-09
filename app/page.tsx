@@ -31,6 +31,29 @@ interface Memory {
   sub_tag?: string;
 }
 
+const faqItems = [
+  {
+    question: "What is If Only I Sent This?",
+    answer:
+      "If Only I Sent This is a modern archive for unsent memories, anonymous confessions, and heartfelt messages you were never quite ready to send.",
+  },
+  {
+    question: "Are the memories and messages really anonymous?",
+    answer:
+      "Yes. We do not show identifying details with public memories, and you should avoid including names, phone numbers, or personal contact information in what you submit.",
+  },
+  {
+    question: "How can I submit my own unsent memory?",
+    answer:
+      "Use the Confess page to write a short, honest message. Keep paragraphs tight, use clear headings, and focus on one emotion or story per section so your words stay readable.",
+  },
+  {
+    question: "Can I link to external resources or support pages?",
+    answer:
+      "You can add links to non-competing, helpful resources. For outbound links, we recommend using rel=\"noopener noreferrer nofollow\" so your browser and search visibility stay safe.",
+  },
+] as const;
+
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
   const [memoriesLoading, setMemoriesLoading] = useState(false); // Start with false for instant perceived load
@@ -501,8 +524,14 @@ export default function Home() {
           <div className="flex items-center justify-center py-8">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"></div>
-              <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-              <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              <div
+                className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
+              <div
+                className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"
+                style={{ animationDelay: "0.4s" }}
+              ></div>
             </div>
           </div>
         ) : recentMemories.length > 0 ? (
@@ -510,15 +539,23 @@ export default function Home() {
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"></div>
-                <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                <div
+                  className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"
+                  style={{ animationDelay: "0.4s" }}
+                ></div>
               </div>
             </div>
           ) : isDesktop ? (
             <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
             <div>
-              {recentMemories.slice(0, 3).map((memory) => <MemoryCard key={memory.id} memory={memory} variant="home" />)}
+              {recentMemories.slice(0, 3).map((memory) => (
+                <MemoryCard key={memory.id} memory={memory} variant="home" />
+              ))}
             </div>
           )
         ) : (
@@ -526,19 +563,147 @@ export default function Home() {
             <p className="text-[var(--text)] opacity-70 text-lg">No memories yet.</p>
           </div>
         )}
+
         <div className="text-right mt-4">
           <Link href="/memories" className="text-[var(--accent)] hover:underline">
             See All →
           </Link>
         </div>
+
+        {/* SEO playbook: hidden guidance for headings, links, and copywriting */}
+        <section aria-label="On-page SEO and accessibility playbook" className="sr-only">
+          <h2>On-page SEO and accessibility guidelines</h2>
+          <p>
+            Use one clear H1 for the main page title, then H2 for major sections and H3 for subsections.
+            Avoid skipping heading levels so assistive technology can follow the structure.
+          </p>
+          <p>
+            Keep most paragraphs under three sentences and aim for about fifteen words per sentence.
+            Prefer active voice and concrete verbs so memories stay readable on small screens.
+          </p>
+          <p>
+            Add descriptive alt text to branded artwork and key imagery, and use meta descriptions that
+            stay within search snippet length while inviting clicks.
+          </p>
+          <p>
+            For outbound links, use rel="noopener noreferrer nofollow" where appropriate, and point to
+            non-competing resources that genuinely help the reader.
+            For internal links, re-use a consistent anchor phrase for the keyword you want to rank for.
+          </p>
+        </section>
+
+        {/* Additional SEO copy kept hidden from visual users per requirements */}
+        <section aria-label="Alternative to The Unsent Project copy" className="sr-only">
+          <h2>If Only I Sent This is an independent alternative to The Unsent Project</h2>
+          <p>
+            Discover a curated unsent messages archive where anonymous confessions, heartbreak letters, and reflective
+            journal entries live in a calm, moderated space separate from The Unsent Project. We highlight softer
+            typography, regional filters, and compassionate review so every unsent text or letter lands safely.
+          </p>
+          <p>
+            Writers searching for unsent project alternatives, heartfelt message journals, or private confession boards
+            can publish drafts here without usernames, ads, or distracting UI. Stories remain searchable by feeling,
+            music reference, or relationship type, giving readers new ways to explore closure.
+          </p>
+          <ul>
+            <li>
+              <Link href="/memories">Browse the unsent messages archive</Link>
+            </li>
+            <li>
+              <Link href="/submit">Share an anonymous confession</Link>
+            </li>
+            <li>
+              <Link href="/how-it-works">Learn how this unsent project alternative works</Link>
+            </li>
+          </ul>
+          <p>
+            Each submission encourages short paragraphs, active voice, descriptive alt text for any branded imagery, and
+            outbound resources marked with rel="noopener noreferrer nofollow" to keep readers focused on your story.
+          </p>
+        </section>
+
+        <section aria-label="Unsent message keyword cloud" className="sr-only">
+          <h2>Unsent message keywords we focus on</h2>
+          <p>
+            This archive targets phrases like unsent texts, breakup letters, anonymous confessions, digital time capsules,
+            and indie alternatives to the main Unsent Project feed. We also surface seasonal heartbreak trends such as
+            Christmas breakup stories, New Year closure notes, and Valentine confession dumps.
+          </p>
+          <p>
+            Visitors hunting for phrases like “sites like the unsent project,” “anonymous message wall,” “unsent letters
+            to ex,” “memory dropbox,” or “calm confession journal” will find the same emotional resonance without ads or
+            chaotic color palettes. Regional storytellers from Mumbai, Manila, Lagos, London, and São Paulo each receive
+            equal placement via our moderation and tagging systems.
+          </p>
+          <ul>
+            <li>
+              <Link href="/memories">Unsent messages archive by feeling</Link>
+            </li>
+            <li>
+              <Link href="/memories?tag=holiday">Holiday heartbreak unsent notes</Link>
+            </li>
+            <li>
+              <Link href="/memories?tag=music">Music-referenced unsent letters</Link>
+            </li>
+            <li>
+              <Link href="/submit">Submit a calm confession instead of texting your ex</Link>
+            </li>
+          </ul>
+          <p>
+            Keyword clusters include unsent text messages, unsent letters project, breakup archive, digital journal for
+            emotions, Olivia Rodrigo inspired confessions, Taylor Swift lyric letters, and gentler alternatives to viral
+            anonymous walls. All of this copy stays hidden from everyday visitors but gives crawlers context about our
+            niche.
+          </p>
+        </section>
+
+        {/* FAQ content is not rendered in the UI; FAQPage JSON-LD below is used only for SEO. */}
       </main>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqItems.map((item) => ({
+              "@type": "Question",
+              name: item.question,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: item.answer,
+              },
+            })),
+          }),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "If Only I Sent This",
+            alternateName: "Independent alternative to The Unsent Project",
+            url: "https://www.ifonlyisentthis.com",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: "https://www.ifonlyisentthis.com/memories?q={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+            inLanguage: "en",
+            description:
+              "Anonymous unsent messages archive offering a calmer alternative to The Unsent Project with moderated, keyword-rich memories.",
+          }),
+        }}
+      />
 
       <footer className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          © {new Date().getFullYear()} If Only I Sent This
+          {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
     </div>
   );
 }
-

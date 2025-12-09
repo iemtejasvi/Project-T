@@ -15,8 +15,9 @@ export const viewport = {
 
 export const metadata = {
   metadataBase: new URL('https://www.ifonlyisentthis.com'),
-  title: "If Only I Sent This",
-  description: "A modern archive for unsent memories and heartfelt messages.",
+  title: "If Only I Sent This – Anonymous Unsent Messages & Memories",
+  description:
+    "Share unsent memories, anonymous confessions, and heartfelt messages you were never ready to send.",
   other: {
     'cache-control': 'no-cache, no-store, must-revalidate',
     'pragma': 'no-cache',
@@ -924,8 +925,9 @@ export const metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: "If Only I Sent This",
-    description: "A modern archive for unsent memories and heartfelt messages.",
+    title: "If Only I Sent This – Anonymous Unsent Messages & Memories",
+    description:
+      "Share unsent memories, anonymous confessions, and heartfelt messages you were never ready to send.",
     images: [
       {
         url: '/opengraph-image.png',
@@ -937,8 +939,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "If Only I Sent This",
-    description: "A modern archive for unsent memories and heartfelt messages.",
+    title: "If Only I Sent This – Anonymous Unsent Messages & Memories",
+    description:
+      "Share unsent memories, anonymous confessions, and heartfelt messages you were never ready to send.",
     images: ['/opengraph-image.png'],
   },
   alternates: {
@@ -964,7 +967,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="alternate" hrefLang="en" href="https://www.ifonlyisentthis.com/" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
         <meta name="description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-LLWRNWWS0H" strategy="afterInteractive" />
         <Script id="gtag-init" strategy="afterInteractive">
@@ -990,19 +996,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             })
           }}
         />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=La+Belle+Aurore&display=swap" rel="stylesheet" />
-        <style>
-          {`
-            .la-belle-aurore-regular {
-              font-family: "La Belle Aurore", cursive;
-              font-weight: 400;
-              font-style: normal;
-            }
-          `}
-        </style>
+        
         <link rel="manifest" href="/site.webmanifest" />
         <Script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8850424858354795" strategy="afterInteractive" crossOrigin="anonymous" />
       </head>
