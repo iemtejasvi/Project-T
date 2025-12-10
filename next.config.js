@@ -31,6 +31,10 @@ const nextConfig = {
             key: 'X-Frame-Options',
             value: 'DENY',
           },
+          {
+            key: 'Link',
+            value: '<https://ppkbuhaklzbgwvaaoudn.supabase.co>; rel=preconnect; crossorigin, <https://goltnprxtenbrkxcvsha.supabase.co>; rel=preconnect; crossorigin',
+          },
         ],
       },
       // API routes - no caching

@@ -139,15 +139,28 @@ export default function Home() {
         if (isMounted) {
           setMemoriesLoading(true);
         }
-        // Fetch announcement (always from primary database)
-        const { data: announcementData, error: announcementError } = await primaryDBRead
-          .from("announcements")
-          .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false })
-          .limit(1);
+
+        // Fetch announcement and recent memories in parallel so the main LCP content isn't delayed by announcement checks
+        const [announcementResult, memoriesResult] = await Promise.all([
+          primaryDBRead
+            .from("announcements")
+            .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
+            .eq("is_active", true)
+            .order("created_at", { ascending: false })
+            .limit(1),
+          fetchWithUltraCache(
+            0, // page
+            6, // pageSize - only need 6 for home
+            { status: "approved" },
+            '', // no search on home
+            { created_at: "desc" },
+            { maxAge: 180000, staleWhileRevalidate: 300000 } // 3min fresh, 5min stale for ultra-fresh content
+          ),
+        ]);
 
         if (!isMounted) return;
+
+        const { data: announcementData, error: announcementError } = announcementResult;
 
         if (announcementError) {
           console.error("Error fetching announcement:", announcementError.message);
@@ -189,19 +202,6 @@ export default function Home() {
             setAnnouncementCheckComplete(true);
           }
         }
-
-        // Fetch recent memories with ultra cache for instant load
-        // Don't show loading for cached content
-        const memoriesResult = await fetchWithUltraCache(
-          0, // page
-          6, // pageSize - only need 6 for home
-          { status: "approved" },
-          '', // no search on home
-          { created_at: "desc" },
-          { maxAge: 180000, staleWhileRevalidate: 300000 } // 3min fresh, 5min stale for ultra-fresh content
-        );
-
-        if (!isMounted) return;
 
         if (memoriesResult.data) {
           setRecentMemories(memoriesResult.data);
@@ -516,18 +516,13 @@ export default function Home() {
         </h2>
         <section className="min-h-[520px]">
         {memoriesLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"></div>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
               <div
-                className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"
-                style={{ animationDelay: "0.2s" }}
-              ></div>
-              <div
-                className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"
-                style={{ animationDelay: "0.4s" }}
-              ></div>
-            </div>
+                key={i}
+                className="h-40 sm:h-48 bg-[var(--card-bg)] rounded-lg shadow-md animate-pulse"
+              />
+            ))}
           </div>
         ) : recentMemories.length > 0 ? (
           !isClient ? (
