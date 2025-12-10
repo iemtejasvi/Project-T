@@ -8,6 +8,7 @@ import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
 import { storage } from "@/lib/persistentStorage";
 import { browserSession } from "@/lib/browserSession";
 import MemoryCard from "@/components/MemoryCard";
+import Loader from "@/components/Loader";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
  
@@ -516,13 +517,8 @@ export default function Home() {
         </h2>
         <section className="min-h-[520px]">
         {memoriesLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-40 sm:h-48 bg-[var(--card-bg)] rounded-lg shadow-md animate-pulse"
-              />
-            ))}
+          <div className="flex items-center justify-center py-12">
+            <Loader text="" />
           </div>
         ) : recentMemories.length > 0 ? (
           !isClient ? (
