@@ -68,15 +68,22 @@ export async function getStatusCounts() {
   type Counts = Record<Status, number | null>;
 
   async function countsFor(db: typeof dbA): Promise<Counts> {
-    const entries = await Promise.all(statuses.map(async (s) => {
+    const counts: Counts = {
+      pending: null,
+      approved: null,
+      banned: null,
+    };
+
+    for (const s of statuses) {
       const res = await db.client
         .from('memories')
         .select('id', { count: 'exact', head: true })
         .eq('status', s);
       const count = (res as unknown as { count: number | null }).count ?? null;
-      return [s, count] as const;
-    }));
-    return Object.fromEntries(entries) as Counts;
+      counts[s] = count;
+    }
+
+    return counts;
   }
 
   const [A, B] = await Promise.all([countsFor(dbA), countsFor(dbB)]);

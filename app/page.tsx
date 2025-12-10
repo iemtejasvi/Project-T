@@ -56,7 +56,7 @@ const faqItems = [
 
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
-  const [memoriesLoading, setMemoriesLoading] = useState(false); // Start with false for instant perceived load
+  const [memoriesLoading, setMemoriesLoading] = useState(true); // Start with true so we show a stable skeleton until data arrives
   const [showWelcome, setShowWelcome] = useState(false);
   const [announcementTransitioning, setAnnouncementTransitioning] = useState(false);
   const [announcement, setAnnouncement] = useState<{
@@ -121,11 +121,9 @@ export default function Home() {
     // Warm up cache for instant navigation without over-fetching
     async function warmUpCacheForAllPages() {
       try {
-        // Keep warmup lightweight: home + first archive pages only
+        // Keep warmup lightweight: only warm the first archive page
         const pagesToWarm = [
-          { page: 0, pageSize: 6 },   // Home page memories
-          { page: 0, pageSize: 18 },  // Archive (desktop) first page
-          { page: 0, pageSize: 10 },  // Archive (mobile) first page
+          { page: 0, pageSize: 18 },  // Archive first page
         ];
 
         await warmUpCache(pagesToWarm);
@@ -138,6 +136,9 @@ export default function Home() {
 
     async function fetchData() {
       try {
+        if (isMounted) {
+          setMemoriesLoading(true);
+        }
         // Fetch announcement (always from primary database)
         const { data: announcementData, error: announcementError } = await primaryDBRead
           .from("announcements")
@@ -204,18 +205,15 @@ export default function Home() {
 
         if (memoriesResult.data) {
           setRecentMemories(memoriesResult.data);
-          
-          // Only show loading if this was NOT from cache
-          if (!memoriesResult.fromCache && memoriesResult.data.length === 0) {
-            setMemoriesLoading(true);
-            // Hide loader after a brief moment
-            setTimeout(() => setMemoriesLoading(false), 500);
-          }
         } else {
           setRecentMemories([]);
         }
       } catch (err) {
         console.error("Unexpected error:", err);
+      } finally {
+        if (isMounted) {
+          setMemoriesLoading(false);
+        }
       }
     }
 
@@ -241,10 +239,10 @@ export default function Home() {
     
     window.addEventListener('browser-session-started', handleNewBrowserSession);
     
-    // Start warming up cache after initial load for instant navigation everywhere
+    // Start warming up cache slightly after initial load to keep Supabase traffic lighter
     setTimeout(() => {
       warmUpCacheForAllPages();
-    }, 500); // Start sooner for better UX
+    }, 3000);
 
     // Show welcome if not dismissed in this browser session
     if (!browserSession.isWelcomeDismissed()) {

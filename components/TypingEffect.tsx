@@ -207,10 +207,12 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
   }, [charIndex, isDeleting, isMistyped, currentIndex]);
 
   return (
-    <div className={
-      "min-h-[2.5rem] overflow-hidden text-center text-2xl sm:text-3xl md:text-4xl font-serif font-normal text-[var(--text)] transition-all duration-300 whitespace-pre-wrap break-normal hyphens-auto" +
-      (className ? " " + className : "")
-    }>
+    <div
+      className={
+        "h-[4.5rem] lg:h-auto overflow-hidden text-center text-2xl sm:text-3xl md:text-4xl font-serif font-normal text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto" +
+        (className ? " " + className : "")
+      }
+    >
       {displayText}
     </div>
   );
