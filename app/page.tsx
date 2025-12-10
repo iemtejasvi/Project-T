@@ -502,9 +502,9 @@ export default function Home() {
           </section>
         )}
         
-        {/* Mobile typewriter section - keep layout stable and avoid fade-in CLS */}
-        <section className="my-8 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
-          <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center min-h-[72px]">
+        {/* Mobile typewriter section - reserve space for two lines and avoid layout shake */}
+        <section className="mt-8 mb-4 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
+          <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center h-[88px] flex items-center justify-center">
             {(!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete && (
               <TypingEffect />
             )}
