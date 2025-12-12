@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -86,6 +87,38 @@ export default function Donate() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="bg-[var(--background)] p-6 rounded-lg mt-6">
+            <h3 className="text-xl font-semibold text-[var(--text)] mb-4">Other Ways to Support</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+              <span className="text-[var(--text)]">Buy Me a Coffee:</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                <Link 
+                  href="https://buymeacoffee.com/ifonlyisentthis" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto text-center"
+                >
+                  Support Us on Buy Me a Coffee
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[var(--background)] p-6 rounded-lg mt-6 flex flex-col items-center text-center">
+            <h3 className="text-xl font-semibold text-[var(--text)] mb-2">Scan the QR Code</h3>
+            <p className="text-[var(--text)] text-base mb-4">
+              Prefer mobile payments? Scan this QR to support us instantly.
+            </p>
+            <Image
+              src="/qr-code.png"
+              width={256}
+              height={256}
+              alt="Support If Only I Sent This via QR code"
+              className="w-48 h-48 sm:w-56 sm:h-56 object-contain"
+              priority
+            />
           </div>
 
           <p className="text-[var(--text)] text-lg mt-8">
