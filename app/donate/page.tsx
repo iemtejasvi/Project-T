@@ -56,7 +56,7 @@ export default function Donate() {
               href="https://buymeacoffee.com/ifonlyisentthis" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto text-center"
+              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto text-center underline"
             >
               Support Us on Buy Me a Coffee
             </Link>
