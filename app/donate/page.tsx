@@ -47,7 +47,58 @@ export default function Donate() {
             Your donations help us maintain the platform and continue providing a safe space for unsent memories. Every contribution, big or small, makes a difference.
           </p>
           
-          <div className="bg-[var(--background)] p-6 rounded-lg">
+          <div className="bg-[var(--background)] p-6 rounded-lg mt-6 flex flex-col items-center text-center">
+            <h3 className="text-xl font-semibold text-[var(--text)] mb-4">Support via Buy Me a Coffee</h3>
+            <p className="text-[var(--text)] text-base mb-4">
+              Prefer using Buy Me a Coffee? Use the link or scan the QR below.
+            </p>
+            <Link 
+              href="https://buymeacoffee.com/ifonlyisentthis" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto text-center"
+            >
+              Support Us on Buy Me a Coffee
+            </Link>
+            <Image
+              src="/qr-code.png"
+              width={256}
+              height={256}
+              alt="Buy Me a Coffee QR code for If Only I Sent This"
+              className="w-48 h-48 sm:w-56 sm:h-56 object-contain mt-6"
+              priority
+            />
+          </div>
+
+          <div className="bg-[var(--background)] p-6 rounded-lg mt-6 flex flex-col items-center text-center">
+            <h3 className="text-xl font-semibold text-[var(--text)] mb-2">UPI (India only)</h3>
+            <p className="text-[var(--text)] text-base mb-4">
+              Indian supporters can use UPI for instant local payments.
+            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-center gap-2 w-full max-w-lg">
+              <code className="bg-[var(--card-bg)] px-4 py-2 rounded-lg text-[var(--text)] break-all w-full sm:w-auto text-center">
+                nptelgov@ptyes
+              </code>
+              <button
+                onClick={() => copyToClipboard('nptelgov@ptyes', 'upi')}
+                className="px-3 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto"
+              >
+                {copied === 'upi' ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <Image
+              src="/upi-qr.jpg"
+              width={256}
+              height={256}
+              alt="UPI QR for If Only I Sent This"
+              className="w-48 h-48 sm:w-56 sm:h-56 object-contain rounded-lg mt-6"
+            />
+            <p className="text-[var(--text)] text-sm mt-3">
+              Scan this UPI QR with your preferred Indian payment app.
+            </p>
+          </div>
+
+          <div className="bg-[var(--background)] p-6 rounded-lg mt-6">
             <h3 className="text-xl font-semibold text-[var(--text)] mb-4">Cryptocurrency</h3>
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
@@ -89,38 +140,6 @@ export default function Donate() {
             </div>
           </div>
 
-          <div className="bg-[var(--background)] p-6 rounded-lg mt-6">
-            <h3 className="text-xl font-semibold text-[var(--text)] mb-4">Other Ways to Support</h3>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-              <span className="text-[var(--text)]">Buy Me a Coffee:</span>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                <Link 
-                  href="https://buymeacoffee.com/ifonlyisentthis" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto text-center"
-                >
-                  Support Us on Buy Me a Coffee
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[var(--background)] p-6 rounded-lg mt-6 flex flex-col items-center text-center">
-            <h3 className="text-xl font-semibold text-[var(--text)] mb-2">Scan the QR Code</h3>
-            <p className="text-[var(--text)] text-base mb-4">
-              Prefer mobile payments? Scan this QR to support us instantly.
-            </p>
-            <Image
-              src="/qr-code.png"
-              width={256}
-              height={256}
-              alt="Support If Only I Sent This via QR code"
-              className="w-48 h-48 sm:w-56 sm:h-56 object-contain"
-              priority
-            />
-          </div>
-
           <p className="text-[var(--text)] text-lg mt-8">
             Thank you for your support!
           </p>
@@ -129,7 +148,7 @@ export default function Donate() {
 
       <footer className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          © {new Date().getFullYear()} If Only I Sent This
+          &copy; {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
     </div>
