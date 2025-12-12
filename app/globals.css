@@ -1009,3 +1009,41 @@ input::placeholder, textarea::placeholder {
   display: none;  /* Safari and Chrome */
 }
 
+/* Hide scrollbar for vertical scrolling (keep scroll behavior) */
+.no_scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no_scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Drag-to-scroll cursor consistency on desktop card back */
+@media (min-width: 1024px) {
+  .flip-card-back.cursor-grab,
+  .flip-card-back.cursor-grab * {
+    cursor: grab !important;
+  }
+  .flip-card-back.cursor-grab:active,
+  .flip-card-back.cursor-grab:active * {
+    cursor: grabbing !important;
+  }
+
+  .flip-card-back.cursor-grab a,
+  .flip-card-back.cursor-grab button,
+  .flip-card-back.cursor-grab input,
+  .flip-card-back.cursor-grab textarea,
+  .flip-card-back.cursor-grab select,
+  .flip-card-back.cursor-grab label {
+    cursor: pointer !important;
+  }
+
+  .flip-card-back.cursor-grab {
+    caret-color: transparent;
+  }
+
+  .flip-card-back.cursor-grab ::selection {
+    background: rgba(0, 0, 0, 0.12);
+  }
+}
+

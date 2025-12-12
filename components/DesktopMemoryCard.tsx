@@ -33,6 +33,123 @@ interface DesktopMemoryCardProps {
   large?: boolean;
 }
 
+function useDragToScroll(opts: { scrollRef: React.RefObject<HTMLDivElement | null> }) {
+  const { scrollRef } = opts;
+  const isDraggingRef = useRef(false);
+  const startYRef = useRef(0);
+  const startScrollTopRef = useRef(0);
+  const pointerIdRef = useRef<number | null>(null);
+  const movedRef = useRef(false);
+  const didDragRef = useRef(false);
+
+  const zoneElRef = useRef<HTMLElement | null>(null);
+
+  const setZoneEl = (el: HTMLElement | null) => {
+    zoneElRef.current = el;
+  };
+
+  useEffect(() => {
+    const canHover =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!canHover) return;
+
+    const zoneEl = zoneElRef.current;
+    if (!zoneEl) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      if (e.button !== 0) return;
+
+      const scrollEl = scrollRef.current;
+      if (!scrollEl) return;
+      if (scrollEl.scrollHeight <= scrollEl.clientHeight + 1) return;
+
+      isDraggingRef.current = true;
+      movedRef.current = false;
+      didDragRef.current = false;
+      pointerIdRef.current = e.pointerId;
+      startYRef.current = e.clientY;
+      startScrollTopRef.current = scrollEl.scrollTop;
+
+      // prevent text selection during a drag gesture
+      e.preventDefault();
+
+      // Do not rely on pointer capture; we track move/up on window.
+    };
+
+    const onPointerMoveWindow = (e: PointerEvent) => {
+      if (!isDraggingRef.current) return;
+      // Some browsers/devtools can change pointerId mid-drag; don't hard-fail.
+
+      const scrollEl = scrollRef.current;
+      if (!scrollEl) return;
+
+      const dy = e.clientY - startYRef.current;
+      if (!movedRef.current && Math.abs(dy) > 3) {
+        movedRef.current = true;
+        didDragRef.current = true;
+      }
+
+      scrollEl.scrollTop = startScrollTopRef.current - dy;
+      e.preventDefault();
+    };
+
+    const endDrag = () => {
+      if (!isDraggingRef.current) return;
+      isDraggingRef.current = false;
+      pointerIdRef.current = null;
+      startYRef.current = 0;
+      startScrollTopRef.current = 0;
+    };
+
+    const endDragWindow = () => {
+      endDrag();
+    };
+
+    const endDragOnBlur = () => {
+      endDrag();
+    };
+
+    const onClickCapture = (e: MouseEvent) => {
+      if (didDragRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        didDragRef.current = false;
+      }
+    };
+
+    zoneEl.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMoveWindow, { passive: false });
+    window.addEventListener("pointerup", endDragWindow);
+    window.addEventListener("pointercancel", endDragWindow);
+    window.addEventListener("blur", endDragOnBlur);
+    document.addEventListener("visibilitychange", endDragOnBlur);
+    zoneEl.addEventListener("click", onClickCapture, true);
+
+    return () => {
+      zoneEl.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMoveWindow as EventListener);
+      window.removeEventListener("pointerup", endDragWindow);
+      window.removeEventListener("pointercancel", endDragWindow);
+      window.removeEventListener("blur", endDragOnBlur);
+      document.removeEventListener("visibilitychange", endDragOnBlur);
+      zoneEl.removeEventListener("click", onClickCapture, true);
+    };
+  }, [scrollRef]);
+
+  const getCursorClassName = () => {
+    return "cursor-grab active:cursor-grabbing";
+  };
+
+  const getZoneStyle = () => {
+    return { cursor: "grab" as const };
+  };
+
+  return { setZoneEl, getCursorClassName, getZoneStyle };
+}
+
 const allowedColors = new Set([
   "default", "aqua", "azure", "berry", "brass", "bronze", "clay", "cloud", "copper", "coral", "cream", "cyan", "dune", "garnet", "gold", "honey", "ice", "ivory", "jade", "lilac", "mint", "moss", "night", "ocean", "olive", "peach", "pearl", "pine", "plum", "rose", "rouge", "ruby", "sage", "sand", "sepia", "sky", "slate", "steel", "sunny", "teal", "wine"
 ]);
@@ -106,24 +223,25 @@ const colorBgMap: Record<string, string> = {
   wine: "#D9C3C4"       // was #E9E3E4
 };
 
-const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => {
+const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties; className?: string; containerRefOverride?: React.RefObject<HTMLDivElement | null> }> = ({ children, style, className, containerRefOverride }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsScroll, setNeedsScroll] = useState(false);
+  const effectiveRef = containerRefOverride ?? containerRef;
 
   useEffect(() => {
-    if (containerRef.current) {
+    if (effectiveRef.current) {
       setNeedsScroll(
-        containerRef.current.scrollHeight > containerRef.current.clientHeight
+        effectiveRef.current.scrollHeight > effectiveRef.current.clientHeight
       );
     }
-  }, [children]);
+  }, [children, effectiveRef]);
 
   return (
     <div
-      ref={containerRef}
+      ref={effectiveRef}
       className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 ${
-        needsScroll ? "cute_scroll" : ""
-      }`}
+        needsScroll ? "no_scrollbar" : ""
+      } ${className ?? ""}`}
       style={style}
     >
       {children}
@@ -247,6 +365,9 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
 
 const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) => {
   const [flipped, setFlipped] = useState(false);
+  const backFaceRef = useRef<HTMLDivElement>(null);
+  const backMessageRef = useRef<HTMLDivElement>(null);
+  const dragScroll = useDragToScroll({ scrollRef: backMessageRef });
   let effectiveColor = memory.color;
   if (!allowedColors.has(memory.color)) {
     effectiveColor = colorMapping[memory.color] || "default";
@@ -278,7 +399,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         whileHover={{ scale: 1.06, y: -4, boxShadow: "0 20px 48px rgba(0,0,0,0.20), 0 8px 16px rgba(0,0,0,0.08)", transition: { duration: 0.22, ease: 'easeOut' } }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0, scale: 1.045, boxShadow: "0 16px 36px rgba(0,0,0,0.20), 0 8px 16px rgba(0,0,0,0.10)" }}
-        className={`flip-card relative overflow-hidden w-full h-[420px] perspective-1000 cursor-pointer rounded-[2rem] hover:shadow-2xl mx-auto`}
+        className={`flip-card relative overflow-hidden w-full h-[420px] perspective-1000 ${flipped ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -305,6 +426,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                     : "#e8e6df",
                 opacity: 0.55,
                 zIndex: 0,
+                pointerEvents: "none",
               }}
             />
           </>
@@ -316,7 +438,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         >
           {/* FRONT */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-between`}
+            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-between ${flipped ? "pointer-events-none" : "pointer-events-auto"}`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             {memory.animation === "rough" && (
@@ -342,6 +464,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                         : "#e8e6df",
                     opacity: 0.55,
                     zIndex: 0,
+                    pointerEvents: "none",
                   }}
                 />
               </>
@@ -401,8 +524,12 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
           </div>
           {/* BACK */}
           <div
-            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-start rotate-y-180`}
-            style={{ ...bgStyle, ...borderStyle }}
+            ref={(el) => {
+              backFaceRef.current = el;
+              dragScroll.setZoneEl(el);
+            }}
+            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-start rotate-y-180 ${dragScroll.getCursorClassName()} ${flipped ? "pointer-events-auto" : "pointer-events-none"}`}
+            style={{ ...bgStyle, ...borderStyle, ...dragScroll.getZoneStyle(), userSelect: "none", touchAction: "none" }}
           >
             {memory.animation === "rough" && (
               <>
@@ -427,6 +554,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                         : "#e8e6df",
                     opacity: 0.55,
                     zIndex: 0,
+                    pointerEvents: "none",
                   }}
                 />
               </>
@@ -436,7 +564,8 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             <hr className="my-2 border-[#999999] relative z-10" />
             {memory.animation === "rough" ? (
               <div 
-                className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
+                ref={backMessageRef}
+                className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 no_scrollbar ${dragScroll.getCursorClassName()}`}
                 style={{
                   fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
@@ -447,6 +576,8 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </div>
             ) : (
               <ScrollableMessage
+                containerRefOverride={backMessageRef}
+                className={dragScroll.getCursorClassName()}
                 style={{
                   fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
@@ -463,14 +594,25 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
       </motion.div>
 
       {/* Minimal bottom-center open affordance */}
-      <div className="hidden lg:flex absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-        <Link href={`/memories/${memory.id}`} className="open-card-btn pointer-events-auto">
-          <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[17px] leading-none px-0 py-0 w-0 h-0 opacity-0 group-hover:px-5 group-hover:py-[8px] group-hover:w-auto group-hover:h-auto group-hover:opacity-100 group-hover:border-[var(--border)]/60">
-            <span className="overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">open</span>
-            <span className="ml-1 opacity-0 group-hover:opacity-100">↗</span>
-          </span>
-        </Link>
-      </div>
+      {flipped ? (
+        <div className="hidden lg:flex absolute top-full mt-2 left-1/2 -translate-x-1/2 z-20 pointer-events-none cursor-default">
+          <Link href={`/memories/${memory.id}`} className="open-card-btn pointer-events-auto">
+            <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[17px] leading-none px-0 py-0 w-0 h-0 opacity-0 group-hover:px-5 group-hover:py-[8px] group-hover:w-auto group-hover:h-auto group-hover:opacity-100 group-hover:border-[var(--border)]/60">
+              <span className="overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">open</span>
+              <span className="ml-1 opacity-0 group-hover:opacity-100">↗</span>
+            </span>
+          </Link>
+        </div>
+      ) : (
+        <div className="hidden lg:flex absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none cursor-default">
+          <Link href={`/memories/${memory.id}`} className="open-card-btn pointer-events-auto">
+            <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[17px] leading-none px-0 py-0 w-0 h-0 opacity-0 group-hover:px-5 group-hover:py-[8px] group-hover:w-auto group-hover:h-auto group-hover:opacity-100 group-hover:border-[var(--border)]/60">
+              <span className="overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">open</span>
+              <span className="ml-1 opacity-0 group-hover:opacity-100">↗</span>
+            </span>
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

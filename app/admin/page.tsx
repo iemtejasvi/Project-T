@@ -483,9 +483,18 @@ export default function AdminPanel() {
 
   async function updateMemoryStatus(id: string, newStatus: string) {
     // Optimistic update - update UI immediately
-    setMemories(prev => prev.map(m => 
-      m.id === id ? { ...m, status: newStatus } : m
-    ));
+    // When actioning an item in the current list (especially "pending"), remove it right away
+    // so the admin doesn't need a manual refresh.
+    let prevSnapshot: Memory[] | null = null;
+    setMemories(prev => {
+      prevSnapshot = prev;
+      const next = prev.map(m => (m.id === id ? { ...m, status: newStatus } : m));
+      const isWorkingOnCurrentTab = true;
+      if (isWorkingOnCurrentTab) {
+        return next.filter(m => m.id !== id);
+      }
+      return next;
+    });
 
     // Background API call
     fetch('/api/admin/update-memory', {
@@ -495,11 +504,13 @@ export default function AdminPanel() {
     }).then(response => response.json()).then(result => {
       if (result.error) {
         console.error('Update failed:', result.error);
-        refreshMemories(); // Revert on error
+        if (prevSnapshot) setMemories(prevSnapshot);
+        refreshMemories(); // Re-sync on error
       }
     }).catch(error => {
       console.error('Update error:', error);
-      refreshMemories(); // Revert on error
+      if (prevSnapshot) setMemories(prevSnapshot);
+      refreshMemories(); // Re-sync on error
     });
   }
 
