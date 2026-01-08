@@ -353,7 +353,7 @@ export default function Memories() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       
-      <header className="bg-[var(--card-bg)] shadow-md min-w-0">
+      <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">Archive</h1>
           <hr className="my-4 border-[var(--border)]" />
@@ -463,11 +463,9 @@ export default function Memories() {
             ) : isDesktop ? (
               <GridMemoryList memories={displayedMemories} />
             ) : (
-              <div className="w-full max-w-xs sm:max-w-md mx-auto">
-                {displayedMemories.map((memory) => (
-                  <MemoryCard key={memory.id} memory={memory} />
-                ))}
-              </div>
+              displayedMemories.map((memory) => (
+                <MemoryCard key={memory.id} memory={memory} />
+              ))
             )}
             {/* Load More Button */}
             {hasNext && (
