@@ -393,7 +393,7 @@ export default function Memories() {
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8 min-w-0 w-full">
         <div className="mb-6">
-          <div className="w-full sm:max-w-md lg:max-w-sm mx-auto min-w-0">
+          <div className="w-full max-w-sm sm:max-w-md lg:max-w-sm mx-auto min-w-0">
             <div className="relative min-w-0">
               <input
                 type="text"
