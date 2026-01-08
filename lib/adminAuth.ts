@@ -3,6 +3,7 @@
 // In production, use proper auth like NextAuth.js or Clerk
 
 import { NextRequest } from 'next/server';
+import { createHmac } from 'crypto';
 
 // Admin credentials - MUST be set in environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
@@ -53,9 +54,7 @@ async function signHmacSha256Base64Url(secret: string, data: string): Promise<st
   }
 
   // Node fallback
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const nodeCrypto = require('crypto') as typeof import('crypto');
-  const sig = nodeCrypto.createHmac('sha256', secret).update(data).digest();
+  const sig = createHmac('sha256', secret).update(data).digest();
   return base64UrlEncodeBytes(sig);
 }
 
@@ -125,9 +124,7 @@ export function verifySessionToken(token: string): boolean {
     if (!secret) return false;
 
     // Sync verify on Node
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const nodeCrypto = require('crypto') as typeof import('crypto');
-    const expected = base64UrlEncodeBytes(nodeCrypto.createHmac('sha256', secret).update(payloadB64).digest());
+    const expected = base64UrlEncodeBytes(createHmac('sha256', secret).update(payloadB64).digest());
     return expected === sigB64;
   } catch {
     return false;
