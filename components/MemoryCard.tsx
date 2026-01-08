@@ -583,29 +583,32 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 />
               </>
             )}
-            <div className="pb-1 relative z-10">
-              <h3 className="text-lg font-normal text-[var(--text)] flex items-center gap-2 leading-tight">
+
+            <div className="pt-1 relative z-10">
+              <h3 className="text-lg font-normal text-[var(--text)] text-center leading-tight">
                 <span className="break-words overflow-hidden leading-tight">To: {memory.recipient}</span>
               </h3>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden">From: {memory.sender}</p>}
+              {memory.sender && (
+                <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden text-center">
+                  From: {memory.sender}
+                </p>
+              )}
               <hr className="my-2 border-[#999999]" />
             </div>
 
-            <div className="text-xs text-[var(--text)] text-center font-normal relative z-10">
-              {dateStr} | {dayStr}
-            </div>
-            {createdAgoLabel && (
-              <div className="text-[11px] text-[var(--text)]/60 text-center font-normal relative z-10 mt-1">
-                {createdAgoLabel}
+            <div className="relative z-10">
+              <div className="text-xs text-[var(--text)] text-center font-normal">
+                {dateStr} | {dayStr}
               </div>
-            )}
+              {createdAgoLabel && (
+                <div className="text-[11px] text-[var(--text)]/60 text-center font-normal mt-1">
+                  {createdAgoLabel}
+                </div>
+              )}
+            </div>
 
             <div className="min-h-[2.5em] w-full relative z-10">
                               <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
-            </div>
-
-            <div className="text-md text-[var(--text)] text-center font-normal relative z-10 px-2 pb-1">
-              {renderMessage(memory)}
             </div>
           </div>
           {/* BACK */}
