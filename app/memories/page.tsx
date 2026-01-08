@@ -353,7 +353,7 @@ export default function Memories() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       
-      <header className="bg-[var(--card-bg)] shadow-md">
+      <header className="bg-[var(--card-bg)] shadow-md min-w-0">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">Archive</h1>
           <hr className="my-4 border-[var(--border)]" />
@@ -391,16 +391,16 @@ export default function Memories() {
         </div>
       </header>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8 min-w-0 w-full">
         <div className="mb-6">
-          <div className="w-full max-w-xs sm:max-w-md lg:max-w-sm mx-auto">
-            <div className="relative">
+          <div className="w-full max-w-xs sm:max-w-md lg:max-w-sm mx-auto min-w-0">
+            <div className="relative min-w-0">
               <input
                 type="text"
                 placeholder="Search by recipient name..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="w-full p-3 pr-12 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
+                className="w-full min-w-0 max-w-full p-3 pr-12 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
               />
               <button
                 type="button"

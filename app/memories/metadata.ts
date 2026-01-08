@@ -7,13 +7,13 @@ export const metadata: Metadata = {
     canonical: '/memories',
   },
   robots: {
-    index: false,
+    index: true,
     follow: true,
     nocache: true,
     googleBot: {
-      index: false,
+      index: true,
       follow: true,
-      noimageindex: true,
+      noimageindex: false,
     },
   },
-}; 
+};

@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 import Script from "next/script";
+import RoutePrefetcher from "@/components/RoutePrefetcher";
 
 const GA_MEASUREMENT_ID = 'G-LLWRNWWS0H';
 const ADSENSE_CLIENT_ID = 'ca-pub-8850424858354795';
@@ -1431,6 +1432,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ppkbuhaklzbgwvaaoudn.supabase.co" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://goltnprxtenbrkxcvsha.supabase.co" crossOrigin="anonymous" />
+        <link rel="prefetch" href="/memories" />
+        <link rel="prefetch" href="/submit" />
+        <link rel="prefetch" href="/how-it-works" />
         <meta name="description" content="A modern archive for unsent memories and heartfelt messages. Share your unspoken thoughts and feelings in a safe, anonymous space." />
         {ENABLE_ANALYTICS && (
           <>
@@ -1473,6 +1477,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
         <ThemeSwitcher />
         <UuidInitializer />
+        <RoutePrefetcher />
         {children}
         <Script id="ioist-startup-cleanup" strategy="afterInteractive">
           {`
