@@ -463,9 +463,11 @@ export default function Memories() {
             ) : isDesktop ? (
               <GridMemoryList memories={displayedMemories} />
             ) : (
-              displayedMemories.map((memory) => (
-                <MemoryCard key={memory.id} memory={memory} />
-              ))
+              <div className="w-full max-w-xs sm:max-w-md mx-auto">
+                {displayedMemories.map((memory) => (
+                  <MemoryCard key={memory.id} memory={memory} />
+                ))}
+              </div>
             )}
             {/* Load More Button */}
             {hasNext && (
