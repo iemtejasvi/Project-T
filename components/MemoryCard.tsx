@@ -585,11 +585,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             )}
 
             <div className="pt-1 relative z-10">
-              <h3 className="text-lg font-normal text-[var(--text)] text-center leading-tight">
-                <span className="break-words overflow-hidden leading-tight">To: {memory.recipient}</span>
+              <h3 className="text-lg font-bold text-[var(--text)] text-left leading-tight">
+                <span className="break-words overflow-hidden leading-tight">
+                  <span className="font-bold">To:</span> <span className="font-bold">{memory.recipient}</span>
+                </span>
               </h3>
               {memory.sender && (
-                <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden text-center">
+                <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden text-left">
                   From: {memory.sender}
                 </p>
               )}
