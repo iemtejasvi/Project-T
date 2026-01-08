@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import CursiveText from './CursiveText';
@@ -12,6 +12,7 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
+  reveal_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
@@ -386,6 +387,35 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
+
+  const createdAgoLabel = useMemo(() => {
+    const revealAt = memory.reveal_at;
+    if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
+    const createdTs = new Date(memory.created_at).getTime();
+    const revealTs = new Date(revealAt).getTime();
+    if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
+    if (revealTs <= createdTs) return null;
+
+    const diffMs = Date.now() - createdTs;
+    if (!Number.isFinite(diffMs) || diffMs < 0) return null;
+
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    const week = 7 * day;
+    const month = 30 * day;
+    const year = 365 * day;
+
+    const fmt = (n: number, unit: string) => `This memory was created ${n} ${unit}${n === 1 ? '' : 's'} ago`;
+
+    if (diffMs >= year) return fmt(Math.floor(diffMs / year), 'year');
+    if (diffMs >= month) return fmt(Math.floor(diffMs / month), 'month');
+    if (diffMs >= week) return fmt(Math.floor(diffMs / week), 'week');
+    if (diffMs >= day) return fmt(Math.floor(diffMs / day), 'day');
+    if (diffMs >= hour) return fmt(Math.floor(diffMs / hour), 'hour');
+    if (diffMs >= minute) return fmt(Math.floor(diffMs / minute), 'minute');
+    return 'This memory was created just now';
+  }, [memory.created_at, memory.reveal_at]);
   // Prevent flip when clicking the arrow
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -518,6 +548,11 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
+            {createdAgoLabel && (
+              <div className="text-sm text-[var(--text)]/60 text-center font-normal relative z-10 mt-1">
+                {createdAgoLabel}
+              </div>
+            )}
             <div className="text-xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5' }}>
                               <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>

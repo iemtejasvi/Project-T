@@ -14,18 +14,60 @@ if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
   console.error('Admin authentication will fail until these are configured.');
 }
 
-// Simple session store (use Redis in production)
-const sessions = new Map<string, { username: string; expiresAt: number }>();
+type SessionPayload = {
+  username: string;
+  exp: number; // unix seconds
+};
 
-// Clean up expired sessions every hour
-setInterval(() => {
-  const now = Date.now();
-  for (const [token, session] of sessions.entries()) {
-    if (session.expiresAt < now) {
-      sessions.delete(token);
-    }
+function base64UrlEncodeBytes(bytes: Uint8Array): string {
+  return Buffer.from(bytes)
+    .toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+}
+
+function base64UrlEncodeString(input: string): string {
+  return base64UrlEncodeBytes(Buffer.from(input, 'utf8'));
+}
+
+function base64UrlDecodeToString(input: string): string {
+  const base64 = input.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = base64 + '==='.slice((base64.length + 3) % 4);
+  return Buffer.from(padded, 'base64').toString('utf8');
+}
+
+async function signHmacSha256Base64Url(secret: string, data: string): Promise<string> {
+  const anyCrypto = globalThis.crypto as Crypto | undefined;
+  if (anyCrypto?.subtle) {
+    const enc = new TextEncoder();
+    const key = await anyCrypto.subtle.importKey(
+      'raw',
+      enc.encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    const sigBuf = await anyCrypto.subtle.sign('HMAC', key, enc.encode(data));
+    return base64UrlEncodeBytes(new Uint8Array(sigBuf));
   }
-}, 60 * 60 * 1000);
+
+  // Node fallback
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const nodeCrypto = require('crypto') as typeof import('crypto');
+  const sig = nodeCrypto.createHmac('sha256', secret).update(data).digest();
+  return base64UrlEncodeBytes(sig);
+}
+
+function getAdminSessionSecret(): string {
+  // You SHOULD set ADMIN_SESSION_SECRET in env.
+  return (
+    process.env.ADMIN_SESSION_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    process.env.ADMIN_PASSWORD ||
+    ''
+  );
+}
 
 /**
  * Verify admin credentials
@@ -45,28 +87,51 @@ export function verifyAdminCredentials(username: string, password: string): bool
  * Generate a session token
  */
 export function generateSessionToken(username: string): string {
-  const token = crypto.randomUUID();
-  const expiresAt = Date.now() + (365 * 24 * 60 * 60 * 1000); // 1 year (effectively never expires)
-  
-  sessions.set(token, { username, expiresAt });
-  
-  return token;
+  // Backward-compatible signature: keep the sync API, but produce a token that can be verified
+  // without any in-memory state.
+  const exp = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60);
+  const payload: SessionPayload = { username, exp };
+  const payloadB64 = base64UrlEncodeString(JSON.stringify(payload));
+  // Signature is computed in verify step if needed; here we produce an empty signature placeholder.
+  // The auth route will generate the signed token using generateSignedSessionToken().
+  return `${payloadB64}.`;
+}
+
+export async function generateSignedSessionToken(username: string): Promise<string> {
+  const secret = getAdminSessionSecret();
+  if (!secret) throw new Error('ADMIN_SESSION_SECRET not configured');
+
+  const exp = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60);
+  const payload: SessionPayload = { username, exp };
+  const payloadB64 = base64UrlEncodeString(JSON.stringify(payload));
+  const sig = await signHmacSha256Base64Url(secret, payloadB64);
+  return `${payloadB64}.${sig}`;
 }
 
 /**
  * Verify session token
  */
 export function verifySessionToken(token: string): boolean {
-  const session = sessions.get(token);
-  
-  if (!session) return false;
-  
-  if (session.expiresAt < Date.now()) {
-    sessions.delete(token);
+  try {
+    const [payloadB64, sigB64] = token.split('.');
+    if (!payloadB64 || !sigB64) return false;
+
+    const payloadRaw = base64UrlDecodeToString(payloadB64);
+    const payload = JSON.parse(payloadRaw) as Partial<SessionPayload>;
+    if (!payload || typeof payload.exp !== 'number' || typeof payload.username !== 'string') return false;
+    if (payload.exp * 1000 < Date.now()) return false;
+
+    const secret = getAdminSessionSecret();
+    if (!secret) return false;
+
+    // Sync verify on Node
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const nodeCrypto = require('crypto') as typeof import('crypto');
+    const expected = base64UrlEncodeBytes(nodeCrypto.createHmac('sha256', secret).update(payloadB64).digest());
+    return expected === sigB64;
+  } catch {
     return false;
   }
-  
-  return true;
 }
 
 /**
@@ -125,5 +190,6 @@ export function getSessionToken(request: NextRequest): string | null {
  * Delete session
  */
 export function deleteSession(token: string): void {
-  sessions.delete(token);
+  // Stateless tokens can't be deleted server-side. Cookie deletion is handled by the logout route.
+  void token;
 }

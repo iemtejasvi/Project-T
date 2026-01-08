@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { verifyAdminCredentials, generateSessionToken, isAdminAuthenticated, getSessionToken, deleteSession } from '@/lib/adminAuth';
+import { verifyAdminCredentials, generateSignedSessionToken, isAdminAuthenticated, getSessionToken, deleteSession } from '@/lib/adminAuth';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 
 // Login
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse('Invalid credentials', 401, { origin });
     }
     
-    const sessionToken = generateSessionToken(username);
+    const sessionToken = await generateSignedSessionToken(username);
     
     // Set secure HTTP-only cookie (1 year - effectively permanent)
     const response = createSecureResponse({ success: true }, 200, { origin });

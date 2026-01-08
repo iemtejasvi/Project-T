@@ -499,6 +499,7 @@ export default function AdminPanel() {
     // Background API call
     fetch('/api/admin/update-memory', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, updates: { status: newStatus } })
     }).then(response => response.json()).then(result => {
@@ -525,6 +526,7 @@ export default function AdminPanel() {
     // Background API call
     fetch('/api/admin/delete-memory', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
     }).then(response => response.json()).then(result => {
@@ -546,6 +548,7 @@ export default function AdminPanel() {
     try {
       const response = await fetch('/api/admin/delete-memory', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: memory.id })
       });
@@ -568,6 +571,7 @@ export default function AdminPanel() {
       try {
         const response = await fetch('/api/admin/ban', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(banEntry)
         });
@@ -614,6 +618,7 @@ export default function AdminPanel() {
       // Background API call
       fetch('/api/admin/update-memory', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: memory.id, updates: { pinned: false, pinned_until: null } })
       }).then(response => response.json()).then(result => {
@@ -646,6 +651,7 @@ export default function AdminPanel() {
     // Background API call
     fetch('/api/admin/update-memory', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: memory.id, updates: { pinned: true, pinned_until: pinnedUntil.toISOString() } })
     }).then(response => response.json()).then(result => {
@@ -670,6 +676,7 @@ export default function AdminPanel() {
         if (currentTime >= expiry) {
           await fetch('/api/admin/delete-announcement', {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: currentAnnouncement.id })
           });
@@ -687,6 +694,7 @@ export default function AdminPanel() {
         if (memory.pinned_until && new Date(memory.pinned_until) <= currentTime) {
           await fetch('/api/admin/update-memory', {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: memory.id, updates: { pinned: false, pinned_until: null } })
           });

@@ -14,6 +14,7 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
+  reveal_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
@@ -309,6 +310,35 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   const timeStr = new Date(memory.created_at).toLocaleTimeString();
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
 
+  const createdAgoLabel = useMemo(() => {
+    const revealAt = memory.reveal_at;
+    if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
+    const createdTs = new Date(memory.created_at).getTime();
+    const revealTs = new Date(revealAt).getTime();
+    if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
+    if (revealTs <= createdTs) return null;
+
+    const diffMs = Date.now() - createdTs;
+    if (!Number.isFinite(diffMs) || diffMs < 0) return null;
+
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    const week = 7 * day;
+    const month = 30 * day;
+    const year = 365 * day;
+
+    const fmt = (n: number, unit: string) => `This memory was created ${n} ${unit}${n === 1 ? '' : 's'} ago`;
+
+    if (diffMs >= year) return fmt(Math.floor(diffMs / year), 'year');
+    if (diffMs >= month) return fmt(Math.floor(diffMs / month), 'month');
+    if (diffMs >= week) return fmt(Math.floor(diffMs / week), 'week');
+    if (diffMs >= day) return fmt(Math.floor(diffMs / day), 'day');
+    if (diffMs >= hour) return fmt(Math.floor(diffMs / hour), 'hour');
+    if (diffMs >= minute) return fmt(Math.floor(diffMs / minute), 'minute');
+    return 'This memory was created just now';
+  }, [memory.created_at, memory.reveal_at]);
+
   const handleCardClick = () => {
     if (!detail) {
       setFlipped(!flipped);
@@ -548,61 +578,19 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                         : "#e8e6df",
                     opacity: 0.55,
                     zIndex: 0,
+                    pointerEvents: "none",
                   }}
                 />
               </>
             )}
-            <div className="relative z-10">
-              <div className="flex justify-between items-start">
-                <h3 className="text-xl font-bold text-[var(--text)] break-words overflow-hidden">
-                                    To: {memory.recipient}
-                </h3>
-                {memory.pinned && (
-                  <span
-                    className="relative inline-block animate-pin-pop"
-                    style={{
-                      display: 'inline-block',
-                      transform: 'rotate(-15deg)',
-                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.10))',
-                      verticalAlign: 'middle',
-                    }}
-                    title="Pinned"
-                  >
-                    <span
-                      className="absolute inset-0 rounded-full border border-yellow-200 shadow-sm"
-                      style={{
-                        background: effectiveColor !== 'default'
-                          ? `var(--color-${effectiveColor}-bg)`
-                          : 'radial-gradient(circle, #fffbe6 60%, #ffe066 100%)',
-                        zIndex: 0,
-                        width: '1.6em',
-                        height: '1.6em',
-                        left: '-0.32em',
-                        top: '-0.32em',
-                        opacity: 0.85,
-                        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.08)',
-                      }}
-                      aria-hidden="true"
-                    />
-                    <span
-                      className="relative z-10 text-yellow-500"
-                      style={{
-                        fontSize: '1.28em',
-                        textShadow: '0 1px 3px #fffbe6, 0 1px 2px #ffe066',
-                        lineHeight: 1,
-                      }}
-                    >
-                      📌
-                    </span>
-                  </span>
-                )}
-              </div>
-              {memory.sender && <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden">From: {memory.sender}</p>}
-              <hr className="my-2 border-[#999999]" />
-            </div>
             <div className="text-xs text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
+            {createdAgoLabel && (
+              <div className="text-[11px] text-[var(--text)]/60 text-center font-normal relative z-10 mt-1">
+                {createdAgoLabel}
+              </div>
+            )}
             <div className="min-h-[2.5em] w-full relative z-10">
                               <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>

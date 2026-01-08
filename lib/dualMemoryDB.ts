@@ -165,10 +165,26 @@ interface MemoryData {
   tag?: string;
   sub_tag?: string;
   created_at: string;
+  reveal_at?: string;
   pinned?: boolean;
   pinned_until?: string;
   typewriter_enabled?: boolean;
   [key: string]: string | boolean | undefined;
+}
+
+function isRevealableNow(memory: MemoryData): boolean {
+  const revealAt = memory.reveal_at;
+  if (typeof revealAt !== 'string' || revealAt.length === 0) return true;
+  const revealTs = new Date(revealAt).getTime();
+  if (!Number.isFinite(revealTs)) return true;
+  return revealTs <= Date.now();
+}
+
+function shouldFilterByRevealAt(filters: Record<string, string>): boolean {
+  // Only public/approved views should hide unrevealed memories.
+  // Admin needs to see pending/banned/other statuses even if reveal_at is in the future.
+  const status = (filters.status || '').toLowerCase();
+  return status === 'approved' || status === '';
 }
 
 // Test database connectivity
@@ -319,7 +335,8 @@ export async function fetchMemoriesPaginated(
   }
   
   // Combine and sort
-  const allMemories = [...memoriesA, ...memoriesB];
+  const combined = [...memoriesA, ...memoriesB];
+  const allMemories = shouldFilterByRevealAt(filters) ? combined.filter(isRevealableNow) : combined;
   allMemories.sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
@@ -399,7 +416,8 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   }
   
   // Combine results
-  const allMemories = [...memoriesA, ...memoriesB];
+  const combined = [...memoriesA, ...memoriesB];
+  const allMemories = shouldFilterByRevealAt(filters) ? combined.filter(isRevealableNow) : combined;
   
   // Apply filters
   let filteredMemories = allMemories;

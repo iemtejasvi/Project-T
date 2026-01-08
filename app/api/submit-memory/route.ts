@@ -15,6 +15,27 @@ interface SubmissionData {
   sub_tag?: string;
   enableTypewriter?: boolean;
   typewriter_enabled?: boolean;
+  time_capsule_delay_minutes?: number;
+}
+
+function isValidTimeCapsuleDelayMinutes(value: unknown): value is number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || !Number.isInteger(value)) {
+    return false;
+  }
+
+  if (value === 0) return true;
+  // Backward compatibility: allow any minute delay 1-60
+  if (value >= 1 && value <= 60) return true;
+
+  const allowed = new Set<number>([
+    7 * 24 * 60,
+    30 * 24 * 60,
+    3 * 30 * 24 * 60,
+    6 * 30 * 24 * 60,
+    9 * 30 * 24 * 60,
+    365 * 24 * 60,
+  ]);
+  return allowed.has(value);
 }
 
 const memoryLimitMessages = [
@@ -404,7 +425,7 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse('Invalid JSON in request body', 400, { origin });
     }
     
-    const { recipient, message, sender, color, animation, tag, sub_tag, enableTypewriter, typewriter_enabled } = body;
+    const { recipient, message, sender, color, animation, tag, sub_tag, enableTypewriter, typewriter_enabled, time_capsule_delay_minutes } = body;
 
     // Normalize typewriter flag from either field name
     const normalizedTypewriterEnabled =
@@ -438,6 +459,20 @@ export async function POST(request: NextRequest) {
     const sanitizedSender = validation.sanitized.sender as string | undefined;
     const sanitizedColor = (validation.sanitized.color as string) || 'default';
     const sanitizedAnimation = validation.sanitized.animation as string | undefined;
+
+    let timeCapsuleDelayMinutes: number | undefined = undefined;
+    if (typeof time_capsule_delay_minutes !== 'undefined') {
+      if (!isValidTimeCapsuleDelayMinutes(time_capsule_delay_minutes)) {
+        return createSecureErrorResponse('Invalid time capsule delay', 400, { origin });
+      }
+      timeCapsuleDelayMinutes = time_capsule_delay_minutes;
+    }
+
+    const createdAtIso = new Date().toISOString();
+    const revealAtIso =
+      typeof timeCapsuleDelayMinutes === 'number' && timeCapsuleDelayMinutes > 0
+        ? new Date(Date.now() + timeCapsuleDelayMinutes * 60 * 1000).toISOString()
+        : createdAtIso;
 
     // Flags are computed later after IP fallback and owner detection
     let isUnlimited = false;
@@ -617,7 +652,8 @@ export async function POST(request: NextRequest) {
       tag: normalizedTypewriterEnabled ? (tag ? sanitizeString(tag).slice(0, 50) : null) : null,
       sub_tag: normalizedTypewriterEnabled ? (sub_tag ? sanitizeString(sub_tag).slice(0, 50) : null) : null,
       typewriter_enabled: normalizedTypewriterEnabled ?? false,
-      created_at: new Date().toISOString()
+      created_at: createdAtIso,
+      reveal_at: revealAtIso,
     };
 
     // Insert into dual database system. Utility picks DB via time-based round-robin and handles failover automatically.

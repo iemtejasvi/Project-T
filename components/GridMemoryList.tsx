@@ -8,6 +8,7 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
+  reveal_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
