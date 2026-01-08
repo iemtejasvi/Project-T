@@ -269,8 +269,6 @@ export async function fetchMemoriesPaginated(
     if (filters.id) query = query.eq('id', filters.id);
     if (filters.ip) query = query.eq('ip', filters.ip);
     if (filters.uuid) query = query.eq('uuid', filters.uuid);
-    if (filters.tag) query = query.eq('tag', filters.tag);
-    if (filters.sub_tag) query = query.eq('sub_tag', filters.sub_tag);
     if (filters.pinned !== undefined) {
       query = query.eq('pinned', filters.pinned === 'true');
     }

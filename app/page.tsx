@@ -454,7 +454,7 @@ export default function Home() {
       </header>
 
         {announcement && !isAnnouncementDismissed && announcementCheckComplete && (
-          <section className={`my-8 px-4 sm:px-6 max-w-5xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+          <section className={`hidden lg:block my-8 px-4 sm:px-6 max-w-5xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
             <div 
               className="relative p-4 rounded-lg shadow-md md:flex md:items-center md:justify-between md:gap-4 animate-pulse-glow"
               style={{
@@ -504,9 +504,51 @@ export default function Home() {
         
         {/* Mobile typewriter section - reserve space for two lines and avoid layout shake */}
         <section className="mt-8 mb-4 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
-          <div className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center h-[88px] flex items-center justify-center">
-            {(!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete && (
-              <TypingEffect />
+          <div
+            className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center h-[88px] flex items-center justify-center"
+            style={
+              announcement && !isAnnouncementDismissed && announcementCheckComplete
+                ? {
+                    backgroundColor: announcement.background_color || '#ef4444',
+                    color: announcement.text_color || '#ffffff',
+                  }
+                : undefined
+            }
+          >
+            {announcement && !isAnnouncementDismissed && announcementCheckComplete ? (
+              <div className="w-full flex items-center justify-center gap-2 font-bold leading-tight">
+                <span>{announcement.icon || '📢'}</span>
+                {announcement.link_url ? (
+                  <a
+                    href={announcement.link_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:opacity-80 transition-opacity"
+                    onClick={async () => {
+                      const { error } = await supabase.rpc('increment_announcement_click', { announcement_id_in: announcement.id });
+                      if (error) console.error('Error tracking click:', error);
+                    }}
+                  >
+                    {announcement.message}
+                  </a>
+                ) : (
+                  <span>{announcement.message}</span>
+                )}
+
+                {announcement.is_dismissible && (
+                  <button
+                    onClick={handleDismissAnnouncement}
+                    className="ml-2 w-8 h-8 flex items-center justify-center text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
+                    aria-label="Dismiss announcement"
+                  >
+                    &times;
+                  </button>
+                )}
+              </div>
+            ) : (
+              (!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete && (
+                <TypingEffect />
+              )
             )}
           </div>
         </section>

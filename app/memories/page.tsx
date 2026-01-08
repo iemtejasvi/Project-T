@@ -5,7 +5,6 @@ import { updateMemory } from "@/lib/dualMemoryDB";
 import { fetchWithUltraCache, invalidateCache, warmUpCache } from "@/lib/enhancedCache";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
-import { typewriterTags } from "@/components/typewriterPrompts";
  
 import Loader from "@/components/Loader";
 
@@ -31,8 +30,6 @@ interface Memory {
 export default function Memories() {
   const [displayedMemories, setDisplayedMemories] = useState<Memory[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
-  const [showTagFilter, setShowTagFilter] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [initialLoading, setInitialLoading] = useState(false); // Start false for instant perceived load
   const [page, setPage] = useState(0);
@@ -76,12 +73,6 @@ export default function Memories() {
 
   const hasNext = page < totalPages - 1;
 
-  const activeFilters = useMemo(() => {
-    const filters: Record<string, string> = { status: "approved" };
-    if (selectedTag) filters.tag = selectedTag;
-    return filters;
-  }, [selectedTag]);
-
   const currentDisplayCount = useMemo(() => {
     const calculatedCount = page * pageSize + displayedMemories.length;
     return Math.min(totalCount, calculatedCount);
@@ -111,7 +102,6 @@ export default function Memories() {
   const fetchPageData = useCallback(async (
     pageNum: number,
     search: string,
-    filters: Record<string, string>,
     showLoader = true,
     isLoadMore = false
   ) => {
@@ -122,7 +112,7 @@ export default function Memories() {
       const result = await fetchWithUltraCache(
         pageNum,
         pageSize,
-        filters,
+        { status: "approved" },
         search.trim(),
         { created_at: "desc" },
         { maxAge: 180000, staleWhileRevalidate: 300000, prefetchDepth: 5 } // 3min fresh for ultra-current content
@@ -176,12 +166,12 @@ export default function Memories() {
     // Reset page when page size changes to avoid confusion
     setPage(0);
     setDisplayedMemories([]);
-    fetchPageData(0, searchTerm, activeFilters, true);
+    fetchPageData(0, searchTerm, true);
     
     // Listen for real-time updates
     const handleRefreshArchives = async () => {
       // Silent background refresh - no loading indicators
-      await fetchPageData(page, searchTerm, activeFilters, false);
+      await fetchPageData(page, searchTerm, false);
     };
     
     window.addEventListener('refresh-archives', handleRefreshArchives);
@@ -206,14 +196,6 @@ export default function Memories() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize]); // Re-fetch when screen size changes
-
-  // Reset pagination when tag/subtag filter changes
-  useEffect(() => {
-    setPage(0);
-    setDisplayedMemories([]);
-    fetchPageData(0, searchTerm, activeFilters, false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFilters]);
 
   // Check expired pins only when there are ACTIVE pinned memories
   useEffect(() => {
@@ -287,7 +269,7 @@ export default function Memories() {
     searchTimeoutRef.current = setTimeout(() => {
       lastSearchRef.current = searchTerm;
       setPage(0);
-      fetchPageData(0, searchTerm, activeFilters, false);
+      fetchPageData(0, searchTerm, false);
     }, searchTerm ? 300 : 0); // No delay when clearing search
     
     return () => {
@@ -295,25 +277,10 @@ export default function Memories() {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchTerm, fetchPageData, activeFilters]);
+  }, [searchTerm, fetchPageData]);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  }, []);
-
-  const handleTagChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const nextTag = e.target.value;
-    setSelectedTag(nextTag);
-  }, []);
-
-  const handleToggleTagFilter = useCallback(() => {
-    setShowTagFilter((v) => {
-      const next = !v;
-      if (!next) {
-        setSelectedTag("");
-      }
-      return next;
-    });
   }, []);
   
   const handleLoadMore = useCallback(async () => {
@@ -322,7 +289,7 @@ export default function Memories() {
     
     // Never show loader for cached content
     const showLoader = lastPageLoadTime.current > 50;
-    await fetchPageData(nextPage, searchTerm, activeFilters, showLoader, true);
+    await fetchPageData(nextPage, searchTerm, showLoader, true);
     
     // Instant scroll for cached pages, smooth for fresh
     if (lastPageLoadTime.current < 50) {
@@ -330,7 +297,7 @@ export default function Memories() {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [page, searchTerm, fetchPageData, activeFilters]);
+  }, [page, searchTerm, fetchPageData]);
 
   const handleLoadPrevious = useCallback(async () => {
     const prevPage = page - 1;
@@ -338,7 +305,7 @@ export default function Memories() {
     
     // If last load was instant, don't show loader
     const showLoader = lastPageLoadTime.current > 100;
-    await fetchPageData(prevPage, searchTerm, activeFilters, showLoader, false);
+    await fetchPageData(prevPage, searchTerm, showLoader, false);
     
     // Instant scroll for cached pages, smooth for fresh
     if (lastPageLoadTime.current < 50) {
@@ -346,7 +313,7 @@ export default function Memories() {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [page, searchTerm, fetchPageData, activeFilters]);
+  }, [page, searchTerm, fetchPageData]);
 
   
 
@@ -391,45 +358,15 @@ export default function Memories() {
         </div>
       </header>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8 min-w-0 w-full">
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
-          <div className="w-full max-w-sm sm:max-w-md lg:max-w-sm mx-auto min-w-0">
-            <div className="relative min-w-0">
-              <input
-                type="text"
-                placeholder="Search by recipient name..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className="w-full min-w-0 max-w-full p-3 pr-12 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
-              />
-              <button
-                type="button"
-                aria-label="Toggle emotion filter"
-                aria-expanded={showTagFilter}
-                onClick={handleToggleTagFilter}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card-bg)] text-[var(--text)]/70 hover:text-[var(--text)] hover:border-[var(--accent)]/40 transition-all"
-              >
-                <span className={`transition-transform duration-200 ${showTagFilter ? 'rotate-180' : ''}`}>
-                  ˅
-                </span>
-              </button>
-            </div>
-
-            {showTagFilter && (
-              <div className="mt-3">
-                <select
-                  value={selectedTag}
-                  onChange={handleTagChange}
-                  className="w-full p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
-                >
-                  <option value="">All emotions</option>
-                  {typewriterTags.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
+          <input
+            type="text"
+            placeholder="Search by recipient name..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="max-w-xs sm:w-[400px] mx-auto block p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
+          />
         </div>
         {initialLoading && displayedMemories.length === 0 ? (
           <div className="flex items-center justify-center py-16">
