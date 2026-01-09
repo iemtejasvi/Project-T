@@ -15,6 +15,7 @@ interface Memory {
   sender?: string;
   created_at: string;
   reveal_at?: string;
+  destruct_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
@@ -35,6 +36,29 @@ interface MemoryCardProps {
   detail?: boolean;
   variant?: "default" | "home";
 }
+
+const destructedVariants = [
+  "Only if you read it sooner.",
+  "You missed it. That's the point.",
+  "It burned after the deadline.",
+  "Gone. Like it never happened.",
+  "Too late. The words already left.",
+  "You arrived after it vanished.",
+  "This was meant for earlier you.",
+  "It self-destructed. No reruns.",
+  "Some messages refuse to stay.",
+  "The moment passed. So did this.",
+  "You blinked. It was over.",
+  "If you cared, you would've checked.",
+  "Read receipts don't exist here.",
+  "Time won. The message didn't.",
+  "It dissolved into silence.",
+  "Nothing left to hold.",
+  "The words chose disappearance.",
+  "It was here. Now it's not.",
+  "You came late to the truth.",
+  "Some endings don't wait."
+] as const;
 
 
 
@@ -339,6 +363,27 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return 'This memory was created just now';
   }, [memory.created_at, memory.reveal_at]);
 
+  const isDestructed = useMemo(() => {
+    return typeof memory.message === 'string' && memory.message.trim().length === 0;
+  }, [memory.message]);
+
+  const destructedVariantText = useMemo(() => {
+    const id = String(memory.id || '');
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+    }
+    return destructedVariants[hash % destructedVariants.length];
+  }, [memory.id]);
+
+  const destructedAtLabel = useMemo(() => {
+    const destructAt = memory.destruct_at;
+    if (typeof destructAt !== 'string' || destructAt.length === 0) return null;
+    const ts = new Date(destructAt);
+    if (!Number.isFinite(ts.getTime())) return null;
+    return `Destructed at ${ts.toLocaleString()}`;
+  }, [memory.destruct_at]);
+
   const handleCardClick = () => {
     if (!detail) {
       setFlipped(!flipped);
@@ -346,6 +391,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   };
 
   const renderMessage = (memory: Memory, forceLarge?: boolean) => {
+    if (isDestructed) {
+      return (
+        <div className="space-y-2">
+          <p className={`${forceLarge ? 'text-[22px]' : 'text-[19px]'} italic tracking-wide leading-snug break-words hyphens-none opacity-80`}>
+            {destructedVariantText}
+          </p>
+          {destructedAtLabel && (
+            <p className="text-xs italic tracking-wide opacity-60">{destructedAtLabel}</p>
+          )}
+        </div>
+      );
+    }
     const wordCount = memory.message.split(/[\s.]+/).filter(word => word.length > 0).length;
     const isShortOrExact = wordCount <= 30;
     const textClass = forceLarge

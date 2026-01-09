@@ -13,7 +13,7 @@ export default function RoutePrefetcher() {
     const warmup = async () => {
       try {
         // Let initial content paint first
-        await new Promise((r) => setTimeout(r, 1200));
+        await new Promise((r) => setTimeout(r, 250));
         if (cancelled) return;
 
         // Prefetch common routes (code + RSC payload)
@@ -23,7 +23,11 @@ export default function RoutePrefetcher() {
 
         // Warm up archive data so /memories feels instant.
         // Use desktop pageSize since it is the heaviest; cache is shared.
-        await warmUpCache([{ page: 0, pageSize: 18 }]);
+        await warmUpCache([
+          { page: 0, pageSize: 18 },
+          { page: 0, pageSize: 10 },
+          { page: 0, pageSize: 6 },
+        ]);
       } catch {
         // Silent
       }

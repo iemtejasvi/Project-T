@@ -19,6 +19,7 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
+  destruct_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
@@ -87,11 +88,17 @@ export default function Home() {
       memory.pinned_until && 
       new Date(memory.pinned_until) > now
     );
+
+    const hasActiveDestructingMemories = recentMemories.some(memory =>
+      typeof memory.destruct_at === 'string' &&
+      memory.destruct_at.length > 0 &&
+      new Date(memory.destruct_at) > now
+    );
     
     // Check for active announcement
     const hasActiveAnnouncement = announcement !== null;
     
-    return hasActivePinnedMemories || hasActiveAnnouncement;
+    return hasActivePinnedMemories || hasActiveDestructingMemories || hasActiveAnnouncement;
   }, [recentMemories, announcement]);
 
   // Update current time every second ONLY if there are active items

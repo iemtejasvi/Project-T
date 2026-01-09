@@ -13,6 +13,7 @@ interface Memory {
   sender?: string;
   created_at: string;
   reveal_at?: string;
+  destruct_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
@@ -33,6 +34,29 @@ interface DesktopMemoryCardProps {
   detail?: boolean;
   large?: boolean;
 }
+
+const destructedVariants = [
+  "Only if you read it sooner.",
+  "You missed it. That's the point.",
+  "It burned after the deadline.",
+  "Gone. Like it never happened.",
+  "Too late. The words already left.",
+  "You arrived after it vanished.",
+  "This was meant for earlier you.",
+  "It self-destructed. No reruns.",
+  "Some messages refuse to stay.",
+  "The moment passed. So did this.",
+  "You blinked. It was over.",
+  "If you cared, you would've checked.",
+  "Read receipts don't exist here.",
+  "Time won. The message didn't.",
+  "It dissolved into silence.",
+  "Nothing left to hold.",
+  "The words chose disappearance.",
+  "It was here. Now it's not.",
+  "You came late to the truth.",
+  "Some endings don't wait."
+] as const;
 
 function useDragToScroll(opts: { scrollRef: React.RefObject<HTMLDivElement | null> }) {
   const { scrollRef } = opts;
@@ -251,6 +275,36 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 };
 
 function renderMessageLarge(memory: Memory, effectiveColor: string) {
+  const isDestructed = typeof memory.message === 'string' && memory.message.trim().length === 0;
+  if (isDestructed) {
+    const variantText = (() => {
+      const id = String(memory.id || '');
+      let hash = 0;
+      for (let i = 0; i < id.length; i++) {
+        hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+      }
+      return destructedVariants[hash % destructedVariants.length];
+    })();
+
+    const destructedAtLabel = (() => {
+      const destructAt = memory.destruct_at;
+      if (typeof destructAt !== 'string' || destructAt.length === 0) return null;
+      const ts = new Date(destructAt);
+      if (!Number.isFinite(ts.getTime())) return null;
+      return `Destructed at ${ts.toLocaleString()}`;
+    })();
+
+    return (
+      <div className="space-y-2">
+        <p className="text-2xl italic tracking-wide leading-snug break-words hyphens-none opacity-80">
+          {variantText}
+        </p>
+        {destructedAtLabel && (
+          <p className="text-xs italic tracking-wide opacity-60">{destructedAtLabel}</p>
+        )}
+      </div>
+    );
+  }
   const wordCount = memory.message.split(/[\s.]+/).filter(word => word.length > 0).length;
   const isShortOrExact = wordCount <= 30;
   const textClass = isShortOrExact

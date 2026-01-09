@@ -133,6 +133,22 @@ export async function unpinExpiredMemories(): Promise<number> {
   return unique.length;
 }
 
+// Scrub message content for destructed memories across both DBs
+export async function scrubDestructedMemories(): Promise<number> {
+  const now = new Date().toISOString();
+  const [idsARes, idsBRes] = await Promise.all([
+    dbA.client.from('memories').select('id').lte('destruct_at', now).neq('message', ''),
+    dbB.client.from('memories').select('id').lte('destruct_at', now).neq('message', ''),
+  ]);
+  const idsA = (idsARes.data || []).map(r => r.id as string);
+  const idsB = (idsBRes.data || []).map(r => r.id as string);
+  const unique = Array.from(new Set([...idsA, ...idsB]));
+  if (unique.length === 0) return 0;
+
+  await Promise.all(unique.map(id => updateMemory(id, { message: '' })));
+  return unique.length;
+}
+
 // Simulate n round-robin selections with improved distribution
 export function simulateRoundRobin(n = 20) {
   const picks: Array<'A' | 'B'> = [];
@@ -166,6 +182,10 @@ interface MemoryData {
   sub_tag?: string;
   created_at: string;
   reveal_at?: string;
+  destruct_at?: string;
+  approved_at?: string;
+  time_capsule_delay_minutes?: string;
+  destruct_delay_minutes?: string;
   pinned?: boolean;
   pinned_until?: string;
   typewriter_enabled?: boolean;
@@ -178,6 +198,28 @@ function isRevealableNow(memory: MemoryData): boolean {
   const revealTs = new Date(revealAt).getTime();
   if (!Number.isFinite(revealTs)) return true;
   return revealTs <= Date.now();
+}
+
+function shouldDestructNow(memory: MemoryData): boolean {
+  // Destruct should never run before approval.
+  const approvedAt = memory.approved_at;
+  if (typeof approvedAt !== 'string' || approvedAt.length === 0) return false;
+  const approvedTs = new Date(approvedAt).getTime();
+  if (!Number.isFinite(approvedTs)) return false;
+
+  const destructAt = memory.destruct_at;
+  if (typeof destructAt !== 'string' || destructAt.length === 0) return false;
+  const destructTs = new Date(destructAt).getTime();
+  if (!Number.isFinite(destructTs)) return false;
+  return destructTs <= Date.now();
+}
+
+function redactIfDestructed(memory: MemoryData): MemoryData {
+  if (!shouldDestructNow(memory)) return memory;
+  // Permanent deletion of message content: once destructed, never return the original message.
+  // We keep the record so the UI can render a "destructed" placeholder card.
+  if (typeof memory.message === 'string' && memory.message.length === 0) return memory;
+  return { ...memory, message: '' };
 }
 
 function shouldFilterByRevealAt(filters: Record<string, string>): boolean {
@@ -336,7 +378,8 @@ export async function fetchMemoriesPaginated(
   
   // Combine and sort
   const combined = [...memoriesA, ...memoriesB];
-  const allMemories = shouldFilterByRevealAt(filters) ? combined.filter(isRevealableNow) : combined;
+  const allMemoriesUnredacted = shouldFilterByRevealAt(filters) ? combined.filter(isRevealableNow) : combined;
+  const allMemories = allMemoriesUnredacted.map(redactIfDestructed);
   allMemories.sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
@@ -417,7 +460,8 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   
   // Combine results
   const combined = [...memoriesA, ...memoriesB];
-  const allMemories = shouldFilterByRevealAt(filters) ? combined.filter(isRevealableNow) : combined;
+  const allMemoriesUnredacted = shouldFilterByRevealAt(filters) ? combined.filter(isRevealableNow) : combined;
+  const allMemories = allMemoriesUnredacted.map(redactIfDestructed);
   
   // Apply filters
   let filteredMemories = allMemories;

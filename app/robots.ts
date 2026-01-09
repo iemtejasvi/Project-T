@@ -9,8 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/admin/',
           '/api/',
-          '/_next/',
-          '/static/',
+          '/_next/data/',
           '/maintenance/',
         ],
       },
@@ -18,4 +17,4 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: 'https://ifonlyisentthis.com/sitemap.xml',
     host: 'https://ifonlyisentthis.com',
   }
-} 
+}

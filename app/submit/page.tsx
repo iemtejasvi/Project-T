@@ -136,6 +136,7 @@ export default function SubmitPage() {
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
   const [timeCapsuleDelayMinutes, setTimeCapsuleDelayMinutes] = useState<number>(0);
+  const [destructDelayMinutes, setDestructDelayMinutes] = useState<number>(0);
   // Full background is enforced everywhere now
   const fullBg = true;
   const [submitted, setSubmitted] = useState(false);
@@ -725,8 +726,31 @@ export default function SubmitPage() {
     }
   }, [enableTypewriter]);
 
+  useEffect(() => {
+    if (timeCapsuleDelayMinutes > 0 && destructDelayMinutes > 0 && timeCapsuleDelayMinutes === destructDelayMinutes) {
+      setDestructDelayMinutes(timeCapsuleDelayMinutes + 1);
+    }
+  }, [timeCapsuleDelayMinutes, destructDelayMinutes]);
+
   const timeCapsuleOptions: Array<{ value: number; label: string }> = [
     { value: 0, label: "None (submit now)" },
+    { value: 5, label: "5 minutes" },
+    { value: 10, label: "10 minutes" },
+    { value: 15, label: "15 minutes" },
+    { value: 20, label: "20 minutes" },
+    { value: 30, label: "30 minutes" },
+    { value: 45, label: "45 minutes" },
+    { value: 60, label: "60 minutes" },
+    { value: 7 * 24 * 60, label: "1 week" },
+    { value: 30 * 24 * 60, label: "1 month" },
+    { value: 3 * 30 * 24 * 60, label: "3 months" },
+    { value: 6 * 30 * 24 * 60, label: "6 months" },
+    { value: 9 * 30 * 24 * 60, label: "9 months" },
+    { value: 365 * 24 * 60, label: "1 year" },
+  ];
+
+  const destructOptions: Array<{ value: number; label: string }> = [
+    { value: 0, label: "Never (do not destruct)" },
     { value: 5, label: "5 minutes" },
     { value: 10, label: "10 minutes" },
     { value: 15, label: "15 minutes" },
@@ -865,6 +889,7 @@ export default function SubmitPage() {
       sub_tag: shortTag || undefined,  // Convert to short tag
       typewriter_enabled: enableTypewriter,
       time_capsule_delay_minutes: timeCapsuleDelayMinutes || undefined,
+      destruct_delay_minutes: destructDelayMinutes || undefined,
     };
 
     // Validate required fields first
@@ -1161,6 +1186,24 @@ export default function SubmitPage() {
                     </select>
                   </div>
 
+                  <div className={`space-y-2`}>
+                    <label className="block text-lg font-medium text-[var(--text)]">Destructing Message (optional)</label>
+                    <select
+                      value={destructDelayMinutes}
+                      onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
+                      disabled={isFormDisabled}
+                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                      }`}
+                    >
+                      {destructOptions.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="space-y-4 p-6 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20">
                     <div className="flex items-center space-x-3">
                       <input
@@ -1401,6 +1444,24 @@ export default function SubmitPage() {
                     }`}
                   >
                     {timeCapsuleOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-medium text-[var(--text)] mb-2">Destructing Message (optional)</label>
+                  <select
+                    value={destructDelayMinutes}
+                    onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
+                    disabled={isFormDisabled}
+                    className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition ${
+                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                    }`}
+                  >
+                    {destructOptions.map((o) => (
                       <option key={o.value} value={o.value}>
                         {o.label}
                       </option>

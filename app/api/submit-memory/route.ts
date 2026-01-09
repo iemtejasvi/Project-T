@@ -16,6 +16,7 @@ interface SubmissionData {
   enableTypewriter?: boolean;
   typewriter_enabled?: boolean;
   time_capsule_delay_minutes?: number;
+  destruct_delay_minutes?: number;
 }
 
 function isValidTimeCapsuleDelayMinutes(value: unknown): value is number {
@@ -36,6 +37,11 @@ function isValidTimeCapsuleDelayMinutes(value: unknown): value is number {
     365 * 24 * 60,
   ]);
   return allowed.has(value);
+}
+
+function isValidDestructDelayMinutes(value: unknown): value is number {
+  // Same presets/compatibility rules as time capsule.
+  return isValidTimeCapsuleDelayMinutes(value);
 }
 
 const memoryLimitMessages = [
@@ -425,7 +431,7 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse('Invalid JSON in request body', 400, { origin });
     }
     
-    const { recipient, message, sender, color, animation, tag, sub_tag, enableTypewriter, typewriter_enabled, time_capsule_delay_minutes } = body;
+    const { recipient, message, sender, color, animation, tag, sub_tag, enableTypewriter, typewriter_enabled, time_capsule_delay_minutes, destruct_delay_minutes } = body;
 
     // Normalize typewriter flag from either field name
     const normalizedTypewriterEnabled =
@@ -468,11 +474,23 @@ export async function POST(request: NextRequest) {
       timeCapsuleDelayMinutes = time_capsule_delay_minutes;
     }
 
+    let destructDelayMinutes: number | undefined = undefined;
+    if (typeof destruct_delay_minutes !== 'undefined') {
+      if (!isValidDestructDelayMinutes(destruct_delay_minutes)) {
+        return createSecureErrorResponse('Invalid destruct delay', 400, { origin });
+      }
+      destructDelayMinutes = destruct_delay_minutes;
+    }
+
     const createdAtIso = new Date().toISOString();
     const revealAtIso =
       typeof timeCapsuleDelayMinutes === 'number' && timeCapsuleDelayMinutes > 0
         ? new Date(Date.now() + timeCapsuleDelayMinutes * 60 * 1000).toISOString()
         : createdAtIso;
+
+    // Destruct timer should begin only after approval.
+    // We persist the user-selected delay and compute destruct_at when the admin approves.
+    const destructAtIso = null;
 
     // Flags are computed later after IP fallback and owner detection
     let isUnlimited = false;
@@ -654,6 +672,10 @@ export async function POST(request: NextRequest) {
       typewriter_enabled: normalizedTypewriterEnabled ?? false,
       created_at: createdAtIso,
       reveal_at: revealAtIso,
+      destruct_at: destructAtIso,
+      time_capsule_delay_minutes: typeof timeCapsuleDelayMinutes === 'number' ? timeCapsuleDelayMinutes : null,
+      destruct_delay_minutes: typeof destructDelayMinutes === 'number' ? destructDelayMinutes : null,
+      approved_at: null,
     };
 
     // Insert into dual database system. Utility picks DB via time-based round-robin and handles failover automatically.

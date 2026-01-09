@@ -14,6 +14,7 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
+  destruct_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
@@ -88,15 +89,24 @@ export default function Memories() {
     );
   }, [displayedMemories]);
 
+  const hasActiveDestructingMemories = useMemo(() => {
+    const now = new Date();
+    return displayedMemories.some(memory =>
+      typeof memory.destruct_at === 'string' &&
+      memory.destruct_at.length > 0 &&
+      new Date(memory.destruct_at) > now
+    );
+  }, [displayedMemories]);
+
   // Update current time every second ONLY if there are ACTIVE pinned memories
   useEffect(() => {
-    if (!hasActivePinnedMemories) return;
+    if (!hasActivePinnedMemories && !hasActiveDestructingMemories) return;
 
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, [hasActivePinnedMemories]);
+  }, [hasActivePinnedMemories, hasActiveDestructingMemories]);
 
   // Fetch memories with caching and pagination
   const fetchPageData = useCallback(async (
