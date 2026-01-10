@@ -502,10 +502,27 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
     if (revealTs <= createdTs) return null;
 
+    const diffMsPreset = revealTs - createdTs;
+    const minute = 60 * 1000;
+    const allowedDelaysMinutes = [
+      5, 10, 15, 20, 30, 45, 60,
+      7 * 24 * 60,
+      30 * 24 * 60,
+      3 * 30 * 24 * 60,
+      6 * 30 * 24 * 60,
+      9 * 30 * 24 * 60,
+      365 * 24 * 60,
+    ];
+    const isTimeCapsulePreset = allowedDelaysMinutes.some((m) => {
+      const target = m * minute;
+      const tolerance = Math.min(2 * minute, target * 0.02);
+      return Math.abs(diffMsPreset - target) <= tolerance;
+    });
+    if (!isTimeCapsulePreset) return null;
+
     const diffMs = Date.now() - createdTs;
     if (!Number.isFinite(diffMs) || diffMs < 0) return null;
 
-    const minute = 60 * 1000;
     const hour = 60 * minute;
     const day = 24 * hour;
     const week = 7 * day;

@@ -662,9 +662,21 @@ export function setupRealtimeUpdates() {
     
     // Listen for storage events (changes from other tabs)
     window.addEventListener('storage', (e) => {
-      if (e.key && e.key.includes('memory') || e.key && e.key.includes('feature')) {
+      if (
+        (e.key && e.key.includes('memory')) ||
+        (e.key && e.key.includes('feature')) ||
+        e.key === 'last_content_update'
+      ) {
         console.debug('🔄 Storage change detected, refreshing caches...');
         forceRefreshAllCaches();
+
+        window.dispatchEvent(new CustomEvent('content-updated'));
+        if (window.location.pathname === '/') {
+          window.dispatchEvent(new CustomEvent('refresh-home-memories'));
+        }
+        if (window.location.pathname === '/memories') {
+          window.dispatchEvent(new CustomEvent('refresh-archives'));
+        }
       }
     });
   }

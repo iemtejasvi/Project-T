@@ -31,6 +31,7 @@ export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
   const [announceMenuOpen, setAnnounceMenuOpen] = useState(false);
   const [memories, setMemories] = useState<Memory[]>([]);
+  const [memoriesLoading, setMemoriesLoading] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -78,6 +79,14 @@ export default function AdminPanel() {
   const [expiredPinned, setExpiredPinned] = useState<null | { A: number; B: number; total: number }>(null);
   const [diffIds, setDiffIds] = useState<null | { onlyA: string[]; onlyB: string[]; both: string[] }>(null);
   const [rrSim, setRrSim] = useState<{ A: number; B: number; picks: Array<'A'|'B'> } | null>(null);
+
+  const broadcastContentUpdated = useCallback(() => {
+    try {
+      localStorage.setItem('last_content_update', Date.now().toString());
+      localStorage.setItem('last_memory_update', Date.now().toString());
+    } catch {
+    }
+  }, []);
 
   const fetchAdminMemories = useCallback(async (params: { status?: string; pinned?: boolean; page?: number; pageSize?: number; search?: string }) => {
     const qs = new URLSearchParams();
@@ -198,16 +207,20 @@ export default function AdminPanel() {
     setSearchTerm(e.target.value);
   }, []);
 
-  // Memoize refreshMemories to prevent infinite loops
   const refreshMemories = useCallback(() => {
     if (!isAuthorized) return;
     const status = selectedTab === 'pending' ? 'pending' : selectedTab;
+    setMemoriesLoading(true);
+    setMemories([]);
     fetchAdminMemories({ status, page: 0, pageSize: 200 })
       .then((data) => {
         setMemories(data || []);
       })
       .catch((error) => {
         console.error('Error fetching memories:', error);
+      })
+      .finally(() => {
+        setMemoriesLoading(false);
       });
   }, [isAuthorized, selectedTab, fetchAdminMemories]);
 
@@ -245,16 +258,25 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (isAuthorized) {
+      let cancelled = false;
       async function fetchMemoriesData() {
         try {
           const status = selectedTab === "pending" ? "pending" : selectedTab;
+          setMemoriesLoading(true);
+          setMemories([]);
           const data = await fetchAdminMemories({ status, page: 0, pageSize: 200 });
-          setMemories(data || []);
+          if (!cancelled) setMemories(data || []);
         } catch (error) {
           console.error('Error fetching memories:', error);
+        } finally {
+          if (!cancelled) setMemoriesLoading(false);
         }
       }
       fetchMemoriesData();
+
+      return () => {
+        cancelled = true;
+      };
     }
   }, [isAuthorized, selectedTab, fetchAdminMemories]);
 
@@ -500,7 +522,11 @@ export default function AdminPanel() {
         console.error('Update failed:', result.error);
         if (prevSnapshot) setMemories(prevSnapshot);
         refreshMemories(); // Re-sync on error
+        return;
       }
+
+      broadcastContentUpdated();
+      refreshMemories();
     }).catch(error => {
       console.error('Update error:', error);
       if (prevSnapshot) setMemories(prevSnapshot);
@@ -526,7 +552,11 @@ export default function AdminPanel() {
       if (result.error) {
         console.error('Delete failed:', result.error);
         refreshMemories(); // Restore on error
+        return;
       }
+
+      broadcastContentUpdated();
+      refreshMemories();
     }).catch(error => {
       console.error('Delete error:', error);
       refreshMemories(); // Restore on error
@@ -1217,7 +1247,11 @@ export default function AdminPanel() {
                 />
               </div>
             )}
-            {displayedMemories.length > 0 ? (
+            {memoriesLoading ? (
+              <div className="py-6">
+                <Loader text="Loading memories..." />
+              </div>
+            ) : displayedMemories.length > 0 ? (
               <>
                 {selectedTab === "approved" && (
                   <div className="mb-4 text-sm text-[var(--text)] opacity-75">
