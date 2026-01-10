@@ -55,6 +55,24 @@ class UltraCache {
     
     // Initialize cache with localStorage if available
     if (typeof window !== 'undefined') {
+      try {
+        const heartbeatKey = 'browser_session_heartbeat';
+        const now = Date.now();
+        const last = Number(localStorage.getItem(heartbeatKey) || '0');
+        const isNewBrowserSession = !Number.isFinite(last) || last <= 0 || (now - last) > 8000;
+        if (isNewBrowserSession) {
+          localStorage.removeItem('ultraCache');
+        }
+        localStorage.setItem(heartbeatKey, now.toString());
+        setInterval(() => {
+          try {
+            localStorage.setItem(heartbeatKey, Date.now().toString());
+          } catch {
+          }
+        }, 2000);
+      } catch {
+      }
+
       this.restoreFromLocalStorage();
       
       // Save to localStorage periodically
@@ -195,6 +213,15 @@ class UltraCache {
     const cached = this.cache.get(cacheKey);
     const now = Date.now();
     const lastFetch = this.lastFetchTime.get(cacheKey) || 0;
+    if (cached && cached.isStale) {
+      const fetchPromise = this.fetchFreshData(page, pageSize, filters, searchTerm, orderBy);
+      this.pendingFetches.set(cacheKey, fetchPromise);
+      try {
+        return await fetchPromise;
+      } finally {
+        this.pendingFetches.delete(cacheKey);
+      }
+    }
     
     // Force refresh if it's been too long since last actual fetch
     const shouldForceRefresh = (now - lastFetch) > maxAge * 2;
@@ -629,19 +656,10 @@ export function setupRealtimeUpdates() {
       if (
         (e.key && e.key.includes('memory')) ||
         (e.key && e.key.includes('feature')) ||
-        (e.key && e.key.includes('announcement')) ||
         e.key === 'last_content_update'
       ) {
         console.debug('🔄 Storage change detected, refreshing caches...');
         forceRefreshAllCaches();
-
-        try {
-          if (e.key) {
-            const value = typeof e.newValue === 'string' ? e.newValue : '';
-            sessionStorage.setItem(e.key, value);
-          }
-        } catch {
-        }
 
         window.dispatchEvent(new CustomEvent('content-updated'));
         if (window.location.pathname === '/') {

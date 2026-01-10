@@ -58,11 +58,7 @@ export async function GET(request: NextRequest) {
     // Return with secure headers and cache control
     return createSecureResponse(result, 200, {
       origin,
-      cacheControl: 'public, s-maxage=10, stale-while-revalidate=30',
-      additionalHeaders: {
-        'CDN-Cache-Control': 'public, s-maxage=60',
-        'Vercel-CDN-Cache-Control': 'public, s-maxage=60',
-      }
+      cacheControl: 'no-store'
     });
   } catch (error) {
     console.error('Error in memories API:', error);

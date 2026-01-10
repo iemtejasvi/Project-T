@@ -40,11 +40,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     return createSecureResponse(result, 200, {
       origin,
-      cacheControl: 'public, s-maxage=30, stale-while-revalidate=60',
-      additionalHeaders: {
-        'CDN-Cache-Control': 'public, s-maxage=60',
-        'Vercel-CDN-Cache-Control': 'public, s-maxage=60',
-      }
+      cacheControl: 'no-store'
     });
   } catch (error) {
     console.error('Error in memory by id API:', error);

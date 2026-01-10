@@ -16,6 +16,7 @@ interface Memory {
   created_at: string;
   reveal_at?: string;
   destruct_at?: string;
+  time_capsule_delay_minutes?: number;
   status: string;
   color: string;
   full_bg: boolean;
@@ -354,17 +355,49 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
 
   const createdAgoLabel = useMemo(() => {
-    const revealAt = memory.reveal_at;
-    if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
     const createdTs = new Date(memory.created_at).getTime();
-    const revealTs = new Date(revealAt).getTime();
-    if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
-    if (revealTs <= createdTs) return null;
+    const minute = 60 * 1000;
+    const allowedDelaysMinutes = [
+      5, 10, 15, 20, 30, 45, 60,
+      7 * 24 * 60,
+      30 * 24 * 60,
+      3 * 30 * 24 * 60,
+      6 * 30 * 24 * 60,
+      9 * 30 * 24 * 60,
+      365 * 24 * 60,
+    ];
+    const rawDelayMinutes = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
+    const delayMinutes =
+      typeof rawDelayMinutes === 'number'
+        ? rawDelayMinutes
+        : (typeof rawDelayMinutes === 'string' ? Number(rawDelayMinutes) : 0);
+
+    const hasExplicitTimeCapsule = Number.isFinite(delayMinutes) && delayMinutes > 0;
+    let isTimeCapsulePreset = false;
+    if (hasExplicitTimeCapsule) {
+      isTimeCapsulePreset =
+        (delayMinutes >= 1 && delayMinutes <= 60) ||
+        allowedDelaysMinutes.includes(delayMinutes);
+    } else {
+      const revealAt = memory.reveal_at;
+      if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
+      const revealTs = new Date(revealAt).getTime();
+      if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
+      if (revealTs <= createdTs) return null;
+      const diffMsPreset = revealTs - createdTs;
+      isTimeCapsulePreset = allowedDelaysMinutes.some((m) => {
+        const target = m * minute;
+        const tolerance = Math.min(2 * minute, target * 0.02);
+        return Math.abs(diffMsPreset - target) <= tolerance;
+      });
+    }
+
+    if (!isTimeCapsulePreset) return null;
+    if (!Number.isFinite(createdTs)) return null;
 
     const diffMs = Date.now() - createdTs;
     if (!Number.isFinite(diffMs) || diffMs < 0) return null;
 
-    const minute = 60 * 1000;
     const hour = 60 * minute;
     const day = 24 * hour;
     const week = 7 * day;
@@ -380,7 +413,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     if (diffMs >= hour) return fmt(Math.floor(diffMs / hour), 'hour');
     if (diffMs >= minute) return fmt(Math.floor(diffMs / minute), 'minute');
     return 'This memory was created just now';
-  }, [memory.created_at, memory.reveal_at]);
+  }, [memory.created_at, memory.reveal_at, (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes]);
 
   const destructAtTs = useMemo(() => {
     const d = memory.destruct_at;
@@ -701,18 +734,50 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             )}
 
             <div className="pt-1 relative z-10">
+              {memory.pinned && (
+                <span
+                  className="absolute top-0 right-0 z-20"
+                  style={{
+                    display: 'inline-block',
+                    transform: 'rotate(-15deg)',
+                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.10))',
+                    verticalAlign: 'middle',
+                  }}
+                  title="Pinned"
+                >
+                  <span
+                    className="absolute inset-0 rounded-full border border-yellow-200 shadow-sm"
+                    style={{
+                      background: effectiveColor !== 'default'
+                        ? `var(--color-${effectiveColor}-bg)`
+                        : 'radial-gradient(circle, #fffbe6 60%, #ffe066 100%)',
+                      zIndex: 0,
+                      width: '1.6em',
+                      height: '1.6em',
+                      left: '-0.32em',
+                      top: '-0.32em',
+                      opacity: 0.85,
+                      boxShadow: '0 2px 8px 0 rgba(0,0,0,0.08)',
+                    }}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="relative z-10 text-yellow-500"
+                    style={{
+                      fontSize: '1.28em',
+                      textShadow: '0 1px 3px #fffbe6, 0 1px 2px #ffe066',
+                      lineHeight: 1,
+                    }}
+                  >
+                    📌
+                  </span>
+                </span>
+              )}
               <h3 className="text-lg font-bold text-[var(--text)] text-left leading-tight">
                 <span className="break-words overflow-hidden leading-tight">
                   <span className="font-bold">To:</span> <span className="font-bold">{memory.recipient}</span>
                 </span>
               </h3>
-              {memory.pinned && (
-                <div className="absolute right-2 top-2" aria-hidden>
-                  <span className="text-yellow-500" style={{ fontSize: '1.1em', lineHeight: 1 }}>
-                    📌
-                  </span>
-                </div>
-              )}
               {memory.sender && (
                 <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden text-left">
                   From: {memory.sender}

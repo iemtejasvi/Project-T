@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import UnlimitedUsersPage from "./unlimited/page";
 import { fetchMemories, primaryDBRead, secondaryDBRead, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
+import { forceRefreshAllCaches } from "@/lib/enhancedCache";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -32,8 +33,8 @@ export default function AdminPanel() {
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
   const [announceMenuOpen, setAnnounceMenuOpen] = useState(false);
   const [memories, setMemories] = useState<Memory[]>([]);
+  const [memoriesTotalCount, setMemoriesTotalCount] = useState<number>(0);
   const [memoriesLoading, setMemoriesLoading] = useState(false);
-  const [approvedTotalCount, setApprovedTotalCount] = useState<number | null>(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -206,60 +207,39 @@ export default function AdminPanel() {
 
   const broadcastContentUpdated = useCallback(() => {
     try {
-      const ts = Date.now().toString();
-      localStorage.setItem('last_content_update', ts);
-      localStorage.setItem('last_memory_update', ts);
-      sessionStorage.setItem('last_content_update', ts);
-      sessionStorage.setItem('last_memory_update', ts);
+      localStorage.setItem('last_content_update', Date.now().toString());
+      localStorage.setItem('last_memory_update', Date.now().toString());
     } catch {
     }
-  }, []);
 
-  const fetchAdminMemories = useCallback(async (opts: { status: string; page?: number; pageSize?: number; search?: string }) => {
-    const page = opts.page ?? 0;
-    const pageSize = opts.pageSize ?? 200;
-    const params = new URLSearchParams();
-    params.set('status', opts.status);
-    params.set('page', String(page));
-    params.set('pageSize', String(pageSize));
-    if (opts.search) params.set('search', opts.search);
-
-    const res = await fetch(`/api/admin/memories?${params.toString()}`, {
-      credentials: 'include',
-      cache: 'no-store',
-    });
-    const json = await res.json();
-    return json as { data: Memory[]; totalCount: number; totalPages: number; currentPage: number; error: string | null };
+    try {
+      forceRefreshAllCaches();
+      window.dispatchEvent(new CustomEvent('content-updated'));
+      if (window.location.pathname === '/') {
+        window.dispatchEvent(new CustomEvent('refresh-home-memories'));
+      }
+      if (window.location.pathname === '/memories') {
+        window.dispatchEvent(new CustomEvent('refresh-archives'));
+      }
+    } catch {
+    }
   }, []);
 
   // Memoize refreshMemories to prevent infinite loops
   const refreshMemories = useCallback(() => {
     if (!isAuthorized) return;
-    const status = selectedTab === 'pending' ? 'pending' : selectedTab;
+    if (selectedTab !== 'pending' && selectedTab !== 'approved' && selectedTab !== 'banned') return;
+    const status = selectedTab;
     setMemoriesLoading(true);
     setMemories([]);
-    if (status === 'approved') {
-      fetchAdminMemories({ status, page: 0, pageSize: 200, search: searchTerm || undefined })
-        .then((res) => {
-          setMemories(res.data || []);
-          setApprovedTotalCount(typeof res.totalCount === 'number' ? res.totalCount : null);
-        })
-        .catch((error) => {
-          console.error('Error fetching memories:', error);
-        })
-        .finally(() => {
-          setMemoriesLoading(false);
-        });
-      return;
-    }
-
-    fetchMemories(
-      { status },
-      { pinned: "desc", created_at: "desc" }
-    )
-      .then(({ data }) => {
-        setMemories(data || []);
-        setApprovedTotalCount(null);
+    fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200`, {
+      credentials: 'include',
+      cache: 'no-store'
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        setMemories((res?.data || []) as Memory[]);
+        setMemoriesTotalCount(Number(res?.totalCount || 0));
       })
       .catch((error) => {
         console.error('Error fetching memories:', error);
@@ -267,7 +247,7 @@ export default function AdminPanel() {
       .finally(() => {
         setMemoriesLoading(false);
       });
-  }, [isAuthorized, selectedTab, fetchAdminMemories, searchTerm]);
+  }, [isAuthorized, selectedTab]);
 
   // Check authentication with API
   useEffect(() => {
@@ -303,40 +283,28 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (isAuthorized) {
-      let cancelled = false;
       async function fetchMemoriesData() {
         try {
-          const status = selectedTab === "pending" ? "pending" : selectedTab;
+          if (selectedTab !== 'pending' && selectedTab !== 'approved' && selectedTab !== 'banned') return;
+          const status = selectedTab;
           setMemoriesLoading(true);
           setMemories([]);
-
-          if (status === 'approved') {
-            const res = await fetchAdminMemories({ status, page: 0, pageSize: 200, search: searchTerm || undefined });
-            if (!cancelled) {
-              setMemories(res.data || []);
-              setApprovedTotalCount(typeof res.totalCount === 'number' ? res.totalCount : null);
-            }
-            return;
-          }
-
-          const { data } = await fetchMemories({ status }, { pinned: "desc", created_at: "desc" });
-          if (!cancelled) {
-            setMemories(data || []);
-            setApprovedTotalCount(null);
-          }
+          const res = await fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200`, {
+            credentials: 'include',
+            cache: 'no-store'
+          });
+          const json = await res.json();
+          setMemories((json?.data || []) as Memory[]);
+          setMemoriesTotalCount(Number(json?.totalCount || 0));
         } catch (error) {
           console.error('Error fetching memories:', error);
         } finally {
-          if (!cancelled) setMemoriesLoading(false);
+          setMemoriesLoading(false);
         }
       }
       fetchMemoriesData();
-
-      return () => {
-        cancelled = true;
-      };
     }
-  }, [isAuthorized, selectedTab, fetchAdminMemories, searchTerm]);
+  }, [isAuthorized, selectedTab]);
 
   // Fetch DB health when DB Health tab is active
   useEffect(() => {
@@ -477,6 +445,8 @@ export default function AdminPanel() {
       setAnnouncementIsDismissible(false);
       setAnnouncementTimer({ days: "", hours: "", minutes: "", seconds: "" });
       setCurrentAnnouncement(result.data);
+      broadcastContentUpdated();
+      refreshMemories();
       }
     } catch (error) {
       console.error("Error creating announcement:", error);
@@ -497,6 +467,8 @@ export default function AdminPanel() {
         console.error("Error removing announcement:", result.error);
       } else {
         setCurrentAnnouncement(null);
+        broadcastContentUpdated();
+        refreshMemories();
       }
     } catch (error) {
       console.error("Error removing announcement:", error);
@@ -524,6 +496,7 @@ export default function AdminPanel() {
         } else {
           setMaintenanceMode(false);
           setMaintenanceMessage("");
+          broadcastContentUpdated();
         }
       } else {
         // Enable maintenance mode
@@ -547,6 +520,7 @@ export default function AdminPanel() {
         } else {
           setMaintenanceMode(true);
           setMaintenanceMessage(message);
+          broadcastContentUpdated();
         }
       }
     } catch (err) {
@@ -655,16 +629,13 @@ export default function AdminPanel() {
         const result = await response.json();
         if (!response.ok || result.error) {
           console.error("Error banning user:", result.error);
-          return;
         }
       } catch (error) {
         console.error("Error banning user:", error);
-        return;
       }
     }
-    
-    setSelectedTab("pending");
     broadcastContentUpdated();
+    setSelectedTab("pending");
     refreshMemories();
   }
 
@@ -684,8 +655,8 @@ export default function AdminPanel() {
     } catch (error) {
       console.error("Error unbanning:", error);
     }
-    setSelectedTab("banned");
     broadcastContentUpdated();
+    setSelectedTab("banned");
     refreshMemories();
   }
 
@@ -1309,7 +1280,7 @@ export default function AdminPanel() {
                     {searchTerm ? (
                       <span>Showing {displayedMemories.length} of {filteredMemories.length} search results</span>
                     ) : (
-                      <span>Showing {displayedMemories.length} of {approvedTotalCount ?? memories.length} memories</span>
+                      <span>Showing {displayedMemories.length} of {memoriesTotalCount} memories</span>
                     )}
                   </div>
                 )}
