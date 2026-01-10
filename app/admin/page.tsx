@@ -35,6 +35,8 @@ export default function AdminPanel() {
   const [memories, setMemories] = useState<Memory[]>([]);
   const [memoriesTotalCount, setMemoriesTotalCount] = useState<number>(0);
   const [memoriesLoading, setMemoriesLoading] = useState(false);
+  const [selectedMemoryIds, setSelectedMemoryIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -182,6 +184,93 @@ export default function AdminPanel() {
     return filteredMemories.slice(0, displayCount);
   }, [filteredMemories, displayCount, selectedTab, memories]);
 
+  const isMemoryListTab = useMemo(() => {
+    return selectedTab === 'pending' || selectedTab === 'approved' || selectedTab === 'banned';
+  }, [selectedTab]);
+
+  const toggleSelectedMemory = useCallback((id: string, checked: boolean) => {
+    setSelectedMemoryIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const selectAllDisplayed = useCallback(() => {
+    setSelectedMemoryIds((prev) => {
+      const next = new Set(prev);
+      displayedMemories.forEach((m) => next.add(m.id));
+      return next;
+    });
+  }, [displayedMemories]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedMemoryIds(new Set());
+  }, []);
+
+  const bulkDeleteSelected = useCallback(async () => {
+    if (!isAuthorized) return;
+    if (!isMemoryListTab) return;
+    const ids = Array.from(selectedMemoryIds);
+    if (ids.length === 0) return;
+    if (!confirm(`Delete ${ids.length} selected memories? This cannot be undone.`)) return;
+
+    setBulkDeleting(true);
+    setMemories((prev) => prev.filter((m) => !selectedMemoryIds.has(m.id)));
+
+    try {
+      for (const id of ids) {
+        const response = await fetch('/api/admin/delete-memory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const result = await response.json();
+        if (!response.ok || result?.error) {
+          console.error('Bulk delete failed for id:', id, result?.error);
+        }
+      }
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+    } finally {
+      setBulkDeleting(false);
+      setSelectedMemoryIds(new Set());
+
+      try {
+        localStorage.setItem('last_content_update', Date.now().toString());
+        localStorage.setItem('last_memory_update', Date.now().toString());
+      } catch {
+      }
+
+      try {
+        window.dispatchEvent(new CustomEvent('content-updated'));
+        if (window.location.pathname === '/') {
+          window.dispatchEvent(new CustomEvent('refresh-home-memories'));
+        }
+        if (window.location.pathname === '/memories') {
+          window.dispatchEvent(new CustomEvent('refresh-archives'));
+        }
+      } catch {
+      }
+
+      const status = selectedTab === 'pending' ? 'pending' : selectedTab;
+      setMemoriesLoading(true);
+      setMemories([]);
+      fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200`, {
+        credentials: 'include',
+        cache: 'no-store'
+      })
+        .then((r) => r.json())
+        .then((res) => {
+          setMemories((res?.data || []) as Memory[]);
+          setMemoriesTotalCount(Number(res?.totalCount || 0));
+        })
+        .catch((err) => console.error('Error fetching memories:', err))
+        .finally(() => setMemoriesLoading(false));
+    }
+  }, [isAuthorized, isMemoryListTab, selectedMemoryIds, selectedTab]);
+
   // Memoized hasMore calculation
   const hasMoreMemories = useMemo(() => {
     if (selectedTab !== "approved") return false;
@@ -192,6 +281,10 @@ export default function AdminPanel() {
   useEffect(() => {
     setDisplayCount(10);
   }, [searchTerm, selectedTab]);
+
+  useEffect(() => {
+    setSelectedMemoryIds(new Set());
+  }, [selectedTab, searchTerm]);
 
   const handleLoadMore = useCallback(() => {
     setLoading(true);
@@ -1269,6 +1362,37 @@ export default function AdminPanel() {
                 />
               </div>
             )}
+
+            {isMemoryListTab && (
+              <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={selectAllDisplayed}
+                    className="px-3 py-2 bg-gray-100 border border-gray-200 rounded hover:bg-gray-200 transition-colors text-sm"
+                    disabled={memoriesLoading || displayedMemories.length === 0 || bulkDeleting}
+                  >
+                    Select all shown
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearSelection}
+                    className="px-3 py-2 bg-gray-100 border border-gray-200 rounded hover:bg-gray-200 transition-colors text-sm"
+                    disabled={selectedMemoryIds.size === 0 || bulkDeleting}
+                  >
+                    Clear selection
+                  </button>
+                  <button
+                    type="button"
+                    onClick={bulkDeleteSelected}
+                    className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm disabled:opacity-50"
+                    disabled={selectedMemoryIds.size === 0 || bulkDeleting}
+                  >
+                    {bulkDeleting ? `Deleting (${selectedMemoryIds.size})...` : `Delete selected (${selectedMemoryIds.size})`}
+                  </button>
+                </div>
+              </div>
+            )}
             {memoriesLoading ? (
               <div className="py-6">
                 <Loader text="Loading memories..." />
@@ -1296,7 +1420,19 @@ export default function AdminPanel() {
                     }`}
                   >
                     <div className="flex justify-between items-start">
-                      <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+                      <div className="flex items-start gap-3">
+                        {isMemoryListTab && (
+                          <input
+                            type="checkbox"
+                            checked={selectedMemoryIds.has(memory.id)}
+                            onChange={(e) => toggleSelectedMemory(memory.id, e.target.checked)}
+                            className="mt-1 h-4 w-4"
+                            disabled={bulkDeleting}
+                            aria-label="Select memory"
+                          />
+                        )}
+                        <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+                      </div>
                       {memory.pinned && (
                         <span className="text-yellow-500 text-xl">📌</span>
                       )}
