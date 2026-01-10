@@ -361,27 +361,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
     if (revealTs <= createdTs) return null;
 
-    const diffMsPreset = revealTs - createdTs;
-    const minute = 60 * 1000;
-    const allowedDelaysMinutes = [
-      5, 10, 15, 20, 30, 45, 60,
-      7 * 24 * 60,
-      30 * 24 * 60,
-      3 * 30 * 24 * 60,
-      6 * 30 * 24 * 60,
-      9 * 30 * 24 * 60,
-      365 * 24 * 60,
-    ];
-    const isTimeCapsulePreset = allowedDelaysMinutes.some((m) => {
-      const target = m * minute;
-      const tolerance = Math.min(2 * minute, target * 0.02);
-      return Math.abs(diffMsPreset - target) <= tolerance;
-    });
-    if (!isTimeCapsulePreset) return null;
-
     const diffMs = Date.now() - createdTs;
     if (!Number.isFinite(diffMs) || diffMs < 0) return null;
 
+    const minute = 60 * 1000;
     const hour = 60 * minute;
     const day = 24 * hour;
     const week = 7 * day;
@@ -723,6 +706,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   <span className="font-bold">To:</span> <span className="font-bold">{memory.recipient}</span>
                 </span>
               </h3>
+              {memory.pinned && (
+                <div className="absolute right-2 top-2" aria-hidden>
+                  <span className="text-yellow-500" style={{ fontSize: '1.1em', lineHeight: 1 }}>
+                    📌
+                  </span>
+                </div>
+              )}
               {memory.sender && (
                 <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden text-left">
                   From: {memory.sender}

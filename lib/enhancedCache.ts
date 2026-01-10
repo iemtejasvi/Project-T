@@ -1,4 +1,5 @@
 // Ultra-performant, future-proof caching system for millions of memories
+import { fetchMemoriesPaginated } from './dualMemoryDB';
 import { getPerformanceMonitor } from './performanceMonitor';
 
 interface Memory {
@@ -34,49 +35,6 @@ interface CacheOptions {
   staleWhileRevalidate?: number;
   prefetchDepth?: number;
 }
-
- type MemoriesApiResponse = {
-   data: Memory[];
-   totalCount: number;
-   totalPages: number;
-   currentPage: number;
-   error: unknown | null;
- };
-
- async function fetchMemoriesPaginatedViaApi(
-   page: number,
-   pageSize: number,
-   filters: Record<string, string>,
-   searchTerm: string
- ): Promise<MemoriesApiResponse> {
-   if (typeof window === 'undefined') {
-     return { data: [], totalCount: 0, totalPages: 0, currentPage: page, error: null };
-   }
-
-   const url = new URL('/api/memories', window.location.origin);
-   url.searchParams.set('page', String(page));
-   url.searchParams.set('pageSize', String(pageSize));
-   if (searchTerm) url.searchParams.set('search', searchTerm);
-   if (filters.status) url.searchParams.set('status', String(filters.status));
-
-   const res = await fetch(url.toString(), {
-     method: 'GET',
-     headers: { 'Accept': 'application/json' },
-   });
-
-   const json = await res.json().catch(() => null);
-   if (!res.ok || !json) {
-     return {
-       data: [],
-       totalCount: 0,
-       totalPages: 0,
-       currentPage: page,
-       error: json || { message: 'Failed to fetch memories' },
-     };
-   }
-
-   return json as MemoriesApiResponse;
- }
 
 class UltraCache {
   private cache: Map<string, CachedData>;
@@ -305,7 +263,7 @@ class UltraCache {
     orderBy: Record<string, string>
   ): Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }> {
     try {
-      const result = await fetchMemoriesPaginatedViaApi(page, pageSize, filters, searchTerm);
+      const result = await fetchMemoriesPaginated(page, pageSize, filters, searchTerm, orderBy);
       
       if (!result.error) {
         const cacheKey = this.getCacheKey(page, pageSize, filters, searchTerm, orderBy);
@@ -389,8 +347,8 @@ class UltraCache {
     orderBy: Record<string, string>
   ): Promise<void> {
     // Fire and forget
-    fetchMemoriesPaginatedViaApi(page, pageSize, filters, searchTerm)
-      .then((result: MemoriesApiResponse) => {
+    fetchMemoriesPaginated(page, pageSize, filters, searchTerm, orderBy)
+      .then(result => {
         if (!result.error) {
           const cacheKey = this.getCacheKey(page, pageSize, filters, searchTerm, orderBy);
           this.cache.set(cacheKey, {
@@ -456,9 +414,15 @@ class UltraCache {
       }
       
       // Fetch in background
-      const fetchPromise = fetchMemoriesPaginatedViaApi(params.page, params.pageSize, params.filters, params.searchTerm);
+      const fetchPromise = fetchMemoriesPaginated(
+        params.page,
+        params.pageSize,
+        params.filters,
+        params.searchTerm,
+        params.orderBy
+      );
       
-      this.pendingFetches.set(cacheKey, fetchPromise.then((result: MemoriesApiResponse) => ({
+      this.pendingFetches.set(cacheKey, fetchPromise.then(result => ({
         data: result.data,
         totalCount: result.totalCount,
         totalPages: result.totalPages,
@@ -665,10 +629,19 @@ export function setupRealtimeUpdates() {
       if (
         (e.key && e.key.includes('memory')) ||
         (e.key && e.key.includes('feature')) ||
+        (e.key && e.key.includes('announcement')) ||
         e.key === 'last_content_update'
       ) {
         console.debug('🔄 Storage change detected, refreshing caches...');
         forceRefreshAllCaches();
+
+        try {
+          if (e.key) {
+            const value = typeof e.newValue === 'string' ? e.newValue : '';
+            sessionStorage.setItem(e.key, value);
+          }
+        } catch {
+        }
 
         window.dispatchEvent(new CustomEvent('content-updated'));
         if (window.location.pathname === '/') {

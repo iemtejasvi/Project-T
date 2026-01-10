@@ -12,6 +12,31 @@ type AdminMemoryRow = Record<string, unknown> & {
   created_at?: string | null;
 };
 
+async function fetchAllIdsForQuery(
+  client: typeof primaryDB,
+  params: { status: string; pinned?: boolean; search: string }
+): Promise<string[]> {
+  const all: string[] = [];
+  const pageSize = 1000;
+  let from = 0;
+  while (true) {
+    let q = client.from('memories').select('id');
+    if (params.status) q = q.eq('status', params.status);
+    if (typeof params.pinned === 'boolean') q = q.eq('pinned', params.pinned);
+    if (params.search) q = q.ilike('recipient', `%${params.search}%`);
+
+    const res = await q.range(from, from + pageSize - 1);
+    if (res.error) break;
+    const rows = (res.data || []) as Array<{ id: string }>;
+    for (const r of rows) {
+      if (r && typeof r.id === 'string' && r.id) all.push(r.id);
+    }
+    if (rows.length < pageSize) break;
+    from += pageSize;
+  }
+  return all;
+}
+
 function statusRank(status: string): number {
   const s = status.toLowerCase();
   if (s === 'banned') return 3;
@@ -174,7 +199,22 @@ export async function GET(request: NextRequest) {
     const start = page * pageSize;
     const paginated = deduped.slice(start, start + pageSize);
 
-    const totalCount = Math.max(countA, countB);
+    let totalCount = 0;
+    const [idsA, idsB] = await Promise.allSettled([
+      fetchAllIdsForQuery(primaryDB, { status, pinned, search }),
+      fetchAllIdsForQuery(secondaryDB, { status, pinned, search }),
+    ]);
+    const union = new Set<string>();
+    if (idsA.status === 'fulfilled') {
+      for (const id of idsA.value) union.add(id);
+    }
+    if (idsB.status === 'fulfilled') {
+      for (const id of idsB.value) union.add(id);
+    }
+    totalCount = union.size;
+    if (!totalCount) {
+      totalCount = countA + countB;
+    }
     const totalPages = Math.ceil(totalCount / pageSize);
 
     return createSecureResponse(
