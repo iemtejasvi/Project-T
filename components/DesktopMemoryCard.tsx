@@ -495,6 +495,15 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   const dateStr = new Date(memory.created_at).toLocaleDateString();
   const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
 
+  const timeCapsuleDelayMinutes = useMemo(() => {
+    const rawDelayMinutes = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
+    const delayMinutes =
+      typeof rawDelayMinutes === 'number'
+        ? rawDelayMinutes
+        : (typeof rawDelayMinutes === 'string' ? Number(rawDelayMinutes) : 0);
+    return Number.isFinite(delayMinutes) ? delayMinutes : 0;
+  }, [memory]);
+
   const createdAgoLabel = useMemo(() => {
     const createdTs = new Date(memory.created_at).getTime();
     const minute = 60 * 1000;
@@ -507,17 +516,23 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
       9 * 30 * 24 * 60,
       365 * 24 * 60,
     ];
-    const revealAt = memory.reveal_at;
-    if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
-    const revealTs = new Date(revealAt).getTime();
-    if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
-    if (revealTs <= createdTs) return null;
-    const diffMsPreset = revealTs - createdTs;
-    const isTimeCapsulePreset = allowedDelaysMinutes.some((m) => {
-      const target = m * minute;
-      const tolerance = Math.min(2 * minute, target * 0.02);
-      return Math.abs(diffMsPreset - target) <= tolerance;
-    });
+    const hasExplicitTimeCapsule = Number.isFinite(timeCapsuleDelayMinutes) && timeCapsuleDelayMinutes > 0;
+    let isTimeCapsulePreset = false;
+    if (hasExplicitTimeCapsule) {
+      isTimeCapsulePreset = true;
+    } else {
+      const revealAt = memory.reveal_at;
+      if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
+      const revealTs = new Date(revealAt).getTime();
+      if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
+      if (revealTs <= createdTs) return null;
+      const diffMsPreset = revealTs - createdTs;
+      isTimeCapsulePreset = allowedDelaysMinutes.some((m) => {
+        const target = m * minute;
+        const tolerance = Math.min(2 * minute, target * 0.02);
+        return Math.abs(diffMsPreset - target) <= tolerance;
+      });
+    }
 
     if (!isTimeCapsulePreset) return null;
     if (!Number.isFinite(createdTs)) return null;
@@ -540,7 +555,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     if (diffMs >= hour) return fmt(Math.floor(diffMs / hour), 'hour');
     if (diffMs >= minute) return fmt(Math.floor(diffMs / minute), 'minute');
     return 'This memory was created just now';
-  }, [memory.created_at, memory.reveal_at]);
+  }, [memory.created_at, memory.reveal_at, timeCapsuleDelayMinutes]);
   // Prevent flip when clicking the arrow
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;

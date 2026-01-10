@@ -671,6 +671,8 @@ export async function POST(request: NextRequest) {
       tag: normalizedTypewriterEnabled ? (tag ? sanitizeString(tag).slice(0, 50) : null) : null,
       sub_tag: normalizedTypewriterEnabled ? (sub_tag ? sanitizeString(sub_tag).slice(0, 50) : null) : null,
       typewriter_enabled: normalizedTypewriterEnabled ?? false,
+      time_capsule_delay_minutes: typeof timeCapsuleDelayMinutes === 'number' ? timeCapsuleDelayMinutes : 0,
+      destruct_delay_minutes: typeof destructDelayMinutes === 'number' ? destructDelayMinutes : 0,
       created_at: createdAtIso,
       reveal_at: revealAtIso,
       destruct_at: destructAtIso,
