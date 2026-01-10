@@ -380,12 +380,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       const revealAt = memory.reveal_at;
       if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
       const revealTs = new Date(revealAt).getTime();
-      const rawUpdatedAt = (memory as unknown as Record<string, unknown>).updated_at;
-      if (typeof rawUpdatedAt !== 'string' || rawUpdatedAt.length === 0) return null;
-      const updatedTs = new Date(rawUpdatedAt).getTime();
-      if (!Number.isFinite(updatedTs) || !Number.isFinite(revealTs)) return null;
-      if (revealTs <= updatedTs) return null;
-      const diffMsPreset = revealTs - updatedTs;
+      if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
+      if (revealTs <= createdTs) return null;
+      const diffMsPreset = revealTs - createdTs;
       isTimeCapsulePreset = allowedDelaysMinutes.some((m) => {
         const target = m * minute;
         const tolerance = Math.min(2 * minute, target * 0.02);
@@ -414,7 +411,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     if (diffMs >= hour) return fmt(Math.floor(diffMs / hour), 'hour');
     if (diffMs >= minute) return fmt(Math.floor(diffMs / minute), 'minute');
     return 'This memory was created just now';
-  }, [memory.created_at, memory.reveal_at, (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes, (memory as unknown as Record<string, unknown>).updated_at]);
+  }, [memory.created_at, memory.reveal_at, (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes]);
 
   const destructAtTs = useMemo(() => {
     const d = memory.destruct_at;

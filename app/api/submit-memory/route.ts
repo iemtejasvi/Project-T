@@ -431,7 +431,7 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse('Invalid JSON in request body', 400, { origin });
     }
     
-    const { recipient, message, sender, color, animation, tag, sub_tag, enableTypewriter, typewriter_enabled, time_capsule_delay_minutes, destruct_delay_minutes } = body;
+    const { recipient, message, sender, color, full_bg, animation, tag, sub_tag, enableTypewriter, typewriter_enabled, time_capsule_delay_minutes, destruct_delay_minutes } = body;
 
     // Normalize typewriter flag from either field name
     const normalizedTypewriterEnabled =
@@ -661,13 +661,13 @@ export async function POST(request: NextRequest) {
       recipient: sanitizedRecipient,
       message: sanitizedMessage,
       sender: sanitizedSender || null,
-      status: 'pending',
       color: sanitizedColor,
-      full_bg: true,
+      full_bg: !!full_bg,
       animation: sanitizedAnimation || null,
       ip: clientIP,
       country: country,
       uuid: clientUUID,
+      status: 'pending',
       tag: normalizedTypewriterEnabled ? (tag ? sanitizeString(tag).slice(0, 50) : null) : null,
       sub_tag: normalizedTypewriterEnabled ? (sub_tag ? sanitizeString(sub_tag).slice(0, 50) : null) : null,
       typewriter_enabled: normalizedTypewriterEnabled ?? false,
@@ -678,31 +678,38 @@ export async function POST(request: NextRequest) {
       destruct_at: destructAtIso,
     };
 
-    // Insert into dual database system. Utility picks DB via time-based round-robin and handles failover automatically.
-    const { data, error, database } = await insertMemory(submissionData);
+    try {
+      // Insert memory into database
+      const { data, error, database } = await insertMemory(submissionData);
 
-    if (error) {
-      console.error('Database insertion error:', error);
+      if (error || !data) {
+        return createSecureErrorResponse(
+          error?.message || 'Failed to submit memory. Please try again.',
+          500,
+          { origin }
+        );
+      }
+
+      console.log(`✅ Memory successfully stored in database ${database} from ${rateLimitKey}`);
+
+      // Success response with security headers
+      return createSecureResponse(
+        { 
+          success: true, 
+          message: 'Memory submitted successfully and is pending approval.',
+          data: { id: (data as Record<string, unknown>).id }
+        },
+        201,
+        { origin }
+      );
+    } catch (error) {
+      console.error('❌ Unexpected server error:', error);
       return createSecureErrorResponse(
-        'Failed to submit memory. Please try again.',
+        'An unexpected server error occurred. Please try again.',
         500,
         { origin }
       );
     }
-
-    console.log(`✅ Memory successfully stored in database ${database} from ${rateLimitKey}`);
-
-    // Success response with security headers
-    return createSecureResponse(
-      { 
-        success: true, 
-        message: 'Memory submitted successfully and is pending approval.',
-        data: { id: data.id }
-      },
-      201,
-      { origin }
-    );
-
   } catch (error) {
     console.error('❌ Unexpected server error:', error);
     return createSecureErrorResponse(
