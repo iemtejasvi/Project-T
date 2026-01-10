@@ -251,12 +251,35 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   );
 };
 
-function renderMessageLarge(memory: Memory, effectiveColor: string) {
+const DESTRUCTED_MESSAGES = [
+  "This memory has faded. The words are gone.",
+  "Only silence remains where this message used to be.",
+  "This message has been destructed. Nothing can be recovered.",
+  "What was here is gone now.",
+  "The message is gone, but the memory remains.",
+  "This message disappeared when its time ran out.",
+  "These words are no longer here.",
+  "This memory holds an empty space where the message once lived.",
+  "The message has vanished.",
+  "Gone. Like it was never written.",
+  "This message was meant to disappear.",
+  "Nothing is left to read.",
+  "The ink is gone. The feeling stays.",
+  "This message is no longer available.",
+  "This space is all that remains.",
+  "The message has been erased by time.",
+  "Only the outline of a memory remains.",
+  "This message has slipped away.",
+  "Some words don’t last. This one didn’t.",
+  "A quiet end: this message is gone."
+];
+
+function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMessage: string) {
   const isDestructed = typeof memory.message === 'string' && memory.message.trim().length === 0;
   if (isDestructed) {
     return (
-      <p className="text-2xl tracking-wide leading-snug break-words hyphens-none opacity-80">
-        This message is destructed and no longer here.
+      <p className={`text-2xl tracking-wide leading-snug break-words hyphens-none opacity-80 ${laBelleAurore.className} italic`}>
+        {destructedMessage}
       </p>
     );
   }
@@ -378,6 +401,11 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   const backFaceRef = useRef<HTMLDivElement>(null);
   const backMessageRef = useRef<HTMLDivElement>(null);
   const dragScroll = useDragToScroll({ scrollRef: backMessageRef });
+
+  const destructedMessage = useMemo(() => {
+    const idx = Math.floor(Math.random() * DESTRUCTED_MESSAGES.length);
+    return DESTRUCTED_MESSAGES[idx];
+  }, []);
   let effectiveColor = memory.color;
   if (!allowedColors.has(memory.color)) {
     effectiveColor = colorMapping[memory.color] || "default";
@@ -616,7 +644,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
-                {renderMessageLarge(memory, effectiveColor)}
+                {renderMessageLarge(memory, effectiveColor, destructedMessage)}
               </div>
             ) : (
               <ScrollableMessage
@@ -629,7 +657,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 } as React.CSSProperties}
               >
                 <div className="relative z-10">
-                  {renderMessageLarge(memory, effectiveColor)}
+                  {renderMessageLarge(memory, effectiveColor, destructedMessage)}
                 </div>
               </ScrollableMessage>
             )}

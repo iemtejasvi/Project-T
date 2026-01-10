@@ -37,6 +37,29 @@ interface MemoryCardProps {
   variant?: "default" | "home";
 }
 
+const DESTRUCTED_MESSAGES = [
+  "This memory has faded. The words are gone.",
+  "Only silence remains where this message used to be.",
+  "This message has been destructed. Nothing can be recovered.",
+  "What was here is gone now.",
+  "The message is gone, but the memory remains.",
+  "This message disappeared when its time ran out.",
+  "These words are no longer here.",
+  "This memory holds an empty space where the message once lived.",
+  "The message has vanished.",
+  "Gone. Like it was never written.",
+  "This message was meant to disappear.",
+  "Nothing is left to read.",
+  "The ink is gone. The feeling stays.",
+  "This message is no longer available.",
+  "This space is all that remains.",
+  "The message has been erased by time.",
+  "Only the outline of a memory remains.",
+  "This message has slipped away.",
+  "Some words don’t last. This one didn’t.",
+  "A quiet end: this message is gone."
+];
+
 
 
 const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnabled?: boolean }> = ({ tag, subTag, typewriterEnabled }) => {
@@ -344,6 +367,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return typeof memory.message === 'string' && memory.message.trim().length === 0;
   }, [memory.message]);
 
+  const destructedMessage = useMemo(() => {
+    const idx = Math.floor(Math.random() * DESTRUCTED_MESSAGES.length);
+    return DESTRUCTED_MESSAGES[idx];
+  }, []);
+
   const handleCardClick = () => {
     if (!detail) {
       setFlipped(!flipped);
@@ -353,8 +381,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   const renderMessage = (memory: Memory, forceLarge?: boolean) => {
     if (isDestructed) {
       return (
-        <p className={`${forceLarge ? 'text-[22px]' : 'text-[19px]'} tracking-wide leading-snug break-words hyphens-none opacity-80`}>
-          This message is destructed and no longer here.
+        <p className={`${forceLarge ? 'text-[22px]' : 'text-[19px]'} tracking-wide leading-snug break-words hyphens-none opacity-80 ${laBelleAurore.className} italic`}>
+          {destructedMessage}
         </p>
       );
     }
