@@ -363,9 +363,44 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return 'This memory was created just now';
   }, [memory.created_at, memory.reveal_at]);
 
-  const isDestructed = useMemo(() => {
-    return typeof memory.message === 'string' && memory.message.trim().length === 0;
-  }, [memory.message]);
+  const destructAtTs = useMemo(() => {
+    const d = memory.destruct_at;
+    if (typeof d !== 'string' || d.length === 0) return null;
+    const ts = new Date(d).getTime();
+    if (!Number.isFinite(ts)) return null;
+    return ts;
+  }, [memory.destruct_at]);
+
+  const isApproved = useMemo(() => {
+    return String(memory.status || '').toLowerCase() === 'approved';
+  }, [memory.status]);
+
+  const computeIsDestructedNow = useMemo(() => {
+    const messageEmpty = typeof memory.message === 'string' && memory.message.trim().length === 0;
+    if (messageEmpty) return true;
+    if (!isApproved) return false;
+    if (destructAtTs === null) return false;
+    return destructAtTs <= Date.now();
+  }, [destructAtTs, isApproved, memory.message]);
+
+  const [isDestructedNow, setIsDestructedNow] = useState<boolean>(computeIsDestructedNow);
+
+  useEffect(() => {
+    setIsDestructedNow((prev) => (prev === computeIsDestructedNow ? prev : computeIsDestructedNow));
+  }, [computeIsDestructedNow, memory.id]);
+
+  useEffect(() => {
+    if (!isApproved) return;
+    if (destructAtTs === null) return;
+    if (isDestructedNow) return;
+    const delay = destructAtTs - Date.now();
+    if (!Number.isFinite(delay) || delay <= 0) {
+      setIsDestructedNow(true);
+      return;
+    }
+    const t = setTimeout(() => setIsDestructedNow(true), delay);
+    return () => clearTimeout(t);
+  }, [destructAtTs, isApproved, isDestructedNow]);
 
   const destructedMessage = useMemo(() => {
     const idx = Math.floor(Math.random() * DESTRUCTED_MESSAGES.length);
@@ -379,14 +414,15 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   };
 
   const renderMessage = (memory: Memory, forceLarge?: boolean) => {
-    if (isDestructed) {
+    if (isDestructedNow) {
       return (
         <p className={`${forceLarge ? 'text-[22px]' : 'text-[19px]'} tracking-wide leading-snug break-words hyphens-none opacity-80 ${laBelleAurore.className} italic`}>
           {destructedMessage}
         </p>
       );
     }
-    const wordCount = memory.message.split(/[\s.]+/).filter(word => word.length > 0).length;
+    const messageToRender = memory.message;
+    const wordCount = messageToRender.split(/[\s.]+/).filter(word => word.length > 0).length;
     const isShortOrExact = wordCount <= 30;
     const textClass = forceLarge
       ? "text-[26px] tracking-wide leading-snug break-words hyphens-none"
@@ -398,20 +434,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       case "cursive":
         return (
           <CursiveText
-            message={memory.message}
+            message={messageToRender}
             textClass={textClass}
             effectiveColor={effectiveColor}
           />
         );
       case "handwritten":
-        return <HandwrittenText message={memory.message} textClass={textClass} />;
+        return <HandwrittenText message={messageToRender} textClass={textClass} />;
       case "rough":
         // Use handwritten text sizing/feel; card-level background handles rough paper
-        return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{memory.message}</p>;
+        return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{messageToRender}</p>;
       default:
         return (
           <div className="space-y-2">
-            <p className={textClass}>{memory.message}</p>
+            <p className={textClass}>{messageToRender}</p>
           </div>
         );
     }
@@ -432,6 +468,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     }
     // Large message renderer for detail desktop
     function renderMessageLargeDetail(memory: Memory) {
+      if (isDestructedNow) {
+        return (
+          <p className={`text-4xl tracking-wide leading-snug break-words hyphens-none opacity-80 ${laBelleAurore.className} italic`}>
+            {destructedMessage}
+          </p>
+        );
+      }
       const wordCount = memory.message.split(/\s+/).length;
       const isShortOrExact = wordCount <= 30;
       const textClass = isShortOrExact

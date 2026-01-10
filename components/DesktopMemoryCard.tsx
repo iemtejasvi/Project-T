@@ -274,16 +274,16 @@ const DESTRUCTED_MESSAGES = [
   "A quiet end: this message is gone."
 ];
 
-function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMessage: string) {
-  const isDestructed = typeof memory.message === 'string' && memory.message.trim().length === 0;
-  if (isDestructed) {
+function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMessage: string, isDestructedNow: boolean) {
+  if (isDestructedNow) {
     return (
       <p className={`text-2xl tracking-wide leading-snug break-words hyphens-none opacity-80 ${laBelleAurore.className} italic`}>
         {destructedMessage}
       </p>
     );
   }
-  const wordCount = memory.message.split(/[\s.]+/).filter(word => word.length > 0).length;
+  const messageToRender = memory.message;
+  const wordCount = messageToRender.split(/[\s.]+/).filter(word => word.length > 0).length;
   const isShortOrExact = wordCount <= 30;
   const textClass = isShortOrExact
     ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
@@ -292,20 +292,20 @@ function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMe
     case "cursive":
       return (
         <CursiveText
-          message={memory.message}
+          message={messageToRender}
           textClass={textClass}
           effectiveColor={effectiveColor}
         />
       );
     case "handwritten":
-      return <HandwrittenText message={memory.message} textClass={textClass} />;
+      return <HandwrittenText message={messageToRender} textClass={textClass} />;
     case "rough":
       // Use handwritten text sizing/feel; card-level background handles rough paper
-      return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{memory.message}</p>;
+      return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{messageToRender}</p>;
     default:
       return (
         <div className="space-y-2">
-          <p className={textClass}>{memory.message}</p>
+          <p className={textClass}>{messageToRender}</p>
         </div>
       );
   }
@@ -406,6 +406,45 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     const idx = Math.floor(Math.random() * DESTRUCTED_MESSAGES.length);
     return DESTRUCTED_MESSAGES[idx];
   }, []);
+
+  const destructAtTs = useMemo(() => {
+    const d = memory.destruct_at;
+    if (typeof d !== 'string' || d.length === 0) return null;
+    const ts = new Date(d).getTime();
+    if (!Number.isFinite(ts)) return null;
+    return ts;
+  }, [memory.destruct_at]);
+
+  const isApproved = useMemo(() => {
+    return String(memory.status || '').toLowerCase() === 'approved';
+  }, [memory.status]);
+
+  const computeIsDestructedNow = useMemo(() => {
+    const messageEmpty = typeof memory.message === 'string' && memory.message.trim().length === 0;
+    if (messageEmpty) return true;
+    if (!isApproved) return false;
+    if (destructAtTs === null) return false;
+    return destructAtTs <= Date.now();
+  }, [destructAtTs, isApproved, memory.message]);
+
+  const [isDestructedNow, setIsDestructedNow] = useState<boolean>(computeIsDestructedNow);
+
+  useEffect(() => {
+    setIsDestructedNow((prev) => (prev === computeIsDestructedNow ? prev : computeIsDestructedNow));
+  }, [computeIsDestructedNow, memory.id]);
+
+  useEffect(() => {
+    if (!isApproved) return;
+    if (destructAtTs === null) return;
+    if (isDestructedNow) return;
+    const delay = destructAtTs - Date.now();
+    if (!Number.isFinite(delay) || delay <= 0) {
+      setIsDestructedNow(true);
+      return;
+    }
+    const t = setTimeout(() => setIsDestructedNow(true), delay);
+    return () => clearTimeout(t);
+  }, [destructAtTs, isApproved, isDestructedNow]);
   let effectiveColor = memory.color;
   if (!allowedColors.has(memory.color)) {
     effectiveColor = colorMapping[memory.color] || "default";
@@ -639,25 +678,25 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 ref={backMessageRef}
                 className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 no_scrollbar ${dragScroll.getCursorClassName()}`}
                 style={{
-                  fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
+                  fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
-                {renderMessageLarge(memory, effectiveColor, destructedMessage)}
+                {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow)}
               </div>
             ) : (
               <ScrollableMessage
                 containerRefOverride={backMessageRef}
                 className={dragScroll.getCursorClassName()}
                 style={{
-                  fontSize: memory.message.split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
+                  fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
                 <div className="relative z-10">
-                  {renderMessageLarge(memory, effectiveColor, destructedMessage)}
+                  {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow)}
                 </div>
               </ScrollableMessage>
             )}
