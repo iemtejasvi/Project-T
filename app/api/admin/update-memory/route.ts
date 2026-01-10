@@ -9,12 +9,14 @@ type MemoryRow = {
   created_at?: string | null;
   reveal_at?: string | null;
   destruct_at?: string | null;
+  time_capsule_delay_minutes?: number | null;
+  destruct_delay_minutes?: number | null;
 };
 
 async function fetchMemoryRowById(id: string): Promise<MemoryRow | null> {
   const [resA, resB] = await Promise.all([
-    primaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at').eq('id', id).maybeSingle(),
-    secondaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at').eq('id', id).maybeSingle(),
+    primaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes').eq('id', id).maybeSingle(),
+    secondaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes').eq('id', id).maybeSingle(),
   ]);
 
   if (!resA.error && resA.data) return resA.data as MemoryRow;
@@ -28,6 +30,11 @@ function msBetween(a?: string | null, b?: string | null): number {
   if (!Number.isFinite(aTs) || !Number.isFinite(bTs)) return 0;
   const diff = aTs - bTs;
   return diff > 0 ? diff : 0;
+}
+
+function minutesFromMs(ms: number): number {
+  if (!Number.isFinite(ms) || ms <= 0) return 0;
+  return Math.round(ms / (60 * 1000));
 }
 
 export async function POST(request: NextRequest) {
@@ -55,9 +62,18 @@ export async function POST(request: NextRequest) {
         const revealDelayMs = msBetween(current.reveal_at, current.created_at);
         const destructDelayMs = msBetween(current.destruct_at, current.created_at);
 
-        const minute = 60 * 1000;
-        const revealDelayMinutes = Math.round(revealDelayMs / minute);
-        const destructDelayMinutes = Math.round(destructDelayMs / minute);
+        const existingTc = (current as unknown as Record<string, unknown>).time_capsule_delay_minutes;
+        const existingDestruct = (current as unknown as Record<string, unknown>).destruct_delay_minutes;
+
+        const hasTc = typeof existingTc === 'number' && Number.isFinite(existingTc) && existingTc > 0;
+        const hasDestruct = typeof existingDestruct === 'number' && Number.isFinite(existingDestruct) && existingDestruct > 0;
+
+        if (!hasTc) {
+          (updates as Record<string, unknown>).time_capsule_delay_minutes = minutesFromMs(revealDelayMs);
+        }
+        if (!hasDestruct) {
+          (updates as Record<string, unknown>).destruct_delay_minutes = minutesFromMs(destructDelayMs);
+        }
 
         const now = Date.now();
         const revealAtIso = new Date(now + revealDelayMs).toISOString();
@@ -65,8 +81,6 @@ export async function POST(request: NextRequest) {
 
         (updates as Record<string, unknown>).reveal_at = revealAtIso;
         (updates as Record<string, unknown>).destruct_at = destructAtIso;
-        (updates as Record<string, unknown>).time_capsule_delay_minutes = Number.isFinite(revealDelayMinutes) ? revealDelayMinutes : 0;
-        (updates as Record<string, unknown>).destruct_delay_minutes = Number.isFinite(destructDelayMinutes) ? destructDelayMinutes : 0;
       }
     }
     
