@@ -57,7 +57,26 @@ const DESTRUCTED_MESSAGES = [
   "Only the outline of a memory remains.",
   "This message has slipped away.",
   "Some words don’t last. This one didn’t.",
-  "A quiet end: this message is gone."
+  "A quiet end: this message is gone.",
+  "You arrived after the ending.",
+  "The page is blank now.",
+  "There’s nothing left to recover.",
+  "The words didn’t survive.",
+  "Time took the message first.",
+  "You missed it by a moment—or a lifetime.",
+  "The message expired. The space stayed.",
+  "This was here. Now it isn’t.",
+  "It ended before you opened it.",
+  "A message that chose to vanish.",
+  "This line is all that’s left.",
+  "It’s gone, and it won’t come back.",
+  "Nothing to read. Only the fact it existed.",
+  "The message ran out of time.",
+  "You’re late. The words are gone.",
+  "The message has already left.",
+  "An empty place where meaning used to be.",
+  "This memory kept its shape, not its words.",
+  "The message is beyond reach now."
 ];
 
 
@@ -371,6 +390,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return ts;
   }, [memory.destruct_at]);
 
+  const destructAtLabel = useMemo(() => {
+    const d = memory.destruct_at;
+    if (typeof d !== 'string' || d.length === 0) return null;
+    const ts = new Date(d).getTime();
+    if (!Number.isFinite(ts)) return null;
+    return new Date(ts).toLocaleString();
+  }, [memory.destruct_at]);
+
   const isApproved = useMemo(() => {
     return String(memory.status || '').toLowerCase() === 'approved';
   }, [memory.status]);
@@ -416,9 +443,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   const renderMessage = (memory: Memory, forceLarge?: boolean) => {
     if (isDestructedNow) {
       return (
-        <p className={`${forceLarge ? 'text-[22px]' : 'text-[19px]'} tracking-wide leading-snug break-words hyphens-none opacity-80 ${laBelleAurore.className} italic`}>
-          {destructedMessage}
-        </p>
+        <div className={`${forceLarge ? 'text-[16px]' : 'text-[14px]'} leading-snug break-words hyphens-none opacity-90 font-mono`}>
+          <p className="tracking-tight">
+            This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You’re late to read it.
+          </p>
+          <p className="mt-3 opacity-80">{destructedMessage}</p>
+        </div>
       );
     }
     const messageToRender = memory.message;
@@ -470,9 +500,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     function renderMessageLargeDetail(memory: Memory) {
       if (isDestructedNow) {
         return (
-          <p className={`text-4xl tracking-wide leading-snug break-words hyphens-none opacity-80 ${laBelleAurore.className} italic`}>
-            {destructedMessage}
-          </p>
+          <div className="text-xl sm:text-2xl leading-snug break-words hyphens-none opacity-90 font-mono">
+            <p className="tracking-tight">
+              This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You’re late to read it.
+            </p>
+            <p className="mt-4 opacity-80">{destructedMessage}</p>
+          </div>
         );
       }
       const wordCount = memory.message.split(/\s+/).length;
@@ -685,7 +718,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               <div className="text-xs text-[var(--text)] text-center font-normal">
                 {dateStr} | {dayStr}
               </div>
-              {createdAgoLabel && (
+              {createdAgoLabel && !isDestructedNow && (
                 <div className="text-[11px] text-[var(--text)]/60 text-center font-normal mt-1">
                   {createdAgoLabel}
                 </div>

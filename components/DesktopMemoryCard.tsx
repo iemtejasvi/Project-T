@@ -271,15 +271,37 @@ const DESTRUCTED_MESSAGES = [
   "Only the outline of a memory remains.",
   "This message has slipped away.",
   "Some words don’t last. This one didn’t.",
-  "A quiet end: this message is gone."
+  "A quiet end: this message is gone.",
+  "You arrived after the ending.",
+  "The page is blank now.",
+  "There’s nothing left to recover.",
+  "The words didn’t survive.",
+  "Time took the message first.",
+  "You missed it by a moment—or a lifetime.",
+  "The message expired. The space stayed.",
+  "This was here. Now it isn’t.",
+  "It ended before you opened it.",
+  "A message that chose to vanish.",
+  "This line is all that’s left.",
+  "It’s gone, and it won’t come back.",
+  "Nothing to read. Only the fact it existed.",
+  "The message ran out of time.",
+  "You’re late. The words are gone.",
+  "The message has already left.",
+  "An empty place where meaning used to be.",
+  "This memory kept its shape, not its words.",
+  "The message is beyond reach now."
 ];
 
-function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMessage: string, isDestructedNow: boolean) {
+function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMessage: string, isDestructedNow: boolean, destructAtLabel: string | null) {
   if (isDestructedNow) {
     return (
-      <p className={`text-2xl tracking-wide leading-snug break-words hyphens-none opacity-80 ${laBelleAurore.className} italic`}>
-        {destructedMessage}
-      </p>
+      <div className="text-[14px] sm:text-[16px] leading-snug break-words hyphens-none opacity-90 font-mono">
+        <p className="tracking-tight">
+          This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You’re late to read it.
+        </p>
+        <p className="mt-3 opacity-80">{destructedMessage}</p>
+      </div>
     );
   }
   const messageToRender = memory.message;
@@ -413,6 +435,14 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     const ts = new Date(d).getTime();
     if (!Number.isFinite(ts)) return null;
     return ts;
+  }, [memory.destruct_at]);
+
+  const destructAtLabel = useMemo(() => {
+    const d = memory.destruct_at;
+    if (typeof d !== 'string' || d.length === 0) return null;
+    const ts = new Date(d).getTime();
+    if (!Number.isFinite(ts)) return null;
+    return new Date(ts).toLocaleString();
   }, [memory.destruct_at]);
 
   const isApproved = useMemo(() => {
@@ -624,7 +654,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
-            {createdAgoLabel && (
+            {createdAgoLabel && !isDestructedNow && (
               <div className="text-sm text-[var(--text)]/60 text-center font-normal relative z-10 mt-1">
                 {createdAgoLabel}
               </div>
@@ -683,7 +713,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
-                {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow)}
+                {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow, destructAtLabel)}
               </div>
             ) : (
               <ScrollableMessage
@@ -696,7 +726,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 } as React.CSSProperties}
               >
                 <div className="relative z-10">
-                  {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow)}
+                  {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow, destructAtLabel)}
                 </div>
               </ScrollableMessage>
             )}
