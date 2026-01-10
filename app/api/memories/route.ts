@@ -31,16 +31,16 @@ export async function GET(request: NextRequest) {
     const page = sanitizeNumber(searchParams.get('page'), { min: 0, max: 10000, integer: true }) ?? 0;
     const pageSize = sanitizeNumber(searchParams.get('pageSize'), { min: 1, max: 100, integer: true }) ?? 10;
     const searchTerm = searchParams.get('search')?.slice(0, 100) || '';
-    const status = searchParams.get('status') || 'approved';
+    const status = (searchParams.get('status') || 'approved').toLowerCase();
     
-    // Validate status parameter
-    if (!['approved', 'pending', 'banned', 'all'].includes(status)) {
+    // Public endpoint: only approved content is allowed.
+    if (status !== 'approved') {
       return createSecureErrorResponse('Invalid status parameter', 400, { origin });
     }
     
     // Build filters
     const filters: Record<string, string> = {};
-    if (status) filters.status = status;
+    filters.status = 'approved';
     
     // Fetch memories
     const result = await fetchMemoriesPaginated(

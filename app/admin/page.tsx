@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import UnlimitedUsersPage from "./unlimited/page";
-import { fetchMemories, primaryDBRead, secondaryDBRead, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
 import Loader from "@/components/Loader";
 
 interface Memory {
@@ -80,53 +79,50 @@ export default function AdminPanel() {
   const [diffIds, setDiffIds] = useState<null | { onlyA: string[]; onlyB: string[]; both: string[] }>(null);
   const [rrSim, setRrSim] = useState<{ A: number; B: number; picks: Array<'A'|'B'> } | null>(null);
 
+  const fetchAdminMemories = useCallback(async (params: { status?: string; pinned?: boolean; page?: number; pageSize?: number; search?: string }) => {
+    const qs = new URLSearchParams();
+    if (params.status) qs.set('status', params.status);
+    if (typeof params.pinned === 'boolean') qs.set('pinned', String(params.pinned));
+    qs.set('page', String(params.page ?? 0));
+    qs.set('pageSize', String(params.pageSize ?? 200));
+    if (params.search) qs.set('search', params.search);
+
+    const res = await fetch(`/api/admin/memories?${qs.toString()}`, {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: { 'Accept': 'application/json' },
+    });
+
+    const json = await res.json().catch(() => null);
+    const data = (json?.data || []) as Memory[];
+    if (!res.ok) throw new Error(json?.error || 'Failed to fetch admin memories');
+    return data;
+  }, []);
+
   const loadDbHealth = useCallback(async () => {
     setDbHealthLoading(true);
     try {
-      const [status, counts, recents, statuses, lat, exp] = await Promise.all([
-        getDatabaseStatus(),
-        getDatabaseCounts(),
-        fetchRecentMemories(10),
-        getStatusCounts(),
-        measureDbLatency(),
-        getExpiredPinnedCount()
-      ]);
+      const res = await fetch('/api/admin/dbhealth', {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' },
+      });
 
-      setDbStatus(status);
-      setDbCounts({ A: counts.A, B: counts.B });
-      setStatusCounts(statuses);
-      setLatency(lat);
-      setExpiredPinned(exp);
-
-      const enriched = await Promise.all(
-        (recents || []).map(async (m) => {
-          const loc = await locateMemory(m.id);
-          return { ...m, location: loc };
-        })
-      );
-      setRecentRoutes(enriched);
-
-      // Compute recent IDs divergence (last 50 from each)
-      const [a50, b50] = await Promise.all([
-        primaryDBRead.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50),
-        secondaryDBRead.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50)
-      ]);
-      const setA = new Set(((a50.data || []) as Array<{ id: string }>).map((r) => r.id));
-      const setB = new Set(((b50.data || []) as Array<{ id: string }>).map((r) => r.id));
-      const onlyA: string[] = [];
-      const onlyB: string[] = [];
-      const both: string[] = [];
-      for (const id of setA) {
-        if (setB.has(id)) both.push(id); else onlyA.push(id);
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || 'Failed to fetch DB health');
       }
-      for (const id of setB) {
-        if (!setA.has(id)) onlyB.push(id);
-      }
-      setDiffIds({ onlyA, onlyB, both });
 
-      // Round-robin simulation (50 picks)
-      const sim = simulateRoundRobin(50);
-      setRrSim({ A: sim.A, B: sim.B, picks: sim.picks });
+      setDbStatus(json.status || null);
+      setDbCounts(json.counts || null);
+      setRecentRoutes(json.recent || []);
+      setStatusCounts(json.statusCounts || null);
+      setLatency(json.latency || null);
+      setExpiredPinned(json.expiredPinned || null);
+      setDiffIds(json.diffIds || null);
+      setRrSim(json.rrSim || null);
     } catch (err) {
       console.error('Error fetching DB health:', err);
     } finally {
@@ -205,15 +201,15 @@ export default function AdminPanel() {
   // Memoize refreshMemories to prevent infinite loops
   const refreshMemories = useCallback(() => {
     if (!isAuthorized) return;
-    fetchMemories(
-      { status: selectedTab },
-      { pinned: "desc", created_at: "desc" }
-    ).then(({ data }) => {
-      setMemories(data || []);
-    }).catch((error) => {
-      console.error('Error fetching memories:', error);
-    });
-  }, [isAuthorized, selectedTab]);
+    const status = selectedTab === 'pending' ? 'pending' : selectedTab;
+    fetchAdminMemories({ status, page: 0, pageSize: 200 })
+      .then((data) => {
+        setMemories(data || []);
+      })
+      .catch((error) => {
+        console.error('Error fetching memories:', error);
+      });
+  }, [isAuthorized, selectedTab, fetchAdminMemories]);
 
   // Check authentication with API
   useEffect(() => {
@@ -252,10 +248,7 @@ export default function AdminPanel() {
       async function fetchMemoriesData() {
         try {
           const status = selectedTab === "pending" ? "pending" : selectedTab;
-          const { data } = await fetchMemories(
-            { status },
-            { pinned: "desc", created_at: "desc" }
-          );
+          const data = await fetchAdminMemories({ status, page: 0, pageSize: 200 });
           setMemories(data || []);
         } catch (error) {
           console.error('Error fetching memories:', error);
@@ -263,7 +256,7 @@ export default function AdminPanel() {
       }
       fetchMemoriesData();
     }
-  }, [isAuthorized, selectedTab]);
+  }, [isAuthorized, selectedTab, fetchAdminMemories]);
 
   // Fetch DB health when DB Health tab is active
   useEffect(() => {
@@ -686,8 +679,8 @@ export default function AdminPanel() {
       }
 
       // Check expired pins across both databases
-      const { data: allMemories } = await fetchMemories({ pinned: "true" });
-      const pinnedMemories = allMemories.filter(m => m.pinned_until);
+      const allMemories = await fetchAdminMemories({ status: 'approved', pinned: true, page: 0, pageSize: 200 });
+      const pinnedMemories = (allMemories || []).filter(m => m.pinned_until);
 
       let needsRefresh = false;
       for (const memory of pinnedMemories || []) {
@@ -710,17 +703,24 @@ export default function AdminPanel() {
 
     const interval = setInterval(checkExpiredItems, 1000); // Check every second
     return () => clearInterval(interval);
-  }, [currentTime, hasActiveItems, selectedTab, refreshMemories, currentAnnouncement]);
+  }, [currentTime, hasActiveItems, selectedTab, refreshMemories, currentAnnouncement, fetchAdminMemories]);
 
   // Fetch banned users when banned tab is selected
   useEffect(() => {
     if (selectedTab === "banned") {
-      primaryDBRead
-        .from("banned_users")
-        .select("ip, uuid, country")
-        .then(({ data, error }) => {
-          if (error) console.error(error.message || error);
-          else setBannedUsers(data || []);
+      fetch('/api/admin/banned-users', {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' },
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          if (!json?.success) return;
+          setBannedUsers(json.data || []);
+        })
+        .catch((err) => {
+          console.error('Error fetching banned users:', err);
         });
     }
   }, [selectedTab]);
@@ -1139,7 +1139,11 @@ export default function AdminPanel() {
                     <h3 className="font-semibold">Expired Pins</h3>
                     <span className="text-sm text-gray-600">(total: {expiredPinned?.total ?? '—'})</span>
                     <button
-                      onClick={async () => { if (confirm('Unpin all expired memories now?')) { await unpinExpiredMemories(); await loadDbHealth(); } }}
+                      onClick={async () => {
+                        if (!confirm('Unpin all expired memories now?')) return;
+                        await fetch('/api/unpin-expired', { method: 'POST' });
+                        await loadDbHealth();
+                      }}
                       className="ml-auto px-3 py-1.5 rounded bg-amber-500 text-white text-sm hover:bg-amber-600"
                     >
                       Unpin expired now

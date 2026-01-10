@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
-import { updateMemory } from "@/lib/dualMemoryDB";
 import { fetchWithUltraCache, invalidateCache, warmUpCache } from "@/lib/enhancedCache";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
@@ -14,7 +13,6 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
-  destruct_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
@@ -89,24 +87,15 @@ export default function Memories() {
     );
   }, [displayedMemories]);
 
-  const hasActiveDestructingMemories = useMemo(() => {
-    const now = new Date();
-    return displayedMemories.some(memory =>
-      typeof memory.destruct_at === 'string' &&
-      memory.destruct_at.length > 0 &&
-      new Date(memory.destruct_at) > now
-    );
-  }, [displayedMemories]);
-
   // Update current time every second ONLY if there are ACTIVE pinned memories
   useEffect(() => {
-    if (!hasActivePinnedMemories && !hasActiveDestructingMemories) return;
+    if (!hasActivePinnedMemories) return;
 
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
-  }, [hasActivePinnedMemories, hasActiveDestructingMemories]);
+  }, [hasActivePinnedMemories]);
 
   // Fetch memories with caching and pagination
   const fetchPageData = useCallback(async (
@@ -226,10 +215,8 @@ export default function Memories() {
       try {
         const expiredPinIds = expiredPins.map(memory => memory.id);
 
-        // Update expired pins in database
-        for (const id of expiredPinIds) {
-          await updateMemory(id, { pinned: false, pinned_until: undefined });
-        }
+        // Update expired pins via server API (keeps DB write logic off the client)
+        await fetch('/api/unpin-expired', { method: 'POST' });
 
         // Update local state
         if (isMounted) {

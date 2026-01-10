@@ -726,12 +726,6 @@ export default function SubmitPage() {
     }
   }, [enableTypewriter]);
 
-  useEffect(() => {
-    if (timeCapsuleDelayMinutes > 0 && destructDelayMinutes > 0 && timeCapsuleDelayMinutes === destructDelayMinutes) {
-      setDestructDelayMinutes(timeCapsuleDelayMinutes + 1);
-    }
-  }, [timeCapsuleDelayMinutes, destructDelayMinutes]);
-
   const timeCapsuleOptions: Array<{ value: number; label: string }> = [
     { value: 0, label: "None (submit now)" },
     { value: 5, label: "5 minutes" },

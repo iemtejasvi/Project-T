@@ -13,7 +13,7 @@ export default function RoutePrefetcher() {
     const warmup = async () => {
       try {
         // Let initial content paint first
-        await new Promise((r) => setTimeout(r, 250));
+        await new Promise((r) => setTimeout(r, 1200));
         if (cancelled) return;
 
         // Prefetch common routes (code + RSC payload)
@@ -26,7 +26,6 @@ export default function RoutePrefetcher() {
         await warmUpCache([
           { page: 0, pageSize: 18 },
           { page: 0, pageSize: 10 },
-          { page: 0, pageSize: 6 },
         ]);
       } catch {
         // Silent

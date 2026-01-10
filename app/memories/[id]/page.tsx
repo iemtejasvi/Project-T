@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { fetchMemoryById } from "@/lib/dualMemoryDB";
 import MemoryCard from "@/components/MemoryCard";
 import Loader from "@/components/Loader";
 
@@ -33,13 +32,25 @@ export default function MemoryDetail() {
 
   useEffect(() => {
     async function fetchMemory() {
-      const { data, error } = await fetchMemoryById(id);
-      if (error || !data) {
+      try {
+        const res = await fetch(`/api/memories/${encodeURIComponent(id)}`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+        });
+
+        const json = await res.json().catch(() => null);
+        const data = json?.data as Memory | undefined;
+
+        if (!res.ok || !data) {
+          setMemory(false);
+        } else {
+          setMemory(data);
+        }
+      } catch {
         setMemory(false);
-      } else {
-        setMemory(data);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchMemory();
   }, [id]);

@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { primaryDBRead } from "@/lib/dualMemoryDB";
 import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
 import { storage } from "@/lib/persistentStorage";
 import { browserSession } from "@/lib/browserSession";
@@ -11,7 +10,6 @@ import MemoryCard from "@/components/MemoryCard";
 import Loader from "@/components/Loader";
 import TypingEffect from "@/components/TypingEffect";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
- 
 
 interface Memory {
   id: string;
@@ -19,7 +17,6 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
-  destruct_at?: string;
   status: string;
   color: string;
   full_bg: boolean;
@@ -88,17 +85,11 @@ export default function Home() {
       memory.pinned_until && 
       new Date(memory.pinned_until) > now
     );
-
-    const hasActiveDestructingMemories = recentMemories.some(memory =>
-      typeof memory.destruct_at === 'string' &&
-      memory.destruct_at.length > 0 &&
-      new Date(memory.destruct_at) > now
-    );
     
     // Check for active announcement
     const hasActiveAnnouncement = announcement !== null;
     
-    return hasActivePinnedMemories || hasActiveDestructingMemories || hasActiveAnnouncement;
+    return hasActivePinnedMemories || hasActiveAnnouncement;
   }, [recentMemories, announcement]);
 
   // Update current time every second ONLY if there are active items
@@ -131,7 +122,8 @@ export default function Home() {
       try {
         // Keep warmup lightweight: only warm the first archive page
         const pagesToWarm = [
-          { page: 0, pageSize: 18 },  // Archive first page
+          { page: 0, pageSize: 18 },  // Archive first page (desktop)
+          { page: 0, pageSize: 10 },  // Archive first page (mobile)
         ];
 
         await warmUpCache(pagesToWarm);
@@ -150,17 +142,16 @@ export default function Home() {
 
         // Fetch announcement and recent memories in parallel so the main LCP content isn't delayed by announcement checks
         const [announcementResult, memoriesResult] = await Promise.all([
-          primaryDBRead
+          supabase
             .from("announcements")
             .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
             .eq("is_active", true)
-            .order("created_at", { ascending: false })
-            .limit(1),
+            .maybeSingle(),
           fetchWithUltraCache(
-            0, // page
-            6, // pageSize - only need 6 for home
+            0,
+            6,
             { status: "approved" },
-            '', // no search on home
+            "",
             { created_at: "desc" },
             { maxAge: 180000, staleWhileRevalidate: 300000 } // 3min fresh, 5min stale for ultra-fresh content
           ),
@@ -172,28 +163,22 @@ export default function Home() {
 
         if (announcementError) {
           console.error("Error fetching announcement:", announcementError.message);
-        } else if (announcementData?.[0]) {
-          const expiryTime = new Date(announcementData[0].expires_at);
+        } else if (announcementData) {
+          const expiryTime = new Date(announcementData.expires_at);
           const now = new Date();
           
           // Check if announcement has expired
           if (now >= expiryTime) {
-            // Delete expired announcement via API
-            await fetch('/api/admin/delete-announcement', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ id: announcementData[0].id })
-            });
             if (isMounted) {
               setAnnouncement(null);
               setAnnouncementCheckComplete(true);
             }
           } else {
             // Check dismissal status BEFORE setting announcement
-            const isDismissed = storage.isAnnouncementDismissed(announcementData[0].id);
+            const isDismissed = storage.isAnnouncementDismissed(announcementData.id);
             
             if (isMounted) {
-              setAnnouncement(announcementData[0]);
+              setAnnouncement(announcementData);
               setIsAnnouncementDismissed(isDismissed);
               setAnnouncementCheckComplete(true);
             }
@@ -340,11 +325,11 @@ export default function Home() {
       try {
         const expiredPinIds = expiredPins.map(memory => memory.id);
 
-        // Update expired pins in database (import updateMemory)
-        const { updateMemory } = await import("@/lib/dualMemoryDB");
-        for (const id of expiredPinIds) {
-          await updateMemory(id, { pinned: false, pinned_until: undefined });
-        }
+        // Update expired pins via server API (keeps DB write logic server-side)
+        fetch('/api/unpin-expired', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }).catch(() => {});
 
         // Update local state without refetching
         if (isMounted) {

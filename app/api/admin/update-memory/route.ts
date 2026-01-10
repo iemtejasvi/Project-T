@@ -1,7 +1,34 @@
 import { NextRequest } from 'next/server';
-import { updateMemory } from '@/lib/dualMemoryDB';
+import { updateMemory, primaryDB, secondaryDB } from '@/lib/dualMemoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+
+type MemoryRow = {
+  id: string;
+  status?: string | null;
+  created_at?: string | null;
+  reveal_at?: string | null;
+  destruct_at?: string | null;
+};
+
+async function fetchMemoryRowById(id: string): Promise<MemoryRow | null> {
+  const [resA, resB] = await Promise.all([
+    primaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at').eq('id', id).maybeSingle(),
+    secondaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at').eq('id', id).maybeSingle(),
+  ]);
+
+  if (!resA.error && resA.data) return resA.data as MemoryRow;
+  if (!resB.error && resB.data) return resB.data as MemoryRow;
+  return null;
+}
+
+function msBetween(a?: string | null, b?: string | null): number {
+  const aTs = a ? new Date(a).getTime() : NaN;
+  const bTs = b ? new Date(b).getTime() : NaN;
+  if (!Number.isFinite(aTs) || !Number.isFinite(bTs)) return 0;
+  const diff = aTs - bTs;
+  return diff > 0 ? diff : 0;
+}
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -14,50 +41,30 @@ export async function POST(request: NextRequest) {
   try {
     const { id, updates } = await request.json();
     
-    if (!id || !updates) {
+    if (!id || !updates || typeof updates !== 'object') {
       return createSecureErrorResponse('Missing id or updates', 400, { origin });
     }
-    
-    // If approving, compute approval-based timers.
-    // Note: dualMemoryDB.MemoryData index signature is string|boolean|undefined, so keep updates compatible.
-    const nextUpdates: Partial<Record<string, string | boolean | undefined>> = { ...updates };
 
-    if (updates?.status === 'approved') {
-      const approvedAt = new Date();
-      nextUpdates.approved_at = approvedAt.toISOString();
+    // If transitioning to approved, start timers from approval time.
+    const nextStatus = String((updates as Record<string, unknown>).status ?? '').toLowerCase();
+    if (nextStatus === 'approved') {
+      const current = await fetchMemoryRowById(id);
+      const currentStatus = String(current?.status ?? '').toLowerCase();
 
-      const tc = typeof updates?.time_capsule_delay_minutes === 'number' ? updates.time_capsule_delay_minutes : null;
-      const dd = typeof updates?.destruct_delay_minutes === 'number' ? updates.destruct_delay_minutes : null;
+      if (current && currentStatus !== 'approved') {
+        const revealDelayMs = msBetween(current.reveal_at, current.created_at);
+        const destructDelayMs = msBetween(current.destruct_at, current.created_at);
 
-      // If admin didn't pass these delays, we rely on existing DB values.
-      // We still compute reveal/destruct safely based on approval time when possible.
-      if (tc !== null) {
-        nextUpdates.reveal_at = tc > 0
-          ? new Date(approvedAt.getTime() + tc * 60 * 1000).toISOString()
-          : approvedAt.toISOString();
-      }
+        const now = Date.now();
+        const revealAtIso = new Date(now + revealDelayMs).toISOString();
+        const destructAtIso = destructDelayMs > 0 ? new Date(now + destructDelayMs).toISOString() : null;
 
-      if (dd !== null) {
-        nextUpdates.destruct_at = dd > 0
-          ? new Date(approvedAt.getTime() + dd * 60 * 1000).toISOString()
-          : undefined;
-      }
-
-      // Ensure destruct never happens before reveal.
-      if (typeof nextUpdates.reveal_at === 'string' && typeof nextUpdates.destruct_at === 'string') {
-        const revealTs = new Date(nextUpdates.reveal_at).getTime();
-        const destructTs = new Date(nextUpdates.destruct_at).getTime();
-        if (Number.isFinite(revealTs) && Number.isFinite(destructTs)) {
-          if (destructTs < revealTs) {
-            nextUpdates.destruct_at = new Date(revealTs + 60 * 1000).toISOString();
-          } else if (destructTs === revealTs) {
-            nextUpdates.destruct_at = new Date(destructTs + 60 * 1000).toISOString();
-          }
-        }
+        (updates as Record<string, unknown>).reveal_at = revealAtIso;
+        (updates as Record<string, unknown>).destruct_at = destructAtIso;
       }
     }
-
-    const { data, error } = await updateMemory(id, nextUpdates);
+    
+    const { data, error } = await updateMemory(id, updates);
     
     if (error) {
       return createSecureErrorResponse(error.message || 'Update failed', 500, { origin });

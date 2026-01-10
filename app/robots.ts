@@ -9,12 +9,13 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/admin/',
           '/api/',
-          '/_next/data/',
+          '/_next/',
+          '/static/',
           '/maintenance/',
         ],
       },
     ],
-    sitemap: 'https://ifonlyisentthis.com/sitemap.xml',
-    host: 'https://ifonlyisentthis.com',
+    sitemap: 'https://www.ifonlyisentthis.com/sitemap.xml',
+    host: 'https://www.ifonlyisentthis.com',
   }
 }

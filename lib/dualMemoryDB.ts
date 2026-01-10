@@ -137,8 +137,8 @@ export async function unpinExpiredMemories(): Promise<number> {
 export async function scrubDestructedMemories(): Promise<number> {
   const now = new Date().toISOString();
   const [idsARes, idsBRes] = await Promise.all([
-    dbA.client.from('memories').select('id').lte('destruct_at', now).neq('message', ''),
-    dbB.client.from('memories').select('id').lte('destruct_at', now).neq('message', ''),
+    dbA.client.from('memories').select('id').eq('status', 'approved').lte('destruct_at', now).neq('message', ''),
+    dbB.client.from('memories').select('id').eq('status', 'approved').lte('destruct_at', now).neq('message', ''),
   ]);
   const idsA = (idsARes.data || []).map(r => r.id as string);
   const idsB = (idsBRes.data || []).map(r => r.id as string);
@@ -183,9 +183,6 @@ interface MemoryData {
   created_at: string;
   reveal_at?: string;
   destruct_at?: string;
-  approved_at?: string;
-  time_capsule_delay_minutes?: string;
-  destruct_delay_minutes?: string;
   pinned?: boolean;
   pinned_until?: string;
   typewriter_enabled?: boolean;
@@ -201,12 +198,7 @@ function isRevealableNow(memory: MemoryData): boolean {
 }
 
 function shouldDestructNow(memory: MemoryData): boolean {
-  // Destruct should never run before approval.
-  const approvedAt = memory.approved_at;
-  if (typeof approvedAt !== 'string' || approvedAt.length === 0) return false;
-  const approvedTs = new Date(approvedAt).getTime();
-  if (!Number.isFinite(approvedTs)) return false;
-
+  if (String(memory.status || '').toLowerCase() !== 'approved') return false;
   const destructAt = memory.destruct_at;
   if (typeof destructAt !== 'string' || destructAt.length === 0) return false;
   const destructTs = new Date(destructAt).getTime();
@@ -321,6 +313,13 @@ export async function fetchMemoriesPaginated(
   // Build query with filters and apply a pagination window per database
   function buildQuery(client: SupabaseClient) {
     let query = client.from('memories').select('*', { count: 'exact' });
+
+    // Apply reveal filter at the DB level so pagination windows aren't filled with unrevealed rows.
+    // Only for public/approved views.
+    if (shouldFilterByRevealAt(filters)) {
+      const nowIso = new Date().toISOString();
+      query = query.or(`reveal_at.is.null,reveal_at.lte.${nowIso}`);
+    }
     
     // Apply filters
     if (filters.status) query = query.eq('status', filters.status);
@@ -394,16 +393,6 @@ export async function fetchMemoriesPaginated(
   const totalCount = countA + countB;
   const totalPages = Math.ceil(totalCount / pageSize);
   
-  // Fire-and-forget: auto-unpin expired memories
-  try {
-    const nowTs = Date.now();
-    const expired = paginatedMemories.filter(m => m.pinned && m.pinned_until && new Date(m.pinned_until).getTime() <= nowTs);
-    if (expired.length > 0) {
-      const ids = Array.from(new Set(expired.map(m => m.id)));
-      Promise.all(ids.map(id => updateMemory(id, { pinned: false, pinned_until: undefined }))).catch(() => {});
-    }
-  } catch {}
-  
   return {
     data: paginatedMemories,
     totalCount,
@@ -420,6 +409,12 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   
   function buildLimitedQuery(client: SupabaseClient) {
     let query = client.from('memories').select('*');
+
+    // Apply reveal filter at the DB level for public/approved views.
+    if (shouldFilterByRevealAt(filters)) {
+      const nowIso = new Date().toISOString();
+      query = query.or(`reveal_at.is.null,reveal_at.lte.${nowIso}`);
+    }
     
     // Apply filters at database level
     if (filters.status) query = query.eq('status', filters.status);
@@ -497,18 +492,6 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
     
     return 0;
   });
-  
-  // Fire-and-forget: auto-unpin any expired pinned memories we just fetched
-  try {
-    const nowTs = Date.now();
-    const expired = allMemories.filter(m => m.pinned && m.pinned_until && new Date(m.pinned_until).getTime() <= nowTs);
-    if (expired.length > 0) {
-      // De-duplicate by id
-      const ids = Array.from(new Set(expired.map(m => m.id)));
-      // Do not await to avoid blocking UI; errors are logged by updateMemory
-      Promise.all(ids.map(id => updateMemory(id, { pinned: false, pinned_until: undefined })) ).catch(() => {});
-    }
-  } catch {}
 
   return { data: filteredMemories, error: null };
 }
@@ -654,13 +637,24 @@ export async function fetchMemoryById(id: string) {
   const [resultA, resultB] = await Promise.allSettled(fetchPromises);
   
   // Return the first successful result
-  if (resultA.status === 'fulfilled' && !resultA.value.error) {
-    return { data: cleanMemoryData(resultA.value.data), error: null };
-  } else if (resultB.status === 'fulfilled' && !resultB.value.error) {
-    return { data: cleanMemoryData(resultB.value.data), error: null };
-  } else {
+  const raw =
+    (resultA.status === 'fulfilled' && !resultA.value.error ? cleanMemoryData(resultA.value.data) : null) ||
+    (resultB.status === 'fulfilled' && !resultB.value.error ? cleanMemoryData(resultB.value.data) : null);
+
+  if (!raw) {
     return { data: null, error: { message: 'Memory not found in either database' } };
   }
+
+  // Public safety: only allow viewing approved, revealed memories.
+  // (Admin has separate access paths.)
+  if (String(raw.status || '').toLowerCase() !== 'approved') {
+    return { data: null, error: { message: 'Memory not found' } };
+  }
+  if (!isRevealableNow(raw)) {
+    return { data: null, error: { message: 'Memory not found' } };
+  }
+
+  return { data: redactIfDestructed(raw), error: null };
 }
 
 // Export individual database clients for non-memory operations

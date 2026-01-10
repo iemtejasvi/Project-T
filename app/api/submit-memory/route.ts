@@ -488,9 +488,10 @@ export async function POST(request: NextRequest) {
         ? new Date(Date.now() + timeCapsuleDelayMinutes * 60 * 1000).toISOString()
         : createdAtIso;
 
-    // Destruct timer should begin only after approval.
-    // We persist the user-selected delay and compute destruct_at when the admin approves.
-    const destructAtIso = null;
+    const destructAtIso =
+      typeof destructDelayMinutes === 'number' && destructDelayMinutes > 0
+        ? new Date(Date.now() + destructDelayMinutes * 60 * 1000).toISOString()
+        : null;
 
     // Flags are computed later after IP fallback and owner detection
     let isUnlimited = false;
@@ -673,9 +674,6 @@ export async function POST(request: NextRequest) {
       created_at: createdAtIso,
       reveal_at: revealAtIso,
       destruct_at: destructAtIso,
-      time_capsule_delay_minutes: typeof timeCapsuleDelayMinutes === 'number' ? timeCapsuleDelayMinutes : null,
-      destruct_delay_minutes: typeof destructDelayMinutes === 'number' ? destructDelayMinutes : null,
-      approved_at: null,
     };
 
     // Insert into dual database system. Utility picks DB via time-based round-robin and handles failover automatically.
