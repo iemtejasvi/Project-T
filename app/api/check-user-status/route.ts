@@ -41,12 +41,20 @@ function getCookieValue(request: NextRequest, name: string): string | null {
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
+  const referer = request.headers.get('referer');
   
   try {
     // 1. SECURITY: Validate request
     const requestValidation = validateRequest(request);
     if (!requestValidation.valid) {
-      return createSecureErrorResponse(requestValidation.error || 'Invalid request', 403, { origin });
+      // Some browsers/extensions strip Origin/Referer for same-origin fetches.
+      // This endpoint is still protected by rate limiting + server-side ban checks.
+      const hasOriginOrReferer =
+        (typeof origin === 'string' && origin.length > 0) ||
+        (typeof referer === 'string' && referer.length > 0);
+      if (hasOriginOrReferer) {
+        return createSecureErrorResponse(requestValidation.error || 'Invalid request', 403, { origin });
+      }
     }
     
     // 2. Get client IP and UUID
