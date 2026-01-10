@@ -55,12 +55,18 @@ export async function POST(request: NextRequest) {
         const revealDelayMs = msBetween(current.reveal_at, current.created_at);
         const destructDelayMs = msBetween(current.destruct_at, current.created_at);
 
+        const minute = 60 * 1000;
+        const revealDelayMinutes = Math.round(revealDelayMs / minute);
+        const destructDelayMinutes = Math.round(destructDelayMs / minute);
+
         const now = Date.now();
         const revealAtIso = new Date(now + revealDelayMs).toISOString();
         const destructAtIso = destructDelayMs > 0 ? new Date(now + destructDelayMs).toISOString() : null;
 
         (updates as Record<string, unknown>).reveal_at = revealAtIso;
         (updates as Record<string, unknown>).destruct_at = destructAtIso;
+        (updates as Record<string, unknown>).time_capsule_delay_minutes = Number.isFinite(revealDelayMinutes) ? revealDelayMinutes : 0;
+        (updates as Record<string, unknown>).destruct_delay_minutes = Number.isFinite(destructDelayMinutes) ? destructDelayMinutes : 0;
       }
     }
     

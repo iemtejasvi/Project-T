@@ -665,6 +665,8 @@ export async function POST(request: NextRequest) {
       color: sanitizedColor,
       full_bg: true,
       animation: sanitizedAnimation || null,
+      time_capsule_delay_minutes: typeof timeCapsuleDelayMinutes === 'number' ? timeCapsuleDelayMinutes : 0,
+      destruct_delay_minutes: typeof destructDelayMinutes === 'number' ? destructDelayMinutes : 0,
       ip: clientIP,
       country: country,
       uuid: clientUUID,

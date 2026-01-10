@@ -356,16 +356,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
   const createdAgoLabel = useMemo(() => {
     const createdTs = new Date(memory.created_at).getTime();
-    const minute = 60 * 1000;
-    const allowedDelaysMinutes = [
-      5, 10, 15, 20, 30, 45, 60,
-      7 * 24 * 60,
-      30 * 24 * 60,
-      3 * 30 * 24 * 60,
-      6 * 30 * 24 * 60,
-      9 * 30 * 24 * 60,
-      365 * 24 * 60,
-    ];
     const rawDelayMinutes = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
     const delayMinutes =
       typeof rawDelayMinutes === 'number'
@@ -373,31 +363,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         : (typeof rawDelayMinutes === 'string' ? Number(rawDelayMinutes) : 0);
 
     const hasExplicitTimeCapsule = Number.isFinite(delayMinutes) && delayMinutes > 0;
-    let isTimeCapsulePreset = false;
-    if (hasExplicitTimeCapsule) {
-      isTimeCapsulePreset =
-        (delayMinutes >= 1 && delayMinutes <= 60) ||
-        allowedDelaysMinutes.includes(delayMinutes);
-    } else {
-      const revealAt = memory.reveal_at;
-      if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
-      const revealTs = new Date(revealAt).getTime();
-      if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
-      if (revealTs <= createdTs) return null;
-      const diffMsPreset = revealTs - createdTs;
-      isTimeCapsulePreset = allowedDelaysMinutes.some((m) => {
-        const target = m * minute;
-        const tolerance = Math.min(2 * minute, target * 0.02);
-        return Math.abs(diffMsPreset - target) <= tolerance;
-      });
-    }
-
-    if (!isTimeCapsulePreset) return null;
+    if (!hasExplicitTimeCapsule) return null;
     if (!Number.isFinite(createdTs)) return null;
 
     const diffMs = Date.now() - createdTs;
     if (!Number.isFinite(diffMs) || diffMs < 0) return null;
 
+    const minute = 60 * 1000;
     const hour = 60 * minute;
     const day = 24 * hour;
     const week = 7 * day;
