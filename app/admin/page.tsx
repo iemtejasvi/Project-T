@@ -36,8 +36,6 @@ export default function AdminPanel() {
   const [memoriesTotalCount, setMemoriesTotalCount] = useState<number>(0);
   const [memoriesLoading, setMemoriesLoading] = useState(false);
   const [selectedMemoryIds, setSelectedMemoryIds] = useState<Set<string>>(new Set());
-  const [bulkDeleting, setBulkDeleting] = useState(false);
-  const [bulkApproving, setBulkApproving] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -67,7 +65,7 @@ export default function AdminPanel() {
     view_count?: number;
     click_count?: number;
   } | null>(null);
-  const [pinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
+  const [pinTimers, setPinTimers] = useState<{ [key: string]: { days: string; hours: string; minutes: string; seconds: string } }>({});
   const [currentTime, setCurrentTime] = useState(new Date());
   const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -185,194 +183,6 @@ export default function AdminPanel() {
     return filteredMemories.slice(0, displayCount);
   }, [filteredMemories, displayCount, selectedTab, memories]);
 
-  const repeatPosterCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const m of displayedMemories) {
-      const ip = typeof m.ip === 'string' ? m.ip.trim() : '';
-      const uuid = typeof m.uuid === 'string' ? m.uuid.trim() : '';
-      if (!ip || !uuid) continue;
-      const key = `${ip}::${uuid}`;
-      counts.set(key, (counts.get(key) || 0) + 1);
-    }
-    return counts;
-  }, [displayedMemories]);
-
-  const groupedDisplayedMemories = useMemo(() => {
-    const groups = new Map<string, { key: string; ip: string; uuid: string; items: Memory[] }>();
-    const singles: Memory[] = [];
-    for (const m of displayedMemories) {
-      const ip = typeof m.ip === 'string' ? m.ip.trim() : '';
-      const uuid = typeof m.uuid === 'string' ? m.uuid.trim() : '';
-      if (!ip || !uuid) {
-        singles.push(m);
-        continue;
-      }
-      const key = `${ip}::${uuid}`;
-      const c = repeatPosterCounts.get(key) || 0;
-      if (c <= 1) {
-        singles.push(m);
-        continue;
-      }
-      const existing = groups.get(key);
-      if (existing) {
-        existing.items.push(m);
-      } else {
-        groups.set(key, { key, ip, uuid, items: [m] });
-      }
-    }
-
-    const orderedGroups = Array.from(groups.values()).sort((a, b) => b.items.length - a.items.length);
-    return { groups: orderedGroups, singles };
-  }, [displayedMemories, repeatPosterCounts]);
-
-  const isMemoryListTab = useMemo(() => {
-    return selectedTab === 'pending' || selectedTab === 'approved' || selectedTab === 'banned';
-  }, [selectedTab]);
-
-  const toggleSelectedMemory = useCallback((id: string, checked: boolean) => {
-    setSelectedMemoryIds((prev) => {
-      const next = new Set(prev);
-      if (checked) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-  }, []);
-
-  const selectAllDisplayed = useCallback(() => {
-    setSelectedMemoryIds((prev) => {
-      const next = new Set(prev);
-      displayedMemories.forEach((m) => next.add(m.id));
-      return next;
-    });
-  }, [displayedMemories]);
-
-  const clearSelection = useCallback(() => {
-    setSelectedMemoryIds(new Set());
-  }, []);
-
-  const bulkApproveSelected = useCallback(async () => {
-    if (!isAuthorized) return;
-    if (selectedTab !== 'pending') return;
-    const ids = Array.from(selectedMemoryIds);
-    if (ids.length === 0) return;
-    if (!confirm(`Approve ${ids.length} selected memories?`)) return;
-
-    setBulkApproving(true);
-    setMemories((prev) => prev.filter((m) => !selectedMemoryIds.has(m.id)));
-
-    try {
-      for (const id of ids) {
-        const response = await fetch('/api/admin/update-memory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, updates: { status: 'approved' } })
-        });
-        const result = await response.json();
-        if (!response.ok || result?.error) {
-          console.error('Bulk approve failed for id:', id, result?.error);
-        }
-      }
-    } catch (error) {
-      console.error('Bulk approve error:', error);
-    } finally {
-      setBulkApproving(false);
-      setSelectedMemoryIds(new Set());
-
-      try {
-        localStorage.setItem('last_content_update', Date.now().toString());
-        localStorage.setItem('last_memory_update', Date.now().toString());
-      } catch {
-      }
-
-      try {
-        window.dispatchEvent(new CustomEvent('content-updated'));
-        if (window.location.pathname === '/') {
-          window.dispatchEvent(new CustomEvent('refresh-home-memories'));
-        }
-        if (window.location.pathname === '/memories') {
-          window.dispatchEvent(new CustomEvent('refresh-archives'));
-        }
-      } catch {
-      }
-
-      setMemoriesLoading(true);
-      setMemories([]);
-      fetch('/api/admin/memories?status=pending&page=0&pageSize=200', {
-        credentials: 'include',
-        cache: 'no-store'
-      })
-        .then((r) => r.json())
-        .then((res) => {
-          setMemories((res?.data || []) as Memory[]);
-          setMemoriesTotalCount(Number(res?.totalCount || 0));
-        })
-        .catch((err) => console.error('Error fetching memories:', err))
-        .finally(() => setMemoriesLoading(false));
-    }
-  }, [isAuthorized, selectedMemoryIds, selectedTab]);
-
-  const bulkDeleteSelected = useCallback(async () => {
-    if (!isAuthorized) return;
-    if (!isMemoryListTab) return;
-    const ids = Array.from(selectedMemoryIds);
-    if (ids.length === 0) return;
-    if (!confirm(`Delete ${ids.length} selected memories? This cannot be undone.`)) return;
-
-    setBulkDeleting(true);
-    setMemories((prev) => prev.filter((m) => !selectedMemoryIds.has(m.id)));
-
-    try {
-      for (const id of ids) {
-        const response = await fetch('/api/admin/delete-memory', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id })
-        });
-        const result = await response.json();
-        if (!response.ok || result?.error) {
-          console.error('Bulk delete failed for id:', id, result?.error);
-        }
-      }
-    } catch (error) {
-      console.error('Bulk delete error:', error);
-    } finally {
-      setBulkDeleting(false);
-      setSelectedMemoryIds(new Set());
-
-      try {
-        localStorage.setItem('last_content_update', Date.now().toString());
-        localStorage.setItem('last_memory_update', Date.now().toString());
-      } catch {
-      }
-
-      try {
-        window.dispatchEvent(new CustomEvent('content-updated'));
-        if (window.location.pathname === '/') {
-          window.dispatchEvent(new CustomEvent('refresh-home-memories'));
-        }
-        if (window.location.pathname === '/memories') {
-          window.dispatchEvent(new CustomEvent('refresh-archives'));
-        }
-      } catch {
-      }
-
-      const status = selectedTab === 'pending' ? 'pending' : selectedTab;
-      setMemoriesLoading(true);
-      setMemories([]);
-      fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200`, {
-        credentials: 'include',
-        cache: 'no-store'
-      })
-        .then((r) => r.json())
-        .then((res) => {
-          setMemories((res?.data || []) as Memory[]);
-          setMemoriesTotalCount(Number(res?.totalCount || 0));
-        })
-        .catch((err) => console.error('Error fetching memories:', err))
-        .finally(() => setMemoriesLoading(false));
-    }
-  }, [isAuthorized, isMemoryListTab, selectedMemoryIds, selectedTab]);
-
   // Memoized hasMore calculation
   const hasMoreMemories = useMemo(() => {
     if (selectedTab !== "approved") return false;
@@ -382,11 +192,8 @@ export default function AdminPanel() {
   // Reset display count when search changes or tab changes
   useEffect(() => {
     setDisplayCount(10);
-  }, [searchTerm, selectedTab]);
-
-  useEffect(() => {
     setSelectedMemoryIds(new Set());
-  }, [selectedTab, searchTerm]);
+  }, [searchTerm, selectedTab]);
 
   const handleLoadMore = useCallback(() => {
     setLoading(true);
@@ -759,6 +566,72 @@ export default function AdminPanel() {
       refreshMemories(); // Re-sync on error
     });
   }
+
+  const toggleSelectedMemory = useCallback((id: string, checked: boolean) => {
+    setSelectedMemoryIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const setAllDisplayedSelected = useCallback((checked: boolean) => {
+    setSelectedMemoryIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        for (const m of displayedMemories) next.add(m.id);
+      } else {
+        for (const m of displayedMemories) next.delete(m.id);
+      }
+      return next;
+    });
+  }, [displayedMemories]);
+
+  const selectedDisplayedCount = useMemo(() => {
+    let c = 0;
+    for (const m of displayedMemories) {
+      if (selectedMemoryIds.has(m.id)) c += 1;
+    }
+    return c;
+  }, [displayedMemories, selectedMemoryIds]);
+
+  const canBulkApprove = selectedTab === 'pending' && selectedMemoryIds.size > 0;
+  const canBulkDelete = (selectedTab === 'pending' || selectedTab === 'approved') && selectedMemoryIds.size > 0;
+
+  const runBulkAction = useCallback(async (action: 'approve' | 'delete') => {
+    const ids = Array.from(selectedMemoryIds);
+    if (ids.length === 0) return;
+
+    if (action === 'delete') {
+      if (!confirm(`Delete ${ids.length} selected memories? This cannot be undone.`)) return;
+    }
+    if (action === 'approve') {
+      if (!confirm(`Approve ${ids.length} selected memories?`)) return;
+    }
+
+    setMemories((prev) => prev.filter((m) => !selectedMemoryIds.has(m.id)));
+    setSelectedMemoryIds(new Set());
+
+    try {
+      const res = await fetch('/api/admin/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ids })
+      });
+
+      const json = await res.json().catch(() => null);
+      if (!res.ok || json?.error) {
+        refreshMemories();
+        return;
+      }
+
+      broadcastContentUpdated();
+      refreshMemories();
+    } catch {
+      refreshMemories();
+    }
+  }, [selectedMemoryIds, refreshMemories, broadcastContentUpdated]);
 
   async function deleteMemoryById(id: string) {
     if (!confirm('Are you sure you want to delete this memory? This cannot be undone.')) {
@@ -1451,6 +1324,39 @@ export default function AdminPanel() {
           </div>
         ) : (
           <>
+            {(selectedTab === 'pending' || selectedTab === 'approved') && displayedMemories.length > 0 && (
+              <div className="mb-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                <label className="inline-flex items-center gap-2 text-sm text-[var(--text)] opacity-80 select-none">
+                  <input
+                    type="checkbox"
+                    checked={displayedMemories.length > 0 && selectedDisplayedCount === displayedMemories.length}
+                    onChange={(e) => setAllDisplayedSelected(e.target.checked)}
+                  />
+                  Select all shown
+                </label>
+                <div className="text-sm text-[var(--text)] opacity-70">
+                  Selected: {selectedMemoryIds.size}
+                </div>
+                <div className="flex flex-wrap gap-2 sm:ml-auto">
+                  {selectedTab === 'pending' && (
+                    <button
+                      onClick={() => runBulkAction('approve')}
+                      disabled={!canBulkApprove}
+                      className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Approve selected
+                    </button>
+                  )}
+                  <button
+                    onClick={() => runBulkAction('delete')}
+                    disabled={!canBulkDelete}
+                    className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Delete selected
+                  </button>
+                </div>
+              </div>
+            )}
             {selectedTab === "approved" && (
               <div className="mb-6">
                 <input
@@ -1462,47 +1368,6 @@ export default function AdminPanel() {
                   autoComplete="off"
                   inputMode="search"
                 />
-              </div>
-            )}
-
-            {isMemoryListTab && (
-              <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  {selectedTab === 'pending' && (
-                    <button
-                      type="button"
-                      onClick={bulkApproveSelected}
-                      className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm disabled:opacity-50"
-                      disabled={selectedMemoryIds.size === 0 || bulkApproving || bulkDeleting}
-                    >
-                      {bulkApproving ? `Approving (${selectedMemoryIds.size})...` : `Approve selected (${selectedMemoryIds.size})`}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={selectAllDisplayed}
-                    className="px-3 py-2 bg-gray-100 border border-gray-200 rounded hover:bg-gray-200 transition-colors text-sm"
-                    disabled={memoriesLoading || displayedMemories.length === 0 || bulkDeleting || bulkApproving}
-                  >
-                    Select all shown
-                  </button>
-                  <button
-                    type="button"
-                    onClick={clearSelection}
-                    className="px-3 py-2 bg-gray-100 border border-gray-200 rounded hover:bg-gray-200 transition-colors text-sm"
-                    disabled={selectedMemoryIds.size === 0 || bulkDeleting || bulkApproving}
-                  >
-                    Clear selection
-                  </button>
-                  <button
-                    type="button"
-                    onClick={bulkDeleteSelected}
-                    className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm disabled:opacity-50"
-                    disabled={selectedMemoryIds.size === 0 || bulkDeleting || bulkApproving}
-                  >
-                    {bulkDeleting ? `Deleting (${selectedMemoryIds.size})...` : `Delete selected (${selectedMemoryIds.size})`}
-                  </button>
-                </div>
               </div>
             )}
             {memoriesLoading ? (
@@ -1520,122 +1385,7 @@ export default function AdminPanel() {
                     )}
                   </div>
                 )}
-                {groupedDisplayedMemories.groups.map((g) => (
-                  <details key={g.key} className="w-full">
-                    <summary className="cursor-pointer bg-white/90 shadow rounded-lg p-4 border-l-4 border-amber-400 break-words w-full">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-sm text-gray-600">Repeat poster group</div>
-                          <div className="text-sm text-gray-800 break-all">IP: {g.ip} • UUID: {g.uuid}</div>
-                        </div>
-                        <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 whitespace-nowrap" title="Multiple memories from same IP+UUID in this list">
-                          x{g.items.length}
-                        </span>
-                      </div>
-                    </summary>
-                    <div className="mt-3 space-y-4 pl-4 border-l-2 border-amber-200">
-                      {g.items.map((memory) => (
-                        <div
-                          key={memory.id}
-                          className={`bg-white/90 shadow rounded-lg p-6 border-l-4 break-words w-full ${
-                            selectedTab === "pending"
-                              ? "border-yellow-400"
-                              : selectedTab === "approved"
-                              ? "border-green-400"
-                              : "border-red-600"
-                          }`}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-start gap-3">
-                              {isMemoryListTab && (
-                                <input
-                                  type="checkbox"
-                                  checked={selectedMemoryIds.has(memory.id)}
-                                  onChange={(e) => toggleSelectedMemory(memory.id, e.target.checked)}
-                                  className="mt-1 h-4 w-4"
-                                  disabled={bulkDeleting || bulkApproving}
-                                  aria-label="Select memory"
-                                />
-                              )}
-                              <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
-                            </div>
-                            {memory.pinned && (
-                              <span className="text-yellow-500 text-xl">📌</span>
-                            )}
-                          </div>
-                          <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">{memory.message}</p>
-                          {memory.sender && (
-                            <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
-                          )}
-                          <div className="mt-3 text-sm text-gray-500 break-words space-y-0.5">
-                            <p className="flex items-center gap-1 cursor-pointer" onClick={() => memory.ip && navigator.clipboard.writeText(memory.ip)} title="Click to copy IP">
-                              IP: <span className="underline decoration-dotted">{memory.ip || '-'}</span>
-                            </p>
-                            <p className="flex items-center gap-1 cursor-pointer" onClick={() => memory.uuid && navigator.clipboard.writeText(memory.uuid)} title="Click to copy UUID">
-                              UUID: <span className="underline decoration-dotted break-all">{memory.uuid || '-'}</span>
-                            </p>
-                            <p>Country: {memory.country || '-'}</p>
-                          </div>
-                          <small className="block mt-3 text-gray-500">
-                            {new Date(memory.created_at).toLocaleString()}
-                          </small>
-                          <div className="mt-4 flex flex-wrap gap-4">
-                            {selectedTab === "pending" && (
-                              <>
-                                <button
-                                  onClick={() => updateMemoryStatus(memory.id, "approved")}
-                                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => deleteMemoryById(memory.id)}
-                                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                                >
-                                  Reject
-                                </button>
-                              </>
-                            )}
-                            {selectedTab === "approved" && (
-                              <>
-                                <button
-                                  onClick={() => updateMemoryStatus(memory.id, "pending")}
-                                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
-                                >
-                                  Move to Pending
-                                </button>
-                                <button
-                                  onClick={() => banMemory(memory)}
-                                  className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 transition-colors"
-                                >
-                                  Ban & Delete
-                                </button>
-                                <button
-                                  onClick={() => togglePin(memory)}
-                                  className={`px-4 py-2 rounded text-white transition-colors ${memory.pinned ? "bg-yellow-600 hover:bg-yellow-700" : "bg-yellow-500 hover:bg-yellow-600"}`}
-                                >
-                                  {memory.pinned ? "Unpin" : "Pin"}
-                                </button>
-                              </>
-                            )}
-                            {selectedTab === "banned" && (
-                              <button
-                                onClick={() => unbanMemory(memory)}
-                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                              >
-                                Unban
-                              </button>
-                            )}
-                            <Link href={`/memories/${memory.id}`} target="_blank" className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors">
-                              View on Site
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                ))}
-                {groupedDisplayedMemories.singles.map((memory) => (
+                {displayedMemories.map((memory) => (
                   <div
                     key={memory.id}
                     className={`bg-white/90 shadow rounded-lg p-6 border-l-4 break-words w-full ${
@@ -1648,14 +1398,12 @@ export default function AdminPanel() {
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex items-start gap-3">
-                        {isMemoryListTab && (
+                        {(selectedTab === 'pending' || selectedTab === 'approved') && (
                           <input
                             type="checkbox"
                             checked={selectedMemoryIds.has(memory.id)}
                             onChange={(e) => toggleSelectedMemory(memory.id, e.target.checked)}
-                            className="mt-1 h-4 w-4"
-                            disabled={bulkDeleting || bulkApproving}
-                            aria-label="Select memory"
+                            className="mt-1"
                           />
                         )}
                         <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
@@ -1695,28 +1443,93 @@ export default function AdminPanel() {
                           >
                             Reject
                           </button>
+                          <button
+                            onClick={() => banMemory(memory)}
+                            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors"
+                          >
+                            Ban
+                          </button>
                         </>
                       )}
                       {selectedTab === "approved" && (
                         <>
                           <button
-                            onClick={() => updateMemoryStatus(memory.id, "pending")}
-                            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                            onClick={() => deleteMemoryById(memory.id)}
+                            className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
                           >
-                            Move to Pending
+                            Delete
                           </button>
-                          <button
-                            onClick={() => banMemory(memory)}
-                            className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 transition-colors"
-                          >
-                            Ban & Delete
-                          </button>
-                          <button
-                            onClick={() => togglePin(memory)}
-                            className={`px-4 py-2 rounded text-white transition-colors ${memory.pinned ? "bg-yellow-600 hover:bg-yellow-700" : "bg-yellow-500 hover:bg-yellow-600"}`}
-                          >
-                            {memory.pinned ? "Unpin" : "Pin"}
-                          </button>
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                            {memory.pinned && memory.pinned_until && (
+                              <div className="text-sm text-gray-500">
+                                Unpins in: {formatRemainingTime(memory.pinned_until)}
+                              </div>
+                            )}
+                            {!memory.pinned && (
+                              <div className="w-full sm:w-auto">
+                                <div className="grid grid-cols-4 gap-1">
+                                  <input
+                                    type="number"
+                                    value={pinTimers[memory.id]?.days ?? ""}
+                                    onChange={(e) => setPinTimers(prev => ({
+                                      ...prev,
+                                      [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), days: e.target.value }
+                                    }))}
+                                    min="0"
+                                    className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    placeholder="D"
+                                  />
+                                  <input
+                                    type="number"
+                                    value={pinTimers[memory.id]?.hours ?? ""}
+                                    onChange={(e) => setPinTimers(prev => ({
+                                      ...prev,
+                                      [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), hours: e.target.value }
+                                    }))}
+                                    min="0"
+                                    max="23"
+                                    className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    placeholder="H"
+                                  />
+                                  <input
+                                    type="number"
+                                    value={pinTimers[memory.id]?.minutes ?? ""}
+                                    onChange={(e) => setPinTimers(prev => ({
+                                      ...prev,
+                                      [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), minutes: e.target.value }
+                                    }))}
+                                    min="0"
+                                    max="59"
+                                    className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    placeholder="M"
+                                  />
+                                  <input
+                                    type="number"
+                                    value={pinTimers[memory.id]?.seconds ?? ""}
+                                    onChange={(e) => setPinTimers(prev => ({
+                                      ...prev,
+                                      [memory.id]: { ...(prev[memory.id] || { days: "", hours: "", minutes: "", seconds: "" }), seconds: e.target.value }
+                                    }))}
+                                    min="0"
+                                    max="59"
+                                    className="w-14 sm:w-16 p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                    placeholder="S"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            <button
+                              onClick={() => togglePin(memory)}
+                              className={`w-full sm:w-auto px-3 sm:px-4 py-2 ${
+                                memory.pinned 
+                                  ? "bg-yellow-500 hover:bg-yellow-600" 
+                                  : "bg-gray-500 hover:bg-gray-600"
+                              } text-white rounded transition-colors text-sm`}
+                              disabled={!memory.pinned && (!pinTimers[memory.id] || calculateTotalSeconds(pinTimers[memory.id]) <= 0)}
+                            >
+                              {memory.pinned ? "Unpin" : "Pin"}
+                            </button>
+                          </div>
                         </>
                       )}
                       {selectedTab === "banned" && (
