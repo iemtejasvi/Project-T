@@ -37,6 +37,7 @@ export default function AdminPanel() {
   const [memoriesLoading, setMemoriesLoading] = useState(false);
   const [selectedMemoryIds, setSelectedMemoryIds] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkApproving, setBulkApproving] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -208,6 +209,67 @@ export default function AdminPanel() {
   const clearSelection = useCallback(() => {
     setSelectedMemoryIds(new Set());
   }, []);
+
+  const bulkApproveSelected = useCallback(async () => {
+    if (!isAuthorized) return;
+    if (selectedTab !== 'pending') return;
+    const ids = Array.from(selectedMemoryIds);
+    if (ids.length === 0) return;
+    if (!confirm(`Approve ${ids.length} selected memories?`)) return;
+
+    setBulkApproving(true);
+    setMemories((prev) => prev.filter((m) => !selectedMemoryIds.has(m.id)));
+
+    try {
+      for (const id of ids) {
+        const response = await fetch('/api/admin/update-memory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, updates: { status: 'approved' } })
+        });
+        const result = await response.json();
+        if (!response.ok || result?.error) {
+          console.error('Bulk approve failed for id:', id, result?.error);
+        }
+      }
+    } catch (error) {
+      console.error('Bulk approve error:', error);
+    } finally {
+      setBulkApproving(false);
+      setSelectedMemoryIds(new Set());
+
+      try {
+        localStorage.setItem('last_content_update', Date.now().toString());
+        localStorage.setItem('last_memory_update', Date.now().toString());
+      } catch {
+      }
+
+      try {
+        window.dispatchEvent(new CustomEvent('content-updated'));
+        if (window.location.pathname === '/') {
+          window.dispatchEvent(new CustomEvent('refresh-home-memories'));
+        }
+        if (window.location.pathname === '/memories') {
+          window.dispatchEvent(new CustomEvent('refresh-archives'));
+        }
+      } catch {
+      }
+
+      setMemoriesLoading(true);
+      setMemories([]);
+      fetch('/api/admin/memories?status=pending&page=0&pageSize=200', {
+        credentials: 'include',
+        cache: 'no-store'
+      })
+        .then((r) => r.json())
+        .then((res) => {
+          setMemories((res?.data || []) as Memory[]);
+          setMemoriesTotalCount(Number(res?.totalCount || 0));
+        })
+        .catch((err) => console.error('Error fetching memories:', err))
+        .finally(() => setMemoriesLoading(false));
+    }
+  }, [isAuthorized, selectedMemoryIds, selectedTab]);
 
   const bulkDeleteSelected = useCallback(async () => {
     if (!isAuthorized) return;
@@ -1366,11 +1428,21 @@ export default function AdminPanel() {
             {isMemoryListTab && (
               <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
                 <div className="flex flex-wrap items-center gap-2">
+                  {selectedTab === 'pending' && (
+                    <button
+                      type="button"
+                      onClick={bulkApproveSelected}
+                      className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm disabled:opacity-50"
+                      disabled={selectedMemoryIds.size === 0 || bulkApproving || bulkDeleting}
+                    >
+                      {bulkApproving ? `Approving (${selectedMemoryIds.size})...` : `Approve selected (${selectedMemoryIds.size})`}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={selectAllDisplayed}
                     className="px-3 py-2 bg-gray-100 border border-gray-200 rounded hover:bg-gray-200 transition-colors text-sm"
-                    disabled={memoriesLoading || displayedMemories.length === 0 || bulkDeleting}
+                    disabled={memoriesLoading || displayedMemories.length === 0 || bulkDeleting || bulkApproving}
                   >
                     Select all shown
                   </button>
@@ -1378,7 +1450,7 @@ export default function AdminPanel() {
                     type="button"
                     onClick={clearSelection}
                     className="px-3 py-2 bg-gray-100 border border-gray-200 rounded hover:bg-gray-200 transition-colors text-sm"
-                    disabled={selectedMemoryIds.size === 0 || bulkDeleting}
+                    disabled={selectedMemoryIds.size === 0 || bulkDeleting || bulkApproving}
                   >
                     Clear selection
                   </button>
@@ -1386,7 +1458,7 @@ export default function AdminPanel() {
                     type="button"
                     onClick={bulkDeleteSelected}
                     className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm disabled:opacity-50"
-                    disabled={selectedMemoryIds.size === 0 || bulkDeleting}
+                    disabled={selectedMemoryIds.size === 0 || bulkDeleting || bulkApproving}
                   >
                     {bulkDeleting ? `Deleting (${selectedMemoryIds.size})...` : `Delete selected (${selectedMemoryIds.size})`}
                   </button>
@@ -1427,7 +1499,7 @@ export default function AdminPanel() {
                             checked={selectedMemoryIds.has(memory.id)}
                             onChange={(e) => toggleSelectedMemory(memory.id, e.target.checked)}
                             className="mt-1 h-4 w-4"
-                            disabled={bulkDeleting}
+                            disabled={bulkDeleting || bulkApproving}
                             aria-label="Select memory"
                           />
                         )}
