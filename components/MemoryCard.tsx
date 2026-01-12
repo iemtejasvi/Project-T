@@ -8,6 +8,234 @@ import { laBelleAurore } from '@/lib/fonts';
 import "../app/globals.css";
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
+const BurnOverlay: React.FC<{ enabled: boolean; intensity: number; className?: string }> = ({ enabled, intensity, className }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animRef = useRef<number | null>(null);
+  const startRef = useRef<number>(0);
+  const originRef = useRef<'top' | 'bottom'>('bottom');
+
+  useEffect(() => {
+    if (!enabled) {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      animRef.current = null;
+      return;
+    }
+
+    if (!startRef.current) {
+      startRef.current = performance.now();
+      originRef.current = Math.random() < 0.35 ? 'top' : 'bottom';
+    }
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    if (!ctx) return;
+
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+    const resize = () => {
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      const rect = parent.getBoundingClientRect();
+      const w = Math.max(1, Math.floor(rect.width));
+      const h = Math.max(1, Math.floor(rect.height));
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+    const ro = new ResizeObserver(() => resize());
+    if (canvas.parentElement) ro.observe(canvas.parentElement);
+
+    const hash = (n: number) => {
+      const x = Math.sin(n) * 43758.5453;
+      return x - Math.floor(x);
+    };
+
+    const draw = (now: number) => {
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
+      const t = now - startRef.current;
+
+      const i = Math.max(0, Math.min(1, intensity));
+
+      ctx.clearRect(0, 0, w, h);
+
+      const edge = 0.10 + i * 0.22;
+      const smokePhase = i >= 0.98 ? Math.min(1, (i - 0.98) / 0.02) : 0;
+
+      // char/darkness
+      ctx.globalCompositeOperation = 'source-over';
+      const charA = 0.05 + i * 0.30;
+      ctx.fillStyle = `rgba(10, 0, 0, ${charA})`;
+      ctx.fillRect(0, 0, w, h);
+
+      // charred edges vignette
+      const edgeGrad = ctx.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * (0.25 - edge * 0.15), w * 0.5, h * 0.45, Math.min(w, h) * 0.75);
+      edgeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      edgeGrad.addColorStop(0.55, `rgba(20,10,0,${0.05 + i * 0.18})`);
+      edgeGrad.addColorStop(1, `rgba(0,0,0,${0.14 + i * 0.32})`);
+      ctx.fillStyle = edgeGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // burn line glow near edges
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.shadowColor = `rgba(255, 80, 0, ${0.10 + i * 0.25})`;
+      ctx.shadowBlur = 8 + i * 22;
+      const edgeGlow = ctx.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * 0.15, w * 0.5, h * 0.45, Math.min(w, h) * 0.75);
+      edgeGlow.addColorStop(0, 'rgba(0,0,0,0)');
+      edgeGlow.addColorStop(0.6, `rgba(255,140,40,${0.04 + i * 0.10})`);
+      edgeGlow.addColorStop(1, `rgba(255,80,0,${0.03 + i * 0.10})`);
+      ctx.fillStyle = edgeGlow;
+      ctx.fillRect(0, 0, w, h);
+      ctx.shadowBlur = 0;
+      ctx.globalCompositeOperation = 'source-over';
+
+      // hot glow vignette
+      const glow = ctx.createRadialGradient(w * 0.5, h * 0.75, Math.min(w, h) * 0.05, w * 0.5, h * 0.75, Math.min(w, h) * 0.9);
+      glow.addColorStop(0, `rgba(255, 120, 0, ${0.06 + i * 0.18})`);
+      glow.addColorStop(0.5, `rgba(255, 40, 0, ${0.03 + i * 0.10})`);
+      glow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, w, h);
+
+      // flames (suppressed during final smoke phase)
+      ctx.globalCompositeOperation = 'lighter';
+      const flameStrength = 1 - smokePhase;
+      const cols = Math.floor(26 + i * 54);
+      const colW = w / cols;
+      const baseHeight = h * (0.22 + i * 0.55) * flameStrength;
+      const flicker = 1 + i * 1.8;
+
+      const burnFromTop = originRef.current === 'top';
+
+      for (let c = 0; c < cols; c++) {
+        const seed = c * 13.37;
+        const n1 = hash(seed + Math.floor(t / 17));
+        const n2 = hash(seed + 99.1 + Math.floor(t / 31));
+        const x = c * colW;
+        const sway = (n2 - 0.5) * colW * 0.8;
+        const hMul = 0.55 + n1 * 0.9;
+        const flameH = baseHeight * hMul * (0.70 + 0.30 * Math.sin((t / 70 + seed) * flicker));
+
+        const gx = x + colW / 2 + sway;
+        const gy = burnFromTop ? 0 : h;
+
+        const grad = burnFromTop
+          ? ctx.createLinearGradient(gx, gy, gx, gy + flameH)
+          : ctx.createLinearGradient(gx, gy, gx, gy - flameH);
+        const hot = 0.25 + i * 0.55;
+        grad.addColorStop(0, `rgba(255, 140, 40, ${(0.14 + i * 0.22) * flameStrength})`);
+        grad.addColorStop(0.3, `rgba(255, 70, 0, ${(0.12 + i * 0.26) * flameStrength})`);
+        grad.addColorStop(0.65, `rgba(255, 220, 90, ${(0.07 + i * 0.18) * flameStrength})`);
+        grad.addColorStop(1, `rgba(255, 255, 255, ${(0.03 + hot * 0.16) * flameStrength})`);
+
+        ctx.fillStyle = grad;
+        const width = colW * (0.9 + n2 * 0.8);
+        ctx.beginPath();
+        if (burnFromTop) {
+          ctx.moveTo(gx - width / 2, gy);
+          ctx.quadraticCurveTo(gx, gy + flameH, gx + width / 2, gy);
+        } else {
+          ctx.moveTo(gx - width / 2, gy);
+          ctx.quadraticCurveTo(gx, gy - flameH, gx + width / 2, gy);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // embers (fade out during smoke phase)
+      ctx.globalCompositeOperation = 'lighter';
+      const emberCount = Math.floor((10 + i * 80) * (1 - smokePhase));
+      for (let e = 0; e < emberCount; e++) {
+        const s = hash(e * 91.17 + Math.floor(t / 23));
+        const s2 = hash(e * 17.3 + 55.4 + Math.floor(t / 29));
+        const px = s * w;
+        const rise = (t / 12 + e * 19) % h;
+        const py = h - rise;
+        const r = 0.6 + s2 * (1.8 + i * 2.5);
+        const a = (0.03 + i * 0.14) * (1 - rise / h);
+        ctx.fillStyle = `rgba(255, ${Math.floor(120 + s2 * 120)}, 20, ${a})`;
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // smoke top vignette
+      ctx.globalCompositeOperation = 'source-over';
+      const smokeA = 0.05 + i * 0.14 + smokePhase * 0.18;
+      const smoke = ctx.createLinearGradient(0, 0, 0, h);
+      smoke.addColorStop(0, `rgba(0,0,0,${smokeA})`);
+      smoke.addColorStop(0.5, `rgba(0,0,0,0)`);
+      ctx.fillStyle = smoke;
+      ctx.fillRect(0, 0, w, h);
+
+      // drifting smoke blobs near the top
+      ctx.globalCompositeOperation = 'source-over';
+      const blobCount = Math.floor(4 + i * 10 + smokePhase * 10);
+      for (let b = 0; b < blobCount; b++) {
+        const seed = b * 19.7;
+        const rx = hash(seed + Math.floor(t / 80));
+        const ry = hash(seed + 7.1 + Math.floor(t / 120));
+        const r2 = hash(seed + 13.3 + Math.floor(t / 100));
+        const x = rx * w;
+        const y = (ry * ry) * (h * 0.45);
+        const radius = (18 + r2 * 38) * (0.7 + i * 1.3);
+        const a = (0.03 + i * 0.08 + smokePhase * 0.18) * (1 - y / (h * 0.6));
+        const g = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
+        g.addColorStop(0, `rgba(60,60,60,${a})`);
+        g.addColorStop(1, 'rgba(60,60,60,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+      }
+
+      // full-screen smoke fade at end
+      if (smokePhase > 0) {
+        ctx.globalCompositeOperation = 'source-over';
+        const fade = 0.10 + smokePhase * 0.35;
+        ctx.fillStyle = `rgba(40, 40, 40, ${fade})`;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      // screen-filling smoke sweep near the end
+      if (i > 0.7 || smokePhase > 0) {
+        ctx.globalCompositeOperation = 'source-over';
+        const sweepA = (Math.max(0, i - 0.7) / 0.3) * 0.10 + smokePhase * 0.25;
+        const sweep = ctx.createLinearGradient(0, 0, w, 0);
+        sweep.addColorStop(0, `rgba(55,55,55,${sweepA})`);
+        sweep.addColorStop(0.5, `rgba(55,55,55,${sweepA * 0.6})`);
+        sweep.addColorStop(1, `rgba(55,55,55,${sweepA})`);
+        ctx.fillStyle = sweep;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    animRef.current = requestAnimationFrame(draw);
+
+    return () => {
+      ro.disconnect();
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      animRef.current = null;
+    };
+  }, [enabled, intensity]);
+
+  if (!enabled) return null;
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className={className}
+      aria-hidden
+      style={{ width: '100%', height: '100%', display: 'block' }}
+    />
+  );
+};
+
 interface Memory {
   id: string;
   recipient: string;
@@ -463,6 +691,23 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return () => clearTimeout(t);
   }, [destructAtTs, isApproved, isDestructedNow]);
 
+  const isBurningNow = useMemo(() => {
+    if (!isApproved) return false;
+    if (destructAtTs === null) return false;
+    if (isDestructedNow) return false;
+    return destructAtTs > Date.now();
+  }, [destructAtTs, isApproved, isDestructedNow]);
+
+  const burnIntensity = useMemo(() => {
+    if (!isBurningNow) return 0;
+    if (destructAtTs === null) return 0;
+    const remainingMs = destructAtTs - Date.now();
+    if (!Number.isFinite(remainingMs) || remainingMs <= 0) return 0;
+    const windowMs = 60 * 1000;
+    const t = Math.min(1, Math.max(0, 1 - remainingMs / windowMs));
+    return t;
+  }, [isBurningNow, destructAtTs]);
+
   const destructedMessage = useMemo(() => {
     const idx = Math.floor(Math.random() * DESTRUCTED_MESSAGES.length);
     return DESTRUCTED_MESSAGES[idx];
@@ -578,6 +823,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
+        <BurnOverlay enabled={isBurningNow} intensity={burnIntensity} className="absolute inset-0 z-[30] pointer-events-none" />
         {/* Rough paper defs and overlay for detail view */}
         {memory.animation === "rough" && (
           <>
@@ -666,6 +912,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
+        <BurnOverlay enabled={isBurningNow} intensity={burnIntensity} className="absolute inset-0 z-[30] pointer-events-none" />
         {/* Rough paper base for underside during flip */}
         {memory.animation === "rough" && (
           <>
