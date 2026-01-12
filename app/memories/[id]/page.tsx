@@ -31,11 +31,30 @@ export default function MemoryDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) return;
+
+    const cacheKey = `memory_by_id:${id}`;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached) as Memory;
+        if (parsed && parsed.id === id) {
+          setMemory(parsed);
+          setLoading(false);
+        }
+      }
+    } catch {
+    }
+
+    const controller = new AbortController();
+
     async function fetchMemory() {
       try {
         const res = await fetch(`/api/memories/${encodeURIComponent(id)}`, {
           method: 'GET',
           headers: { 'Accept': 'application/json' },
+          cache: 'no-store',
+          signal: controller.signal,
         });
 
         const json = await res.json().catch(() => null);
@@ -45,14 +64,26 @@ export default function MemoryDetail() {
           setMemory(false);
         } else {
           setMemory(data);
+          try {
+            sessionStorage.setItem(cacheKey, JSON.stringify(data));
+          } catch {
+          }
         }
       } catch {
-        setMemory(false);
+        if (!controller.signal.aborted) {
+          setMemory(false);
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
     fetchMemory();
+
+    return () => {
+      controller.abort();
+    };
   }, [id]);
 
   if (loading) return (
