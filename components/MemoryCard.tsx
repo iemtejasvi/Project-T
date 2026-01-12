@@ -12,18 +12,19 @@ const BurnOverlay: React.FC<{ enabled: boolean; intensity: number; className?: s
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animRef = useRef<number | null>(null);
   const startRef = useRef<number>(0);
-  const originRef = useRef<'top' | 'bottom'>('bottom');
+  const variantRef = useRef<number>(0);
 
   useEffect(() => {
     if (!enabled) {
       if (animRef.current) cancelAnimationFrame(animRef.current);
       animRef.current = null;
+      startRef.current = 0;
       return;
     }
 
     if (!startRef.current) {
       startRef.current = performance.now();
-      originRef.current = Math.random() < 0.35 ? 'top' : 'bottom';
+      variantRef.current = Math.floor(Math.random() * 24);
     }
 
     const canvas = canvasRef.current;
@@ -55,21 +56,58 @@ const BurnOverlay: React.FC<{ enabled: boolean; intensity: number; className?: s
       return x - Math.floor(x);
     };
 
+    const getVariant = (v: number) => {
+      const variants = [
+        { pattern: 'smoke', speed: 0.7, height: 0.7, density: 0.9, flicker: 0.85, sway: 0.6, ember: 0.4, smoke: 1.7, dark: 1.35, fire: 0.0 },
+        { pattern: 'bottom', speed: 0.75, height: 0.85, density: 0.95, flicker: 0.85, sway: 0.65, ember: 0.8, smoke: 1.35, dark: 1.15, fire: 0.55 },
+        { pattern: 'bottom', speed: 0.9, height: 1.0, density: 1.0, flicker: 0.95, sway: 0.75, ember: 1.0, smoke: 1.0, dark: 1.0, fire: 0.95 },
+        { pattern: 'bottom', speed: 1.15, height: 1.1, density: 1.15, flicker: 1.15, sway: 0.9, ember: 1.2, smoke: 0.95, dark: 0.95, fire: 1.1 },
+        { pattern: 'bottom', speed: 1.35, height: 1.25, density: 1.25, flicker: 1.35, sway: 1.05, ember: 1.35, smoke: 0.85, dark: 0.9, fire: 1.25 },
+        { pattern: 'bottom', speed: 1.5, height: 1.05, density: 1.35, flicker: 1.45, sway: 0.95, ember: 1.45, smoke: 0.8, dark: 0.9, fire: 1.35 },
+
+        { pattern: 'sides', speed: 0.8, height: 0.9, density: 1.05, flicker: 0.9, sway: 0.75, ember: 0.85, smoke: 1.25, dark: 1.1, fire: 0.8 },
+        { pattern: 'sides', speed: 1.05, height: 1.0, density: 1.15, flicker: 1.1, sway: 0.85, ember: 1.05, smoke: 1.05, dark: 1.0, fire: 1.0 },
+        { pattern: 'sides', speed: 1.35, height: 1.1, density: 1.3, flicker: 1.35, sway: 1.0, ember: 1.15, smoke: 0.9, dark: 0.95, fire: 1.15 },
+        { pattern: 'sides', speed: 0.75, height: 0.75, density: 0.95, flicker: 0.85, sway: 0.7, ember: 0.65, smoke: 1.55, dark: 1.25, fire: 0.5 },
+
+        { pattern: 'bottom+sides', speed: 0.85, height: 0.9, density: 1.0, flicker: 0.95, sway: 0.75, ember: 0.95, smoke: 1.2, dark: 1.05, fire: 0.9 },
+        { pattern: 'bottom+sides', speed: 1.0, height: 1.05, density: 1.1, flicker: 1.1, sway: 0.85, ember: 1.1, smoke: 1.05, dark: 1.0, fire: 1.0 },
+        { pattern: 'bottom+sides', speed: 1.25, height: 1.2, density: 1.25, flicker: 1.25, sway: 0.95, ember: 1.25, smoke: 0.95, dark: 0.95, fire: 1.15 },
+        { pattern: 'bottom+sides', speed: 1.4, height: 1.35, density: 1.35, flicker: 1.35, sway: 1.05, ember: 1.35, smoke: 0.9, dark: 0.9, fire: 1.25 },
+
+        { pattern: 'full', speed: 0.8, height: 0.95, density: 0.95, flicker: 0.95, sway: 0.9, ember: 0.85, smoke: 1.5, dark: 1.25, fire: 0.5 },
+        { pattern: 'full', speed: 0.95, height: 1.1, density: 1.15, flicker: 1.1, sway: 1.0, ember: 1.15, smoke: 1.05, dark: 1.05, fire: 0.95 },
+        { pattern: 'full', speed: 1.2, height: 1.25, density: 1.25, flicker: 1.25, sway: 1.05, ember: 1.25, smoke: 0.95, dark: 1.0, fire: 1.1 },
+        { pattern: 'full', speed: 1.35, height: 1.35, density: 1.3, flicker: 1.35, sway: 1.1, ember: 1.35, smoke: 0.9, dark: 0.95, fire: 1.15 },
+        { pattern: 'full', speed: 1.55, height: 1.05, density: 1.45, flicker: 1.55, sway: 1.1, ember: 1.45, smoke: 0.8, dark: 0.9, fire: 1.25 },
+
+        { pattern: 'bottom', speed: 0.65, height: 0.7, density: 0.85, flicker: 0.8, sway: 0.6, ember: 0.6, smoke: 1.6, dark: 1.25, fire: 0.35 },
+        { pattern: 'sides', speed: 1.25, height: 1.15, density: 1.2, flicker: 1.25, sway: 0.95, ember: 1.0, smoke: 0.95, dark: 0.95, fire: 1.05 },
+        { pattern: 'bottom+sides', speed: 0.75, height: 0.85, density: 1.15, flicker: 0.95, sway: 0.75, ember: 0.95, smoke: 1.35, dark: 1.15, fire: 0.75 },
+        { pattern: 'smoke', speed: 1.1, height: 0.9, density: 1.0, flicker: 1.0, sway: 0.75, ember: 0.35, smoke: 1.9, dark: 1.4, fire: 0.0 },
+      ] as const;
+      return variants[v % variants.length];
+    };
+
     const draw = (now: number) => {
       const w = canvas.width / dpr;
       const h = canvas.height / dpr;
       const t = now - startRef.current;
 
       const i = Math.max(0, Math.min(1, intensity));
+      const v = getVariant(variantRef.current);
+
+      const tScaled = t * v.speed;
 
       ctx.clearRect(0, 0, w, h);
 
       const edge = 0.10 + i * 0.22;
       const smokePhase = i >= 0.98 ? Math.min(1, (i - 0.98) / 0.02) : 0;
+      const phase = smokePhase;
 
       // char/darkness
       ctx.globalCompositeOperation = 'source-over';
-      const charA = 0.05 + i * 0.30;
+      const charA = (0.05 + i * 0.30) * v.dark + phase * 0.22;
       ctx.fillStyle = `rgba(10, 0, 0, ${charA})`;
       ctx.fillRect(0, 0, w, h);
 
@@ -102,108 +140,110 @@ const BurnOverlay: React.FC<{ enabled: boolean; intensity: number; className?: s
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, w, h);
 
-      // flames (suppressed during final smoke phase)
-      ctx.globalCompositeOperation = 'lighter';
-      const flameStrength = 1 - smokePhase;
-      const cols = Math.floor(26 + i * 54);
-      const colW = w / cols;
-      const baseHeight = h * (0.22 + i * 0.55) * flameStrength;
-      const flicker = 1 + i * 1.8;
+      const flameStrength = (1 - phase) * (v.fire || 0);
+      if (flameStrength > 0.01 && v.pattern !== 'smoke') {
+        const cols = Math.max(10, Math.floor((26 + i * 54) * v.density));
+        const colW = w / cols;
+        const baseHeight = h * (0.22 + i * 0.55) * flameStrength * v.height;
+        const flicker = (1 + i * 1.8) * v.flicker;
 
-      const burnFromTop = originRef.current === 'top';
+        const drawBottom = v.pattern === 'bottom' || v.pattern === 'bottom+sides' || v.pattern === 'full';
+        const drawSides = v.pattern === 'sides' || v.pattern === 'bottom+sides' || v.pattern === 'full';
 
-      for (let c = 0; c < cols; c++) {
-        const seed = c * 13.37;
-        const n1 = hash(seed + Math.floor(t / 17));
-        const n2 = hash(seed + 99.1 + Math.floor(t / 31));
-        const x = c * colW;
-        const sway = (n2 - 0.5) * colW * 0.8;
-        const hMul = 0.55 + n1 * 0.9;
-        const flameH = baseHeight * hMul * (0.70 + 0.30 * Math.sin((t / 70 + seed) * flicker));
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 0.65 + 0.25 * (1 - phase);
 
-        const gx = x + colW / 2 + sway;
-        const gy = burnFromTop ? 0 : h;
+        if (drawBottom) {
+          for (let c = 0; c < cols; c++) {
+            const seed = c * 13.37;
+            const n1 = hash(seed + Math.floor(tScaled / 17));
+            const n2 = hash(seed + 99.1 + Math.floor(tScaled / 31));
+            const x = c * colW;
+            const sway = (n2 - 0.5) * colW * v.sway;
+            const hMul = 0.55 + n1 * 0.9;
+            const flameH = baseHeight * hMul * (0.70 + 0.30 * Math.sin((tScaled / 70 + seed) * flicker));
 
-        const grad = burnFromTop
-          ? ctx.createLinearGradient(gx, gy, gx, gy + flameH)
-          : ctx.createLinearGradient(gx, gy, gx, gy - flameH);
-        const hot = 0.25 + i * 0.55;
-        grad.addColorStop(0, `rgba(255, 140, 40, ${(0.14 + i * 0.22) * flameStrength})`);
-        grad.addColorStop(0.3, `rgba(255, 70, 0, ${(0.12 + i * 0.26) * flameStrength})`);
-        grad.addColorStop(0.65, `rgba(255, 220, 90, ${(0.07 + i * 0.18) * flameStrength})`);
-        grad.addColorStop(1, `rgba(255, 255, 255, ${(0.03 + hot * 0.16) * flameStrength})`);
+            const gx = x + colW / 2 + sway;
+            const gy = h;
 
-        ctx.fillStyle = grad;
-        const width = colW * (0.9 + n2 * 0.8);
-        ctx.beginPath();
-        if (burnFromTop) {
-          ctx.moveTo(gx - width / 2, gy);
-          ctx.quadraticCurveTo(gx, gy + flameH, gx + width / 2, gy);
-        } else {
-          ctx.moveTo(gx - width / 2, gy);
-          ctx.quadraticCurveTo(gx, gy - flameH, gx + width / 2, gy);
+            const grad = ctx.createLinearGradient(gx, gy, gx, gy - flameH);
+            grad.addColorStop(0, `rgba(255, 150, 55, ${(0.16 + i * 0.18) * flameStrength})`);
+            grad.addColorStop(0.4, `rgba(225, 95, 20, ${(0.14 + i * 0.20) * flameStrength})`);
+            grad.addColorStop(0.78, `rgba(255, 210, 120, ${(0.07 + i * 0.12) * flameStrength})`);
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+            ctx.fillStyle = grad;
+            const width = colW * (0.9 + n2 * 0.8);
+            ctx.beginPath();
+            ctx.moveTo(gx - width / 2, gy);
+            ctx.quadraticCurveTo(gx, gy - flameH, gx + width / 2, gy);
+            ctx.closePath();
+            ctx.fill();
+          }
         }
-        ctx.closePath();
-        ctx.fill();
-      }
 
-      // embers (fade out during smoke phase)
-      ctx.globalCompositeOperation = 'lighter';
-      const emberCount = Math.floor((10 + i * 80) * (1 - smokePhase));
-      for (let e = 0; e < emberCount; e++) {
-        const s = hash(e * 91.17 + Math.floor(t / 23));
-        const s2 = hash(e * 17.3 + 55.4 + Math.floor(t / 29));
-        const px = s * w;
-        const rise = (t / 12 + e * 19) % h;
-        const py = h - rise;
-        const r = 0.6 + s2 * (1.8 + i * 2.5);
-        const a = (0.03 + i * 0.14) * (1 - rise / h);
-        ctx.fillStyle = `rgba(255, ${Math.floor(120 + s2 * 120)}, 20, ${a})`;
-        ctx.beginPath();
-        ctx.arc(px, py, r, 0, Math.PI * 2);
-        ctx.fill();
+        if (drawSides) {
+          const rows = Math.max(12, Math.floor((18 + i * 42) * v.density));
+          const rowH = h / rows;
+          const sideBase = w * (0.08 + i * 0.28) * v.height * (0.6 + 0.4 * flameStrength);
+          for (let r = 0; r < rows; r++) {
+            const seed = r * 21.73;
+            const n1 = hash(seed + Math.floor(tScaled / 19));
+            const n2 = hash(seed + 77.3 + Math.floor(tScaled / 33));
+            const y = r * rowH + rowH * 0.5 + (n2 - 0.5) * rowH * 0.6;
+            const wMul = 0.55 + n1 * 0.9;
+            const flameW = sideBase * wMul * (0.70 + 0.30 * Math.sin((tScaled / 85 + seed) * flicker));
+
+            const leftGrad = ctx.createLinearGradient(0, y, flameW, y);
+            leftGrad.addColorStop(0, `rgba(255, 150, 55, ${(0.13 + i * 0.16) * flameStrength})`);
+            leftGrad.addColorStop(0.5, `rgba(225, 95, 20, ${(0.12 + i * 0.18) * flameStrength})`);
+            leftGrad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = leftGrad;
+            ctx.beginPath();
+            ctx.moveTo(0, y - rowH * 0.55);
+            ctx.quadraticCurveTo(flameW, y, 0, y + rowH * 0.55);
+            ctx.closePath();
+            ctx.fill();
+
+            const rx0 = w;
+            const rx1 = w - flameW;
+            const rightGrad = ctx.createLinearGradient(rx0, y, rx1, y);
+            rightGrad.addColorStop(0, `rgba(255, 150, 55, ${(0.13 + i * 0.16) * flameStrength})`);
+            rightGrad.addColorStop(0.5, `rgba(225, 95, 20, ${(0.12 + i * 0.18) * flameStrength})`);
+            rightGrad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = rightGrad;
+            ctx.beginPath();
+            ctx.moveTo(w, y - rowH * 0.55);
+            ctx.quadraticCurveTo(w - flameW, y, w, y + rowH * 0.55);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+
+        ctx.globalAlpha = 1;
       }
 
       // smoke top vignette
       ctx.globalCompositeOperation = 'source-over';
-      const smokeA = 0.05 + i * 0.14 + smokePhase * 0.18;
+      const smokeA = (0.05 + i * 0.14 + phase * 0.22) * v.smoke;
       const smoke = ctx.createLinearGradient(0, 0, 0, h);
       smoke.addColorStop(0, `rgba(0,0,0,${smokeA})`);
       smoke.addColorStop(0.5, `rgba(0,0,0,0)`);
       ctx.fillStyle = smoke;
       ctx.fillRect(0, 0, w, h);
 
-      // drifting smoke blobs near the top
-      ctx.globalCompositeOperation = 'source-over';
-      const blobCount = Math.floor(4 + i * 10 + smokePhase * 10);
-      for (let b = 0; b < blobCount; b++) {
-        const seed = b * 19.7;
-        const rx = hash(seed + Math.floor(t / 80));
-        const ry = hash(seed + 7.1 + Math.floor(t / 120));
-        const r2 = hash(seed + 13.3 + Math.floor(t / 100));
-        const x = rx * w;
-        const y = (ry * ry) * (h * 0.45);
-        const radius = (18 + r2 * 38) * (0.7 + i * 1.3);
-        const a = (0.03 + i * 0.08 + smokePhase * 0.18) * (1 - y / (h * 0.6));
-        const g = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
-        g.addColorStop(0, `rgba(60,60,60,${a})`);
-        g.addColorStop(1, 'rgba(60,60,60,0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-      }
-
       // full-screen smoke fade at end
-      if (smokePhase > 0) {
+      if (phase > 0) {
         ctx.globalCompositeOperation = 'source-over';
-        const fade = 0.10 + smokePhase * 0.35;
+        const fade = 0.10 + phase * 0.38;
         ctx.fillStyle = `rgba(40, 40, 40, ${fade})`;
         ctx.fillRect(0, 0, w, h);
       }
 
       // screen-filling smoke sweep near the end
-      if (i > 0.7 || smokePhase > 0) {
+      if (i > 0.7 || phase > 0) {
         ctx.globalCompositeOperation = 'source-over';
-        const sweepA = (Math.max(0, i - 0.7) / 0.3) * 0.10 + smokePhase * 0.25;
+        const sweepA = (Math.max(0, i - 0.7) / 0.3) * 0.10 + phase * 0.28;
         const sweep = ctx.createLinearGradient(0, 0, w, 0);
         sweep.addColorStop(0, `rgba(55,55,55,${sweepA})`);
         sweep.addColorStop(0.5, `rgba(55,55,55,${sweepA * 0.6})`);
@@ -708,6 +748,17 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return t;
   }, [isBurningNow, destructAtTs]);
 
+  const burnAwayStyle = useMemo(() => {
+    if (!isBurningNow) return undefined;
+    const t = burnIntensity;
+    if (t <= 0) return undefined;
+    return {
+      opacity: 1 - t * 0.65,
+      filter: `blur(${t * 1.6}px)`,
+      transform: `translateY(${t * 6}px)`,
+    } as React.CSSProperties;
+  }, [burnIntensity, isBurningNow]);
+
   const destructedMessage = useMemo(() => {
     const idx = Math.floor(Math.random() * DESTRUCTED_MESSAGES.length);
     return DESTRUCTED_MESSAGES[idx];
@@ -873,7 +924,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
         {/* Message section */}
         <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
-          <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
+          <div style={burnAwayStyle} className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
             {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
           </div>
         </div>
@@ -1089,7 +1140,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
                 style={{
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
+                  ...(burnAwayStyle || {}),
                 } as React.CSSProperties}
               >
                 {renderMessage(memory)}
@@ -1099,7 +1151,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 style={
                   {
                     "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                    "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                    "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
+                    ...(burnAwayStyle || {}),
                   } as React.CSSProperties
                 }
               >
