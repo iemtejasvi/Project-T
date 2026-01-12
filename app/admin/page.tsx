@@ -185,6 +185,18 @@ export default function AdminPanel() {
     return filteredMemories.slice(0, displayCount);
   }, [filteredMemories, displayCount, selectedTab, memories]);
 
+  const repeatPosterCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const m of displayedMemories) {
+      const ip = typeof m.ip === 'string' ? m.ip.trim() : '';
+      const uuid = typeof m.uuid === 'string' ? m.uuid.trim() : '';
+      if (!ip || !uuid) continue;
+      const key = `${ip}::${uuid}`;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return counts;
+  }, [displayedMemories]);
+
   const isMemoryListTab = useMemo(() => {
     return selectedTab === 'pending' || selectedTab === 'approved' || selectedTab === 'banned';
   }, [selectedTab]);
@@ -1505,9 +1517,24 @@ export default function AdminPanel() {
                         )}
                         <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
                       </div>
-                      {memory.pinned && (
-                        <span className="text-yellow-500 text-xl">📌</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const ip = typeof memory.ip === 'string' ? memory.ip.trim() : '';
+                          const uuid = typeof memory.uuid === 'string' ? memory.uuid.trim() : '';
+                          if (!ip || !uuid) return null;
+                          const key = `${ip}::${uuid}`;
+                          const c = repeatPosterCounts.get(key) || 0;
+                          if (c <= 1) return null;
+                          return (
+                            <span className="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 whitespace-nowrap" title="Multiple memories from same IP+UUID in this list">
+                              x{c}
+                            </span>
+                          );
+                        })()}
+                        {memory.pinned && (
+                          <span className="text-yellow-500 text-xl">📌</span>
+                        )}
+                      </div>
                     </div>
                     <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">{memory.message}</p>
                     {memory.sender && (
