@@ -1181,7 +1181,7 @@ export default function SubmitPage() {
                   </div>
 
                   <div className={`space-y-2`}>
-                    <label className="block text-lg font-medium text-[var(--text)]">Destructing Message (optional)</label>
+                    <label className="block text-lg font-medium text-[var(--text)]">Burning Message (optional)</label>
                     <select
                       value={destructDelayMinutes}
                       onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
@@ -1446,7 +1446,7 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block font-medium text-[var(--text)] mb-2">Destructing Message (optional)</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Burning Message (optional)</label>
                   <select
                     value={destructDelayMinutes}
                     onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
