@@ -169,7 +169,7 @@ const BurnOverlay: React.FC<{ enabled: boolean; intensity: number; className?: s
       ctx.globalCompositeOperation = 'source-over';
 
       const flameStrength = (1 - phase) * (v.fire || 0);
-      if (flameStrength > 0.01 && v.pattern !== 'smoke') {
+      if (flameStrength > 0.01) {
         const baseHeight = h * (0.22 + i * 0.55) * flameStrength * v.height;
         const flicker = (1 + i * 1.8) * v.flicker;
 
