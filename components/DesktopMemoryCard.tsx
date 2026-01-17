@@ -6,304 +6,6 @@ import HandwrittenText from './HandwrittenText';
 import { laBelleAurore } from '@/lib/fonts';
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
 
-const BurnOverlay: React.FC<{ enabled: boolean; intensity: number; className?: string }> = ({ enabled, intensity, className }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const animRef = useRef<number | null>(null);
-  const startRef = useRef<number>(0);
-  const variantRef = useRef<number>(0);
-
-  useEffect(() => {
-    if (!enabled) {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-      animRef.current = null;
-      startRef.current = 0;
-      return;
-    }
-
-    if (!startRef.current) {
-      startRef.current = performance.now();
-      variantRef.current = Math.floor(Math.random() * 24);
-    }
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return;
-
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-
-    const resize = () => {
-      const parent = canvas.parentElement;
-      if (!parent) return;
-      const rect = parent.getBoundingClientRect();
-      const w = Math.max(1, Math.floor(rect.width));
-      const h = Math.max(1, Math.floor(rect.height));
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-
-    resize();
-    const ro = new ResizeObserver(() => resize());
-    if (canvas.parentElement) ro.observe(canvas.parentElement);
-
-    const hash = (n: number) => {
-      const x = Math.sin(n) * 43758.5453;
-      return x - Math.floor(x);
-    };
-
-    const getVariant = (v: number) => {
-      const variants = [
-        { pattern: 'bottom', speed: 0.45, height: 0.7, density: 0.85, flicker: 0.7, sway: 0.5, ember: 0.5, smoke: 1.7, dark: 1.4, fire: 0.3 },
-        { pattern: 'bottom', speed: 0.55, height: 0.8, density: 0.9, flicker: 0.75, sway: 0.55, ember: 0.7, smoke: 1.4, dark: 1.2, fire: 0.55 },
-        { pattern: 'bottom', speed: 0.7, height: 0.95, density: 1.0, flicker: 0.85, sway: 0.65, ember: 0.9, smoke: 1.1, dark: 1.05, fire: 0.8 },
-        { pattern: 'bottom', speed: 0.85, height: 1.1, density: 1.15, flicker: 0.95, sway: 0.75, ember: 1.1, smoke: 0.95, dark: 0.95, fire: 1.0 },
-        { pattern: 'bottom', speed: 0.95, height: 1.25, density: 1.25, flicker: 1.05, sway: 0.85, ember: 1.2, smoke: 0.85, dark: 0.9, fire: 1.15 },
-        { pattern: 'bottom', speed: 0.6, height: 1.15, density: 1.05, flicker: 0.8, sway: 0.6, ember: 0.95, smoke: 1.25, dark: 1.1, fire: 0.75 },
-
-        { pattern: 'sides', speed: 0.55, height: 0.8, density: 0.95, flicker: 0.75, sway: 0.6, ember: 0.6, smoke: 1.55, dark: 1.3, fire: 0.35 },
-        { pattern: 'sides', speed: 0.7, height: 0.95, density: 1.05, flicker: 0.85, sway: 0.7, ember: 0.85, smoke: 1.2, dark: 1.1, fire: 0.7 },
-        { pattern: 'sides', speed: 0.9, height: 1.1, density: 1.2, flicker: 1.0, sway: 0.8, ember: 1.05, smoke: 0.95, dark: 0.95, fire: 1.0 },
-        { pattern: 'sides', speed: 1.05, height: 1.25, density: 1.35, flicker: 1.05, sway: 0.85, ember: 1.2, smoke: 0.85, dark: 0.9, fire: 1.15 },
-        { pattern: 'sides', speed: 0.65, height: 0.85, density: 0.9, flicker: 0.7, sway: 0.55, ember: 0.7, smoke: 1.35, dark: 1.2, fire: 0.55 },
-
-        { pattern: 'bottom+sides', speed: 0.55, height: 0.85, density: 1.0, flicker: 0.8, sway: 0.6, ember: 0.8, smoke: 1.45, dark: 1.25, fire: 0.45 },
-        { pattern: 'bottom+sides', speed: 0.7, height: 1.0, density: 1.1, flicker: 0.9, sway: 0.7, ember: 0.95, smoke: 1.2, dark: 1.1, fire: 0.85 },
-        { pattern: 'bottom+sides', speed: 0.85, height: 1.15, density: 1.25, flicker: 1.0, sway: 0.8, ember: 1.1, smoke: 1.0, dark: 1.0, fire: 1.0 },
-        { pattern: 'bottom+sides', speed: 1.0, height: 1.3, density: 1.35, flicker: 1.05, sway: 0.9, ember: 1.25, smoke: 0.9, dark: 0.95, fire: 1.15 },
-        { pattern: 'bottom+sides', speed: 0.6, height: 1.1, density: 1.05, flicker: 0.85, sway: 0.65, ember: 0.95, smoke: 1.35, dark: 1.15, fire: 0.75 },
-
-        { pattern: 'full', speed: 0.55, height: 0.9, density: 0.95, flicker: 0.8, sway: 0.65, ember: 0.7, smoke: 1.6, dark: 1.35, fire: 0.4 },
-        { pattern: 'full', speed: 0.75, height: 1.05, density: 1.1, flicker: 0.9, sway: 0.75, ember: 0.95, smoke: 1.15, dark: 1.1, fire: 0.85 },
-        { pattern: 'full', speed: 0.9, height: 1.2, density: 1.25, flicker: 1.0, sway: 0.85, ember: 1.1, smoke: 0.95, dark: 1.0, fire: 1.0 },
-        { pattern: 'full', speed: 1.05, height: 1.3, density: 1.35, flicker: 1.05, sway: 0.9, ember: 1.25, smoke: 0.85, dark: 0.95, fire: 1.15 },
-        { pattern: 'full', speed: 0.65, height: 1.25, density: 1.2, flicker: 0.9, sway: 0.8, ember: 1.0, smoke: 1.35, dark: 1.2, fire: 0.7 },
-        { pattern: 'full', speed: 0.95, height: 1.15, density: 1.3, flicker: 1.05, sway: 0.9, ember: 1.2, smoke: 0.9, dark: 0.95, fire: 1.1 },
-
-        { pattern: 'bottom', speed: 0.5, height: 0.9, density: 1.2, flicker: 0.75, sway: 0.55, ember: 0.85, smoke: 1.3, dark: 1.15, fire: 0.65 },
-        { pattern: 'sides', speed: 0.6, height: 1.0, density: 1.15, flicker: 0.8, sway: 0.7, ember: 0.9, smoke: 1.25, dark: 1.1, fire: 0.8 },
-      ] as const;
-      return variants[v % variants.length];
-    };
-
-    const draw = (now: number) => {
-      const w = canvas.width / dpr;
-      const h = canvas.height / dpr;
-      const t = now - startRef.current;
-
-      const i = Math.max(0, Math.min(1, intensity));
-      const v = getVariant(variantRef.current);
-
-      const tScaled = t * v.speed * 0.5;
-
-      const drawFlame = (gx: number, gy: number, flameH: number, width: number, lean: number, strength: number) => {
-        if (flameH <= 0 || width <= 0 || strength <= 0) return;
-        ctx.save();
-        ctx.filter = `blur(${0.35 + i * 0.45}px)`;
-        const grad = ctx.createLinearGradient(gx, gy, gx + lean * 0.2, gy - flameH);
-        grad.addColorStop(0, `rgba(255, 190, 80, ${(0.22 + i * 0.2) * strength})`);
-        grad.addColorStop(0.45, `rgba(255, 120, 30, ${(0.18 + i * 0.16) * strength})`);
-        grad.addColorStop(0.85, `rgba(255, 210, 140, ${(0.08 + i * 0.12) * strength})`);
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.moveTo(gx - width / 2, gy);
-        ctx.quadraticCurveTo(gx + lean * 0.7, gy - flameH * 0.55, gx, gy - flameH);
-        ctx.quadraticCurveTo(gx - lean * 0.55, gy - flameH * 0.55, gx + width / 2, gy);
-        ctx.closePath();
-        ctx.fill();
-
-        const coreH = flameH * 0.55;
-        const coreW = width * 0.35;
-        const coreGrad = ctx.createLinearGradient(gx, gy, gx + lean * 0.15, gy - coreH);
-        coreGrad.addColorStop(0, `rgba(255, 245, 220, ${(0.3 + i * 0.35) * strength})`);
-        coreGrad.addColorStop(0.5, `rgba(255, 200, 120, ${(0.2 + i * 0.25) * strength})`);
-        coreGrad.addColorStop(1, 'rgba(255, 160, 60, 0)');
-        ctx.fillStyle = coreGrad;
-        ctx.beginPath();
-        ctx.moveTo(gx - coreW / 2, gy);
-        ctx.quadraticCurveTo(gx + lean * 0.45, gy - coreH * 0.6, gx, gy - coreH);
-        ctx.quadraticCurveTo(gx - lean * 0.35, gy - coreH * 0.6, gx + coreW / 2, gy);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      };
-
-      const drawSideFlame = (edgeX: number, baseY: number, flameLen: number, thickness: number, direction: 'left' | 'right', lean: number, strength: number) => {
-        const angle = direction === 'left' ? Math.PI / 2 : -Math.PI / 2;
-        ctx.save();
-        ctx.translate(edgeX, baseY);
-        ctx.rotate(angle);
-        drawFlame(0, 0, flameLen, thickness, lean, strength);
-        ctx.restore();
-      };
-
-      ctx.clearRect(0, 0, w, h);
-
-      const edge = 0.10 + i * 0.22;
-      const smokePhase = i >= 0.85 ? Math.min(1, (i - 0.85) / 0.15) : 0;
-      const phase = smokePhase;
-      const smokeStrength = (0.35 + i * 0.65) * v.smoke;
-
-      ctx.globalCompositeOperation = 'source-over';
-      const charA = (0.05 + i * 0.30) * v.dark + phase * 0.22;
-      ctx.fillStyle = `rgba(10, 0, 0, ${charA})`;
-      ctx.fillRect(0, 0, w, h);
-
-      const edgeGrad = ctx.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * (0.25 - edge * 0.15), w * 0.5, h * 0.45, Math.min(w, h) * 0.75);
-      edgeGrad.addColorStop(0, 'rgba(0,0,0,0)');
-      edgeGrad.addColorStop(0.55, `rgba(20,10,0,${0.05 + i * 0.18})`);
-      edgeGrad.addColorStop(1, `rgba(0,0,0,${0.14 + i * 0.32})`);
-      ctx.fillStyle = edgeGrad;
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.globalCompositeOperation = 'source-over';
-      const glow = ctx.createRadialGradient(w * 0.5, h * 0.75, Math.min(w, h) * 0.05, w * 0.5, h * 0.75, Math.min(w, h) * 0.9);
-      glow.addColorStop(0, `rgba(255, 170, 80, ${0.05 + i * 0.14})`);
-      glow.addColorStop(0.5, `rgba(140, 55, 20, ${0.04 + i * 0.08})`);
-      glow.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, w, h);
-      ctx.globalCompositeOperation = 'source-over';
-
-      const flameStrength = (1 - phase) * (v.fire || 0);
-      if (flameStrength > 0.01) {
-        const baseHeight = h * (0.22 + i * 0.55) * flameStrength * v.height;
-        const flicker = (1 + i * 1.8) * v.flicker;
-
-        const drawBottom = v.pattern === 'bottom' || v.pattern === 'bottom+sides' || v.pattern === 'full';
-        const drawSides = v.pattern === 'sides' || v.pattern === 'bottom+sides' || v.pattern === 'full';
-
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.globalAlpha = 0.65 + 0.25 * (1 - phase);
-
-        if (drawBottom) {
-          const flameCount = Math.max(5, Math.floor(6 + v.density * 6 + i * 6));
-          for (let f = 0; f < flameCount; f++) {
-            const seed = f * 19.7;
-            const n1 = hash(seed + Math.floor(tScaled / 23));
-            const n2 = hash(seed + 4.2 + Math.floor(tScaled / 31));
-            const n3 = hash(seed + 13.7 + Math.floor(tScaled / 41));
-            const baseX = ((f + 0.25 + n2 * 0.6) / flameCount) * w;
-            const flameH = baseHeight * (0.65 + n1 * 0.9) * (0.85 + 0.15 * Math.sin((tScaled / 90 + seed) * flicker));
-            const width = (w / flameCount) * (0.7 + n3 * 0.9);
-            const lean = (n2 - 0.5) * w * 0.06 * v.sway;
-            drawFlame(baseX, h, flameH, width, lean, flameStrength);
-          }
-        }
-
-        if (drawSides) {
-          const sideCount = Math.max(6, Math.floor(7 + v.density * 6 + i * 5));
-          const rowH = h / sideCount;
-          const sideBase = w * (0.1 + i * 0.26) * v.height * (0.6 + 0.4 * flameStrength);
-          for (let r = 0; r < sideCount; r++) {
-            const seed = r * 27.5;
-            const n1 = hash(seed + Math.floor(tScaled / 21));
-            const n2 = hash(seed + 6.3 + Math.floor(tScaled / 29));
-            const n3 = hash(seed + 11.4 + Math.floor(tScaled / 41));
-            const y = r * rowH + rowH * (0.3 + n2 * 0.4);
-            const flameLen = sideBase * (0.55 + n1 * 0.85);
-            const thickness = rowH * (0.8 + n3 * 1.2);
-            const lean = (n2 - 0.5) * h * 0.05 * v.sway;
-            drawSideFlame(0, y, flameLen, thickness, 'left', lean, flameStrength * 0.85);
-            drawSideFlame(w, y, flameLen, thickness, 'right', lean, flameStrength * 0.85);
-          }
-        }
-
-        if (v.pattern === 'full') {
-          const centerCount = Math.max(2, Math.floor(2 + i * 3));
-          for (let c = 0; c < centerCount; c++) {
-            const seed = c * 47.1;
-            const n1 = hash(seed + Math.floor(tScaled / 33));
-            const n2 = hash(seed + 9.7 + Math.floor(tScaled / 41));
-            const n3 = hash(seed + 17.9 + Math.floor(tScaled / 57));
-            const baseX = w * (0.25 + n1 * 0.5);
-            const baseY = h * (0.65 + n2 * 0.15);
-            const flameH = baseHeight * (0.6 + n3 * 0.6);
-            const width = w * (0.08 + n2 * 0.06);
-            const lean = (n2 - 0.5) * w * 0.05 * v.sway;
-            drawFlame(baseX, baseY, flameH, width, lean, flameStrength * 0.75);
-          }
-        }
-
-        ctx.globalAlpha = 1;
-      }
-
-      ctx.globalCompositeOperation = 'source-over';
-      const smokeA = (0.06 + i * 0.16 + phase * 0.18) * smokeStrength;
-      const smoke = ctx.createLinearGradient(0, 0, 0, h);
-      smoke.addColorStop(0, `rgba(0,0,0,${smokeA})`);
-      smoke.addColorStop(0.5, `rgba(0,0,0,0)`);
-      ctx.fillStyle = smoke;
-      ctx.fillRect(0, 0, w, h);
-
-      const wispCount = Math.max(5, Math.floor((6 + i * 9) * v.smoke));
-      ctx.save();
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.lineCap = 'round';
-      ctx.filter = 'blur(0.6px)';
-      for (let s = 0; s < wispCount; s++) {
-        const seed = s * 31.3;
-        const rx = hash(seed + Math.floor(tScaled / 90));
-        const ry = hash(seed + 9.1 + Math.floor(tScaled / 120));
-        const rz = hash(seed + 21.5 + Math.floor(tScaled / 140));
-        const baseX = rx * w;
-        const baseY = h * (0.05 + ry * 0.25);
-        const drift = Math.sin(tScaled / 180 + seed) * w * 0.05;
-        const height = h * (0.12 + rz * 0.25);
-        ctx.strokeStyle = `rgba(70,70,70,${0.04 + i * 0.08})`;
-        ctx.lineWidth = 1 + i * 1.2;
-        ctx.beginPath();
-        ctx.moveTo(baseX, baseY + height);
-        ctx.bezierCurveTo(baseX + drift * 0.4, baseY + height * 0.6, baseX + drift * 0.8, baseY + height * 0.25, baseX + drift, baseY);
-        ctx.stroke();
-      }
-      ctx.restore();
-
-      if (phase > 0) {
-        ctx.globalCompositeOperation = 'source-over';
-        const fade = 0.10 + phase * 0.38;
-        ctx.fillStyle = `rgba(40, 40, 40, ${fade})`;
-        ctx.fillRect(0, 0, w, h);
-      }
-
-      if (i > 0.7 || phase > 0) {
-        ctx.globalCompositeOperation = 'source-over';
-        const sweepA = (Math.max(0, i - 0.7) / 0.3) * 0.10 + phase * 0.28;
-        const sweep = ctx.createLinearGradient(0, 0, w, 0);
-        sweep.addColorStop(0, `rgba(55,55,55,${sweepA})`);
-        sweep.addColorStop(0.5, `rgba(55,55,55,${sweepA * 0.6})`);
-        sweep.addColorStop(1, `rgba(55,55,55,${sweepA})`);
-        ctx.fillStyle = sweep;
-        ctx.fillRect(0, 0, w, h);
-      }
-
-      animRef.current = requestAnimationFrame(draw);
-    };
-
-    animRef.current = requestAnimationFrame(draw);
-
-    return () => {
-      ro.disconnect();
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-      animRef.current = null;
-    };
-  }, [enabled, intensity]);
-
-  if (!enabled) return null;
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className={className}
-      aria-hidden
-      style={{ width: '100%', height: '100%', display: 'block' }}
-    />
-  );
-};
-
 interface Memory {
   id: string;
   recipient: string;
@@ -774,34 +476,6 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     const t = setTimeout(() => setIsDestructedNow(true), delay);
     return () => clearTimeout(t);
   }, [destructAtTs, isApproved, isDestructedNow]);
-
-  const isBurningNow = useMemo(() => {
-    if (!isApproved) return false;
-    if (destructAtTs === null) return false;
-    if (isDestructedNow) return false;
-    return destructAtTs > Date.now();
-  }, [destructAtTs, isApproved, isDestructedNow]);
-
-  const burnIntensity = useMemo(() => {
-    if (!isBurningNow) return 0;
-    if (destructAtTs === null) return 0;
-    const remainingMs = destructAtTs - Date.now();
-    if (!Number.isFinite(remainingMs) || remainingMs <= 0) return 0;
-    const windowMs = 60 * 1000;
-    const t = Math.min(1, Math.max(0, 1 - remainingMs / windowMs));
-    return t;
-  }, [isBurningNow, destructAtTs]);
-
-  const burnAwayStyle = useMemo(() => {
-    if (!isBurningNow) return undefined;
-    const t = burnIntensity;
-    if (t <= 0) return undefined;
-    return {
-      opacity: 1 - t * 0.65,
-      filter: `blur(${t * 1.6}px)`,
-      transform: `translateY(${t * 6}px)`,
-    } as React.CSSProperties;
-  }, [burnIntensity, isBurningNow]);
   let effectiveColor = memory.color;
   if (!allowedColors.has(memory.color)) {
     effectiveColor = colorMapping[memory.color] || "default";
@@ -899,7 +573,6 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
       >
-        <BurnOverlay enabled={isBurningNow} intensity={burnIntensity} className="absolute inset-0 z-[30] pointer-events-none" />
         {memory.animation === "rough" && (
           <>
             <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
@@ -1020,7 +693,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 {createdAgoLabel}
               </div>
             )}
-            <div className="text-xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5', ...(burnAwayStyle || {}) }}>
+            <div className="text-xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5' }}>
                               <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
             </div>
           </div>
@@ -1071,8 +744,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 style={{
                   fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
-                  ...(burnAwayStyle || {}),
+                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
                 {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow, destructAtLabel)}
@@ -1084,8 +756,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 style={{
                   fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
-                  ...(burnAwayStyle || {}),
+                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
                 <div className="relative z-10">
