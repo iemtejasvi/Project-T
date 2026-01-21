@@ -17,6 +17,8 @@ interface SubmissionData {
   typewriter_enabled?: boolean;
   time_capsule_delay_minutes?: number;
   destruct_delay_minutes?: number;
+  night_only?: boolean;
+  night_tz?: string;
 }
 
 function isValidTimeCapsuleDelayMinutes(value: unknown): value is number {
@@ -69,6 +71,7 @@ interface CountryServiceResponse {
   country?: string;
   country_name?: string;
   country_code?: string;
+  timezone?: string;
   ip?: string;
   query?: string;
 }
@@ -249,7 +252,7 @@ function getCookieValue(request: NextRequest, name: string): string | null {
 const countryCache = new Map<string, { country: string | null; timestamp: number }>();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-async function getCountryFromIP(ip: string): Promise<{ country: string | null; detectedIP?: string }> {
+async function getCountryFromIP(ip: string): Promise<{ country: string | null; timezone?: string | null; detectedIP?: string }> {
   // Check cache first
   const cached = countryCache.get(ip);
   if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
@@ -264,8 +267,9 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
   const geoServices = [
     {
       name: 'ip-api.com',
-      url: useAutoDetect ? `http://ip-api.com/json/?fields=status,country,query` : `http://ip-api.com/json/${ip}?fields=status,country`,
+      url: useAutoDetect ? `http://ip-api.com/json/?fields=status,country,timezone,query` : `http://ip-api.com/json/${ip}?fields=status,country,timezone`,
       extractCountry: (data: CountryServiceResponse) => data.status === 'success' ? data.country : null,
+      extractTimezone: (data: CountryServiceResponse) => data.status === 'success' ? (data.timezone || null) : null,
       extractIP: (data: CountryServiceResponse) => data.query || null,
       timeout: 3000,
       canAutoDetectIP: true
@@ -274,6 +278,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
       name: 'ipapi.co',
       url: useAutoDetect ? `https://ipapi.co/json/` : `https://ipapi.co/${ip}/json/`,
       extractCountry: (data: CountryServiceResponse) => data.country_name || null,
+      extractTimezone: (data: CountryServiceResponse) => (data.timezone || null),
       extractIP: (data: CountryServiceResponse) => data.ip || null,
       timeout: 3000,
       canAutoDetectIP: true
@@ -282,6 +287,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
       name: 'ipinfo.io',
       url: useAutoDetect ? `https://ipinfo.io/json` : `https://ipinfo.io/${ip}/json`,
       extractCountry: (data: CountryServiceResponse) => data.country ? getCountryNameFromCode(data.country) : null,
+      extractTimezone: () => null,
       extractIP: (data: CountryServiceResponse) => data.ip || null,
       timeout: 4000,
       canAutoDetectIP: true
@@ -290,6 +296,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
       name: 'ip2location',
       url: useAutoDetect ? `https://api.ip2location.io/?format=json` : `https://api.ip2location.io/?ip=${ip}&format=json`,
       extractCountry: (data: CountryServiceResponse) => data.country_name || null,
+      extractTimezone: () => null,
       extractIP: (data: CountryServiceResponse) => data.ip || null,
       timeout: 4000,
       canAutoDetectIP: true
@@ -298,6 +305,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
       name: 'ipwhois.app',
       url: useAutoDetect ? `https://ipwhois.app/json/` : `https://ipwhois.app/json/${ip}`,
       extractCountry: (data: CountryServiceResponse) => data.country || null,
+      extractTimezone: () => null,
       extractIP: (data: CountryServiceResponse) => data.ip || null,
       timeout: 3000,
       canAutoDetectIP: true
@@ -342,6 +350,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
     if (response.ok) {
       const data = await response.json();
         const country = service.extractCountry(data);
+        const timezone = service.extractTimezone(data);
         
         if (country) {
           console.log(`✅ ${service.name} succeeded: ${country}`);
@@ -357,7 +366,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; d
           const cacheKey = detectedIP || ip;
           countryCache.set(cacheKey, { country, timestamp: Date.now() });
           
-          return { country, detectedIP: detectedIP || undefined };
+          return { country, timezone: timezone || undefined, detectedIP: detectedIP || undefined };
         } else {
           console.log(`⚠️ ${service.name} returned no country data`);
         }
@@ -431,7 +440,7 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse('Invalid JSON in request body', 400, { origin });
     }
     
-    const { recipient, message, sender, color, full_bg, animation, tag, sub_tag, enableTypewriter, typewriter_enabled, time_capsule_delay_minutes, destruct_delay_minutes } = body;
+    const { recipient, message, sender, color, full_bg, animation, tag, sub_tag, enableTypewriter, typewriter_enabled, time_capsule_delay_minutes, destruct_delay_minutes, night_only, night_tz } = body;
 
     // Normalize typewriter flag from either field name
     const normalizedTypewriterEnabled =
@@ -502,12 +511,14 @@ export async function POST(request: NextRequest) {
     // SUPER-ROBUST FALLBACK: If IP detection completely fails, 
     // try country services that can auto-detect IP too!
     let country = null;
+    let detectedTimezone: string | null = null;
     if (!clientIP) {
       console.log('🔄 IP detection failed, trying country services for IP auto-detection...');
       const result = await getCountryFromIP('auto');
       if (result.detectedIP) {
         clientIP = result.detectedIP;
         country = result.country;
+        detectedTimezone = result.timezone || null;
         console.log(`🎯 Country service detected IP: ${clientIP} and country: ${country}`);
       }
     }
@@ -654,7 +665,12 @@ export async function POST(request: NextRequest) {
     if (!country && clientIP) {
       const result = await getCountryFromIP(clientIP);
       country = result.country;
+      detectedTimezone = result.timezone || detectedTimezone;
     }
+
+    const nightOnlyEnabled = typeof night_only === 'boolean' ? night_only : false;
+    const nightTzFromClient = typeof night_tz === 'string' && night_tz.length <= 64 ? night_tz : null;
+    const nightTzFinal = nightOnlyEnabled ? (nightTzFromClient || detectedTimezone) : null;
 
     // Prepare submission data with sanitized values
     const submissionData = {
@@ -676,6 +692,10 @@ export async function POST(request: NextRequest) {
       created_at: createdAtIso,
       reveal_at: revealAtIso,
       destruct_at: destructAtIso,
+      night_only: nightOnlyEnabled,
+      night_tz: nightTzFinal,
+      night_start_hour: nightOnlyEnabled ? 21 : null,
+      night_end_hour: nightOnlyEnabled ? 6 : null,
     };
 
     try {

@@ -137,6 +137,7 @@ export default function SubmitPage() {
   const [specialEffect, setSpecialEffect] = useState("");
   const [timeCapsuleDelayMinutes, setTimeCapsuleDelayMinutes] = useState<number>(0);
   const [destructDelayMinutes, setDestructDelayMinutes] = useState<number>(0);
+  const [nightOnly, setNightOnly] = useState(false);
   // Full background is enforced everywhere now
   const fullBg = true;
   const [submitted, setSubmitted] = useState(false);
@@ -884,6 +885,14 @@ export default function SubmitPage() {
       typewriter_enabled: enableTypewriter,
       time_capsule_delay_minutes: timeCapsuleDelayMinutes || undefined,
       destruct_delay_minutes: destructDelayMinutes || undefined,
+      night_only: nightOnly,
+      night_tz: (() => {
+        try {
+          return Intl.DateTimeFormat().resolvedOptions().timeZone;
+        } catch {
+          return undefined;
+        }
+      })(),
     };
 
     // Validate required fields first
@@ -1145,7 +1154,7 @@ export default function SubmitPage() {
                   </div>
 
                   <div className={`space-y-2`}>
-                    <label className="block text-lg font-medium text-[var(--text)]">Special Effect</label>
+                    <label className="block text-lg font-medium text-[var(--text)]">Special Effect (optional)</label>
                     <select
                       value={specialEffect}
                       onChange={(e) => setSpecialEffect(e.target.value)}
@@ -1160,6 +1169,24 @@ export default function SubmitPage() {
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  <div className="space-y-4 p-6 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        id="nightOnly"
+                        type="checkbox"
+                        checked={nightOnly}
+                        onChange={(e) => setNightOnly(e.target.checked)}
+                        disabled={isFormDisabled}
+                        className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      />
+                      <label htmlFor="nightOnly" className="text-[var(--text)] font-semibold text-lg">
+                        Night-only - visible from 9PM-6AM (optional)
+                      </label>
+                    </div>
                   </div>
 
                   <div className={`space-y-2`}>
@@ -1211,13 +1238,12 @@ export default function SubmitPage() {
                         }`}
                       />
                       <label htmlFor="enableTypewriter" className="text-[var(--text)] font-semibold text-lg">
-                        Enable typewriter text on memory card
+                        Enable typewriter text on memory card (optional)
                       </label>
                     </div>
 
                     {enableTypewriter && (
                       <div className="space-y-4 pt-2">
-                      
                       <div className={`space-y-2`}>
                         <label className="block text-sm font-medium text-[var(--text)]">Emotion Tag (optional)</label>
                         <select
@@ -1410,7 +1436,7 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block font-medium text-[var(--text)] mb-2">Special Effect</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Special Effect (optional)</label>
                   <select
                     value={specialEffect}
                     onChange={(e) => setSpecialEffect(e.target.value)}
@@ -1425,6 +1451,24 @@ export default function SubmitPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="space-y-4 p-4 bg-[var(--secondary)]/20 rounded-xl">
+                  <div className="flex items-center space-x-3">
+                    <input
+                      id="nightOnly-mobile"
+                      type="checkbox"
+                      checked={nightOnly}
+                      onChange={(e) => setNightOnly(e.target.checked)}
+                      disabled={isFormDisabled}
+                      className={`h-4 w-4 accent-[var(--accent)] rounded ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    />
+                    <label htmlFor="nightOnly-mobile" className="text-[var(--text)] font-medium">
+                      Night-only (optional, visible 9PM-6AM)
+                    </label>
+                  </div>
                 </div>
 
                 <div>
@@ -1476,7 +1520,7 @@ export default function SubmitPage() {
                       }`}
                     />
                     <label htmlFor="enableTypewriter-mobile" className="text-[var(--text)] font-medium">
-                      Enable typewriter text on memory card
+                      Enable typewriter text on memory card (optional)
                     </label>
                   </div>
 

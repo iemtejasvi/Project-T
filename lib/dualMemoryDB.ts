@@ -221,6 +221,48 @@ function shouldFilterByRevealAt(filters: Record<string, string>): boolean {
   return status === 'approved' || status === '';
 }
 
+function getHourInTimeZone(timeZone: string): number | null {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hour: '2-digit',
+      hour12: false,
+    }).formatToParts(new Date());
+    const hourPart = parts.find((p) => p.type === 'hour')?.value;
+    if (!hourPart) return null;
+    const hour = Number(hourPart);
+    if (!Number.isFinite(hour)) return null;
+    return hour;
+  } catch {
+    return null;
+  }
+}
+
+function isNightOnlyVisibleNow(memory: MemoryData): boolean {
+  const nightOnly = Boolean((memory as unknown as Record<string, unknown>).night_only);
+  if (!nightOnly) return true;
+
+  const tz = String((memory as unknown as Record<string, unknown>).night_tz || '').trim();
+  if (!tz) return false;
+
+  const startHourRaw = (memory as unknown as Record<string, unknown>).night_start_hour;
+  const endHourRaw = (memory as unknown as Record<string, unknown>).night_end_hour;
+  const startHour = typeof startHourRaw === 'number' ? startHourRaw : Number(startHourRaw);
+  const endHour = typeof endHourRaw === 'number' ? endHourRaw : Number(endHourRaw);
+
+  const start = Number.isFinite(startHour) ? startHour : 21;
+  const end = Number.isFinite(endHour) ? endHour : 6;
+
+  const hour = getHourInTimeZone(tz);
+  if (hour === null) return false;
+
+  if (start === end) return true;
+  if (start < end) {
+    return hour >= start && hour < end;
+  }
+  return hour >= start || hour < end;
+}
+
 // Test database connectivity
 async function testDatabaseConnection(db: typeof dbA): Promise<boolean> {
   try {
@@ -378,7 +420,10 @@ export async function fetchMemoriesPaginated(
   // Combine and sort
   const combined = [...memoriesA, ...memoriesB];
   const allMemoriesUnredacted = shouldFilterByRevealAt(filters) ? combined.filter(isRevealableNow) : combined;
-  const allMemories = allMemoriesUnredacted.map(redactIfDestructed);
+  const allMemoriesNightFiltered = shouldFilterByRevealAt(filters)
+    ? allMemoriesUnredacted.filter(isNightOnlyVisibleNow)
+    : allMemoriesUnredacted;
+  const allMemories = allMemoriesNightFiltered.map(redactIfDestructed);
   allMemories.sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
@@ -651,6 +696,9 @@ export async function fetchMemoryById(id: string) {
     return { data: null, error: { message: 'Memory not found' } };
   }
   if (!isRevealableNow(raw)) {
+    return { data: null, error: { message: 'Memory not found' } };
+  }
+  if (!isNightOnlyVisibleNow(raw)) {
     return { data: null, error: { message: 'Memory not found' } };
   }
 
