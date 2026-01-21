@@ -1207,8 +1207,8 @@ export default function SubmitPage() {
                     </select>
                   </div>
 
-                  <div className="space-y-4 p-6 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20">
-                    <div className="flex items-center space-x-3">
+                  <div className="p-5 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20">
+                    <div className="flex items-center gap-3">
                       <input
                         id="enableTypewriter"
                         type="checkbox"
@@ -1226,7 +1226,7 @@ export default function SubmitPage() {
 
                     {enableTypewriter && (
                       <div className="space-y-4 pt-2">
-                      	<div className={`space-y-2`}>
+                       	<div className={`space-y-2`}>
                         <label className="block text-sm font-medium text-[var(--text)]">Emotion Tag (optional)</label>
                         <select
                           value={tag}
@@ -1273,23 +1273,23 @@ export default function SubmitPage() {
                       )}
                       </div>
                     )}
-                  </div>
 
-                  <div className="space-y-4 p-6 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20">
-                    <div className="flex items-center space-x-3">
-                      <input
-                        id="nightOnly"
-                        type="checkbox"
-                        checked={nightOnly}
-                        onChange={(e) => setNightOnly(e.target.checked)}
-                        disabled={isFormDisabled}
-                        className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
-                          isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                      />
-                      <label htmlFor="nightOnly" className="text-[var(--text)] font-semibold text-lg">
-                        Night-only (optional, visible 9PM-6AM)
-                      </label>
+                    <div className="mt-3 pt-3 border-t border-[var(--accent)]/10">
+                      <div className="flex items-center gap-3">
+                        <input
+                          id="nightOnly"
+                          type="checkbox"
+                          checked={nightOnly}
+                          onChange={(e) => setNightOnly(e.target.checked)}
+                          disabled={isFormDisabled}
+                          className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
+                            isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                        />
+                        <label htmlFor="nightOnly" className="text-[var(--text)] font-semibold text-lg">
+                          Night-only (optional, visible 9PM-6AM)
+                        </label>
+                      </div>
                     </div>
                   </div>
 
@@ -1489,8 +1489,8 @@ export default function SubmitPage() {
                   </select>
                 </div>
 
-                <div className="space-y-4 p-4 bg-[var(--secondary)]/20 rounded-xl">
-                  <div className="flex items-center space-x-3">
+                <div className="p-4 bg-[var(--secondary)]/20 rounded-xl">
+                  <div className="flex items-center gap-3">
                     <input
                       id="enableTypewriter-mobile"
                       type="checkbox"
@@ -1545,23 +1545,23 @@ export default function SubmitPage() {
                         )}
                     </div>
                   )}
-                </div>
 
-                <div className="space-y-4 p-4 bg-[var(--secondary)]/20 rounded-xl">
-                  <div className="flex items-center space-x-3">
-                    <input
-                      id="nightOnly-mobile"
-                      type="checkbox"
-                      checked={nightOnly}
-                      onChange={(e) => setNightOnly(e.target.checked)}
-                      disabled={isFormDisabled}
-                      className={`h-4 w-4 accent-[var(--accent)] rounded ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                    />
-                    <label htmlFor="nightOnly-mobile" className="text-[var(--text)] font-medium">
-                      Night-only (optional, visible 9PM-6AM)
-                    </label>
+                  <div className="mt-3 pt-3 border-t border-[var(--accent)]/10">
+                    <div className="flex items-center gap-3">
+                      <input
+                        id="nightOnly-mobile"
+                        type="checkbox"
+                        checked={nightOnly}
+                        onChange={(e) => setNightOnly(e.target.checked)}
+                        disabled={isFormDisabled}
+                        className={`h-4 w-4 accent-[var(--accent)] rounded ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      />
+                      <label htmlFor="nightOnly-mobile" className="text-[var(--text)] font-medium">
+                        Night-only (optional, visible 9PM-6AM)
+                      </label>
+                    </div>
                   </div>
                 </div>
 
