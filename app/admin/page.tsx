@@ -15,6 +15,7 @@ interface Memory {
   message: string;
   sender?: string;
   created_at: string;
+  reveal_at?: string;
   status: string;
   ip?: string;
   country?: string;
@@ -24,6 +25,7 @@ interface Memory {
   uuid?: string;
   tag?: string;
   sub_tag?: string;
+  time_capsule_delay_minutes?: number;
 }
 
 type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "dbhealth" | "unlimited";
@@ -189,6 +191,38 @@ export default function AdminPanel() {
     if (selectedTab !== "approved") return false;
     return filteredMemories.length > displayCount;
   }, [filteredMemories.length, displayCount, selectedTab]);
+
+  const formatTimeUntilReveal = useCallback((memory: Memory): string | null => {
+    const rawDelay = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
+    const delayMinutes = typeof rawDelay === 'number' ? rawDelay : (typeof rawDelay === 'string' ? Number(rawDelay) : 0);
+    const hasExplicit = Number.isFinite(delayMinutes) && delayMinutes > 0;
+
+    const revealAt = memory.reveal_at;
+    if (!hasExplicit && (!revealAt || typeof revealAt !== 'string')) return null;
+    if (!revealAt || typeof revealAt !== 'string') return null;
+
+    const revealTs = new Date(revealAt).getTime();
+    if (!Number.isFinite(revealTs)) return null;
+
+    const now = Date.now();
+    const remainingMs = revealTs - now;
+    if (!Number.isFinite(remainingMs) || remainingMs <= 0) return null;
+
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+
+    const days = Math.floor(remainingMs / day);
+    const hours = Math.floor((remainingMs % day) / hour);
+    const mins = Math.floor((remainingMs % hour) / minute);
+
+    const parts: string[] = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0 || days > 0) parts.push(`${hours}h`);
+    parts.push(`${Math.max(0, mins)}m`);
+
+    return `Reveals in ${parts.join(' ')}`;
+  }, []);
 
   // Reset display count when search changes or tab changes
   useEffect(() => {
@@ -1475,6 +1509,11 @@ export default function AdminPanel() {
                         UUID: <span className="underline decoration-dotted break-all">{memory.uuid || '-'}</span>
                       </p>
                       <p>Country: {memory.country || '-'}</p>
+                      {(() => {
+                        const label = formatTimeUntilReveal(memory);
+                        if (!label) return null;
+                        return <p className="text-blue-600 font-semibold">{label}</p>;
+                      })()}
                     </div>
                     <small className="block mt-3 text-gray-500">
                       {new Date(memory.created_at).toLocaleString()}
