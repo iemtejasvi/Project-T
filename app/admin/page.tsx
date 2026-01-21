@@ -38,6 +38,7 @@ export default function AdminPanel() {
   const [selectedMemoryIds, setSelectedMemoryIds] = useState<Set<string>>(new Set());
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [stylesReady, setStylesReady] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [announcementLink, setAnnouncementLink] = useState("");
   const [announcementBgColor, setAnnouncementBgColor] = useState("#ef4444"); // red-500
@@ -307,6 +308,48 @@ export default function AdminPanel() {
       fetchMemoriesData();
     }
   }, [isAuthorized, selectedTab]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let raf = 0;
+    const start = Date.now();
+
+    const check = () => {
+      try {
+        const cardBg = getComputedStyle(document.documentElement)
+          .getPropertyValue('--card-bg')
+          .trim();
+        if (cardBg) {
+          setStylesReady(true);
+          return;
+        }
+      } catch {
+      }
+
+      if (Date.now() - start > 1500) {
+        setStylesReady(true);
+        try {
+          const key = 'admin_fouc_reload_v1';
+          const already = sessionStorage.getItem(key);
+          if (!already) {
+            sessionStorage.setItem(key, '1');
+            window.location.reload();
+            return;
+          }
+        } catch {
+        }
+        return;
+      }
+
+      raf = requestAnimationFrame(check);
+    };
+
+    raf = requestAnimationFrame(check);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   // Fetch DB health when DB Health tab is active
   useEffect(() => {
@@ -853,6 +896,14 @@ export default function AdminPanel() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
         <Loader text="Authenticating..." />
+      </div>
+    );
+  }
+
+  if (!stylesReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg)]">
+        <Loader text="Loading admin..." />
       </div>
     );
   }
