@@ -670,7 +670,11 @@ export async function POST(request: NextRequest) {
 
     const nightOnlyEnabled = typeof night_only === 'boolean' ? night_only : false;
     const nightTzFromClient = typeof night_tz === 'string' && night_tz.length <= 64 ? night_tz : null;
-    const nightTzFinal = nightOnlyEnabled ? (nightTzFromClient || detectedTimezone) : null;
+    const nightStartHour = 21;
+    const nightEndHour = 6;
+    const nightTzFinal = nightOnlyEnabled
+      ? (nightTzFromClient || detectedTimezone || 'UTC')
+      : null;
 
     // Prepare submission data with sanitized values
     const submissionData = {
@@ -694,8 +698,8 @@ export async function POST(request: NextRequest) {
       destruct_at: destructAtIso,
       night_only: nightOnlyEnabled,
       night_tz: nightTzFinal,
-      night_start_hour: nightOnlyEnabled ? 21 : null,
-      night_end_hour: nightOnlyEnabled ? 6 : null,
+      night_start_hour: nightStartHour,
+      night_end_hour: nightEndHour,
     };
 
     try {
