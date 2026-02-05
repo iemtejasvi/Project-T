@@ -135,7 +135,12 @@ const nextConfig = {
     ];
   },
   images: {
-    domains: ['www.ifonlyisentthis.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'www.ifonlyisentthis.com',
+      },
+    ],
   },
   poweredByHeader: false,
   compress: true,

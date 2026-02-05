@@ -507,11 +507,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         return <HandwrittenText message={messageToRender} textClass={textClass} />;
       case "rough":
         // Use handwritten text sizing/feel; card-level background handles rough paper
-        return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{messageToRender}</p>;
+        return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{messageToRender}</p>;
       default:
         return (
           <div className="space-y-2">
-            <p className={textClass}>{messageToRender}</p>
+            <p className={`${textClass} whitespace-pre-wrap`}>{messageToRender}</p>
           </div>
         );
     }
@@ -560,11 +560,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           return <HandwrittenText message={memory.message} textClass={textClass} />;
         case "rough":
           // Use handwritten text sizing/feel; card-level background handles rough paper
-          return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased`}>{memory.message}</p>;
+          return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{memory.message}</p>;
         default:
           return (
             <div className="space-y-2">
-              <p className={textClass}>{memory.message}</p>
+              <p className={`${textClass} whitespace-pre-wrap`}>{memory.message}</p>
             </div>
           );
       }

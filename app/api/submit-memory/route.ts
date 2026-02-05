@@ -448,16 +448,79 @@ export async function POST(request: NextRequest) {
         ? enableTypewriter
         : (typeof typewriter_enabled === 'boolean' ? typewriter_enabled : undefined);
 
+    let isUnlimited = false;
+    let globalOverrideActive = false;
+
+    // SUPER-ROBUST FALLBACK: If IP detection completely fails,
+    // try country services that can auto-detect IP too!
+    let country = null;
+    let detectedTimezone: string | null = null;
+    if (!clientIP) {
+      console.log('🔄 IP detection failed, trying country services for IP auto-detection...');
+      const result = await getCountryFromIP('auto');
+      if (result.detectedIP) {
+        clientIP = result.detectedIP;
+        country = result.country;
+        detectedTimezone = result.timezone || null;
+        console.log(`🎯 Country service detected IP: ${clientIP} and country: ${country}`);
+      }
+    }
+
+    // Owner exemption and localhost - skip all checks
+    const host = request.headers.get('host') || '';
+    const isLocalhost = host.includes('localhost') ||
+                       host.includes('127.0.0.1') ||
+                       host.startsWith('localhost:') ||
+                       clientIP === '127.0.0.1' ||
+                       clientIP === '::1';
+
+    // Check if IP matches owner (from environment variable)
+    const ownerIP = process.env.OWNER_IP_ADDRESS;
+    const isOwner = ownerIP && clientIP === ownerIP;
+
+    console.log(`🏠 Host: ${host}, IP: ${clientIP}, isLocalhost: ${isLocalhost}, isOwner: ${isOwner}`);
+
+    if (!isOwner && !isLocalhost) {
+      // Determine global override and unlimited status
+      {
+        const { data: settingsData } = await primaryDB
+          .from('site_settings')
+          .select('word_limit_disabled_until')
+          .eq('id', 1)
+          .single();
+        const until = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
+        globalOverrideActive = until ? new Date() < until : false;
+      }
+      if (clientIP || clientUUID) {
+        const unlimitedQueries: string[] = [];
+        if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
+        if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
+        if (unlimitedQueries.length) {
+          const { data: unData } = await primaryDB
+            .from('unlimited_users')
+            .select('id')
+            .or(unlimitedQueries.join(','))
+            .limit(1);
+          isUnlimited = !!(unData && unData.length);
+        }
+      }
+    }
+
+    const allowLongWords = isOwner || isLocalhost || isUnlimited || globalOverrideActive;
+
     // 5. SECURITY: Comprehensive input validation and sanitization
-    const validation = validateMemoryInput({
-      recipient,
-      message,
-      sender,
-      color,
-      animation,
-      tag,
-      sub_tag
-    });
+    const validation = validateMemoryInput(
+      {
+        recipient,
+        message,
+        sender,
+        color,
+        animation,
+        tag,
+        sub_tag
+      },
+      { allowLongWords }
+    );
     
     if (!validation.valid) {
       console.warn('❌ Input validation failed:', validation.errors);
@@ -502,68 +565,10 @@ export async function POST(request: NextRequest) {
         ? new Date(Date.now() + destructDelayMinutes * 60 * 1000).toISOString()
         : null;
 
-    // Flags are computed later after IP fallback and owner detection
-    let isUnlimited = false;
-    let globalOverrideActive = false;
-
-    // After IP fallback we will compute unlimited/override before checks
-    
-    // SUPER-ROBUST FALLBACK: If IP detection completely fails, 
-    // try country services that can auto-detect IP too!
-    let country = null;
-    let detectedTimezone: string | null = null;
-    if (!clientIP) {
-      console.log('🔄 IP detection failed, trying country services for IP auto-detection...');
-      const result = await getCountryFromIP('auto');
-      if (result.detectedIP) {
-        clientIP = result.detectedIP;
-        country = result.country;
-        detectedTimezone = result.timezone || null;
-        console.log(`🎯 Country service detected IP: ${clientIP} and country: ${country}`);
-      }
-    }
-    
-    // Owner exemption and localhost - skip all checks
-    const host = request.headers.get('host') || '';
-    const isLocalhost = host.includes('localhost') || 
-                       host.includes('127.0.0.1') ||
-                       host.startsWith('localhost:') ||
-                       clientIP === '127.0.0.1' || 
-                       clientIP === '::1';
-    
-    // Check if IP matches owner (from environment variable)
-    const ownerIP = process.env.OWNER_IP_ADDRESS;
-    const isOwner = ownerIP && clientIP === ownerIP;
-    
-    console.log(`🏠 Host: ${host}, IP: ${clientIP}, isLocalhost: ${isLocalhost}, isOwner: ${isOwner}`);
-    
     if (isOwner || isLocalhost) {
       console.log('✅ Localhost/Owner detected - skipping all limits');
       // Allow owner and localhost to submit without limits
     } else {
-      // Determine global override and unlimited status
-      {
-        const { data: settingsData } = await primaryDB
-          .from('site_settings')
-          .select('word_limit_disabled_until')
-          .eq('id', 1)
-          .single();
-        const until = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
-        globalOverrideActive = until ? new Date() < until : false;
-      }
-      if (clientIP || clientUUID) {
-        const unlimitedQueries: string[] = [];
-        if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
-        if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
-        if (unlimitedQueries.length) {
-          const { data: unData } = await primaryDB
-            .from('unlimited_users')
-            .select('id')
-            .or(unlimitedQueries.join(','))
-            .limit(1);
-          isUnlimited = !!(unData && unData.length);
-        }
-      }
       // Enforce 50-word limit unless unlimited or global override
       {
         const wordCount = message.trim().split(/[\s.]+/).filter((word) => word.length > 0).length;

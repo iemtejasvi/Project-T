@@ -903,21 +903,23 @@ export default function SubmitPage() {
     }
 
     // Client-side word length validation (with fun error messages!)
-    const messageCheck = hasSuspiciouslyLongWords(message);
-    if (!messageCheck.valid) {
-      setError(messageCheck.error || "Message contains words that are too long.");
-      setIsSubmitting(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
+    if (!isUnlimitedUser) {
+      const messageCheck = hasSuspiciouslyLongWords(message);
+      if (!messageCheck.valid) {
+        setError(messageCheck.error || "Message contains words that are too long.");
+        setIsSubmitting(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
 
-    // Check recipient for long words
-    const recipientCheck = hasSuspiciouslyLongWords(recipient);
-    if (!recipientCheck.valid) {
-      setError(recipientCheck.error || "Recipient name is too long or contains concatenated words. Please use spaces.");
-      setIsSubmitting(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
+      // Check recipient for long words
+      const recipientCheck = hasSuspiciouslyLongWords(recipient);
+      if (!recipientCheck.valid) {
+        setError(recipientCheck.error || "Recipient name is too long or contains concatenated words. Please use spaces.");
+        setIsSubmitting(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
     }
 
     // All client-side validation passed - show success immediately for smooth UX

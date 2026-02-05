@@ -204,9 +204,6 @@ export function sanitizeObject(obj: Record<string, unknown>): Record<string, unk
  */
 export function containsSqlInjection(input: string): boolean {
   const sqlPatterns = [
-    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|DECLARE)\b)/i,
-    /--/,  // SQL comment
-    /;.*(\b(SELECT|INSERT|UPDATE|DELETE|DROP)\b)/i,
     /\bOR\b.*=.*\bOR\b/i,
     /\bAND\b.*=.*\bAND\b/i,
     /1\s*=\s*1/i,
@@ -214,8 +211,16 @@ export function containsSqlInjection(input: string): boolean {
     /" OR "1"="1/i,
     /\bxp_cmdshell\b/i
   ];
-  
-  return sqlPatterns.some(pattern => pattern.test(input));
+
+  if (sqlPatterns.some(pattern => pattern.test(input))) {
+    return true;
+  }
+
+  const sqlKeywordPattern = /\b(select|insert|update|delete|drop|create|alter|exec|execute|union|declare)\b/i;
+  const sqlClausePattern = /\b(from|into|where|table|values|set|join)\b/i;
+  const sqlMetaPattern = /(--|;|\/\*|\*\/)/;
+
+  return sqlKeywordPattern.test(input) && (sqlClausePattern.test(input) || sqlMetaPattern.test(input));
 }
 
 /**
@@ -240,7 +245,7 @@ export function containsNoSqlInjection(input: string): boolean {
  */
 export function hasSuspiciouslyLongWords(input: string): { valid: boolean; error?: string } {
   const words = input.split(/\s+/).filter(word => word.length > 0);
-  const MAX_WORD_LENGTH = 15; // No single word should exceed this
+  const MAX_WORD_LENGTH = 20; // No single word should exceed this
   
   // Fun messages for caught cheaters
   const funMessages = [
@@ -289,7 +294,8 @@ export function hasSuspiciouslyLongWords(input: string): { valid: boolean; error
 /**
  * Comprehensive input validation for memory submission
  */
-export function validateMemoryInput(data: {
+export function validateMemoryInput(
+  data: {
   recipient?: unknown;
   message?: unknown;
   sender?: unknown;
@@ -297,13 +303,16 @@ export function validateMemoryInput(data: {
   animation?: unknown;
   tag?: unknown;
   sub_tag?: unknown;
-}): {
+  },
+  options?: { allowLongWords?: boolean }
+): {
   valid: boolean;
   errors: string[];
   sanitized: Record<string, unknown>;
 } {
   const errors: string[] = [];
   const sanitized: Record<string, unknown> = {};
+  const allowLongWords = options?.allowLongWords === true;
   
   // Validate recipient
   if (!data.recipient || typeof data.recipient !== 'string') {
@@ -316,7 +325,7 @@ export function validateMemoryInput(data: {
       errors.push('Recipient must be 100 characters or less');
     } else if (containsSqlInjection(recipient) || containsNoSqlInjection(recipient)) {
       errors.push('Recipient contains invalid characters');
-    } else {
+    } else if (!allowLongWords) {
       // Check for suspiciously long words
       const wordCheck = hasSuspiciouslyLongWords(recipient);
       if (!wordCheck.valid) {
@@ -324,6 +333,8 @@ export function validateMemoryInput(data: {
       } else {
         sanitized.recipient = recipient;
       }
+    } else {
+      sanitized.recipient = recipient;
     }
   }
   
@@ -338,7 +349,7 @@ export function validateMemoryInput(data: {
       errors.push('Message must be 5000 characters or less');
     } else if (containsSqlInjection(message) || containsNoSqlInjection(message)) {
       errors.push('Message contains invalid characters');
-    } else {
+    } else if (!allowLongWords) {
       // Check for suspiciously long words (concatenated to bypass limits)
       const wordCheck = hasSuspiciouslyLongWords(message);
       if (!wordCheck.valid) {
@@ -346,6 +357,8 @@ export function validateMemoryInput(data: {
       } else {
         sanitized.message = message;
       }
+    } else {
+      sanitized.message = message;
     }
   }
   

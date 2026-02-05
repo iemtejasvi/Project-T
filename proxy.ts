@@ -34,7 +34,7 @@ async function getMaintenanceStatus(): Promise<boolean> {
   return false;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Skip maintenance check for admin and maintenance pages
   if (request.nextUrl.pathname.startsWith('/admin') || 
       request.nextUrl.pathname.startsWith('/maintenance')) {
