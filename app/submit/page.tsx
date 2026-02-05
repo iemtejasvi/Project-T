@@ -64,6 +64,8 @@ const specialEffects = [
   { value: "cursive", label: "Melting Text" }
 ];
 
+const MAX_MESSAGE_LENGTH = 5000;
+
 const limitMessages = [
   "You're typing like they still care. Shorten it.",
   "50 words max. If they didn't read your texts, they won't read your novel.",
@@ -902,6 +904,13 @@ export default function SubmitPage() {
       return;
     }
 
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      setError(`Message must be ${MAX_MESSAGE_LENGTH} characters or less.`);
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     // Client-side word length validation (with fun error messages!)
     if (!isUnlimitedUser) {
       const messageCheck = hasSuspiciouslyLongWords(message);
@@ -1090,6 +1099,7 @@ export default function SubmitPage() {
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
+                      maxLength={MAX_MESSAGE_LENGTH}
                       required
                       rows={6}
                       disabled={isFormDisabled}
@@ -1372,6 +1382,7 @@ export default function SubmitPage() {
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    maxLength={MAX_MESSAGE_LENGTH}
                     required
                     rows={5}
                     disabled={isFormDisabled}
