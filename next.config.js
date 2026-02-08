@@ -37,7 +37,18 @@ const nextConfig = {
           },
         ],
       },
+      // All other API routes - no caching (must come BEFORE memories override)
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
       // Public memory API routes - CDN cached for 60s (ISR pattern)
+      // MUST come AFTER the general /api no-cache rule so it overrides for this path
       {
         source: '/api/memories/:path*',
         headers: [
@@ -45,15 +56,9 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'public, s-maxage=60, stale-while-revalidate=300',
           },
-        ],
-      },
-      // All other API routes - no caching
-      {
-        source: '/api/(.*)',
-        headers: [
           {
-            key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
+            key: 'Vary',
+            value: 'Accept-Encoding',
           },
         ],
       },

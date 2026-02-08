@@ -3,7 +3,7 @@
 // In production, use proper auth like NextAuth.js or Clerk
 
 import { NextRequest } from 'next/server';
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 // Admin credentials - MUST be set in environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
@@ -123,9 +123,10 @@ export function verifySessionToken(token: string): boolean {
     const secret = getAdminSessionSecret();
     if (!secret) return false;
 
-    // Sync verify on Node
+    // Sync verify on Node — timing-safe comparison to prevent timing attacks
     const expected = base64UrlEncodeBytes(createHmac('sha256', secret).update(payloadB64).digest());
-    return expected === sigB64;
+    if (expected.length !== sigB64.length) return false;
+    return timingSafeEqual(Buffer.from(expected), Buffer.from(sigB64));
   } catch {
     return false;
   }
