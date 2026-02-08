@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
-import { deleteMemory } from '@/lib/dualMemoryDB';
+import { deleteMemory } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -24,6 +25,10 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse(error.message || 'Delete failed', 500, { origin });
     }
     
+    revalidatePath('/api/memories');
+    revalidatePath('/memories');
+    revalidatePath('/');
+
     return createSecureResponse({ success: true, data }, 200, { origin });
     
   } catch (error) {

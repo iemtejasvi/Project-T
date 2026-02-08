@@ -33,11 +33,21 @@ const nextConfig = {
           },
           {
             key: 'Link',
-            value: '<https://ppkbuhaklzbgwvaaoudn.supabase.co>; rel=preconnect; crossorigin, <https://goltnprxtenbrkxcvsha.supabase.co>; rel=preconnect; crossorigin',
+            value: '<https://ppkbuhaklzbgwvaaoudn.supabase.co>; rel=preconnect; crossorigin',
           },
         ],
       },
-      // API routes - no caching
+      // Public memory API routes - CDN cached for 60s (ISR pattern)
+      {
+        source: '/api/memories/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=60, stale-while-revalidate=300',
+          },
+        ],
+      },
+      // All other API routes - no caching
       {
         source: '/api/(.*)',
         headers: [

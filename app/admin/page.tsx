@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import UnlimitedUsersPage from "./unlimited/page";
-import { fetchMemories, primaryDBRead, secondaryDBRead, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, locateMemory, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories, simulateRoundRobin } from "@/lib/dualMemoryDB";
+import { primaryDBRead, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories } from "@/lib/memoryDB";
 import { forceRefreshAllCaches } from "@/lib/enhancedCache";
 import Loader from "@/components/Loader";
 
@@ -78,14 +78,12 @@ export default function AdminPanel() {
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
   // DB Health state
   const [dbHealthLoading, setDbHealthLoading] = useState(false);
-  const [dbStatus, setDbStatus] = useState<null | { databaseA: boolean; databaseB: boolean; bothHealthy: boolean; anyHealthy: boolean }>(null);
-  const [dbCounts, setDbCounts] = useState<null | { A: number | null; B: number | null }>(null);
-  const [recentRoutes, setRecentRoutes] = useState<Array<{ id: string; created_at: string; location: 'A' | 'B' | 'Both' | 'Unknown' }>>([]);
-  const [statusCounts, setStatusCounts] = useState<null | { A: Record<'pending' | 'approved' | 'banned', number | null>; B: Record<'pending' | 'approved' | 'banned', number | null> }>(null);
-  const [latency, setLatency] = useState<null | { A: number; B: number }>(null);
-  const [expiredPinned, setExpiredPinned] = useState<null | { A: number; B: number; total: number }>(null);
-  const [diffIds, setDiffIds] = useState<null | { onlyA: string[]; onlyB: string[]; both: string[] }>(null);
-  const [rrSim, setRrSim] = useState<{ A: number; B: number; picks: Array<'A'|'B'> } | null>(null);
+  const [dbStatus, setDbStatus] = useState<null | { databaseA: boolean; healthy: boolean }>(null);
+  const [dbCounts, setDbCounts] = useState<null | { count: number | null }>(null);
+  const [recentMemories, setRecentMemories] = useState<Array<{ id: string; created_at: string }>>([]);
+  const [statusCounts, setStatusCounts] = useState<null | Record<'pending' | 'approved' | 'banned', number | null>>(null);
+  const [latency, setLatency] = useState<null | number>(null);
+  const [expiredPinned, setExpiredPinned] = useState<null | { total: number }>(null);
 
   const loadDbHealth = useCallback(async () => {
     setDbHealthLoading(true);
@@ -100,40 +98,11 @@ export default function AdminPanel() {
       ]);
 
       setDbStatus(status);
-      setDbCounts({ A: counts.A, B: counts.B });
+      setDbCounts(counts);
       setStatusCounts(statuses);
       setLatency(lat);
       setExpiredPinned(exp);
-
-      const enriched = await Promise.all(
-        (recents || []).map(async (m) => {
-          const loc = await locateMemory(m.id);
-          return { ...m, location: loc };
-        })
-      );
-      setRecentRoutes(enriched);
-
-      // Compute recent IDs divergence (last 50 from each)
-      const [a50, b50] = await Promise.all([
-        primaryDBRead.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50),
-        secondaryDBRead.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50)
-      ]);
-      const setA = new Set(((a50.data || []) as Array<{ id: string }>).map((r) => r.id));
-      const setB = new Set(((b50.data || []) as Array<{ id: string }>).map((r) => r.id));
-      const onlyA: string[] = [];
-      const onlyB: string[] = [];
-      const both: string[] = [];
-      for (const id of setA) {
-        if (setB.has(id)) both.push(id); else onlyA.push(id);
-      }
-      for (const id of setB) {
-        if (!setA.has(id)) onlyB.push(id);
-      }
-      setDiffIds({ onlyA, onlyB, both });
-
-      // Round-robin simulation (50 picks)
-      const sim = simulateRoundRobin(50);
-      setRrSim({ A: sim.A, B: sim.B, picks: sim.picks });
+      setRecentMemories(recents || []);
     } catch (err) {
       console.error('Error fetching DB health:', err);
     } finally {
@@ -887,24 +856,10 @@ export default function AdminPanel() {
         }
       }
 
-      // Check expired pins across both databases
-      const { data: allMemories } = await fetchMemories({ pinned: "true" });
-      const pinnedMemories = allMemories.filter(m => m.pinned_until);
-
-      let needsRefresh = false;
-      for (const memory of pinnedMemories || []) {
-        if (memory.pinned_until && new Date(memory.pinned_until) <= currentTime) {
-          await fetch('/api/admin/update-memory', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: memory.id, updates: { pinned: false, pinned_until: null } })
-          });
-          needsRefresh = true;
-        }
-      }
-
-      // Refresh memories if we're on the approved tab and any pins were updated
-      if (needsRefresh && selectedTab === "approved") {
+      // Unpin expired pins via server-side bulk operation (lightweight, scales to millions)
+      const unpinRes = await fetch('/api/unpin-expired', { method: 'POST' });
+      const unpinData = await unpinRes.json().catch(() => ({ unpinned: 0 }));
+      if (unpinData.unpinned > 0 && selectedTab === "approved") {
         refreshMemories();
       }
     };
@@ -1299,7 +1254,7 @@ export default function AdminPanel() {
               </button>
             </div>
             {dbHealthLoading ? (
-              <div className="py-6"><Loader text="Checking databases..." /></div>
+              <div className="py-6"><Loader text="Checking database..." /></div>
             ) : (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1308,38 +1263,30 @@ export default function AdminPanel() {
                     <ul className="space-y-1 text-sm">
                       <li>
                         <span className={`inline-block w-2 h-2 rounded-full mr-2 ${dbStatus?.databaseA ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                        Database A {dbStatus?.databaseA ? '(OK)' : '(Down)'}
-                      </li>
-                      <li>
-                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${dbStatus?.databaseB ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                        Database B {dbStatus?.databaseB ? '(OK)' : '(Down)'}
+                        Database {dbStatus?.databaseA ? '(OK)' : '(Down)'}
                       </li>
                     </ul>
                   </div>
                   <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
-                    <h3 className="font-semibold mb-2">Totals</h3>
-                    <div className="text-sm space-y-1">
-                      <div>Total A: <span className="font-mono">{dbCounts?.A ?? '—'}</span></div>
-                      <div>Total B: <span className="font-mono">{dbCounts?.B ?? '—'}</span></div>
-                      <div>Diff: <span className="font-mono">{typeof dbCounts?.A === 'number' && typeof dbCounts?.B === 'number' ? Math.abs((dbCounts?.A||0) - (dbCounts?.B||0)) : '—'}</span></div>
+                    <h3 className="font-semibold mb-2">Total Memories</h3>
+                    <div className="text-sm">
+                      <span className="font-mono text-lg">{dbCounts?.count ?? '—'}</span>
                     </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
                     <h3 className="font-semibold mb-2">Status Counts</h3>
-                    <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
-                      <div className="font-semibold">DB A</div><div className="font-semibold">DB B</div>
-                      <div>Pending: {statusCounts?.A.pending ?? '—'}</div><div>Pending: {statusCounts?.B.pending ?? '—'}</div>
-                      <div>Approved: {statusCounts?.A.approved ?? '—'}</div><div>Approved: {statusCounts?.B.approved ?? '—'}</div>
-                      <div>Banned: {statusCounts?.A.banned ?? '—'}</div><div>Banned: {statusCounts?.B.banned ?? '—'}</div>
+                    <div className="text-sm space-y-1">
+                      <div>Pending: <span className="font-mono">{statusCounts?.pending ?? '—'}</span></div>
+                      <div>Approved: <span className="font-mono">{statusCounts?.approved ?? '—'}</span></div>
+                      <div>Banned: <span className="font-mono">{statusCounts?.banned ?? '—'}</span></div>
                     </div>
                   </div>
                   <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
                     <h3 className="font-semibold mb-2">Latency (ms)</h3>
-                    <div className="text-sm space-y-1">
-                      <div>A: <span className="font-mono">{latency?.A?.toFixed?.(0) ?? '—'}</span></div>
-                      <div>B: <span className="font-mono">{latency?.B?.toFixed?.(0) ?? '—'}</span></div>
+                    <div className="text-sm">
+                      <span className="font-mono">{typeof latency === 'number' ? latency.toFixed(0) : '—'}</span>
                     </div>
                   </div>
                 </div>
@@ -1354,50 +1301,22 @@ export default function AdminPanel() {
                       Unpin expired now
                     </button>
                   </div>
-                  <div className="text-sm mt-2">A: {expiredPinned?.A ?? '—'} • B: {expiredPinned?.B ?? '—'}</div>
                 </div>
                 <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
-                  <h3 className="font-semibold mb-2">Recent ID Divergence (last 50 each)</h3>
-                  <div className="text-sm">
-                    <div>Only A: {diffIds?.onlyA.length ?? 0} • Only B: {diffIds?.onlyB.length ?? 0} • Both: {diffIds?.both.length ?? 0}</div>
-                    <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div>
-                        <div className="font-semibold">Sample Only A</div>
-                        <div className="font-mono break-all">{(diffIds?.onlyA || []).slice(0,5).join(', ') || '—'}</div>
-                      </div>
-                      <div>
-                        <div className="font-semibold">Sample Only B</div>
-                        <div className="font-mono break-all">{(diffIds?.onlyB || []).slice(0,5).join(', ') || '—'}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
-                  <h3 className="font-semibold mb-2">Round‑Robin Simulation (50 picks)</h3>
-                  <div className="text-sm">A: {rrSim?.A ?? '—'} • B: {rrSim?.B ?? '—'}</div>
-                </div>
-                <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
-                  <h3 className="font-semibold mb-3">Last 10 Memories Routing</h3>
+                  <h3 className="font-semibold mb-3">Last 10 Memories</h3>
                   <div className="overflow-x-auto">
                     <table className="min-w-full text-sm">
                       <thead>
                         <tr className="text-left">
                           <th className="py-2 pr-4">ID</th>
                           <th className="py-2 pr-4">Created At</th>
-                          <th className="py-2">Located In</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {recentRoutes.map((r) => (
+                        {recentMemories.map((r) => (
                           <tr key={r.id} className="border-t border-[var(--border)]">
                             <td className="py-2 pr-4 font-mono break-all">{r.id}</td>
                             <td className="py-2 pr-4">{new Date(r.created_at).toLocaleString()}</td>
-                            <td className="py-2">
-                              {r.location === 'A' && <span className="text-green-600">Database A</span>}
-                              {r.location === 'B' && <span className="text-blue-600">Database B</span>}
-                              {r.location === 'Both' && <span className="text-amber-600">Both</span>}
-                              {r.location === 'Unknown' && <span className="text-gray-500">Unknown</span>}
-                            </td>
                           </tr>
                         ))}
                       </tbody>

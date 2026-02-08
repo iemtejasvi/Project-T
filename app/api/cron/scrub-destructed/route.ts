@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { scrubDestructedMemories } from '@/lib/dualMemoryDB';
+import { scrubDestructedMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 

@@ -1,5 +1,5 @@
 // Memory caching system for instant loading
-import { fetchMemoriesPaginated } from './dualMemoryDB';
+import { fetchMemoriesPaginated } from './memoryDB';
 import { getPerformanceMonitor } from './performanceMonitor';
 
 interface Memory {

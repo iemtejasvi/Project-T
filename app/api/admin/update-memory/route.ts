@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
-import { updateMemory, primaryDB, secondaryDB } from '@/lib/dualMemoryDB';
+import { updateMemory, primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { revalidatePath } from 'next/cache';
 
 type MemoryRow = {
   id: string;
@@ -14,13 +15,8 @@ type MemoryRow = {
 };
 
 async function fetchMemoryRowById(id: string): Promise<MemoryRow | null> {
-  const [resA, resB] = await Promise.all([
-    primaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes').eq('id', id).maybeSingle(),
-    secondaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes').eq('id', id).maybeSingle(),
-  ]);
-
-  if (!resA.error && resA.data) return resA.data as MemoryRow;
-  if (!resB.error && resB.data) return resB.data as MemoryRow;
+  const res = await primaryDB.from('memories').select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes').eq('id', id).maybeSingle();
+  if (!res.error && res.data) return res.data as MemoryRow;
   return null;
 }
 
@@ -90,6 +86,11 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse(error.message || 'Update failed', 500, { origin });
     }
     
+    // Purge ISR cache so updated content appears instantly
+    revalidatePath('/api/memories');
+    revalidatePath('/memories');
+    revalidatePath('/');
+
     return createSecureResponse({ success: true, data }, 200, { origin });
     
   } catch (error) {

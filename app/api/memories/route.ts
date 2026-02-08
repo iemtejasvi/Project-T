@@ -1,10 +1,20 @@
 import { NextRequest } from 'next/server';
-import { fetchMemoriesPaginated } from '@/lib/dualMemoryDB';
+import { fetchMemoriesPaginated } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { sanitizeNumber } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { unstable_cache } from 'next/cache';
 
-export const runtime = 'edge'; // Use edge runtime for better performance
+// ISR data cache: DB hit once per 60s per unique (page, pageSize, search) combo.
+// Purged instantly via revalidateTag('memories-feed') on new content.
+const getCachedMemories = unstable_cache(
+  async (page: number, pageSize: number, searchTerm: string) => {
+    const filters: Record<string, string> = { status: 'approved' };
+    return fetchMemoriesPaginated(page, pageSize, filters, searchTerm, { created_at: 'desc' });
+  },
+  ['memories-feed'],
+  { revalidate: 60, tags: ['memories-feed'] }
+);
 
 export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -42,23 +52,17 @@ export async function GET(request: NextRequest) {
     const filters: Record<string, string> = {};
     filters.status = 'approved';
     
-    // Fetch memories
-    const result = await fetchMemoriesPaginated(
-      page,
-      pageSize,
-      filters,
-      searchTerm,
-      { created_at: 'desc' }
-    );
+    // Fetch from ISR cache (DB hit only once per 60s per unique param combo)
+    const result = await getCachedMemories(page, pageSize, searchTerm);
     
     if (result.error) {
       return createSecureErrorResponse('Failed to fetch memories', 500, { origin });
     }
     
-    // Return with secure headers and cache control
+    // CDN layer: Vercel edge caches this for 60s, serves stale while revalidating up to 5min
     return createSecureResponse(result, 200, {
       origin,
-      cacheControl: 'no-store'
+      cacheControl: 'public, s-maxage=60, stale-while-revalidate=300'
     });
   } catch (error) {
     console.error('Error in memories API:', error);

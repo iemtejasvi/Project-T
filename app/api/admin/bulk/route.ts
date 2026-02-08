@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
-import { updateMemory, deleteMemory } from '@/lib/dualMemoryDB';
+import { updateMemory, deleteMemory } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -34,6 +35,9 @@ export async function POST(request: NextRequest) {
       );
       const ok = results.filter((r) => r.ok).length;
       const failed = results.length - ok;
+      revalidatePath('/api/memories');
+      revalidatePath('/memories');
+      revalidatePath('/');
       return createSecureResponse({ success: true, action, ok, failed, results }, 200, { origin });
     }
 
@@ -46,6 +50,9 @@ export async function POST(request: NextRequest) {
       );
       const ok = results.filter((r) => r.ok).length;
       const failed = results.length - ok;
+      revalidatePath('/api/memories');
+      revalidatePath('/memories');
+      revalidatePath('/');
       return createSecureResponse({ success: true, action, ok, failed, results }, 200, { origin });
     }
 

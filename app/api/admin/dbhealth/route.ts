@@ -3,14 +3,10 @@ import {
   getDatabaseStatus,
   getDatabaseCounts,
   fetchRecentMemories,
-  locateMemory,
   getStatusCounts,
   measureDbLatency,
   getExpiredPinnedCount,
-  simulateRoundRobin,
-  primaryDB,
-  secondaryDB,
-} from '@/lib/dualMemoryDB';
+} from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
@@ -47,38 +43,15 @@ export async function GET(request: NextRequest) {
       getExpiredPinnedCount(),
     ]);
 
-    const enriched = await Promise.all(
-      (recents || []).map(async (m) => {
-        const loc = await locateMemory(m.id);
-        return { ...m, location: loc };
-      })
-    );
-
-    const [a50, b50] = await Promise.all([
-      primaryDB.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50),
-      secondaryDB.from('memories').select('id, created_at').order('created_at', { ascending: false }).limit(50),
-    ]);
-
-    const setA = new Set(((a50.data || []) as Array<{ id: string }>).map((r) => r.id));
-    const setB = new Set(((b50.data || []) as Array<{ id: string }>).map((r) => r.id));
-
-    const onlyA = Array.from(setA).filter((id) => !setB.has(id));
-    const onlyB = Array.from(setB).filter((id) => !setA.has(id));
-    const both = Array.from(setA).filter((id) => setB.has(id));
-
-    const rr = simulateRoundRobin(50);
-
     return createSecureResponse(
       {
         success: true,
         status,
         counts,
-        recent: enriched,
+        recent: recents,
         statusCounts: statuses,
         latency: lat,
         expiredPinned: exp,
-        diffIds: { onlyA, onlyB, both },
-        rrSim: { A: rr.A, B: rr.B, picks: rr.picks },
       },
       200,
       { origin, cacheControl: 'no-store' }

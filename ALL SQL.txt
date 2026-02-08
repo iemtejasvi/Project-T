@@ -1,0 +1,649 @@
+-- =============================================================================
+-- ALL SQL — RLS Policies, Indexes, and Storage Optimizations
+-- Project-T (Single Database A)
+-- Generated: 2026-02-09 (v2 — future-proofed for millions of rows)
+--
+-- CRITICAL: Zero data loss. No rows deleted. No columns removed.
+--           Only storage/index optimizations and security policies.
+--
+-- HOW TO RUN: Copy-paste sections into Supabase SQL Editor (Dashboard > SQL Editor)
+--             Or run the entire file at once — all statements are idempotent.
+-- =============================================================================
+
+
+-- =============================================================================
+-- ★ STEP 0: RUN THIS FIRST — See all existing indexes and their sizes
+-- This shows you exactly what indexes exist so you know what's being replaced.
+-- Copy-paste this into SQL Editor and run it BEFORE the rest of the file.
+-- =============================================================================
+
+-- SELECT
+--   schemaname,
+--   tablename,
+--   indexname,
+--   pg_size_pretty(pg_relation_size(indexname::regclass)) AS index_size,
+--   indexdef
+-- FROM pg_indexes
+-- WHERE schemaname = 'public'
+-- ORDER BY pg_relation_size(indexname::regclass) DESC;
+
+
+-- =============================================================================
+-- SECTION 1: ROW LEVEL SECURITY (RLS) POLICIES
+-- All policies use DO $$ blocks to safely skip if already existing.
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- 1A. MEMORIES TABLE
+-- -----------------------------------------------------------------------------
+
+-- Enable RLS on memories (idempotent — safe if already enabled)
+ALTER TABLE memories ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Public can read approved + revealed memories only (anon key)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'memories' AND policyname = 'Public can read approved memories'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Public can read approved memories"
+        ON memories FOR SELECT
+        USING (
+          status = 'approved'
+          AND (reveal_at IS NULL OR reveal_at <= now())
+        )
+    $policy$;
+  END IF;
+END $$;
+
+-- Policy: Service role can do everything (API routes use service_role key)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'memories' AND policyname = 'Service role full access on memories'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Service role full access on memories"
+        ON memories FOR ALL
+        TO service_role
+        USING (true)
+        WITH CHECK (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- Policy: Anon can insert memories (submissions come via anon key in some paths)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'memories' AND policyname = 'Anon can insert memories'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon can insert memories"
+        ON memories FOR INSERT
+        TO anon
+        WITH CHECK (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- Policy: Anon cannot update memories
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'memories' AND policyname = 'Anon cannot update memories'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon cannot update memories"
+        ON memories FOR UPDATE
+        TO anon
+        USING (false)
+        WITH CHECK (false)
+    $policy$;
+  END IF;
+END $$;
+
+-- Policy: Anon cannot delete memories
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'memories' AND policyname = 'Anon cannot delete memories'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon cannot delete memories"
+        ON memories FOR DELETE
+        TO anon
+        USING (false)
+    $policy$;
+  END IF;
+END $$;
+
+-- -----------------------------------------------------------------------------
+-- 1B. BANNED_USERS TABLE
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE banned_users ENABLE ROW LEVEL SECURITY;
+
+-- Anon can read banned_users (client-side ban checks)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'banned_users' AND policyname = 'Anon can read banned users'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon can read banned users"
+        ON banned_users FOR SELECT
+        TO anon
+        USING (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- Anon cannot write to banned_users
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'banned_users' AND policyname = 'Anon cannot modify banned users'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon cannot modify banned users"
+        ON banned_users FOR ALL
+        TO anon
+        USING (false)
+        WITH CHECK (false)
+    $policy$;
+  END IF;
+END $$;
+
+-- Service role full access
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'banned_users' AND policyname = 'Service role full access on banned_users'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Service role full access on banned_users"
+        ON banned_users FOR ALL
+        TO service_role
+        USING (true)
+        WITH CHECK (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- -----------------------------------------------------------------------------
+-- 1C. ANNOUNCEMENTS TABLE
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+
+-- Anon can read active announcements
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'announcements' AND policyname = 'Anon can read active announcements'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon can read active announcements"
+        ON announcements FOR SELECT
+        TO anon
+        USING (is_active = true)
+    $policy$;
+  END IF;
+END $$;
+
+-- Anon cannot write to announcements
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'announcements' AND policyname = 'Anon cannot modify announcements'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon cannot modify announcements"
+        ON announcements FOR ALL
+        TO anon
+        USING (false)
+        WITH CHECK (false)
+    $policy$;
+  END IF;
+END $$;
+
+-- Service role full access
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'announcements' AND policyname = 'Service role full access on announcements'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Service role full access on announcements"
+        ON announcements FOR ALL
+        TO service_role
+        USING (true)
+        WITH CHECK (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- -----------------------------------------------------------------------------
+-- 1D. MAINTENANCE TABLE
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE maintenance ENABLE ROW LEVEL SECURITY;
+
+-- Anon can read maintenance status
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'maintenance' AND policyname = 'Anon can read maintenance status'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon can read maintenance status"
+        ON maintenance FOR SELECT
+        TO anon
+        USING (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- Anon cannot write to maintenance
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'maintenance' AND policyname = 'Anon cannot modify maintenance'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon cannot modify maintenance"
+        ON maintenance FOR ALL
+        TO anon
+        USING (false)
+        WITH CHECK (false)
+    $policy$;
+  END IF;
+END $$;
+
+-- Service role full access
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'maintenance' AND policyname = 'Service role full access on maintenance'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Service role full access on maintenance"
+        ON maintenance FOR ALL
+        TO service_role
+        USING (true)
+        WITH CHECK (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- -----------------------------------------------------------------------------
+-- 1E. SITE_SETTINGS TABLE
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+
+-- Anon can read site settings (needed for client-side checks)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'site_settings' AND policyname = 'Anon can read site settings'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon can read site settings"
+        ON site_settings FOR SELECT
+        TO anon
+        USING (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- Anon cannot write to site_settings
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'site_settings' AND policyname = 'Anon cannot modify site settings'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon cannot modify site settings"
+        ON site_settings FOR ALL
+        TO anon
+        USING (false)
+        WITH CHECK (false)
+    $policy$;
+  END IF;
+END $$;
+
+-- Service role full access
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'site_settings' AND policyname = 'Service role full access on site_settings'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Service role full access on site_settings"
+        ON site_settings FOR ALL
+        TO service_role
+        USING (true)
+        WITH CHECK (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- -----------------------------------------------------------------------------
+-- 1F. UNLIMITED_USERS TABLE
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE unlimited_users ENABLE ROW LEVEL SECURITY;
+
+-- Anon can read unlimited_users (needed for client-side limit bypass checks)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'unlimited_users' AND policyname = 'Anon can read unlimited users'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon can read unlimited users"
+        ON unlimited_users FOR SELECT
+        TO anon
+        USING (true)
+    $policy$;
+  END IF;
+END $$;
+
+-- Anon cannot write to unlimited_users
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'unlimited_users' AND policyname = 'Anon cannot modify unlimited users'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Anon cannot modify unlimited users"
+        ON unlimited_users FOR ALL
+        TO anon
+        USING (false)
+        WITH CHECK (false)
+    $policy$;
+  END IF;
+END $$;
+
+-- Service role full access
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'unlimited_users' AND policyname = 'Service role full access on unlimited_users'
+  ) THEN
+    EXECUTE $policy$
+      CREATE POLICY "Service role full access on unlimited_users"
+        ON unlimited_users FOR ALL
+        TO service_role
+        USING (true)
+        WITH CHECK (true)
+    $policy$;
+  END IF;
+END $$;
+
+
+-- =============================================================================
+-- SECTION 2: PERFORMANCE INDEXES
+-- All use CREATE INDEX IF NOT EXISTS — safe to re-run.
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- 2A. B-TREE INDEXES (for equality/range filters used in queries)
+-- -----------------------------------------------------------------------------
+
+-- Primary query pattern: status + pinned + created_at (used by fetchMemoriesPaginated, admin)
+CREATE INDEX IF NOT EXISTS idx_memories_status_pinned_created
+  ON memories (status, pinned DESC, created_at DESC);
+
+-- Reveal filter: used by public queries to filter unrevealed memories
+CREATE INDEX IF NOT EXISTS idx_memories_reveal_at
+  ON memories (reveal_at)
+  WHERE reveal_at IS NOT NULL;
+
+-- Destruct filter: used by scrub cron job
+CREATE INDEX IF NOT EXISTS idx_memories_destruct_at
+  ON memories (destruct_at)
+  WHERE destruct_at IS NOT NULL AND status = 'approved';
+
+-- Pinned expiry: used by unpin-expired
+CREATE INDEX IF NOT EXISTS idx_memories_pinned_until
+  ON memories (pinned_until)
+  WHERE pinned = true AND pinned_until IS NOT NULL;
+
+-- IP lookup: used by ban checks and rate limiting
+CREATE INDEX IF NOT EXISTS idx_memories_ip
+  ON memories (ip)
+  WHERE ip IS NOT NULL;
+
+-- UUID lookup: used by user status checks
+CREATE INDEX IF NOT EXISTS idx_memories_uuid
+  ON memories (uuid)
+  WHERE uuid IS NOT NULL;
+
+-- Banned users: IP and UUID lookups
+CREATE INDEX IF NOT EXISTS idx_banned_users_ip
+  ON banned_users (ip)
+  WHERE ip IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_banned_users_uuid
+  ON banned_users (uuid)
+  WHERE uuid IS NOT NULL;
+
+-- Unlimited users: IP and UUID lookups
+CREATE INDEX IF NOT EXISTS idx_unlimited_users_ip
+  ON unlimited_users (ip)
+  WHERE ip IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_unlimited_users_uuid
+  ON unlimited_users (uuid)
+  WHERE uuid IS NOT NULL;
+
+-- Announcements: active lookup
+CREATE INDEX IF NOT EXISTS idx_announcements_active
+  ON announcements (is_active)
+  WHERE is_active = true;
+
+-- -----------------------------------------------------------------------------
+-- 2B. BRIN INDEX for created_at (time-series optimization)
+-- BRIN indexes are ~90% smaller than B-tree for time-ordered data.
+-- Only beneficial if rows are physically ordered by created_at (append-only inserts).
+-- Memories are inserted chronologically, making BRIN ideal here.
+-- -----------------------------------------------------------------------------
+
+CREATE INDEX IF NOT EXISTS idx_memories_created_at_brin
+  ON memories USING brin (created_at)
+  WITH (pages_per_range = 32);
+
+-- -----------------------------------------------------------------------------
+-- 2C. Status-only index for getStatusCounts() parallel COUNT queries
+-- This is separate from the composite index because getStatusCounts()
+-- queries by status alone (no pinned/created_at filter).
+-- -----------------------------------------------------------------------------
+
+CREATE INDEX IF NOT EXISTS idx_memories_status
+  ON memories (status);
+
+-- -----------------------------------------------------------------------------
+-- 2D. Trigram GIN index for ILIKE search on recipient
+-- Without this, ILIKE '%searchterm%' does a full sequential scan.
+-- At millions of rows, this is the difference between 5ms and 5 seconds.
+-- Requires pg_trgm extension (available on all Supabase plans).
+-- -----------------------------------------------------------------------------
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE INDEX IF NOT EXISTS idx_memories_recipient_trgm
+  ON memories USING gin (recipient gin_trgm_ops);
+
+
+-- =============================================================================
+-- SECTION 3: DROP OLD / REDUNDANT INDEXES (free up space)
+-- These are the heavy B-tree indexes that Supabase auto-creates or that
+-- were manually created. Our new composite + BRIN + partial indexes replace them.
+--
+-- All use DROP INDEX IF EXISTS — safe if they don't exist.
+-- ZERO DATA LOSS — only index structures are removed, not table data.
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- 3A. Drop old standalone B-tree on created_at
+-- Our BRIN index (idx_memories_created_at_brin) replaces this at ~90% less space.
+-- Common names Supabase or manual creation would use:
+-- -----------------------------------------------------------------------------
+
+DROP INDEX IF EXISTS idx_memories_created_at;
+DROP INDEX IF EXISTS memories_created_at_idx;
+DROP INDEX IF EXISTS memories_created_at_index;
+DROP INDEX IF EXISTS idx_created_at;
+
+-- -----------------------------------------------------------------------------
+-- 3B. Drop old standalone B-tree on status
+-- Our composite idx_memories_status_pinned_created covers filtered queries,
+-- and idx_memories_status covers status-only COUNT queries.
+-- Drop any old differently-named status indexes:
+-- -----------------------------------------------------------------------------
+
+DROP INDEX IF EXISTS idx_memories_status_old;
+DROP INDEX IF EXISTS memories_status_idx;
+DROP INDEX IF EXISTS memories_status_index;
+
+-- -----------------------------------------------------------------------------
+-- 3C. Drop old standalone indexes on pinned
+-- Our composite idx_memories_status_pinned_created covers pinned ordering.
+-- idx_memories_pinned_until covers expiry lookups.
+-- -----------------------------------------------------------------------------
+
+DROP INDEX IF EXISTS idx_memories_pinned;
+DROP INDEX IF EXISTS memories_pinned_idx;
+DROP INDEX IF EXISTS memories_pinned_index;
+
+-- -----------------------------------------------------------------------------
+-- 3D. Drop old dual-DB era indexes
+-- -----------------------------------------------------------------------------
+
+DROP INDEX IF EXISTS idx_memories_database;
+DROP INDEX IF EXISTS idx_memories_db_source;
+DROP INDEX IF EXISTS idx_memories_source_db;
+
+-- -----------------------------------------------------------------------------
+-- 3E. Drop old standalone B-tree on reveal_at / destruct_at (replaced by partials)
+-- -----------------------------------------------------------------------------
+
+DROP INDEX IF EXISTS idx_memories_reveal;
+DROP INDEX IF EXISTS memories_reveal_at_idx;
+DROP INDEX IF EXISTS memories_destruct_at_idx;
+DROP INDEX IF EXISTS idx_memories_destruct;
+
+
+-- =============================================================================
+-- SECTION 4: STORAGE OPTIMIZATIONS
+-- Zero data loss. No columns removed. Only storage strategy changes.
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- 4A. TOAST COMPRESSION (for large text columns)
+-- PostgreSQL automatically compresses large text values using pglz.
+-- We ensure the 'message' column uses EXTENDED storage (compress + out-of-line)
+-- which is the default for text, but we set it explicitly for safety.
+-- -----------------------------------------------------------------------------
+
+ALTER TABLE memories ALTER COLUMN message SET STORAGE EXTENDED;
+
+-- -----------------------------------------------------------------------------
+-- 4B. DATA TYPE REVIEW
+-- Current types are already appropriate:
+--   id: uuid (16 bytes — optimal)
+--   status: text (could be enum, but text is fine and more flexible)
+--   color: text (short values, no savings from enum conversion)
+--   pinned: boolean (1 byte — optimal)
+--   timestamps: timestamptz (8 bytes — optimal)
+--   ip: text (variable, typically 7-39 chars — inet type same storage)
+--   message: text (TOAST-compressed — optimal for variable-length)
+--
+-- VERDICT: No type changes needed. Risk of migration bugs outweighs
+--          marginal storage savings for a dataset under 500 MB.
+-- -----------------------------------------------------------------------------
+
+
+-- =============================================================================
+-- SECTION 5: MAINTENANCE & DIAGNOSTICS
+-- Run these manually after deploying the above, or periodically.
+-- =============================================================================
+
+-- ★ IMPORTANT: Run ANALYZE after creating new indexes so the query planner
+--   knows about them. This is NOT commented out — it's safe and recommended.
+ANALYZE memories;
+ANALYZE banned_users;
+ANALYZE announcements;
+ANALYZE maintenance;
+ANALYZE site_settings;
+ANALYZE unlimited_users;
+
+-- ★ Check your table and index sizes AFTER running everything above.
+-- Run this to verify old indexes are gone and new ones are in place:
+--
+-- SELECT
+--   schemaname,
+--   tablename,
+--   pg_size_pretty(pg_total_relation_size(schemaname || '.' || tablename)) AS total_size,
+--   pg_size_pretty(pg_relation_size(schemaname || '.' || tablename)) AS table_size,
+--   pg_size_pretty(pg_total_relation_size(schemaname || '.' || tablename) - pg_relation_size(schemaname || '.' || tablename)) AS index_overhead
+-- FROM pg_tables
+-- WHERE schemaname = 'public'
+-- ORDER BY pg_total_relation_size(schemaname || '.' || tablename) DESC;
+
+-- ★ Check individual index sizes (verify new ones are small, old ones are gone):
+--
+-- SELECT
+--   tablename,
+--   indexname,
+--   pg_size_pretty(pg_relation_size(indexname::regclass)) AS size,
+--   indexdef
+-- FROM pg_indexes
+-- WHERE schemaname = 'public'
+-- ORDER BY pg_relation_size(indexname::regclass) DESC;
+
+
+-- =============================================================================
+-- INDEX SUMMARY (what should exist after running this file)
+-- =============================================================================
+--
+-- memories:
+--   1. memories_pkey                        (PK — auto, keep)
+--   2. idx_memories_status_pinned_created    (composite B-tree — main query pattern)
+--   3. idx_memories_status                   (B-tree — COUNT by status)
+--   4. idx_memories_created_at_brin          (BRIN — time-range scans, ~90% smaller)
+--   5. idx_memories_reveal_at               (partial B-tree — reveal filter)
+--   6. idx_memories_destruct_at             (partial B-tree — destruct cron)
+--   7. idx_memories_pinned_until            (partial B-tree — unpin expiry)
+--   8. idx_memories_ip                      (partial B-tree — ban/rate checks)
+--   9. idx_memories_uuid                    (partial B-tree — user status)
+--  10. idx_memories_recipient_trgm          (GIN trigram — ILIKE search)
+--
+-- banned_users:
+--  11. banned_users_pkey                    (PK — auto, keep)
+--  12. idx_banned_users_ip                  (partial B-tree)
+--  13. idx_banned_users_uuid               (partial B-tree)
+--
+-- unlimited_users:
+--  14. unlimited_users_pkey                 (PK — auto, keep)
+--  15. idx_unlimited_users_ip              (partial B-tree)
+--  16. idx_unlimited_users_uuid            (partial B-tree)
+--
+-- announcements:
+--  17. announcements_pkey                   (PK — auto, keep)
+--  18. idx_announcements_active             (partial B-tree)
+--
+-- maintenance:   (tiny table, PK only)
+-- site_settings: (tiny table, PK only)
+--
+-- Total: 18 lean indexes. All partial where possible to minimize size.
+-- =============================================================================
+
+
+-- =============================================================================
+-- END OF SQL
+-- =============================================================================

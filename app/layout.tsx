@@ -1431,7 +1431,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ppkbuhaklzbgwvaaoudn.supabase.co" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://goltnprxtenbrkxcvsha.supabase.co" crossOrigin="anonymous" />
         <link rel="prefetch" href="/memories" />
         <link rel="prefetch" href="/submit" />
         <link rel="prefetch" href="/how-it-works" />

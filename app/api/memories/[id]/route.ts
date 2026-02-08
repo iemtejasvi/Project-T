@@ -1,10 +1,16 @@
 import { NextRequest } from 'next/server';
-import { fetchMemoryById } from '@/lib/dualMemoryDB';
+import { fetchMemoryById } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { sanitizeUUID } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { unstable_cache } from 'next/cache';
 
-export const runtime = 'edge';
+// ISR: Cache individual memory lookups for 60s, purged on content changes
+const getCachedMemoryById = unstable_cache(
+  async (id: string) => fetchMemoryById(id),
+  ['memory-detail'],
+  { revalidate: 60, tags: ['memories-feed'] }
+);
 
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const origin = request.headers.get('origin');
@@ -32,7 +38,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       return createSecureErrorResponse('Invalid id', 400, { origin });
     }
 
-    const result = await fetchMemoryById(id);
+    const result = await getCachedMemoryById(id);
 
     if (result.error || !result.data) {
       return createSecureErrorResponse('Memory not found', 404, { origin });
@@ -40,7 +46,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     return createSecureResponse(result, 200, {
       origin,
-      cacheControl: 'no-store'
+      cacheControl: 'public, s-maxage=60, stale-while-revalidate=300'
     });
   } catch (error) {
     console.error('Error in memory by id API:', error);

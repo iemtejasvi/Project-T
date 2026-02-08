@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { primaryDB } from '@/lib/dualMemoryDB';
+import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 

@@ -7,11 +7,6 @@ export default function Head() {
         href="https://ppkbuhaklzbgwvaaoudn.supabase.co"
         crossOrigin="anonymous"
       />
-      <link
-        rel="preconnect"
-        href="https://goltnprxtenbrkxcvsha.supabase.co"
-        crossOrigin="anonymous"
-      />
     </>
   );
 }

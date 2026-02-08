@@ -26,16 +26,3 @@ export const supabaseServer = createClient(
   }
 );
 
-// For database B (if using dual database)
-export const supabaseServerB = process.env.NEXT_PUBLIC_SUPABASE_URL_B && process.env.SUPABASE_SERVICE_ROLE_KEY_B
-  ? createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL_B,
-      process.env.SUPABASE_SERVICE_ROLE_KEY_B,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
-  : null;

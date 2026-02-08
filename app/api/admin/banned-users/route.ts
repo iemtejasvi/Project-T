@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { primaryDB } from '@/lib/dualMemoryDB';
+import { primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';

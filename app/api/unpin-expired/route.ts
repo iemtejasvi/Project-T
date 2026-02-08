@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
-import { unpinExpiredMemories } from '@/lib/dualMemoryDB';
+import { unpinExpiredMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -23,7 +24,12 @@ export async function POST(request: NextRequest) {
     }
 
     const count = await unpinExpiredMemories();
-    return createSecureResponse({ success: true, count }, 200, { origin });
+    if (count > 0) {
+      revalidatePath('/api/memories');
+      revalidatePath('/memories');
+      revalidatePath('/');
+    }
+    return createSecureResponse({ success: true, unpinned: count }, 200, { origin });
   } catch (error) {
     console.error('Unpin expired error:', error);
     return createSecureErrorResponse('Server error', 500, { origin });
