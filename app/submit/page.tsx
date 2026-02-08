@@ -742,13 +742,6 @@ export default function SubmitPage() {
 
   const timeCapsuleOptions: Array<{ value: number; label: string }> = [
     { value: 0, label: "None (submit now)" },
-    { value: 5, label: "5 minutes" },
-    { value: 10, label: "10 minutes" },
-    { value: 15, label: "15 minutes" },
-    { value: 20, label: "20 minutes" },
-    { value: 30, label: "30 minutes" },
-    { value: 45, label: "45 minutes" },
-    { value: 60, label: "60 minutes" },
     { value: 7 * 24 * 60, label: "1 week" },
     { value: 30 * 24 * 60, label: "1 month" },
     { value: 3 * 30 * 24 * 60, label: "3 months" },
@@ -759,13 +752,6 @@ export default function SubmitPage() {
 
   const destructOptions: Array<{ value: number; label: string }> = [
     { value: 0, label: "Never (do not destruct)" },
-    { value: 5, label: "5 minutes" },
-    { value: 10, label: "10 minutes" },
-    { value: 15, label: "15 minutes" },
-    { value: 20, label: "20 minutes" },
-    { value: 30, label: "30 minutes" },
-    { value: 45, label: "45 minutes" },
-    { value: 60, label: "60 minutes" },
     { value: 7 * 24 * 60, label: "1 week" },
     { value: 30 * 24 * 60, label: "1 month" },
     { value: 3 * 30 * 24 * 60, label: "3 months" },
