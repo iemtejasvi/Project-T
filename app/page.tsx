@@ -639,16 +639,16 @@ export default function Home() {
         </section>
 
         {/* Additional SEO copy kept hidden from visual users per requirements */}
-        <section aria-label="Alternative to The Unsent Project copy" className="sr-only">
-          <h2>If Only I Sent This is an independent alternative to The Unsent Project</h2>
+        <section aria-label="About If Only I Sent This" className="sr-only">
+          <h2>If Only I Sent This — a modern archive for unsent memories</h2>
           <p>
-            Discover a curated unsent messages archive where anonymous confessions, heartbreak letters, and reflective
-            journal entries live in a calm, moderated space separate from The Unsent Project. We highlight softer
-            typography, regional filters, and compassionate review so every unsent text or letter lands safely.
+            If Only I Sent This is a curated archive where anonymous confessions, heartbreak letters, and reflective
+            journal entries live in a calm, moderated space. We highlight softer typography, regional filters, and
+            compassionate review so every unsent text or letter lands safely.
           </p>
           <p>
-            Writers searching for unsent project alternatives, heartfelt message journals, or private confession boards
-            can publish drafts here without usernames, ads, or distracting UI. Stories remain searchable by feeling,
+            Writers searching for heartfelt message journals, private confession boards, or anonymous letter platforms
+            can publish here without usernames, ads, or distracting UI. Stories remain searchable by feeling,
             music reference, or relationship type, giving readers new ways to explore closure.
           </p>
           <ul>
@@ -659,7 +659,7 @@ export default function Home() {
               <Link href="/submit">Share an anonymous confession</Link>
             </li>
             <li>
-              <Link href="/how-it-works">Learn how this unsent project alternative works</Link>
+              <Link href="/how-it-works">Learn how If Only I Sent This works</Link>
             </li>
           </ul>
           <p>
@@ -669,17 +669,17 @@ export default function Home() {
         </section>
 
         <section aria-label="Unsent message keyword cloud" className="sr-only">
-          <h2>Unsent message keywords we focus on</h2>
+          <h2>Unsent message topics we cover</h2>
           <p>
-            This archive targets phrases like unsent texts, breakup letters, anonymous confessions, digital time capsules,
-            and indie alternatives to the main Unsent Project feed. We also surface seasonal heartbreak trends such as
-            Christmas breakup stories, New Year closure notes, and Valentine confession dumps.
+            This archive covers unsent texts, breakup letters, anonymous confessions, and digital time capsules.
+            We surface seasonal heartbreak trends such as Christmas breakup stories, New Year closure notes,
+            and Valentine confession dumps.
           </p>
           <p>
-            Visitors hunting for phrases like &ldquo;sites like the unsent project,&rdquo; &ldquo;anonymous message wall,&rdquo;
-            &ldquo;unsent letters to ex,&rdquo; &ldquo;memory dropbox,&rdquo; or &ldquo;calm confession journal&rdquo; will find the same
-            emotional resonance without ads or chaotic color palettes. Regional storytellers from Mumbai, Manila, Lagos,
-            London, and São Paulo each receive equal placement via our moderation and tagging systems.
+            Visitors searching for anonymous message walls, unsent letters to ex, memory journals, or calm confession
+            spaces will find emotional resonance without ads or chaotic colour palettes. Regional storytellers from
+            Mumbai, Manila, Lagos, London, and São Paulo each receive equal placement via our moderation and tagging
+            systems.
           </p>
           <ul>
             <li>
@@ -692,14 +692,13 @@ export default function Home() {
               <Link href="/memories?tag=music">Music-referenced unsent letters</Link>
             </li>
             <li>
-              <Link href="/submit">Submit a calm confession instead of texting your ex</Link>
+              <Link href="/submit">Write an anonymous confession</Link>
             </li>
           </ul>
           <p>
-            Keyword clusters include unsent text messages, unsent letters project, breakup archive, digital journal for
-            emotions, Olivia Rodrigo inspired confessions, Taylor Swift lyric letters, and gentler alternatives to viral
-            anonymous walls. All of this copy stays hidden from everyday visitors but gives crawlers context about our
-            niche.
+            Topics include unsent text messages, breakup archives, digital journals for emotions, music-inspired
+            confessions, and heartfelt letter writing. All of this copy stays hidden from everyday visitors but gives
+            crawlers context about our niche.
           </p>
         </section>
 
@@ -731,7 +730,7 @@ export default function Home() {
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: "If Only I Sent This",
-            alternateName: "Independent alternative to The Unsent Project",
+            alternateName: "IOIST",
             url: "https://www.ifonlyisentthis.com",
             potentialAction: {
               "@type": "SearchAction",
@@ -740,7 +739,7 @@ export default function Home() {
             },
             inLanguage: "en",
             description:
-              "Anonymous unsent messages archive offering a calmer alternative to The Unsent Project with moderated, keyword-rich memories.",
+              "A modern archive for unsent memories, anonymous confessions, and heartfelt messages you were never ready to send.",
           }),
         }}
       />
