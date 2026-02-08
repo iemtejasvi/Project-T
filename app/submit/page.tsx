@@ -161,7 +161,10 @@ export default function SubmitPage() {
   useEffect(() => {
     async function fetchIP() {
       try {
-        const res = await fetch("https://ipapi.co/json/");
+        const ipCtrl = new AbortController();
+        const ipTimer = setTimeout(() => ipCtrl.abort(), 8000);
+        const res = await fetch("https://ipapi.co/json/", { signal: ipCtrl.signal });
+        clearTimeout(ipTimer);
         const data = await res.json();
         setIpData({ ip: data.ip, country: data.country_name });
       } catch (err) {
@@ -173,11 +176,15 @@ export default function SubmitPage() {
     // Check unlimited status once on mount
     (async () => {
       try {
+        const statusCtrl = new AbortController();
+        const statusTimer = setTimeout(() => statusCtrl.abort(), 10000);
         const res = await fetch('/api/check-user-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uuid: localStorage.getItem('user_uuid') || getCookie('user_uuid') })
+          body: JSON.stringify({ uuid: localStorage.getItem('user_uuid') || getCookie('user_uuid') }),
+          signal: statusCtrl.signal,
         });
+        clearTimeout(statusTimer);
         const data = await res.json();
         setIsUnlimitedUser(data.isUnlimited || data.globalOverrideActive || data.isOwner);
       } catch {

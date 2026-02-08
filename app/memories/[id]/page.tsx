@@ -34,11 +34,15 @@ export default function MemoryDetail() {
     async function fetchMemory() {
       setLoading(true);
       try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10_000);
         const res = await fetch(`/api/memories/${encodeURIComponent(id)}`, {
           method: 'GET',
           headers: { 'Accept': 'application/json' },
-          cache: 'no-store'
+          cache: 'no-store',
+          signal: controller.signal,
         });
+        clearTimeout(timer);
 
         const json = await res.json().catch(() => null);
         const data = json?.data as Memory | undefined;

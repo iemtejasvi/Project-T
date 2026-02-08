@@ -1,5 +1,4 @@
 // Ultra-performant, future-proof caching system for millions of memories
-import { fetchMemoriesPaginated } from './memoryDB';
 import { getPerformanceMonitor } from './performanceMonitor';
 
 interface Memory {
@@ -38,27 +37,33 @@ interface CacheOptions {
 
 // Route through the ISR-cached API instead of hitting Supabase directly.
 // 10,000 visitors in 1 minute = 1 DB query (cached 60s at server + CDN).
+const FETCH_TIMEOUT_MS = 10_000; // 10s hard timeout — never hang forever
+
 async function fetchFromAPI(
   page: number,
   pageSize: number,
   searchTerm: string
 ): Promise<{ data: Memory[]; totalCount: number; totalPages: number; currentPage: number; error: unknown }> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
     const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
     if (searchTerm) params.set('search', searchTerm);
-    const res = await fetch(`/api/memories?${params.toString()}`);
+    const res = await fetch(`/api/memories?${params.toString()}`, { signal: controller.signal });
     if (!res.ok) throw new Error(`API ${res.status}`);
-    return res.json();
+    return await res.json();
   } catch {
-    // Fallback: direct DB call if API is unavailable
-    return fetchMemoriesPaginated(page, pageSize, { status: 'approved' }, searchTerm, { created_at: 'desc' });
+    // Return empty result — never hang, never call server-side code from client
+    return { data: [], totalCount: 0, totalPages: 0, currentPage: page, error: 'fetch_failed' };
+  } finally {
+    clearTimeout(timer);
   }
 }
 
 class UltraCache {
   private cache: Map<string, CachedData>;
   private prefetchQueue: Set<string>;
-  private pendingFetches: Map<string, Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }>>;
+  private pendingFetches: Map<string, { promise: Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }>, startedAt: number }>;
   private lastFetchTime: Map<string, number>;
   private readonly maxAge: number = 180000; // 3 minutes cache for ultra-fresh content
   private readonly staleWhileRevalidate: number = 300000; // 5 minutes stale-while-revalidate
@@ -223,10 +228,14 @@ class UltraCache {
     const maxAge = options.maxAge || this.maxAge;
     const staleWhileRevalidate = options.staleWhileRevalidate || this.staleWhileRevalidate;
     
-    // Check if already fetching
-    if (this.pendingFetches.has(cacheKey)) {
+    // Check if already fetching — but discard stale promises (>15s) to prevent infinite hang
+    const pending = this.pendingFetches.get(cacheKey);
+    if (pending && (Date.now() - pending.startedAt) < 15_000) {
       console.debug('⏳ Waiting for pending fetch...');
-      return this.pendingFetches.get(cacheKey)!;
+      return pending.promise;
+    } else if (pending) {
+      // Stale pending fetch — discard it
+      this.pendingFetches.delete(cacheKey);
     }
     
     const cached = this.cache.get(cacheKey);
@@ -234,7 +243,7 @@ class UltraCache {
     const lastFetch = this.lastFetchTime.get(cacheKey) || 0;
     if (cached && cached.isStale) {
       const fetchPromise = this.fetchFreshData(page, pageSize, filters, searchTerm, orderBy);
-      this.pendingFetches.set(cacheKey, fetchPromise);
+      this.pendingFetches.set(cacheKey, { promise: fetchPromise, startedAt: Date.now() });
       try {
         return await fetchPromise;
       } finally {
@@ -290,7 +299,7 @@ class UltraCache {
     monitor.startTimer('cache-miss');
     
     const fetchPromise = this.fetchFreshData(page, pageSize, filters, searchTerm, orderBy);
-    this.pendingFetches.set(cacheKey, fetchPromise);
+    this.pendingFetches.set(cacheKey, { promise: fetchPromise, startedAt: Date.now() });
     
     try {
       const result = await fetchPromise;
@@ -467,13 +476,16 @@ class UltraCache {
         params.searchTerm || ''
       );
       
-      this.pendingFetches.set(cacheKey, fetchPromise.then(result => ({
-        data: result.data,
-        totalCount: result.totalCount,
-        totalPages: result.totalPages,
-        currentPage: params.page,
-        fromCache: false
-      })));
+      this.pendingFetches.set(cacheKey, {
+        promise: fetchPromise.then(result => ({
+          data: result.data,
+          totalCount: result.totalCount,
+          totalPages: result.totalPages,
+          currentPage: params.page,
+          fromCache: false
+        })),
+        startedAt: Date.now()
+      });
       
       const result = await fetchPromise;
       
