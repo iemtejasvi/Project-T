@@ -216,7 +216,10 @@ export default function Memories() {
         const expiredPinIds = expiredPins.map(memory => memory.id);
 
         // Update expired pins via server API (keeps DB write logic off the client)
-        await fetch('/api/unpin-expired', { method: 'POST' });
+        const unpinCtrl = new AbortController();
+        const unpinTimer = setTimeout(() => unpinCtrl.abort(), 8000);
+        await fetch('/api/unpin-expired', { method: 'POST', signal: unpinCtrl.signal });
+        clearTimeout(unpinTimer);
 
         // Update local state
         if (isMounted) {

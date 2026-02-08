@@ -18,24 +18,38 @@ export default function UnlimitedUsersPage() {
   const [globalUntil, setGlobalUntil] = useState<string>("");
   const [savingGlobal, setSavingGlobal] = useState(false);
 
-  // Fetch existing data
+  // Fetch existing data (10s timeout to prevent hang)
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
-        .from("unlimited_users")
-        .select("id, ip, uuid, created_at")
-        .order("created_at", { ascending: false });
-      if (!error) setUsers(data || []);
+      try {
+        const usersPromise = supabase
+          .from("unlimited_users")
+          .select("id, ip, uuid, created_at")
+          .order("created_at", { ascending: false })
+          .then((r) => r);
+        const usersResult = await Promise.race([
+          usersPromise,
+          new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+        ]);
+        if (usersResult && 'data' in usersResult && !usersResult.error) {
+          setUsers((usersResult.data as UnlimitedUser[]) || []);
+        }
+      } catch { /* timeout or network error */ }
 
-      // fetch settings
-      const { data: settings } = await supabase
-        .from("site_settings")
-        .select("word_limit_disabled_until")
-        .single();
-      if (settings?.word_limit_disabled_until) {
-        // ISO string without seconds
-        setGlobalUntil(settings.word_limit_disabled_until.substring(0, 16));
-      }
+      try {
+        const settingsPromise = supabase
+          .from("site_settings")
+          .select("word_limit_disabled_until")
+          .single()
+          .then((r) => r);
+        const settingsResult = await Promise.race([
+          settingsPromise,
+          new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+        ]);
+        if (settingsResult && 'data' in settingsResult && settingsResult.data?.word_limit_disabled_until) {
+          setGlobalUntil(settingsResult.data.word_limit_disabled_until.substring(0, 16));
+        }
+      } catch { /* timeout or network error */ }
     })();
   }, []);
 
@@ -43,11 +57,15 @@ export default function UnlimitedUsersPage() {
     if (!ip && !uuid) return;
     setLoading(true);
     try {
+      const addCtrl = new AbortController();
+      const addTimer = setTimeout(() => addCtrl.abort(), 12000);
       const response = await fetch('/api/admin/unlimited', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ip: ip || null, uuid: uuid || null })
+        body: JSON.stringify({ ip: ip || null, uuid: uuid || null }),
+        signal: addCtrl.signal,
       });
+      clearTimeout(addTimer);
       const result = await response.json();
       if (!response.ok || result.error) {
         console.error('Insert error', result.error);
@@ -64,9 +82,13 @@ export default function UnlimitedUsersPage() {
 
   const handleRemove = async (id: string) => {
     try {
+      const rmCtrl = new AbortController();
+      const rmTimer = setTimeout(() => rmCtrl.abort(), 12000);
       const response = await fetch(`/api/admin/unlimited?id=${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        signal: rmCtrl.signal,
       });
+      clearTimeout(rmTimer);
       const result = await response.json();
       if (!response.ok || result.error) {
         console.error('Delete error', result.error);
@@ -82,11 +104,15 @@ export default function UnlimitedUsersPage() {
     setSavingGlobal(true);
     const until = globalUntil ? new Date(globalUntil).toISOString() : null;
     try {
+      const patchCtrl = new AbortController();
+      const patchTimer = setTimeout(() => patchCtrl.abort(), 12000);
       await fetch('/api/admin/unlimited', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: 1, word_limit_disabled_until: until })
+        body: JSON.stringify({ id: 1, word_limit_disabled_until: until }),
+        signal: patchCtrl.signal,
       });
+      clearTimeout(patchTimer);
     } catch (error) {
       console.error('Update settings error', error);
     }

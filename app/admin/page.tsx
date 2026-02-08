@@ -9,6 +9,13 @@ import { primaryDBRead, getDatabaseStatus, getDatabaseCounts, fetchRecentMemorie
 import { forceRefreshAllCaches } from "@/lib/enhancedCache";
 import Loader from "@/components/Loader";
 
+// Utility: fetch with automatic timeout (prevents any admin action from hanging forever)
+function timedFetch(url: string, opts: RequestInit = {}, ms = 12000): Promise<Response> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
 interface Memory {
   id: string;
   recipient: string;
@@ -238,11 +245,14 @@ export default function AdminPanel() {
     const status = selectedTab;
     setMemoriesLoading(true);
     setMemories([]);
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 15000);
     fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200`, {
       credentials: 'include',
-      cache: 'no-store'
+      cache: 'no-store',
+      signal: ctrl.signal,
     })
-      .then((r) => r.json())
+      .then((r) => { clearTimeout(t); return r.json(); })
       .then((res) => {
         setMemories((res?.data || []) as Memory[]);
         setMemoriesTotalCount(Number(res?.totalCount || 0));
@@ -259,10 +269,14 @@ export default function AdminPanel() {
   useEffect(() => {
     async function checkAuth() {
       try {
+        const authCtrl = new AbortController();
+        const authTimer = setTimeout(() => authCtrl.abort(), 10000);
         const response = await fetch('/api/admin/auth', {
-          credentials: 'include', // Ensure cookies are sent
-          cache: 'no-store' // Don't cache auth checks
+          credentials: 'include',
+          cache: 'no-store',
+          signal: authCtrl.signal,
         });
+        clearTimeout(authTimer);
         const data = await response.json();
         
         if (data.authenticated) {
@@ -295,10 +309,14 @@ export default function AdminPanel() {
           const status = selectedTab;
           setMemoriesLoading(true);
           setMemories([]);
+          const memCtrl = new AbortController();
+          const memTimer = setTimeout(() => memCtrl.abort(), 15000);
           const res = await fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200`, {
             credentials: 'include',
-            cache: 'no-store'
+            cache: 'no-store',
+            signal: memCtrl.signal,
           });
+          clearTimeout(memTimer);
           const json = await res.json();
           setMemories((json?.data || []) as Memory[]);
           setMemoriesTotalCount(Number(json?.totalCount || 0));
@@ -367,11 +385,13 @@ export default function AdminPanel() {
 
   const fetchMaintenanceStatus = async () => {
     try {
-      const { data, error } = await supabase
-        .from("maintenance")
-        .select("is_active, message")
-        .eq("id", 1)
-        .single();
+      const result = await Promise.race([
+        supabase.from("maintenance").select("is_active, message").eq("id", 1).single().then((r) => r),
+        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+      ]);
+
+      if (!result) return; // timeout
+      const { data, error } = result;
 
       if (error && error.code !== 'PGRST116') {
         console.error("Error fetching maintenance status:", error);
@@ -389,12 +409,19 @@ export default function AdminPanel() {
 
   const fetchCurrentAnnouncement = async () => {
     try {
-      const { data, error } = await supabase
-        .from("announcements")
-        .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible, view_count, click_count")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(1);
+      const result = await Promise.race([
+        supabase
+          .from("announcements")
+          .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible, view_count, click_count")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .then((r) => r),
+        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+      ]);
+
+      if (!result) return; // timeout
+      const { data, error } = result;
 
       if (error) {
         console.error("Error fetching announcement:", error.message);
@@ -404,11 +431,13 @@ export default function AdminPanel() {
       if (data?.[0]) {
         // Check if announcement has expired
         if (new Date(data[0].expires_at) < new Date()) {
-          // Delete expired announcement via API
+          const delCtrl = new AbortController();
+          setTimeout(() => delCtrl.abort(), 8000);
           await fetch('/api/admin/delete-announcement', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: data[0].id })
+            body: JSON.stringify({ id: data[0].id }),
+            signal: delCtrl.signal,
           });
           setCurrentAnnouncement(null);
         } else {
@@ -463,7 +492,7 @@ export default function AdminPanel() {
     expiresAt.setSeconds(expiresAt.getSeconds() + totalSeconds);
 
     try {
-      const response = await fetch('/api/admin/announcements', {
+      const response = await timedFetch('/api/admin/announcements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -505,7 +534,7 @@ export default function AdminPanel() {
     if (!currentAnnouncement) return;
     
     try {
-      const response = await fetch(`/api/admin/announcements?id=${currentAnnouncement.id}`, {
+      const response = await timedFetch(`/api/admin/announcements?id=${currentAnnouncement.id}`, {
         method: 'DELETE'
       });
       
@@ -531,7 +560,7 @@ export default function AdminPanel() {
     try {
       if (maintenanceMode) {
         // Disable maintenance mode
-        const response = await fetch('/api/admin/maintenance', {
+        const response = await timedFetch('/api/admin/maintenance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: 1, is_active: false, message: "" })
@@ -550,7 +579,7 @@ export default function AdminPanel() {
         // Enable maintenance mode
         const message = prompt("Enter maintenance message (optional):") || "Site is under maintenance. Please check back later.";
         
-        const response = await fetch('/api/admin/maintenance', {
+        const response = await timedFetch('/api/admin/maintenance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -660,7 +689,7 @@ export default function AdminPanel() {
     setSelectedMemoryIds(new Set());
 
     try {
-      const res = await fetch('/api/admin/bulk', {
+      const res = await timedFetch('/api/admin/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, ids })
@@ -688,7 +717,7 @@ export default function AdminPanel() {
     setMemories(prev => prev.filter(m => m.id !== id));
 
     // Background API call
-    fetch('/api/admin/delete-memory', {
+    timedFetch('/api/admin/delete-memory', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
@@ -713,7 +742,7 @@ export default function AdminPanel() {
     }
     // First delete the memory
     try {
-      const response = await fetch('/api/admin/delete-memory', {
+      const response = await timedFetch('/api/admin/delete-memory', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: memory.id })
@@ -735,7 +764,7 @@ export default function AdminPanel() {
     if (memory.country) banEntry.country = memory.country;
     if (banEntry.ip || banEntry.uuid) {
       try {
-        const response = await fetch('/api/admin/ban', {
+        const response = await timedFetch('/api/admin/ban', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(banEntry)
@@ -763,7 +792,7 @@ export default function AdminPanel() {
       if (memory.ip) params.append('ip', memory.ip);
       if (memory.uuid) params.append('uuid', memory.uuid);
       
-      await fetch(`/api/admin/ban?${params.toString()}`, {
+      await timedFetch(`/api/admin/ban?${params.toString()}`, {
         method: 'DELETE'
       });
     } catch (error) {
@@ -846,10 +875,13 @@ export default function AdminPanel() {
       if (currentAnnouncement) {
         const expiry = new Date(currentAnnouncement.expires_at);
         if (currentTime >= expiry) {
+          const annCtrl = new AbortController();
+          setTimeout(() => annCtrl.abort(), 8000);
           await fetch('/api/admin/delete-announcement', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: currentAnnouncement.id })
+            body: JSON.stringify({ id: currentAnnouncement.id }),
+            signal: annCtrl.signal,
           });
           setCurrentAnnouncement(null);
           await fetchCurrentAnnouncement(); // Refresh announcement state
@@ -857,7 +889,9 @@ export default function AdminPanel() {
       }
 
       // Unpin expired pins via server-side bulk operation (lightweight, scales to millions)
-      const unpinRes = await fetch('/api/unpin-expired', { method: 'POST' });
+      const unpCtrl = new AbortController();
+      setTimeout(() => unpCtrl.abort(), 8000);
+      const unpinRes = await fetch('/api/unpin-expired', { method: 'POST', signal: unpCtrl.signal });
       const unpinData = await unpinRes.json().catch(() => ({ unpinned: 0 }));
       if (unpinData.unpinned > 0 && selectedTab === "approved") {
         refreshMemories();
@@ -868,16 +902,18 @@ export default function AdminPanel() {
     return () => clearInterval(interval);
   }, [currentTime, hasActiveItems, selectedTab, refreshMemories, currentAnnouncement]);
 
-  // Fetch banned users when banned tab is selected
+  // Fetch banned users when banned tab is selected (10s timeout)
   useEffect(() => {
     if (selectedTab === "banned") {
-      primaryDBRead
-        .from("banned_users")
-        .select("ip, uuid, country")
-        .then(({ data, error }) => {
-          if (error) console.error(error.message || error);
-          else setBannedUsers(data || []);
-        });
+      Promise.race([
+        primaryDBRead.from("banned_users").select("ip, uuid, country").then((r) => r),
+        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+      ]).then((result) => {
+        if (result && 'data' in result) {
+          if (result.error) console.error((result.error as { message?: string }).message || result.error);
+          else setBannedUsers(result.data || []);
+        }
+      });
     }
   }, [selectedTab]);
 
@@ -899,9 +935,12 @@ export default function AdminPanel() {
 
   const handleLogout = async () => {
     try {
+      const logoutCtrl = new AbortController();
+      setTimeout(() => logoutCtrl.abort(), 10000);
       await fetch('/api/admin/auth', { 
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
+        signal: logoutCtrl.signal,
       });
       router.push('/admin/login');
     } catch (error) {
@@ -1614,7 +1653,7 @@ export default function AdminPanel() {
                       if (user.ip) params.append('ip', user.ip);
                       if (user.uuid) params.append('uuid', user.uuid);
                       
-                      await fetch(`/api/admin/ban?${params.toString()}`, {
+                      await timedFetch(`/api/admin/ban?${params.toString()}`, {
                         method: 'DELETE'
                       });
                       setBannedUsers((prev) => prev.filter((b) => b !== user));

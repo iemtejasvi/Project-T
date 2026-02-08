@@ -16,12 +16,16 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
+      const loginCtrl = new AbortController();
+      const loginTimer = setTimeout(() => loginCtrl.abort(), 10000);
       const response = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
+        signal: loginCtrl.signal,
       });
+      clearTimeout(loginTimer);
 
       const data = await response.json();
 

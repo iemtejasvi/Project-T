@@ -782,17 +782,21 @@ export default function SubmitPage() {
     if (overLimit) {
       let allowed = false;
       try {
+        const limitCtrl = new AbortController();
+        const limitTimer = setTimeout(() => limitCtrl.abort(), 10000);
         const res = await fetch('/api/check-user-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uuid: localStorage.getItem('user_uuid') || getCookie('user_uuid') })
+          body: JSON.stringify({ uuid: localStorage.getItem('user_uuid') || getCookie('user_uuid') }),
+          signal: limitCtrl.signal,
         });
+        clearTimeout(limitTimer);
         if (res.ok) {
           const status = await res.json();
           allowed = status.isUnlimited || status.globalOverrideActive || status.isOwner;
         }
       } catch {
-        // network failure => treat as not allowed
+        // network failure or timeout => treat as not allowed
       }
       if (!allowed) {
         setError("Submission not allowed. Maximum word limit is 50.");
@@ -812,71 +816,61 @@ export default function SubmitPage() {
       uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
     }
 
-    // Enhanced ban and limit checking
+    // Enhanced ban and limit checking (with 10s timeout — server re-checks anyway)
     if (ipData?.ip || uuid) {
-      // Check ban status and limits
-      // Note: Owner bypass is handled server-side via OWNER_IP_ADDRESS env var
       try {
-          // Check if banned by IP or UUID with more specific query
+        const clientCheck = async () => {
           const banQuery = [];
           if (ipData?.ip) banQuery.push(`ip.eq.${ipData.ip}`);
           if (uuid) banQuery.push(`uuid.eq.${uuid}`);
-          
+
           if (banQuery.length > 0) {
             const { data: banData, error: banErr } = await supabase
               .from("banned_users")
               .select("id, ip, uuid")
               .or(banQuery.join(","))
               .limit(1);
-              
-            if (banErr) {
-              console.error("Error checking banned users:", banErr);
-              setError("Error verifying user status. Please try again.");
-              setIsSubmitting(false);
-              return;
-            }
-            
-            if (banData && banData.length > 0) {
-              setError("You are banned from submitting memories.");
-              setIsBanned(true);
-              setHasReachedLimit(true);
-              setIsFormDisabled(true);
-              setIsSubmitting(false);
-              return;
-            }
+
+            if (banErr) return { blocked: false, reason: '' };
+            if (banData && banData.length > 0) return { blocked: true, reason: 'banned' };
           }
 
-          // Check memory count with enhanced query
           const memoryQuery = [];
           if (ipData?.ip) memoryQuery.push(`ip.eq.${ipData.ip}`);
           if (uuid) memoryQuery.push(`uuid.eq.${uuid}`);
-          
+
           if (memoryQuery.length > 0) {
             const { count, error: memErr } = await supabase
               .from("memories")
               .select("id", { count: "exact" })
               .or(memoryQuery.join(","));
-              
-            if (memErr) {
-              console.error("Error checking submission count:", memErr);
-              setError("Error checking submission limit. Please try again.");
-              setIsSubmitting(false);
-              return;
-            }
-            
-            if (count && count >= 6) {
-              setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
-              setHasReachedLimit(true);
-              setIsFormDisabled(true);
-              setIsSubmitting(false);
-              return;
-            }
+
+            if (!memErr && count && count >= 6) return { blocked: true, reason: 'limit' };
           }
+          return { blocked: false, reason: '' };
+        };
+
+        const timeout = new Promise<{ blocked: false; reason: '' }>((resolve) =>
+          setTimeout(() => resolve({ blocked: false, reason: '' }), 10000)
+        );
+
+        const result = await Promise.race([clientCheck(), timeout]);
+
+        if (result.blocked) {
+          if (result.reason === 'banned') {
+            setError("You are banned from submitting memories.");
+            setIsBanned(true);
+          } else {
+            setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
+          }
+          setHasReachedLimit(true);
+          setIsFormDisabled(true);
+          setIsSubmitting(false);
+          return;
+        }
       } catch (err) {
         console.error("Unexpected error during validation:", err);
-        setError("An unexpected error occurred. Please try again.");
-        setIsSubmitting(false);
-        return;
+        // Let server handle validation — don't block submission
       }
     }
 
@@ -948,14 +942,18 @@ export default function SubmitPage() {
     setIsSubmitting(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Process submission in background (non-blocking)
+    // Process submission in background (non-blocking, 15s timeout)
+    const submitCtrl = new AbortController();
+    const submitTimer = setTimeout(() => submitCtrl.abort(), 15000);
     fetch('/api/submit-memory', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(submission),
+      signal: submitCtrl.signal,
     }).then(response => {
+      clearTimeout(submitTimer);
       return response.json().then(result => ({ response, result }));
     }).then(({ response, result }) => {
       if (!response.ok) {
