@@ -36,6 +36,25 @@ interface CacheOptions {
   prefetchDepth?: number;
 }
 
+// Route through the ISR-cached API instead of hitting Supabase directly.
+// 10,000 visitors in 1 minute = 1 DB query (cached 60s at server + CDN).
+async function fetchFromAPI(
+  page: number,
+  pageSize: number,
+  searchTerm: string
+): Promise<{ data: Memory[]; totalCount: number; totalPages: number; currentPage: number; error: unknown }> {
+  try {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+    if (searchTerm) params.set('search', searchTerm);
+    const res = await fetch(`/api/memories?${params.toString()}`);
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  } catch {
+    // Fallback: direct DB call if API is unavailable
+    return fetchMemoriesPaginated(page, pageSize, { status: 'approved' }, searchTerm, { created_at: 'desc' });
+  }
+}
+
 class UltraCache {
   private cache: Map<string, CachedData>;
   private prefetchQueue: Set<string>;
@@ -44,8 +63,8 @@ class UltraCache {
   private readonly maxAge: number = 180000; // 3 minutes cache for ultra-fresh content
   private readonly staleWhileRevalidate: number = 300000; // 5 minutes stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
-  private readonly prefetchDepth: number = 2; // Prefetch nearby pages only to reduce extra Supabase calls
-  private readonly minRefreshInterval: number = 10000; // Minimum 10 seconds between refreshes
+  private readonly prefetchDepth: number = 1; // Prefetch adjacent page only
+  private readonly minRefreshInterval: number = 30000; // Minimum 30s between refreshes (ISR handles freshness)
   
   constructor() {
     this.cache = new Map();
@@ -82,10 +101,10 @@ class UltraCache {
       setInterval(() => this.cleanupOldEntries(), 300000); // Clean every 5 minutes
       
       // Process prefetch queue (slightly slower to avoid bursty background traffic)
-      setInterval(() => this.processPrefetchQueue(), 250);
+      setInterval(() => this.processPrefetchQueue(), 500);
       
       // Check for fresh content periodically
-      setInterval(() => this.checkForFreshContent(), 20000); // Check every 20s for fresher content
+      setInterval(() => this.checkForFreshContent(), 60000); // Check every 60s (matches ISR window)
       
       // Save on page unload
       window.addEventListener('beforeunload', () => this.persistToLocalStorage());
@@ -290,7 +309,7 @@ class UltraCache {
     orderBy: Record<string, string>
   ): Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }> {
     try {
-      const result = await fetchMemoriesPaginated(page, pageSize, filters, searchTerm, orderBy);
+      const result = await fetchFromAPI(page, pageSize, searchTerm);
       
       if (!result.error) {
         const cacheKey = this.getCacheKey(page, pageSize, filters, searchTerm, orderBy);
@@ -303,7 +322,8 @@ class UltraCache {
         const existingCache = this.cache.get(cacheKey);
         const hasChanged = !existingCache || 
           existingCache.totalCount !== result.totalCount ||
-          JSON.stringify(existingCache.data) !== JSON.stringify(result.data);
+          existingCache.data.length !== result.data.length ||
+          existingCache.data[0]?.id !== result.data[0]?.id;
         
         // Cache the result
         this.cache.set(cacheKey, {
@@ -374,7 +394,7 @@ class UltraCache {
     orderBy: Record<string, string>
   ): Promise<void> {
     // Fire and forget
-    fetchMemoriesPaginated(page, pageSize, filters, searchTerm, orderBy)
+    fetchFromAPI(page, pageSize, searchTerm)
       .then(result => {
         if (!result.error) {
           const cacheKey = this.getCacheKey(page, pageSize, filters, searchTerm, orderBy);
@@ -441,12 +461,10 @@ class UltraCache {
       }
       
       // Fetch in background
-      const fetchPromise = fetchMemoriesPaginated(
+      const fetchPromise = fetchFromAPI(
         params.page,
         params.pageSize,
-        params.filters,
-        params.searchTerm,
-        params.orderBy
+        params.searchTerm || ''
       );
       
       this.pendingFetches.set(cacheKey, fetchPromise.then(result => ({

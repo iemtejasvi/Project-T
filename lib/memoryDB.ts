@@ -271,9 +271,11 @@ export async function fetchMemoriesPaginated(
     query = query.order('created_at', { ascending: false });
   }
 
-  // Apply pagination range
+  // Over-fetch buffer: post-query filters (night_only, edge-case reveal_at) can
+  // remove items, causing fewer cards than requested. Fetch extra and trim after.
+  const fetchBuffer = shouldFilterByRevealAt(filters) ? 6 : 0;
   const start = page * pageSize;
-  const endIndex = start + pageSize - 1;
+  const endIndex = start + pageSize + fetchBuffer - 1;
   query = query.range(start, endIndex);
   
   const result = await query;
@@ -289,7 +291,8 @@ export async function fetchMemoriesPaginated(
   const filtered = shouldFilterByRevealAt(filters)
     ? memories.filter(isRevealableNow).filter(isNightOnlyVisibleNow)
     : memories;
-  const allMemories = filtered.map(redactIfDestructed);
+  // Trim to requested pageSize (we over-fetched to compensate for filtering)
+  const allMemories = filtered.map(redactIfDestructed).slice(0, pageSize);
 
   const totalPages = Math.ceil(totalCount / pageSize);
   

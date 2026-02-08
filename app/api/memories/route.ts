@@ -48,10 +48,6 @@ export async function GET(request: NextRequest) {
       return createSecureErrorResponse('Invalid status parameter', 400, { origin });
     }
     
-    // Build filters
-    const filters: Record<string, string> = {};
-    filters.status = 'approved';
-    
     // Fetch from ISR cache (DB hit only once per 60s per unique param combo)
     const result = await getCachedMemories(page, pageSize, searchTerm);
     
