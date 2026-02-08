@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { updateMemory, primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 type MemoryRow = {
   id: string;
@@ -86,7 +86,8 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse(error.message || 'Update failed', 500, { origin });
     }
     
-    // Purge ISR cache so updated content appears instantly
+    // Purge ISR data cache + route cache so updated content appears instantly
+    revalidateTag('memories-feed', 'max');
     revalidatePath('/api/memories');
     revalidatePath('/memories');
     revalidatePath('/');

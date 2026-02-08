@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { scrubDestructedMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
 
     const scrubbed = await scrubDestructedMemories();
     if (scrubbed > 0) {
+      revalidateTag('memories-feed', 'max');
       revalidatePath('/api/memories');
       revalidatePath('/memories');
       revalidatePath('/');

@@ -65,8 +65,8 @@ class UltraCache {
   private prefetchQueue: Set<string>;
   private pendingFetches: Map<string, { promise: Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }>, startedAt: number }>;
   private lastFetchTime: Map<string, number>;
-  private readonly maxAge: number = 180000; // 3 minutes cache for ultra-fresh content
-  private readonly staleWhileRevalidate: number = 300000; // 5 minutes stale-while-revalidate
+  private readonly maxAge: number = 60000; // 60s cache — matches ISR revalidation window
+  private readonly staleWhileRevalidate: number = 120000; // 2 min stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
   private readonly prefetchDepth: number = 1; // Prefetch adjacent page only
   private readonly minRefreshInterval: number = 30000; // Minimum 30s between refreshes (ISR handles freshness)

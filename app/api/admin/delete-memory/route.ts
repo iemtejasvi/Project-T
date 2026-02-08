@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { deleteMemory } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse(error.message || 'Delete failed', 500, { origin });
     }
     
+    revalidateTag('memories-feed', 'max');
     revalidatePath('/api/memories');
     revalidatePath('/memories');
     revalidatePath('/');

@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { unpinExpiredMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
 
     const count = await unpinExpiredMemories();
     if (count > 0) {
+      revalidateTag('memories-feed', 'max');
       revalidatePath('/api/memories');
       revalidatePath('/memories');
       revalidatePath('/');

@@ -114,7 +114,7 @@ export default function Memories() {
         { status: "approved" },
         search.trim(),
         { created_at: "desc" },
-        { maxAge: 180000, staleWhileRevalidate: 300000, prefetchDepth: 5 } // 3min fresh for ultra-current content
+        { maxAge: 60000, staleWhileRevalidate: 120000, prefetchDepth: 5 } // 60s fresh (matches ISR), 2min stale
       );
 
       if (!isMounted) return;

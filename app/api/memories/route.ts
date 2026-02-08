@@ -55,10 +55,10 @@ export async function GET(request: NextRequest) {
       return createSecureErrorResponse('Failed to fetch memories', 500, { origin });
     }
     
-    // CDN layer: Vercel edge caches this for 60s, serves stale while revalidating up to 5min
+    // CDN layer: Vercel edge caches this for 60s, serves stale while revalidating up to 2min
     return createSecureResponse(result, 200, {
       origin,
-      cacheControl: 'public, s-maxage=60, stale-while-revalidate=300'
+      cacheControl: 'public, s-maxage=60, stale-while-revalidate=120'
     });
   } catch (error) {
     console.error('Error in memories API:', error);

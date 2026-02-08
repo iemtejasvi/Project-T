@@ -161,7 +161,7 @@ export default function Home() {
             { status: "approved" },
             "",
             { created_at: "desc" },
-            { maxAge: 180000, staleWhileRevalidate: 300000 } // 3min fresh, 5min stale for ultra-fresh content
+            { maxAge: 60000, staleWhileRevalidate: 120000 } // 60s fresh (matches ISR), 2min stale
           ),
         ]);
 

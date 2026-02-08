@@ -3,7 +3,7 @@ import { insertMemory, countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { validateMemoryInput, sanitizeString } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 interface SubmissionData {
   recipient: string;
@@ -722,7 +722,8 @@ export async function POST(request: NextRequest) {
 
       console.log(`✅ Memory successfully stored in database ${database} from ${rateLimitKey}`);
 
-      // Purge ISR cache so new content appears instantly
+      // Purge ISR data cache + route cache so new content appears instantly
+      revalidateTag('memories-feed', 'max');
       revalidatePath('/api/memories');
       revalidatePath('/memories');
       revalidatePath('/');
