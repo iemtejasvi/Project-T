@@ -141,12 +141,20 @@ export default function Home() {
         }
 
         // Fetch announcement and recent memories in parallel so the main LCP content isn't delayed by announcement checks
-        const [announcementResult, memoriesResult] = await Promise.all([
+        // Wrap announcement fetch in a timeout so a slow Supabase call can never block the page
+        const announcementPromise = Promise.race([
           supabase
             .from("announcements")
             .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
             .eq("is_active", true)
             .maybeSingle(),
+          new Promise<{ data: null; error: { message: string } }>((resolve) =>
+            setTimeout(() => resolve({ data: null, error: { message: 'Announcement fetch timeout' } }), 8000)
+          ),
+        ]);
+
+        const [announcementResult, memoriesResult] = await Promise.all([
+          announcementPromise,
           fetchWithUltraCache(
             0,
             6,

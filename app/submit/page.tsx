@@ -230,13 +230,17 @@ export default function SubmitPage() {
 
       try {
         // Use server-side API for status check (bypass-proof)
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 10000);
         const response = await fetch('/api/check-user-status', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ uuid }),
+          signal: ctrl.signal,
         });
+        clearTimeout(timer);
 
         if (!response.ok) {
           console.error("Error checking user status:", response.status);

@@ -864,7 +864,7 @@ export default function AdminPanel() {
       }
     };
 
-    const interval = setInterval(checkExpiredItems, 1000); // Check every second
+    const interval = setInterval(checkExpiredItems, 30000); // Check every 30s — no need for sub-second precision
     return () => clearInterval(interval);
   }, [currentTime, hasActiveItems, selectedTab, refreshMemories, currentAnnouncement]);
 
