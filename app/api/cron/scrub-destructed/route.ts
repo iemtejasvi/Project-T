@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { scrubDestructedMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { revalidatePath } from 'next/cache';
 
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -45,6 +46,11 @@ export async function GET(request: NextRequest) {
     }
 
     const scrubbed = await scrubDestructedMemories();
+    if (scrubbed > 0) {
+      revalidatePath('/api/memories');
+      revalidatePath('/memories');
+      revalidatePath('/');
+    }
     return createSecureResponse({ success: true, scrubbed }, 200, { origin });
   } catch (error) {
     console.error('Cron scrub destructed memories error:', error);

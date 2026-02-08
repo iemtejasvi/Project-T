@@ -155,17 +155,6 @@ export async function POST(request: NextRequest) {
               const result = await countMemories({ uuid: clientUUID });
               totalCount = result.count;
             }
-            const countError = null; // No error from our unified function
-
-            if (countError) {
-              console.error('Memory count error:', countError);
-              return createSecureErrorResponse(
-                'Server error during validation.',
-                500,
-                { origin }
-              );
-            }
-
             memoryCount = totalCount;
           }
         }
