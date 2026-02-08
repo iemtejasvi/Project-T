@@ -274,8 +274,12 @@ export default function Home() {
       const viewedKey = `viewed_announcement_${announcement.id}`;
       if (!sessionStorage.getItem(viewedKey)) {
         (async () => {
-          const { error } = await supabase.rpc('increment_announcement_view', { announcement_id_in: announcement.id });
-          if (error) console.error('Error tracking view:', error);
+          const result = await Promise.race([
+            supabase.rpc('increment_announcement_view', { announcement_id_in: announcement.id }).then((r) => r),
+            new Promise<null>((r) => setTimeout(() => r(null), 5000)),
+          ]);
+          if (!result) return; // timeout
+          if (result.error) console.error('Error tracking view:', result.error);
           else sessionStorage.setItem(viewedKey, 'true');
         })();
       }
@@ -334,9 +338,12 @@ export default function Home() {
         const expiredPinIds = expiredPins.map(memory => memory.id);
 
         // Update expired pins via server API (keeps DB write logic server-side)
+        const unpinCtrl = new AbortController();
+        setTimeout(() => unpinCtrl.abort(), 8000);
         fetch('/api/unpin-expired', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: unpinCtrl.signal,
         }).catch(() => {});
 
         // Update local state without refetching
@@ -476,8 +483,11 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="underline hover:opacity-80 transition-opacity ml-2"
                       onClick={async () => {
-                        const { error } = await supabase.rpc('increment_announcement_click', { announcement_id_in: announcement.id });
-                        if (error) console.error('Error tracking click:', error);
+                        const r = await Promise.race([
+                          supabase.rpc('increment_announcement_click', { announcement_id_in: announcement.id }).then((r) => r),
+                          new Promise<null>((r) => setTimeout(() => r(null), 5000)),
+                        ]);
+                        if (r?.error) console.error('Error tracking click:', r.error);
                       }}
                     >
                       {announcement.message}
@@ -525,8 +535,11 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="underline hover:opacity-80 transition-opacity"
                     onClick={async () => {
-                      const { error } = await supabase.rpc('increment_announcement_click', { announcement_id_in: announcement.id });
-                      if (error) console.error('Error tracking click:', error);
+                      const r = await Promise.race([
+                        supabase.rpc('increment_announcement_click', { announcement_id_in: announcement.id }).then((r) => r),
+                        new Promise<null>((r) => setTimeout(() => r(null), 5000)),
+                      ]);
+                      if (r?.error) console.error('Error tracking click:', r.error);
                     }}
                   >
                     {announcement.message}

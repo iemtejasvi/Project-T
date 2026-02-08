@@ -10,11 +10,18 @@ export default function MaintenancePage() {
     // Check maintenance status
     const checkMaintenanceStatus = async () => {
       try {
-        const { data, error } = await supabase
-          .from("maintenance")
-          .select("is_active, message")
-          .eq("id", 1)
-          .single();
+        const result = await Promise.race([
+          supabase
+            .from("maintenance")
+            .select("is_active, message")
+            .eq("id", 1)
+            .single()
+            .then((r) => r),
+          new Promise<null>((r) => setTimeout(() => r(null), 10000)),
+        ]);
+
+        if (!result) return; // timeout
+        const { data, error } = result;
 
         if (error) {
           console.error("Error checking maintenance status:", error);
