@@ -621,7 +621,7 @@ export default function AdminPanel() {
     });
 
     // Background API call
-    fetch('/api/admin/update-memory', {
+    timedFetch('/api/admin/update-memory', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, updates: { status: newStatus } })
@@ -811,7 +811,7 @@ export default function AdminPanel() {
       ));
 
       // Background API call
-      fetch('/api/admin/update-memory', {
+      timedFetch('/api/admin/update-memory', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: memory.id, updates: { pinned: false, pinned_until: null } })
@@ -847,7 +847,7 @@ export default function AdminPanel() {
     ));
 
     // Background API call
-    fetch('/api/admin/update-memory', {
+    timedFetch('/api/admin/update-memory', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: memory.id, updates: { pinned: true, pinned_until: pinnedUntil.toISOString() } })
