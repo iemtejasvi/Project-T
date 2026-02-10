@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
@@ -79,6 +79,7 @@ export default function AdminPanel() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const searchTermRef = useRef("");
   const [displayCount, setDisplayCount] = useState(10);
   const [loading, setLoading] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
@@ -145,28 +146,26 @@ export default function AdminPanel() {
     return () => clearInterval(timer);
   }, [hasActiveItems]);
 
-  // Memoized filtered memories for approved tab only
+  // Memoized filtered memories — works for all tabs
   const filteredMemories = useMemo(() => {
-    if (selectedTab !== "approved") return memories;
-    
+    if (!searchTerm) return memories;
+    const term = searchTerm.toLowerCase();
     return memories.filter(memory => 
-      memory.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      memory.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (memory.sender && memory.sender.toLowerCase().includes(searchTerm.toLowerCase()))
+      memory.recipient.toLowerCase().includes(term) ||
+      memory.message.toLowerCase().includes(term) ||
+      (memory.sender && memory.sender.toLowerCase().includes(term))
     );
-  }, [memories, searchTerm, selectedTab]);
+  }, [memories, searchTerm]);
 
-  // Memoized displayed memories
+  // Memoized displayed memories — paginate for all tabs
   const displayedMemories = useMemo(() => {
-    if (selectedTab !== "approved") return memories;
     return filteredMemories.slice(0, displayCount);
-  }, [filteredMemories, displayCount, selectedTab, memories]);
+  }, [filteredMemories, displayCount]);
 
-  // Memoized hasMore calculation
+  // Memoized hasMore calculation — works for all tabs
   const hasMoreMemories = useMemo(() => {
-    if (selectedTab !== "approved") return false;
     return filteredMemories.length > displayCount;
-  }, [filteredMemories.length, displayCount, selectedTab]);
+  }, [filteredMemories.length, displayCount]);
 
   const formatTimeUntilReveal = useCallback((memory: Memory): string | null => {
     const rawDelay = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
@@ -200,11 +199,29 @@ export default function AdminPanel() {
     return `Reveals in ${parts.join(' ')}`;
   }, []);
 
-  // Reset display count when search changes or tab changes
+  // Reset display count and clear search when tab changes
   useEffect(() => {
     setDisplayCount(10);
     setSelectedMemoryIds(new Set());
-  }, [searchTerm, selectedTab]);
+    setSearchTerm("");
+    searchTermRef.current = "";
+  }, [selectedTab]);
+
+  // Reset display count when search changes
+  useEffect(() => {
+    setDisplayCount(10);
+  }, [searchTerm]);
+
+  // Debounced server-side search: re-fetch when search term changes
+  useEffect(() => {
+    if (!isAuthorized) return;
+    if (selectedTab !== 'pending' && selectedTab !== 'approved' && selectedTab !== 'banned') return;
+    const timer = setTimeout(() => {
+      refreshMemories();
+    }, searchTerm ? 400 : 0);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
 
   const handleLoadMore = useCallback(() => {
     setLoading(true);
@@ -215,7 +232,9 @@ export default function AdminPanel() {
   }, []);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    const val = e.target.value;
+    setSearchTerm(val);
+    searchTermRef.current = val;
   }, []);
 
   const broadcastContentUpdated = useCallback(() => {
@@ -247,7 +266,8 @@ export default function AdminPanel() {
     setMemories([]);
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 15000);
-    fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200`, {
+    const searchQ = searchTermRef.current ? `&search=${encodeURIComponent(searchTermRef.current)}` : '';
+    fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200${searchQ}`, {
       credentials: 'include',
       cache: 'no-store',
       signal: ctrl.signal,
@@ -311,7 +331,8 @@ export default function AdminPanel() {
           setMemories([]);
           const memCtrl = new AbortController();
           const memTimer = setTimeout(() => memCtrl.abort(), 15000);
-          const res = await fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200`, {
+          const searchQ = searchTermRef.current ? `&search=${encodeURIComponent(searchTermRef.current)}` : '';
+          const res = await fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200${searchQ}`, {
             credentials: 'include',
             cache: 'no-store',
             signal: memCtrl.signal,
@@ -1400,7 +1421,7 @@ export default function AdminPanel() {
                 </div>
               </div>
             )}
-            {selectedTab === "approved" && (
+            {(selectedTab === "pending" || selectedTab === "approved" || selectedTab === "banned") && (
               <div className="mb-6">
                 <input
                   type="text"
@@ -1419,15 +1440,13 @@ export default function AdminPanel() {
               </div>
             ) : displayedMemories.length > 0 ? (
               <>
-                {selectedTab === "approved" && (
-                  <div className="mb-4 text-sm text-[var(--text)] opacity-75">
-                    {searchTerm ? (
-                      <span>Showing {displayedMemories.length} of {filteredMemories.length} search results</span>
-                    ) : (
-                      <span>Showing {displayedMemories.length} of {memoriesTotalCount} memories</span>
-                    )}
-                  </div>
-                )}
+                <div className="mb-4 text-sm text-[var(--text)] opacity-75">
+                  {searchTerm ? (
+                    <span>Showing {displayedMemories.length} of {filteredMemories.length} search results</span>
+                  ) : (
+                    <span>Showing {displayedMemories.length} of {memoriesTotalCount} memories</span>
+                  )}
+                </div>
                 {displayedMemories.map((memory) => (
                   <div
                     key={memory.id}
@@ -1599,7 +1618,7 @@ export default function AdminPanel() {
                     </div>
                   </div>
                 ))}
-                {selectedTab === "approved" && hasMoreMemories && (
+                {hasMoreMemories && (
                   <div className="text-center mt-6">
                     <button
                       onClick={handleLoadMore}
@@ -1618,7 +1637,7 @@ export default function AdminPanel() {
               </>
             ) : (
               <p className="text-gray-700">
-                {selectedTab === "approved" && searchTerm ? "No memories found matching your search." : `No ${selectedTab} memories found.`}
+                {searchTerm ? "No memories found matching your search." : `No ${selectedTab} memories found.`}
               </p>
             )}
           </>

@@ -242,11 +242,12 @@ export async function fetchMemoriesPaginated(
 ) {
   let query = dbA.client.from('memories').select('*', { count: 'exact' });
 
-  // Apply reveal filter at the DB level so pagination windows aren't filled with unrevealed rows.
-  // Only for public/approved views.
+  // Apply reveal + destruct filters at the DB level so pagination windows and counts are accurate.
+  // Only for public/approved views — admin sees everything.
   if (shouldFilterByRevealAt(filters)) {
     const nowIso = new Date().toISOString();
     query = query.or(`reveal_at.is.null,reveal_at.lte.${nowIso}`);
+    query = query.or(`destruct_at.is.null,destruct_at.gt.${nowIso}`);
   }
   
   // Apply filters
