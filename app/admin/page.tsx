@@ -212,17 +212,6 @@ export default function AdminPanel() {
     setDisplayCount(10);
   }, [searchTerm]);
 
-  // Debounced server-side search: re-fetch when search term changes
-  useEffect(() => {
-    if (!isAuthorized) return;
-    if (selectedTab !== 'pending' && selectedTab !== 'approved' && selectedTab !== 'banned') return;
-    const timer = setTimeout(() => {
-      refreshMemories();
-    }, searchTerm ? 400 : 0);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm]);
-
   const handleLoadMore = useCallback(() => {
     setLoading(true);
     setTimeout(() => {
