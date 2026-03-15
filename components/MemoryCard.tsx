@@ -413,32 +413,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return String(memory.status || '').toLowerCase() === 'approved';
   }, [memory.status]);
 
-  // Time capsule: parse reveal_at timestamp (must be before computeIsDestructedNow)
-  const revealAtTs = useMemo(() => {
-    const r = memory.reveal_at;
-    if (typeof r !== 'string' || r.length === 0) return null;
-    const ts = new Date(r).getTime();
-    if (!Number.isFinite(ts)) return null;
-    return ts;
-  }, [memory.reveal_at]);
-
-  // Robust time capsule detection: if reveal_at is in the future, it's locked
-  // This doesn't rely on the is_time_capsule_locked flag surviving serialization
-  const isTimeCapsuleLocked = useMemo(() => {
-    if (revealAtTs !== null && revealAtTs > Date.now()) return true;
-    if ((memory as unknown as Record<string, unknown>).is_time_capsule_locked === 'true') return true;
-    return false;
-  }, [revealAtTs, memory]);
-
   const computeIsDestructedNow = useMemo(() => {
-    // Don't mark time capsule locked memories as destructed (their message is empty due to redaction)
-    if (isTimeCapsuleLocked) return false;
     const messageEmpty = typeof memory.message === 'string' && memory.message.trim().length === 0;
     if (messageEmpty) return true;
     if (!isApproved) return false;
     if (destructAtTs === null) return false;
     return destructAtTs <= Date.now();
-  }, [destructAtTs, isApproved, memory.message, isTimeCapsuleLocked]);
+  }, [destructAtTs, isApproved, memory.message]);
 
   const [isDestructedNow, setIsDestructedNow] = useState<boolean>(computeIsDestructedNow);
 
@@ -463,38 +444,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     const idx = Math.floor(Math.random() * DESTRUCTED_MESSAGES.length);
     return DESTRUCTED_MESSAGES[idx];
   }, []);
-
-  const [timeCapsuleCountdown, setTimeCapsuleCountdown] = useState<string | null>(null);
-  const [timeCapsuleRevealed, setTimeCapsuleRevealed] = useState(false);
-  useEffect(() => {
-    if (!isTimeCapsuleLocked || !revealAtTs) {
-      setTimeCapsuleCountdown(null);
-      return;
-    }
-    function tick() {
-      const remaining = (revealAtTs as number) - Date.now();
-      if (remaining <= 0) {
-        setTimeCapsuleCountdown(null);
-        setTimeCapsuleRevealed(true);
-        // Reload to fetch the now-revealed message from server
-        window.location.reload();
-        return;
-      }
-      const d = Math.floor(remaining / 86400000);
-      const h = Math.floor((remaining % 86400000) / 3600000);
-      const m = Math.floor((remaining % 3600000) / 60000);
-      const s = Math.floor((remaining % 60000) / 1000);
-      const parts: string[] = [];
-      if (d > 0) parts.push(`${d}d`);
-      if (h > 0 || d > 0) parts.push(`${h}h`);
-      if (m > 0 || h > 0 || d > 0) parts.push(`${m}m`);
-      parts.push(`${s}s`);
-      setTimeCapsuleCountdown(parts.join(' '));
-    }
-    tick();
-    const iv = setInterval(tick, 1000);
-    return () => clearInterval(iv);
-  }, [isTimeCapsuleLocked, revealAtTs]);
 
   // Live destruct countdown
   const [destructCountdown, setDestructCountdown] = useState<string | null>(null);
@@ -532,27 +481,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   };
 
   const renderMessage = (memory: Memory, forceLarge?: boolean) => {
-    // Time capsule locked: show blurred placeholder
-    if (isTimeCapsuleLocked && !timeCapsuleRevealed) {
-      return (
-        <div className="relative select-none">
-          <div className="blur-[6px] opacity-40 pointer-events-none" aria-hidden>
-            <p className={`${forceLarge ? 'text-[26px]' : 'text-[22px]'} tracking-wide leading-snug break-words hyphens-none`}>
-              This message is sealed in a time capsule. The words are hidden until the moment arrives...
-            </p>
-          </div>
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-            <span className="text-2xl mb-2">🔒</span>
-            <span className="text-sm font-mono font-semibold text-[var(--text)] opacity-80">Time Capsule</span>
-            {timeCapsuleCountdown && (
-              <span className="text-xs font-mono text-[var(--text)] opacity-60 mt-1">
-                reveals in {timeCapsuleCountdown}
-              </span>
-            )}
-          </div>
-        </div>
-      );
-    }
     if (isDestructedNow) {
       return (
         <div className={`${forceLarge ? 'text-[16px]' : 'text-[14px]'} leading-snug break-words hyphens-none opacity-90 font-mono`}>
@@ -929,7 +857,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   <span className="opacity-50">self-destructs in</span>{" "}
                   <span className="font-semibold">{destructCountdown}</span>
                 </div>
-              ) : isDestructedNow ? null : (isTimeCapsuleLocked && !timeCapsuleRevealed) ? null : (
+              ) : isDestructedNow ? null : (
                 <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
               )}
             </div>

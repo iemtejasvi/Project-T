@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { fetchMemoriesPaginated, redactIfUnrevealed, redactIfDestructed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
+import { fetchMemoriesPaginated, redactIfDestructed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { sanitizeNumber } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
@@ -55,11 +55,9 @@ export async function GET(request: NextRequest) {
       return createSecureErrorResponse('Failed to fetch memories', 500, { origin });
     }
 
-    // Apply night-only filter and redact unrevealed/destructed AFTER cache
-    // so reveal_at checks always use current time, not cached time.
-    const liveData = result.data
+    // Apply night-only filter and destruct redaction after cache
+    const liveData = (result.data as Parameters<typeof isNightOnlyVisibleNow>[0][])
       .filter(isNightOnlyVisibleNow)
-      .map(redactIfUnrevealed)
       .map(redactIfDestructed);
     
     // Short CDN cache since redaction is time-sensitive

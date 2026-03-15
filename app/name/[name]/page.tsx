@@ -219,10 +219,10 @@ export default function NameArchivePage() {
               No messages found for &ldquo;{displayNameStr}&rdquo;.
             </p>
             <Link
-              href="/submit"
+              href={`/submit?to=${encodeURIComponent(displayNameStr)}`}
               className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
             >
-              Submit a Memory
+              Submit a Memory for them
             </Link>
           </div>
         ) : (
@@ -258,9 +258,11 @@ export default function NameArchivePage() {
             {isDesktop ? (
               <GridMemoryList memories={memories} />
             ) : (
-              memories.map((memory) => (
-                <MemoryCard key={memory.id} memory={memory} />
-              ))
+              <div className="name-archive-cards">
+                {memories.map((memory) => (
+                  <MemoryCard key={memory.id} memory={memory} />
+                ))}
+              </div>
             )}
 
             {/* Next page */}
@@ -278,7 +280,7 @@ export default function NameArchivePage() {
             {/* CTA to submit a memory */}
             <div className="text-center mt-10 mb-4">
               <Link
-                href="/submit"
+                href={`/submit?to=${encodeURIComponent(displayNameStr)}`}
                 className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
               >
                 Submit a Memory for them

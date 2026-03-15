@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { fetchMemoryById, redactIfUnrevealed, redactIfDestructed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
+import { fetchMemoryById, redactIfDestructed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { sanitizeUUID } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
@@ -44,11 +44,17 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       return createSecureErrorResponse('Memory not found', 404, { origin });
     }
 
-    // Apply night-only + redaction AFTER cache so reveal_at uses current time
+    // Block unrevealed time capsule memories
+    const revealAt = result.data.reveal_at;
+    if (revealAt && new Date(revealAt).getTime() > Date.now()) {
+      return createSecureErrorResponse('Memory not found', 404, { origin });
+    }
+
+    // Apply night-only + destruct redaction AFTER cache
     if (!isNightOnlyVisibleNow(result.data)) {
       return createSecureErrorResponse('Memory not found', 404, { origin });
     }
-    const liveData = redactIfDestructed(redactIfUnrevealed(result.data));
+    const liveData = redactIfDestructed(result.data);
 
     return createSecureResponse({ ...result, data: liveData }, 200, {
       origin,

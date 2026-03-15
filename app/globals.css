@@ -1018,6 +1018,13 @@ input::placeholder, textarea::placeholder {
   display: none;
 }
 
+/* Name archive page: taller cards on mobile only */
+@media (max-width: 640px) {
+  .name-archive-cards .flip-card {
+    height: 370px !important;
+  }
+}
+
 /* Drag-to-scroll cursor consistency on desktop card back */
 @media (min-width: 1024px) {
   .flip-card-back.cursor-grab,

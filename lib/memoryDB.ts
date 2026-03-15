@@ -254,9 +254,12 @@ export async function fetchMemoriesPaginated(
 ) {
   let query = dbA.client.from('memories').select('*', { count: 'exact' });
 
-  // NOTE: We no longer filter out unrevealed time capsule memories at the DB level.
-  // Instead, they are included but their message content is redacted server-side,
-  // so the card appears blurred with a countdown on the client.
+  // Filter out unrevealed time capsule memories at DB level for public views.
+  // Cards simply don't appear until reveal_at passes.
+  if (shouldFilterByRevealAt(filters)) {
+    const nowIso = new Date().toISOString();
+    query = query.or(`reveal_at.is.null,reveal_at.lte.${nowIso}`);
+  }
   
   // Apply filters
   if (filters.status) query = query.eq('status', filters.status);
