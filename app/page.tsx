@@ -28,6 +28,10 @@ interface Memory {
   uuid?: string;
   tag?: string;
   sub_tag?: string;
+  reveal_at?: string;
+  destruct_at?: string;
+  is_time_capsule_locked?: string;
+  typewriter_enabled?: boolean;
 }
 
 const faqItems = [

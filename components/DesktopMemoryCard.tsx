@@ -473,15 +473,30 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     return String(memory.status || '').toLowerCase() === 'approved';
   }, [memory.status]);
 
+  // Time capsule: parse reveal_at timestamp (must be before computeIsDestructedNow)
+  const revealAtTs = useMemo(() => {
+    const r = memory.reveal_at;
+    if (typeof r !== 'string' || r.length === 0) return null;
+    const ts = new Date(r).getTime();
+    if (!Number.isFinite(ts)) return null;
+    return ts;
+  }, [memory.reveal_at]);
+
+  // Robust time capsule detection: if reveal_at is in the future, it's locked
+  const isTimeCapsuleLocked = useMemo(() => {
+    if (revealAtTs !== null && revealAtTs > Date.now()) return true;
+    if ((memory as unknown as Record<string, unknown>).is_time_capsule_locked === 'true') return true;
+    return false;
+  }, [revealAtTs, memory]);
+
   const computeIsDestructedNow = useMemo(() => {
-    const isLocked = (memory as unknown as Record<string, unknown>).is_time_capsule_locked === 'true';
-    if (isLocked) return false;
+    if (isTimeCapsuleLocked) return false;
     const messageEmpty = typeof memory.message === 'string' && memory.message.trim().length === 0;
     if (messageEmpty) return true;
     if (!isApproved) return false;
     if (destructAtTs === null) return false;
     return destructAtTs <= Date.now();
-  }, [destructAtTs, isApproved, memory.message, memory]);
+  }, [destructAtTs, isApproved, memory.message, isTimeCapsuleLocked]);
 
   const [isDestructedNow, setIsDestructedNow] = useState<boolean>(computeIsDestructedNow);
 
@@ -501,19 +516,6 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     const t = setTimeout(() => setIsDestructedNow(true), delay);
     return () => clearTimeout(t);
   }, [destructAtTs, isApproved, isDestructedNow]);
-
-  // Time capsule locked state and countdown
-  const isTimeCapsuleLocked = useMemo(() => {
-    return (memory as unknown as Record<string, unknown>).is_time_capsule_locked === 'true';
-  }, [memory]);
-
-  const revealAtTs = useMemo(() => {
-    const r = memory.reveal_at;
-    if (typeof r !== 'string' || r.length === 0) return null;
-    const ts = new Date(r).getTime();
-    if (!Number.isFinite(ts)) return null;
-    return ts;
-  }, [memory.reveal_at]);
 
   const [timeCapsuleCountdown, setTimeCapsuleCountdown] = useState<string | null>(null);
   const [timeCapsuleRevealed, setTimeCapsuleRevealed] = useState(false);
@@ -605,41 +607,19 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   }, [memory]);
 
   const createdAgoLabel = useMemo(() => {
+    // Show "created X ago" for time capsule memories (reveal_at > created_at)
     const createdTs = new Date(memory.created_at).getTime();
-    const minute = 60 * 1000;
-    const allowedDelaysMinutes = [
-      5, 10, 15, 20, 30, 45, 60,
-      7 * 24 * 60,
-      30 * 24 * 60,
-      3 * 30 * 24 * 60,
-      6 * 30 * 24 * 60,
-      9 * 30 * 24 * 60,
-      365 * 24 * 60,
-    ];
-    const hasExplicitTimeCapsule = Number.isFinite(timeCapsuleDelayMinutes) && timeCapsuleDelayMinutes > 0;
-    let isTimeCapsulePreset = false;
-    if (hasExplicitTimeCapsule) {
-      isTimeCapsulePreset = true;
-    } else {
-      const revealAt = memory.reveal_at;
-      if (typeof revealAt !== 'string' || revealAt.length === 0) return null;
-      const revealTs = new Date(revealAt).getTime();
-      if (!Number.isFinite(createdTs) || !Number.isFinite(revealTs)) return null;
-      if (revealTs <= createdTs) return null;
-      const diffMsPreset = revealTs - createdTs;
-      isTimeCapsulePreset = allowedDelaysMinutes.some((m) => {
-        const target = m * minute;
-        const tolerance = Math.min(2 * minute, target * 0.02);
-        return Math.abs(diffMsPreset - target) <= tolerance;
-      });
-    }
-
-    if (!isTimeCapsulePreset) return null;
     if (!Number.isFinite(createdTs)) return null;
+
+    const revealAt = memory.reveal_at;
+    const revealTs = typeof revealAt === 'string' && revealAt.length > 0 ? new Date(revealAt).getTime() : null;
+    const isTimeCapsule = (revealTs !== null && Number.isFinite(revealTs) && revealTs > createdTs + 60000);
+    if (!isTimeCapsule) return null;
 
     const diffMs = Date.now() - createdTs;
     if (!Number.isFinite(diffMs) || diffMs < 0) return null;
 
+    const minute = 60 * 1000;
     const hour = 60 * minute;
     const day = 24 * hour;
     const week = 7 * day;
@@ -655,7 +635,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     if (diffMs >= hour) return fmt(Math.floor(diffMs / hour), 'hour');
     if (diffMs >= minute) return fmt(Math.floor(diffMs / minute), 'minute');
     return 'This memory was created just now';
-  }, [memory.created_at, memory.reveal_at, timeCapsuleDelayMinutes]);
+  }, [memory.created_at, memory.reveal_at]);
   // Prevent flip when clicking the arrow
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -823,7 +803,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   <span className="opacity-50">self-destructs in</span>{" "}
                   <span className="font-semibold">{destructCountdown}</span>
                 </div>
-              ) : isDestructedNow ? null : (
+              ) : isDestructedNow ? null : (isTimeCapsuleLocked && !timeCapsuleRevealed) ? null : (
                 <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
               )}
             </div>
