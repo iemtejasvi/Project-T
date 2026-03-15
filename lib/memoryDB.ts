@@ -135,6 +135,17 @@ function redactIfDestructed(memory: MemoryData): MemoryData {
   return { ...memory, message: '' };
 }
 
+// Redact unrevealed time capsule memories: keep the card visible but hide the message
+function redactIfUnrevealed(memory: MemoryData): MemoryData {
+  if (isRevealableNow(memory)) return memory;
+  // Memory is not yet revealed — redact message, keep metadata
+  return {
+    ...memory,
+    message: '',
+    is_time_capsule_locked: 'true' as unknown as string,
+  };
+}
+
 function shouldFilterByRevealAt(filters: Record<string, string>): boolean {
   // Only public/approved views should hide unrevealed memories.
   // Admin needs to see pending/banned/other statuses even if reveal_at is in the future.
@@ -242,13 +253,9 @@ export async function fetchMemoriesPaginated(
 ) {
   let query = dbA.client.from('memories').select('*', { count: 'exact' });
 
-  // Apply reveal filter at the DB level so pagination windows aren't filled with unrevealed rows.
-  // Only for public/approved views — admin sees everything.
-  // Destructed memories are kept visible (as redacted cards) so users know someone wrote.
-  if (shouldFilterByRevealAt(filters)) {
-    const nowIso = new Date().toISOString();
-    query = query.or(`reveal_at.is.null,reveal_at.lte.${nowIso}`);
-  }
+  // NOTE: We no longer filter out unrevealed time capsule memories at the DB level.
+  // Instead, they are included but their message content is redacted server-side,
+  // so the card appears blurred with a countdown on the client.
   
   // Apply filters
   if (filters.status) query = query.eq('status', filters.status);
@@ -259,9 +266,9 @@ export async function fetchMemoriesPaginated(
     query = query.eq('pinned', filters.pinned === 'true');
   }
   
-  // Search by recipient name
+  // Search by recipient or sender name
   if (searchTerm) {
-    query = query.ilike('recipient', `%${searchTerm}%`);
+    query = query.or(`recipient.ilike.%${searchTerm}%,sender.ilike.%${searchTerm}%`);
   }
   
   // Order by pinned first, then created_at
@@ -288,12 +295,16 @@ export async function fetchMemoriesPaginated(
   const memories = (result.data || []).map(cleanMemoryData);
   const totalCount = result.count || 0;
 
-  // Apply reveal/night/destruct filters on the fetched page
+  // Apply night-only filter and redact unrevealed/destructed memories
   const filtered = shouldFilterByRevealAt(filters)
-    ? memories.filter(isRevealableNow).filter(isNightOnlyVisibleNow)
+    ? memories.filter(isNightOnlyVisibleNow)
     : memories;
-  // Trim to requested pageSize (we over-fetched to compensate for filtering)
-  const allMemories = filtered.map(redactIfDestructed).slice(0, pageSize);
+  // Redact unrevealed time capsules (message hidden, card visible with blur)
+  // Then redact destructed messages
+  const allMemories = filtered
+    .map(redactIfUnrevealed)
+    .map(redactIfDestructed)
+    .slice(0, pageSize);
 
   const totalPages = Math.ceil(totalCount / pageSize);
   
@@ -312,11 +323,8 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   
   let query = dbA.client.from('memories').select('*');
 
-  // Apply reveal filter at the DB level for public/approved views.
-  if (shouldFilterByRevealAt(filters)) {
-    const nowIso = new Date().toISOString();
-    query = query.or(`reveal_at.is.null,reveal_at.lte.${nowIso}`);
-  }
+  // NOTE: No longer filtering out unrevealed time capsules at DB level.
+  // They are included but redacted server-side so cards show blurred.
   
   // Apply filters at database level
   if (filters.status) query = query.eq('status', filters.status);
@@ -342,9 +350,9 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
     console.error('Error fetching from database:', result.error);
   }
   
-  // Apply reveal/destruct filters
-  const revealed = shouldFilterByRevealAt(filters) ? allMemories.filter(isRevealableNow) : allMemories;
-  let filteredMemories = revealed.map(redactIfDestructed);
+  // Apply night-only filter, then redact unrevealed time capsules and destructed messages
+  const nightFiltered = shouldFilterByRevealAt(filters) ? allMemories.filter(isNightOnlyVisibleNow) : allMemories;
+  let filteredMemories = nightFiltered.map(redactIfUnrevealed).map(redactIfDestructed);
   
   // Apply in-memory filters (redundant safety — already applied at DB level)
   if (filters.status) {

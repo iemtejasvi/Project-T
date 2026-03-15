@@ -7,6 +7,7 @@ import HandwrittenText from './HandwrittenText';
 import { laBelleAurore } from '@/lib/fonts';
 import "../app/globals.css";
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
+import { isLinkableName } from '@/lib/nameUtils';
 
 interface Memory {
   id: string;
@@ -30,6 +31,7 @@ interface Memory {
   sub_tag?: string;
   pinned_until?: string;
   typewriter_enabled?: boolean;
+  is_time_capsule_locked?: string;
 }
 
 interface MemoryCardProps {
@@ -437,12 +439,15 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   }, [memory.status]);
 
   const computeIsDestructedNow = useMemo(() => {
+    // Don't mark time capsule locked memories as destructed (their message is empty due to redaction)
+    const isLocked = (memory as unknown as Record<string, unknown>).is_time_capsule_locked === 'true';
+    if (isLocked) return false;
     const messageEmpty = typeof memory.message === 'string' && memory.message.trim().length === 0;
     if (messageEmpty) return true;
     if (!isApproved) return false;
     if (destructAtTs === null) return false;
     return destructAtTs <= Date.now();
-  }, [destructAtTs, isApproved, memory.message]);
+  }, [destructAtTs, isApproved, memory.message, memory]);
 
   const [isDestructedNow, setIsDestructedNow] = useState<boolean>(computeIsDestructedNow);
 
@@ -468,6 +473,78 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return DESTRUCTED_MESSAGES[idx];
   }, []);
 
+  // Time capsule locked state and countdown
+  const isTimeCapsuleLocked = useMemo(() => {
+    return (memory as unknown as Record<string, unknown>).is_time_capsule_locked === 'true';
+  }, [memory]);
+
+  const revealAtTs = useMemo(() => {
+    const r = memory.reveal_at;
+    if (typeof r !== 'string' || r.length === 0) return null;
+    const ts = new Date(r).getTime();
+    if (!Number.isFinite(ts)) return null;
+    return ts;
+  }, [memory.reveal_at]);
+
+  const [timeCapsuleCountdown, setTimeCapsuleCountdown] = useState<string | null>(null);
+  const [timeCapsuleRevealed, setTimeCapsuleRevealed] = useState(false);
+  useEffect(() => {
+    if (!isTimeCapsuleLocked || !revealAtTs) {
+      setTimeCapsuleCountdown(null);
+      return;
+    }
+    function tick() {
+      const remaining = (revealAtTs as number) - Date.now();
+      if (remaining <= 0) {
+        setTimeCapsuleCountdown(null);
+        setTimeCapsuleRevealed(true);
+        return;
+      }
+      const d = Math.floor(remaining / 86400000);
+      const h = Math.floor((remaining % 86400000) / 3600000);
+      const m = Math.floor((remaining % 3600000) / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      const parts: string[] = [];
+      if (d > 0) parts.push(`${d}d`);
+      if (h > 0 || d > 0) parts.push(`${h}h`);
+      if (m > 0 || h > 0 || d > 0) parts.push(`${m}m`);
+      parts.push(`${s}s`);
+      setTimeCapsuleCountdown(parts.join(' '));
+    }
+    tick();
+    const iv = setInterval(tick, 1000);
+    return () => clearInterval(iv);
+  }, [isTimeCapsuleLocked, revealAtTs]);
+
+  // Live destruct countdown
+  const [destructCountdown, setDestructCountdown] = useState<string | null>(null);
+  useEffect(() => {
+    if (!destructAtTs || isDestructedNow) {
+      setDestructCountdown(null);
+      return;
+    }
+    function tick() {
+      const remaining = (destructAtTs as number) - Date.now();
+      if (remaining <= 0) {
+        setDestructCountdown(null);
+        return;
+      }
+      const d = Math.floor(remaining / 86400000);
+      const h = Math.floor((remaining % 86400000) / 3600000);
+      const m = Math.floor((remaining % 3600000) / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      const parts: string[] = [];
+      if (d > 0) parts.push(`${d}d`);
+      if (h > 0 || d > 0) parts.push(`${h}h`);
+      if (m > 0 || h > 0 || d > 0) parts.push(`${m}m`);
+      parts.push(`${s}s`);
+      setDestructCountdown(parts.join(' '));
+    }
+    tick();
+    const iv = setInterval(tick, 1000);
+    return () => clearInterval(iv);
+  }, [destructAtTs, isDestructedNow]);
+
   const handleCardClick = () => {
     if (!detail) {
       setFlipped(!flipped);
@@ -475,6 +552,27 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   };
 
   const renderMessage = (memory: Memory, forceLarge?: boolean) => {
+    // Time capsule locked: show blurred placeholder
+    if (isTimeCapsuleLocked && !timeCapsuleRevealed) {
+      return (
+        <div className="relative select-none">
+          <div className="blur-[6px] opacity-40 pointer-events-none" aria-hidden>
+            <p className={`${forceLarge ? 'text-[26px]' : 'text-[22px]'} tracking-wide leading-snug break-words hyphens-none`}>
+              This message is sealed in a time capsule. The words are hidden until the moment arrives...
+            </p>
+          </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+            <span className="text-2xl mb-2">🔒</span>
+            <span className="text-sm font-mono font-semibold text-[var(--text)] opacity-80">Time Capsule</span>
+            {timeCapsuleCountdown && (
+              <span className="text-xs font-mono text-[var(--text)] opacity-60 mt-1">
+                reveals in {timeCapsuleCountdown}
+              </span>
+            )}
+          </div>
+        </div>
+      );
+    }
     if (isDestructedNow) {
       return (
         <div className={`${forceLarge ? 'text-[16px]' : 'text-[14px]'} leading-snug break-words hyphens-none opacity-90 font-mono`}>
@@ -612,13 +710,33 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         <div className="w-full flex flex-col items-center relative z-10">
           <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                         <h3 className={`${isDesktop ? "text-xl opacity-75 font-medium tracking-wide" : "text-2xl font-bold"} text-[var(--text)] text-center leading-tight drop-shadow-sm`}>
-              To: {memory.recipient}
+              To:{" "}
+              {isLinkableName(memory.recipient) ? (
+                <Link
+                  href={`/name/${encodeURIComponent(memory.recipient.toLowerCase().trim())}`}
+                  className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors"
+                >
+                  {memory.recipient}
+                </Link>
+              ) : (
+                <span>{memory.recipient}</span>
+              )}
             </h3>
           </div>
           
           {memory.sender && (
             <p className={`${isDesktop ? "text-xl opacity-75 font-medium tracking-wide" : "text-base italic font-light"} text-[var(--text)] mb-3 sm:mb-4 text-center`}>
-              From: {memory.sender}
+              From:{" "}
+              {isLinkableName(memory.sender) ? (
+                <Link
+                  href={`/name/${encodeURIComponent(memory.sender.toLowerCase().trim())}`}
+                  className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors"
+                >
+                  {memory.sender}
+                </Link>
+              ) : (
+                <span>{memory.sender}</span>
+              )}
             </p>
           )}
           
@@ -643,6 +761,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             <span className={`${isDesktop ? "text-base" : "text-xs"} text-[var(--text)] opacity-60 font-light text-center capitalize`}>
               {effectiveColor}
             </span>
+            {destructCountdown && !isDestructedNow && (
+              <span className={`${isDesktop ? "text-sm" : "text-[11px]"} font-mono opacity-70 text-[var(--text)]`}>
+                self-destructs in <span className="font-semibold">{destructCountdown}</span>
+              </span>
+            )}
           </div>
         </div>
 
@@ -776,12 +899,34 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               )}
               <h3 className="text-lg font-bold text-[var(--text)] text-left leading-tight">
                 <span className="break-words overflow-hidden leading-tight">
-                  <span className="font-bold">To:</span> <span className="font-bold">{memory.recipient}</span>
+                  <span className="font-bold">To:</span>{" "}
+                  {isLinkableName(memory.recipient) ? (
+                    <Link
+                      href={`/name/${encodeURIComponent(memory.recipient.toLowerCase().trim())}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="font-bold underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors"
+                    >
+                      {memory.recipient}
+                    </Link>
+                  ) : (
+                    <span className="font-bold">{memory.recipient}</span>
+                  )}
                 </span>
               </h3>
               {memory.sender && (
                 <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden text-left">
-                  From: {memory.sender}
+                  From:{" "}
+                  {isLinkableName(memory.sender) ? (
+                    <Link
+                      href={`/name/${encodeURIComponent(memory.sender.toLowerCase().trim())}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors"
+                    >
+                      {memory.sender}
+                    </Link>
+                  ) : (
+                    <span>{memory.sender}</span>
+                  )}
                 </p>
               )}
               <hr className="my-2 border-[#999999]" />
@@ -799,7 +944,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             </div>
 
             <div className="min-h-[2.5em] w-full relative z-10">
-                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
+              {destructCountdown && !isDestructedNow ? (
+                <div className="text-[11px] text-center font-mono opacity-70 text-[var(--text)]">
+                  <span className="opacity-50">self-destructs in</span>{" "}
+                  <span className="font-semibold">{destructCountdown}</span>
+                </div>
+              ) : isDestructedNow ? null : (
+                <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
+              )}
             </div>
           </div>
           {/* BACK */}

@@ -135,6 +135,17 @@ export default function SubmitPage() {
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
+
+  // Pre-fill recipient from ?to= query param (e.g. from /name/[name] pages)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const toParam = params.get("to");
+      if (toParam) {
+        setRecipient(toParam.trim());
+      }
+    } catch { /* ignore */ }
+  }, []);
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
   const [timeCapsuleDelayMinutes, setTimeCapsuleDelayMinutes] = useState<number>(0);
@@ -740,6 +751,13 @@ export default function SubmitPage() {
     }
   }, [enableTypewriter]);
 
+  // Disable typewriter when destruct is selected (they conflict on the card)
+  useEffect(() => {
+    if (destructDelayMinutes > 0 && enableTypewriter) {
+      setEnableTypewriter(false);
+    }
+  }, [destructDelayMinutes]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const timeCapsuleOptions: Array<{ value: number; label: string }> = [
     { value: 0, label: "None (submit now)" },
     { value: 7 * 24 * 60, label: "1 week" },
@@ -1062,6 +1080,15 @@ export default function SubmitPage() {
                   >
                     Return Home
                   </Link>
+                  <div className="mt-8 pt-6 border-t border-[var(--border)]/30">
+                    <p className="text-sm text-[var(--text)]/60 mb-2">Curious if someone wrote about you?</p>
+                    <Link
+                      href="/memories"
+                      className="text-sm font-medium text-[var(--accent)] hover:underline"
+                    >
+                      Search your name &rarr;
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <form
@@ -1221,14 +1248,17 @@ export default function SubmitPage() {
                         type="checkbox"
                         checked={enableTypewriter}
                         onChange={(e) => setEnableTypewriter(e.target.checked)}
-                        disabled={isFormDisabled}
+                        disabled={isFormDisabled || destructDelayMinutes > 0}
                         className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
-                          isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                          (isFormDisabled || destructDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                       />
                       <label htmlFor="enableTypewriter" className="text-[var(--text)] font-semibold text-lg">
                         Enable typewriter text on memory card (optional)
                       </label>
+                      {destructDelayMinutes > 0 && (
+                        <span className="text-xs text-[var(--text)]/60 italic">Disabled when destruct is active</span>
+                      )}
                     </div>
 
                     {enableTypewriter && (
@@ -1345,6 +1375,15 @@ export default function SubmitPage() {
                 >
                   Return Home
                 </Link>
+                <div className="mt-6 pt-4 border-t border-[var(--border)]/30">
+                  <p className="text-sm text-[var(--text)]/60 mb-2">Curious if someone wrote about you?</p>
+                  <Link
+                    href="/memories"
+                    className="text-sm font-medium text-[var(--accent)] hover:underline"
+                  >
+                    Search your name &rarr;
+                  </Link>
+                </div>
               </div>
             ) : (
               <form
@@ -1504,14 +1543,17 @@ export default function SubmitPage() {
                       type="checkbox"
                       checked={enableTypewriter}
                       onChange={(e) => setEnableTypewriter(e.target.checked)}
-                      disabled={isFormDisabled}
+                      disabled={isFormDisabled || destructDelayMinutes > 0}
                       className={`h-4 w-4 accent-[var(--accent)] rounded ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                        (isFormDisabled || destructDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     />
                     <label htmlFor="enableTypewriter-mobile" className="text-[var(--text)] font-medium">
                       Enable typewriter text on memory card (optional)
                     </label>
+                    {destructDelayMinutes > 0 && (
+                      <span className="text-xs text-[var(--text)]/60 italic">Disabled when destruct is active</span>
+                    )}
                   </div>
 
                   {enableTypewriter && (

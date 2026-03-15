@@ -5,6 +5,7 @@ import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
 import { laBelleAurore } from '@/lib/fonts';
 import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
+import { isLinkableName } from '@/lib/nameUtils';
 
 interface Memory {
   id: string;
@@ -28,6 +29,7 @@ interface Memory {
   tag?: string;
   sub_tag?: string;
   typewriter_enabled?: boolean;
+  is_time_capsule_locked?: string;
 }
 
 interface DesktopMemoryCardProps {
@@ -294,7 +296,28 @@ const DESTRUCTED_MESSAGES = [
   "The message is beyond reach now."
 ];
 
-function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMessage: string, isDestructedNow: boolean, destructAtLabel: string | null) {
+function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMessage: string, isDestructedNow: boolean, destructAtLabel: string | null, isTimeCapsuleLocked?: boolean, timeCapsuleRevealed?: boolean, timeCapsuleCountdown?: string | null) {
+  // Time capsule locked: show blurred placeholder
+  if (isTimeCapsuleLocked && !timeCapsuleRevealed) {
+    return (
+      <div className="relative select-none">
+        <div className="blur-[8px] opacity-40 pointer-events-none" aria-hidden>
+          <p className="text-4xl tracking-wide leading-snug break-words hyphens-none">
+            This message is sealed in a time capsule. The words are hidden until the moment arrives...
+          </p>
+        </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+          <span className="text-4xl mb-3">🔒</span>
+          <span className="text-lg font-mono font-semibold text-[var(--text)] opacity-80">Time Capsule</span>
+          {timeCapsuleCountdown && (
+            <span className="text-sm font-mono text-[var(--text)] opacity-60 mt-2">
+              reveals in {timeCapsuleCountdown}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
   if (isDestructedNow) {
     return (
       <div className="text-[14px] sm:text-[16px] leading-snug break-words hyphens-none opacity-90 font-mono">
@@ -451,12 +474,14 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   }, [memory.status]);
 
   const computeIsDestructedNow = useMemo(() => {
+    const isLocked = (memory as unknown as Record<string, unknown>).is_time_capsule_locked === 'true';
+    if (isLocked) return false;
     const messageEmpty = typeof memory.message === 'string' && memory.message.trim().length === 0;
     if (messageEmpty) return true;
     if (!isApproved) return false;
     if (destructAtTs === null) return false;
     return destructAtTs <= Date.now();
-  }, [destructAtTs, isApproved, memory.message]);
+  }, [destructAtTs, isApproved, memory.message, memory]);
 
   const [isDestructedNow, setIsDestructedNow] = useState<boolean>(computeIsDestructedNow);
 
@@ -476,6 +501,79 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     const t = setTimeout(() => setIsDestructedNow(true), delay);
     return () => clearTimeout(t);
   }, [destructAtTs, isApproved, isDestructedNow]);
+
+  // Time capsule locked state and countdown
+  const isTimeCapsuleLocked = useMemo(() => {
+    return (memory as unknown as Record<string, unknown>).is_time_capsule_locked === 'true';
+  }, [memory]);
+
+  const revealAtTs = useMemo(() => {
+    const r = memory.reveal_at;
+    if (typeof r !== 'string' || r.length === 0) return null;
+    const ts = new Date(r).getTime();
+    if (!Number.isFinite(ts)) return null;
+    return ts;
+  }, [memory.reveal_at]);
+
+  const [timeCapsuleCountdown, setTimeCapsuleCountdown] = useState<string | null>(null);
+  const [timeCapsuleRevealed, setTimeCapsuleRevealed] = useState(false);
+  useEffect(() => {
+    if (!isTimeCapsuleLocked || !revealAtTs) {
+      setTimeCapsuleCountdown(null);
+      return;
+    }
+    function tick() {
+      const remaining = (revealAtTs as number) - Date.now();
+      if (remaining <= 0) {
+        setTimeCapsuleCountdown(null);
+        setTimeCapsuleRevealed(true);
+        return;
+      }
+      const d = Math.floor(remaining / 86400000);
+      const h = Math.floor((remaining % 86400000) / 3600000);
+      const m = Math.floor((remaining % 3600000) / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      const parts: string[] = [];
+      if (d > 0) parts.push(`${d}d`);
+      if (h > 0 || d > 0) parts.push(`${h}h`);
+      if (m > 0 || h > 0 || d > 0) parts.push(`${m}m`);
+      parts.push(`${s}s`);
+      setTimeCapsuleCountdown(parts.join(' '));
+    }
+    tick();
+    const iv = setInterval(tick, 1000);
+    return () => clearInterval(iv);
+  }, [isTimeCapsuleLocked, revealAtTs]);
+
+  // Live destruct countdown
+  const [destructCountdown, setDestructCountdown] = useState<string | null>(null);
+  useEffect(() => {
+    if (!destructAtTs || isDestructedNow) {
+      setDestructCountdown(null);
+      return;
+    }
+    function tick() {
+      const remaining = (destructAtTs as number) - Date.now();
+      if (remaining <= 0) {
+        setDestructCountdown(null);
+        return;
+      }
+      const d = Math.floor(remaining / 86400000);
+      const h = Math.floor((remaining % 86400000) / 3600000);
+      const m = Math.floor((remaining % 3600000) / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      const parts: string[] = [];
+      if (d > 0) parts.push(`${d}d`);
+      if (h > 0 || d > 0) parts.push(`${h}h`);
+      if (m > 0 || h > 0 || d > 0) parts.push(`${m}m`);
+      parts.push(`${s}s`);
+      setDestructCountdown(parts.join(' '));
+    }
+    tick();
+    const iv = setInterval(tick, 1000);
+    return () => clearInterval(iv);
+  }, [destructAtTs, isDestructedNow]);
+
   let effectiveColor = memory.color;
   if (!allowedColors.has(memory.color)) {
     effectiveColor = colorMapping[memory.color] || "default";
@@ -680,9 +778,33 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             )}
             <div className="pb-1 relative z-10">
                <h3 className={`${large ? 'text-4xl' : 'text-2xl'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
-                                <span className="break-words overflow-hidden leading-tight">To: {memory.recipient}</span>
+                                <span className="break-words overflow-hidden leading-tight">To:{" "}
+                  {isLinkableName(memory.recipient) ? (
+                    <Link
+                      href={`/name/${encodeURIComponent(memory.recipient.toLowerCase().trim())}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors"
+                    >
+                      {memory.recipient}
+                    </Link>
+                  ) : (
+                    <span>{memory.recipient}</span>
+                  )}
+                </span>
               </h3>
-              {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)] break-words overflow-hidden`}>From: {memory.sender}</p>}
+              {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)] break-words overflow-hidden`}>From:{" "}
+                {isLinkableName(memory.sender) ? (
+                  <Link
+                    href={`/name/${encodeURIComponent(memory.sender.toLowerCase().trim())}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors"
+                  >
+                    {memory.sender}
+                  </Link>
+                ) : (
+                  <span>{memory.sender}</span>
+                )}
+              </p>}
               <hr className="my-2 border-[#999999]" />
             </div>
             <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
@@ -694,7 +816,14 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </div>
             )}
             <div className="text-xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5' }}>
-                              <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
+              {destructCountdown && !isDestructedNow ? (
+                <div className="text-sm text-center font-mono opacity-70 text-[var(--text)]">
+                  <span className="opacity-50">self-destructs in</span>{" "}
+                  <span className="font-semibold">{destructCountdown}</span>
+                </div>
+              ) : isDestructedNow ? null : (
+                <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
+              )}
             </div>
           </div>
           {/* BACK */}
@@ -747,7 +876,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
               >
-                {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow, destructAtLabel)}
+                {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow, destructAtLabel, isTimeCapsuleLocked, timeCapsuleRevealed, timeCapsuleCountdown)}
               </div>
             ) : (
               <ScrollableMessage
@@ -760,7 +889,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 } as React.CSSProperties}
               >
                 <div className="relative z-10">
-                  {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow, destructAtLabel)}
+                  {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow, destructAtLabel, isTimeCapsuleLocked, timeCapsuleRevealed, timeCapsuleCountdown)}
                 </div>
               </ScrollableMessage>
             )}

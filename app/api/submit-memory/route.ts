@@ -535,9 +535,30 @@ export async function POST(request: NextRequest) {
     // Use sanitized values
     const sanitizedRecipient = validation.sanitized.recipient as string;
     const sanitizedMessage = validation.sanitized.message as string;
-    const sanitizedSender = validation.sanitized.sender as string | undefined;
     const sanitizedColor = (validation.sanitized.color as string) || 'default';
     const sanitizedAnimation = validation.sanitized.animation as string | undefined;
+
+    // Sender validation: block phrase-style senders and reserved names
+    const BLOCKED_SENDER_PHRASES = [
+      'anonymous', 'anon', 'someone', 'nobody', 'unknown', 'guess who',
+      'you know who', 'your secret admirer', 'the one who got away',
+      'your friend', 'your ex', 'a friend', 'a stranger', 'no one',
+      'me', 'myself', 'test', 'testing', 'null', 'undefined', 'none',
+    ];
+    let sanitizedSender = validation.sanitized.sender as string | undefined;
+    if (sanitizedSender) {
+      const trimmedSender = sanitizedSender.trim();
+      const senderLower = trimmedSender.toLowerCase();
+      // Block if > 30 chars (sentences), only numbers/symbols, or reserved
+      if (
+        trimmedSender.length > 30 ||
+        !/[a-zA-Z]/.test(trimmedSender) ||
+        BLOCKED_SENDER_PHRASES.includes(senderLower) ||
+        /^(.)\1{3,}$/.test(senderLower)
+      ) {
+        sanitizedSender = undefined; // Will be stored as null (anonymous)
+      }
+    }
 
     let timeCapsuleDelayMinutes: number | undefined = undefined;
     if (typeof time_capsule_delay_minutes !== 'undefined') {
