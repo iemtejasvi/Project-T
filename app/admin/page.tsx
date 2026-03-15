@@ -82,6 +82,7 @@ export default function AdminPanel() {
   const searchTermRef = useRef("");
   const [displayCount, setDisplayCount] = useState(50);
   const [loading, setLoading] = useState(false);
+  const [expandedMessages, setExpandedMessages] = useState<Set<string>>(new Set());
   const [adminPage, setAdminPage] = useState(0);
   const [adminTotalPages, setAdminTotalPages] = useState(0);
   const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -1471,7 +1472,23 @@ export default function AdminPanel() {
                         <span className="text-yellow-500 text-xl">📌</span>
                       )}
                     </div>
-                    <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">{memory.message}</p>
+                    <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">
+                      {memory.message && memory.message.length > 200 ? (
+                        <>
+                          {expandedMessages.has(memory.id) ? memory.message : memory.message.slice(0, 200) + '...'}
+                          <button
+                            onClick={() => setExpandedMessages(prev => {
+                              const next = new Set(prev);
+                              if (next.has(memory.id)) next.delete(memory.id); else next.add(memory.id);
+                              return next;
+                            })}
+                            className="ml-2 text-blue-600 hover:underline text-xs font-medium"
+                          >
+                            {expandedMessages.has(memory.id) ? 'Show less' : 'Show more'}
+                          </button>
+                        </>
+                      ) : memory.message}
+                    </p>
                     {memory.sender && (
                       <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
                     )}
