@@ -607,14 +607,11 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   }, [memory]);
 
   const createdAgoLabel = useMemo(() => {
-    // Show "created X ago" for time capsule memories (reveal_at > created_at)
+    // Only show "created X ago" for actual time capsule memories
+    if (timeCapsuleDelayMinutes <= 0) return null;
+
     const createdTs = new Date(memory.created_at).getTime();
     if (!Number.isFinite(createdTs)) return null;
-
-    const revealAt = memory.reveal_at;
-    const revealTs = typeof revealAt === 'string' && revealAt.length > 0 ? new Date(revealAt).getTime() : null;
-    const isTimeCapsule = (revealTs !== null && Number.isFinite(revealTs) && revealTs > createdTs + 60000);
-    if (!isTimeCapsule) return null;
 
     const diffMs = Date.now() - createdTs;
     if (!Number.isFinite(diffMs) || diffMs < 0) return null;
@@ -635,7 +632,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
     if (diffMs >= hour) return fmt(Math.floor(diffMs / hour), 'hour');
     if (diffMs >= minute) return fmt(Math.floor(diffMs / minute), 'minute');
     return 'This memory was created just now';
-  }, [memory.created_at, memory.reveal_at]);
+  }, [memory.created_at, timeCapsuleDelayMinutes]);
   // Prevent flip when clicking the arrow
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;

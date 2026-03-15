@@ -171,16 +171,28 @@ export default function SubmitPage() {
 
   useEffect(() => {
     async function fetchIP() {
+      // Try primary API, then fallback — silently ignore failures (ad-blockers, CORS, rate-limits)
       try {
         const ipCtrl = new AbortController();
-        const ipTimer = setTimeout(() => ipCtrl.abort(), 8000);
+        const ipTimer = setTimeout(() => ipCtrl.abort(), 6000);
         const res = await fetch("https://ipapi.co/json/", { signal: ipCtrl.signal });
         clearTimeout(ipTimer);
-        const data = await res.json();
-        setIpData({ ip: data.ip, country: data.country_name });
-      } catch (err) {
-        console.error("Error fetching IP info:", err);
-      }
+        if (res.ok) {
+          const data = await res.json();
+          if (data.ip) { setIpData({ ip: data.ip, country: data.country_name }); return; }
+        }
+      } catch { /* silent */ }
+      // Fallback API
+      try {
+        const ctrl2 = new AbortController();
+        const t2 = setTimeout(() => ctrl2.abort(), 6000);
+        const res2 = await fetch("https://api.ipify.org?format=json", { signal: ctrl2.signal });
+        clearTimeout(t2);
+        if (res2.ok) {
+          const data2 = await res2.json();
+          if (data2.ip) { setIpData({ ip: data2.ip, country: '' }); return; }
+        }
+      } catch { /* silent */ }
     }
     fetchIP();
 
