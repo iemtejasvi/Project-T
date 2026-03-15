@@ -281,7 +281,7 @@ export default function NameArchivePage() {
                 href="/submit"
                 className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
               >
-                Submit a Memory
+                Submit a Memory to them
               </Link>
             </div>
 
