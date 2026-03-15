@@ -1018,10 +1018,10 @@ input::placeholder, textarea::placeholder {
   display: none;
 }
 
-/* Name archive page: taller cards on mobile only */
+/* Name archive page: slightly taller cards on mobile only */
 @media (max-width: 640px) {
   .name-archive-cards .flip-card {
-    height: 370px !important;
+    height: 340px !important;
   }
 }
 
