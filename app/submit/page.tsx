@@ -136,16 +136,6 @@ export default function SubmitPage() {
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
 
-  // Pre-fill recipient from ?to= query param (e.g. from /name/[name] pages)
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const toParam = params.get("to");
-      if (toParam) {
-        setRecipient(toParam.trim());
-      }
-    } catch { /* ignore */ }
-  }, []);
   const [color, setColor] = useState("default");
   const [specialEffect, setSpecialEffect] = useState("");
   const [timeCapsuleDelayMinutes, setTimeCapsuleDelayMinutes] = useState<number>(0);

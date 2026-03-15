@@ -1,12 +1,12 @@
 import { NextRequest } from 'next/server';
-import { fetchMemoriesPaginated } from '@/lib/memoryDB';
+import { fetchMemoriesPaginated, redactIfUnrevealed, redactIfDestructed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { sanitizeNumber } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { unstable_cache } from 'next/cache';
 
 // ISR data cache: DB hit once per 60s per unique (page, pageSize, search) combo.
-// Purged instantly via revalidateTag('memories-feed') on new content.
+// Returns RAW data — redaction is applied after caching so reveal_at checks are always fresh.
 const getCachedMemories = unstable_cache(
   async (page: number, pageSize: number, searchTerm: string) => {
     const filters: Record<string, string> = { status: 'approved' };
@@ -54,11 +54,18 @@ export async function GET(request: NextRequest) {
     if (result.error) {
       return createSecureErrorResponse('Failed to fetch memories', 500, { origin });
     }
+
+    // Apply night-only filter and redact unrevealed/destructed AFTER cache
+    // so reveal_at checks always use current time, not cached time.
+    const liveData = result.data
+      .filter(isNightOnlyVisibleNow)
+      .map(redactIfUnrevealed)
+      .map(redactIfDestructed);
     
-    // CDN layer: Vercel edge caches this for 60s, serves stale while revalidating up to 2min
-    return createSecureResponse(result, 200, {
+    // Short CDN cache since redaction is time-sensitive
+    return createSecureResponse({ ...result, data: liveData }, 200, {
       origin,
-      cacheControl: 'public, s-maxage=60, stale-while-revalidate=120'
+      cacheControl: 'public, s-maxage=10, stale-while-revalidate=30'
     });
   } catch (error) {
     console.error('Error in memories API:', error);

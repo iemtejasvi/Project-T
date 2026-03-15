@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { fetchMemoryById } from '@/lib/memoryDB';
+import { fetchMemoryById, redactIfUnrevealed, redactIfDestructed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { sanitizeUUID } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
@@ -44,9 +44,15 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       return createSecureErrorResponse('Memory not found', 404, { origin });
     }
 
-    return createSecureResponse(result, 200, {
+    // Apply night-only + redaction AFTER cache so reveal_at uses current time
+    if (!isNightOnlyVisibleNow(result.data)) {
+      return createSecureErrorResponse('Memory not found', 404, { origin });
+    }
+    const liveData = redactIfDestructed(redactIfUnrevealed(result.data));
+
+    return createSecureResponse({ ...result, data: liveData }, 200, {
       origin,
-      cacheControl: 'public, s-maxage=60, stale-while-revalidate=300'
+      cacheControl: 'public, s-maxage=10, stale-while-revalidate=30'
     });
   } catch (error) {
     console.error('Error in memory by id API:', error);

@@ -110,7 +110,7 @@ interface MemoryData {
   [key: string]: string | boolean | undefined;
 }
 
-function isRevealableNow(memory: MemoryData): boolean {
+export function isRevealableNow(memory: MemoryData): boolean {
   const revealAt = memory.reveal_at;
   if (typeof revealAt !== 'string' || revealAt.length === 0) return true;
   const revealTs = new Date(revealAt).getTime();
@@ -118,7 +118,7 @@ function isRevealableNow(memory: MemoryData): boolean {
   return revealTs <= Date.now();
 }
 
-function shouldDestructNow(memory: MemoryData): boolean {
+export function shouldDestructNow(memory: MemoryData): boolean {
   if (String(memory.status || '').toLowerCase() !== 'approved') return false;
   const destructAt = memory.destruct_at;
   if (typeof destructAt !== 'string' || destructAt.length === 0) return false;
@@ -127,7 +127,7 @@ function shouldDestructNow(memory: MemoryData): boolean {
   return destructTs <= Date.now();
 }
 
-function redactIfDestructed(memory: MemoryData): MemoryData {
+export function redactIfDestructed(memory: MemoryData): MemoryData {
   if (!shouldDestructNow(memory)) return memory;
   // Permanent deletion of message content: once destructed, never return the original message.
   // We keep the record so the UI can render a "destructed" placeholder card.
@@ -137,7 +137,7 @@ function redactIfDestructed(memory: MemoryData): MemoryData {
 
 // Redact unrevealed time capsule memories: keep the card visible but hide the message.
 // reveal_at is preserved via spread so the client can compute the countdown timer.
-function redactIfUnrevealed(memory: MemoryData): MemoryData {
+export function redactIfUnrevealed(memory: MemoryData): MemoryData {
   if (isRevealableNow(memory)) return memory;
   // Memory is not yet revealed — redact message, keep metadata (including reveal_at)
   return {
@@ -147,7 +147,7 @@ function redactIfUnrevealed(memory: MemoryData): MemoryData {
   };
 }
 
-function shouldFilterByRevealAt(filters: Record<string, string>): boolean {
+export function shouldFilterByRevealAt(filters: Record<string, string>): boolean {
   // Only public/approved views should hide unrevealed memories.
   // Admin needs to see pending/banned/other statuses even if reveal_at is in the future.
   const status = (filters.status || '').toLowerCase();
@@ -171,7 +171,7 @@ function getHourInTimeZone(timeZone: string): number | null {
   }
 }
 
-function isNightOnlyVisibleNow(memory: MemoryData): boolean {
+export function isNightOnlyVisibleNow(memory: MemoryData): boolean {
   const nightOnly = Boolean((memory as unknown as Record<string, unknown>).night_only);
   if (!nightOnly) return true;
 
@@ -296,16 +296,9 @@ export async function fetchMemoriesPaginated(
   const memories = (result.data || []).map(cleanMemoryData);
   const totalCount = result.count || 0;
 
-  // Apply night-only filter and redact unrevealed/destructed memories
-  const filtered = shouldFilterByRevealAt(filters)
-    ? memories.filter(isNightOnlyVisibleNow)
-    : memories;
-  // Redact unrevealed time capsules (message hidden, card visible with blur)
-  // Then redact destructed messages
-  const allMemories = filtered
-    .map(redactIfUnrevealed)
-    .map(redactIfDestructed)
-    .slice(0, pageSize);
+  // NOTE: Night-only filtering and time capsule/destruct redaction are applied
+  // AFTER caching in the API route, so cached data stays fresh for reveal_at checks.
+  const allMemories = memories.slice(0, pageSize);
 
   const totalPages = Math.ceil(totalCount / pageSize);
   
@@ -507,18 +500,14 @@ export async function fetchMemoryById(id: string) {
 
     const raw = cleanMemoryData(data);
 
-    // Public safety: only allow viewing approved, revealed memories.
-    // (Admin has separate access paths.)
+    // Public safety: only allow viewing approved memories.
     if (String(raw.status || '').toLowerCase() !== 'approved') {
       return { data: null, error: { message: 'Memory not found' } };
     }
-    if (!isNightOnlyVisibleNow(raw)) {
-      return { data: null, error: { message: 'Memory not found' } };
-    }
 
-    // For unrevealed time capsules: redact message but return the card (blurred on client)
-    const redacted = redactIfUnrevealed(raw);
-    return { data: redactIfDestructed(redacted), error: null };
+    // NOTE: Night-only filtering and time capsule/destruct redaction are applied
+    // AFTER caching in the API route, so reveal_at checks always use current time.
+    return { data: raw, error: null };
   } catch (err) {
     console.error('Fetch memory by ID error:', err);
     return { data: null, error: { message: String(err) } };

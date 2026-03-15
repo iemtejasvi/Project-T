@@ -157,7 +157,7 @@ export default function NameArchivePage() {
 
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight break-words overflow-hidden">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">
             {loading
               ? "Loading..."
               : nameExists
@@ -214,15 +214,15 @@ export default function NameArchivePage() {
             <Loader text="Loading messages..." />
           </div>
         ) : !nameExists ? (
-          <div className="text-center py-16 px-4">
-            <p className="text-[var(--text)] text-lg mb-6 break-words">
+          <div className="text-center py-16">
+            <p className="text-[var(--text)] text-lg mb-6">
               No messages found for &ldquo;{displayNameStr}&rdquo;.
             </p>
             <Link
-              href={`/submit?to=${encodeURIComponent(displayNameStr)}`}
-              className="inline-block max-w-full px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform break-words"
+              href="/submit"
+              className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
             >
-              Write a message to {displayNameStr}
+              Submit a Memory
             </Link>
           </div>
         ) : (
@@ -275,13 +275,13 @@ export default function NameArchivePage() {
               </div>
             )}
 
-            {/* CTA to write a message to this name */}
-            <div className="text-center mt-10 mb-4 px-4">
+            {/* CTA to submit a memory */}
+            <div className="text-center mt-10 mb-4">
               <Link
-                href={`/submit?to=${encodeURIComponent(displayNameStr)}`}
-                className="inline-block max-w-full px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform break-words"
+                href="/submit"
+                className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
               >
-                Write a message to {displayNameStr}
+                Submit a Memory
               </Link>
             </div>
 
