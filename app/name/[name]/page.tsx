@@ -303,16 +303,6 @@ export default function NameArchivePage() {
               </div>
             )}
 
-            {/* Curiosity hook */}
-            <div className="mt-8 mb-4 text-center">
-              <p className="text-sm text-[var(--text)] opacity-60 mb-2">Curious if someone wrote about you?</p>
-              <Link
-                href="/memories"
-                className="text-sm font-medium text-[var(--accent)] hover:underline"
-              >
-                Search your name →
-              </Link>
-            </div>
           </>
         )}
 
@@ -336,6 +326,10 @@ export default function NameArchivePage() {
             <li>Things I never told {displayNameStr}</li>
             <li>Confessions to {displayNameStr}</li>
             <li>Messages for {displayNameStr}</li>
+            <li>Last memories for {displayNameStr}</li>
+            <li>Dear {displayNameStr} unsent</li>
+            <li>Words I never said to {displayNameStr}</li>
+            <li>Unsent messages for my ex {displayNameStr}</li>
           </ul>
         </div>
       </main>

@@ -135,14 +135,15 @@ function redactIfDestructed(memory: MemoryData): MemoryData {
   return { ...memory, message: '' };
 }
 
-// Redact unrevealed time capsule memories: keep the card visible but hide the message
+// Redact unrevealed time capsule memories: keep the card visible but hide the message.
+// reveal_at is preserved via spread so the client can compute the countdown timer.
 function redactIfUnrevealed(memory: MemoryData): MemoryData {
   if (isRevealableNow(memory)) return memory;
-  // Memory is not yet revealed — redact message, keep metadata
+  // Memory is not yet revealed — redact message, keep metadata (including reveal_at)
   return {
     ...memory,
     message: '',
-    is_time_capsule_locked: 'true' as unknown as string,
+    is_time_capsule_locked: 'true',
   };
 }
 
@@ -511,14 +512,13 @@ export async function fetchMemoryById(id: string) {
     if (String(raw.status || '').toLowerCase() !== 'approved') {
       return { data: null, error: { message: 'Memory not found' } };
     }
-    if (!isRevealableNow(raw)) {
-      return { data: null, error: { message: 'Memory not found' } };
-    }
     if (!isNightOnlyVisibleNow(raw)) {
       return { data: null, error: { message: 'Memory not found' } };
     }
 
-    return { data: redactIfDestructed(raw), error: null };
+    // For unrevealed time capsules: redact message but return the card (blurred on client)
+    const redacted = redactIfUnrevealed(raw);
+    return { data: redactIfDestructed(redacted), error: null };
   } catch (err) {
     console.error('Fetch memory by ID error:', err);
     return { data: null, error: { message: String(err) } };

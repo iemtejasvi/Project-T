@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const page = sanitizeNumber(searchParams.get('page'), { min: 0, max: 10000, integer: true }) ?? 0;
-    const pageSize = sanitizeNumber(searchParams.get('pageSize'), { min: 1, max: 200, integer: true }) ?? 50;
+    const pageSize = sanitizeNumber(searchParams.get('pageSize'), { min: 1, max: 1000, integer: true }) ?? 50;
 
     const status = (searchParams.get('status') || '').toLowerCase();
     const pinnedParam = searchParams.get('pinned');
@@ -48,7 +48,9 @@ export async function GET(request: NextRequest) {
 
     if (status) query = query.eq('status', status);
     if (typeof pinned === 'boolean') query = query.eq('pinned', pinned);
-    if (search) query = query.ilike('recipient', `%${search}%`);
+    if (search) {
+      query = query.or(`recipient.ilike.%${search}%,sender.ilike.%${search}%,message.ilike.%${search}%`);
+    }
 
     // Admin ordering: pinned first, then newest
     query = query.order('pinned', { ascending: false });

@@ -498,6 +498,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       if (remaining <= 0) {
         setTimeCapsuleCountdown(null);
         setTimeCapsuleRevealed(true);
+        // Reload to fetch the now-revealed message from server
+        window.location.reload();
         return;
       }
       const d = Math.floor(remaining / 86400000);

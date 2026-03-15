@@ -527,6 +527,8 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
       if (remaining <= 0) {
         setTimeCapsuleCountdown(null);
         setTimeCapsuleRevealed(true);
+        // Reload to fetch the now-revealed message from server
+        window.location.reload();
         return;
       }
       const d = Math.floor(remaining / 86400000);

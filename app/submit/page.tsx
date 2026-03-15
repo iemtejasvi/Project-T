@@ -758,6 +758,26 @@ export default function SubmitPage() {
     }
   }, [destructDelayMinutes]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Mutual exclusion: Time Capsule vs Destruction / Night Only
+  useEffect(() => {
+    if (timeCapsuleDelayMinutes > 0) {
+      if (destructDelayMinutes > 0) setDestructDelayMinutes(0);
+      if (nightOnly) setNightOnly(false);
+    }
+  }, [timeCapsuleDelayMinutes]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (destructDelayMinutes > 0 && timeCapsuleDelayMinutes > 0) {
+      setTimeCapsuleDelayMinutes(0);
+    }
+  }, [destructDelayMinutes]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (nightOnly && timeCapsuleDelayMinutes > 0) {
+      setTimeCapsuleDelayMinutes(0);
+    }
+  }, [nightOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const timeCapsuleOptions: Array<{ value: number; label: string }> = [
     { value: 0, label: "None (submit now)" },
     { value: 7 * 24 * 60, label: "1 week" },
@@ -1081,10 +1101,11 @@ export default function SubmitPage() {
                     Return Home
                   </Link>
                   <div className="mt-8 pt-6 border-t border-[var(--border)]/30">
-                    <p className="text-sm text-[var(--text)]/60 mb-2">Curious if someone wrote about you?</p>
+                    <p className="text-sm mb-2" style={{ color: '#6b7280' }}>Curious if someone wrote about you?</p>
                     <Link
                       href="/memories"
-                      className="text-sm font-medium text-[var(--accent)] hover:underline"
+                      className="text-sm font-medium hover:underline"
+                      style={{ color: '#be185d' }}
                     >
                       Search your name &rarr;
                     </Link>
@@ -1207,12 +1228,13 @@ export default function SubmitPage() {
 
                   <div className={`space-y-2`}>
                     <label className="block text-lg font-medium text-[var(--text)]">Time Capsule (optional)</label>
+                    {(destructDelayMinutes > 0 || nightOnly) && <span className="text-xs italic" style={{ color: '#6b7280' }}>Disabled when destruct or night-only is active</span>}
                     <select
                       value={timeCapsuleDelayMinutes}
                       onChange={(e) => setTimeCapsuleDelayMinutes(Number(e.target.value) || 0)}
-                      disabled={isFormDisabled}
+                      disabled={isFormDisabled || destructDelayMinutes > 0 || nightOnly}
                       className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                        (isFormDisabled || destructDelayMinutes > 0 || nightOnly) ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
                       }`}
                     >
                       {timeCapsuleOptions.map((o) => (
@@ -1225,12 +1247,13 @@ export default function SubmitPage() {
 
                   <div className={`space-y-2`}>
                     <label className="block text-lg font-medium text-[var(--text)]">Destructing Message (optional)</label>
+                    {timeCapsuleDelayMinutes > 0 && <span className="text-xs italic" style={{ color: '#6b7280' }}>Disabled when time capsule is active</span>}
                     <select
                       value={destructDelayMinutes}
                       onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
-                      disabled={isFormDisabled}
+                      disabled={isFormDisabled || timeCapsuleDelayMinutes > 0}
                       className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                        (isFormDisabled || timeCapsuleDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
                       }`}
                     >
                       {destructOptions.map((o) => (
@@ -1318,14 +1341,15 @@ export default function SubmitPage() {
                           type="checkbox"
                           checked={nightOnly}
                           onChange={(e) => setNightOnly(e.target.checked)}
-                          disabled={isFormDisabled}
+                          disabled={isFormDisabled || timeCapsuleDelayMinutes > 0}
                           className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
-                            isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                            (isFormDisabled || timeCapsuleDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
                         />
                         <label htmlFor="nightOnly" className="text-[var(--text)] font-semibold text-lg">
                           Night-only (optional, visible 9PM-6AM)
                         </label>
+                        {timeCapsuleDelayMinutes > 0 && <span className="text-xs italic" style={{ color: '#6b7280' }}>Disabled when time capsule is active</span>}
                       </div>
                     </div>
                   </div>
@@ -1376,10 +1400,11 @@ export default function SubmitPage() {
                   Return Home
                 </Link>
                 <div className="mt-6 pt-4 border-t border-[var(--border)]/30">
-                  <p className="text-sm text-[var(--text)]/60 mb-2">Curious if someone wrote about you?</p>
+                  <p className="text-sm mb-2" style={{ color: '#6b7280' }}>Curious if someone wrote about you?</p>
                   <Link
                     href="/memories"
-                    className="text-sm font-medium text-[var(--accent)] hover:underline"
+                    className="text-sm font-medium hover:underline"
+                    style={{ color: '#be185d' }}
                   >
                     Search your name &rarr;
                   </Link>
@@ -1502,12 +1527,13 @@ export default function SubmitPage() {
 
                 <div>
                   <label className="block font-medium text-[var(--text)] mb-2">Time Capsule (optional)</label>
+                  {(destructDelayMinutes > 0 || nightOnly) && <span className="text-xs italic block mb-1" style={{ color: '#6b7280' }}>Disabled when destruct or night-only is active</span>}
                   <select
                     value={timeCapsuleDelayMinutes}
                     onChange={(e) => setTimeCapsuleDelayMinutes(Number(e.target.value) || 0)}
-                    disabled={isFormDisabled}
+                    disabled={isFormDisabled || destructDelayMinutes > 0 || nightOnly}
                     className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition ${
-                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                      (isFormDisabled || destructDelayMinutes > 0 || nightOnly) ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                     }`}
                   >
                     {timeCapsuleOptions.map((o) => (
@@ -1520,12 +1546,13 @@ export default function SubmitPage() {
 
                 <div>
                   <label className="block font-medium text-[var(--text)] mb-2">Destructing Message (optional)</label>
+                  {timeCapsuleDelayMinutes > 0 && <span className="text-xs italic block mb-1" style={{ color: '#6b7280' }}>Disabled when time capsule is active</span>}
                   <select
                     value={destructDelayMinutes}
                     onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
-                    disabled={isFormDisabled}
+                    disabled={isFormDisabled || timeCapsuleDelayMinutes > 0}
                     className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition ${
-                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                      (isFormDisabled || timeCapsuleDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                     }`}
                   >
                     {destructOptions.map((o) => (
@@ -1603,14 +1630,15 @@ export default function SubmitPage() {
                         type="checkbox"
                         checked={nightOnly}
                         onChange={(e) => setNightOnly(e.target.checked)}
-                        disabled={isFormDisabled}
+                        disabled={isFormDisabled || timeCapsuleDelayMinutes > 0}
                         className={`h-4 w-4 accent-[var(--accent)] rounded ${
-                          isFormDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                          (isFormDisabled || timeCapsuleDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                       />
                       <label htmlFor="nightOnly-mobile" className="text-[var(--text)] font-medium">
                         Night-only (optional, visible 9PM-6AM)
                       </label>
+                      {timeCapsuleDelayMinutes > 0 && <span className="text-xs italic block" style={{ color: '#6b7280' }}>Disabled when time capsule is active</span>}
                     </div>
                   </div>
                 </div>

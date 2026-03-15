@@ -80,8 +80,11 @@ export default function AdminPanel() {
   const [bannedUsers, setBannedUsers] = useState<{ ip?: string; uuid?: string; country?: string }[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const searchTermRef = useRef("");
-  const [displayCount, setDisplayCount] = useState(10);
+  const [displayCount, setDisplayCount] = useState(50);
   const [loading, setLoading] = useState(false);
+  const [adminPage, setAdminPage] = useState(0);
+  const [adminTotalPages, setAdminTotalPages] = useState(0);
+  const searchDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState("");
   // DB Health state
@@ -146,23 +149,15 @@ export default function AdminPanel() {
     return () => clearInterval(timer);
   }, [hasActiveItems]);
 
-  // Memoized filtered memories — works for all tabs
-  const filteredMemories = useMemo(() => {
-    if (!searchTerm) return memories;
-    const term = searchTerm.toLowerCase();
-    return memories.filter(memory => 
-      memory.recipient.toLowerCase().includes(term) ||
-      memory.message.toLowerCase().includes(term) ||
-      (memory.sender && memory.sender.toLowerCase().includes(term))
-    );
-  }, [memories, searchTerm]);
+  // Server-side search: filteredMemories = memories (server already filtered)
+  const filteredMemories = memories;
 
-  // Memoized displayed memories — paginate for all tabs
+  // Display all server-returned results (already paginated to 50 per page)
   const displayedMemories = useMemo(() => {
     return filteredMemories.slice(0, displayCount);
   }, [filteredMemories, displayCount]);
 
-  // Memoized hasMore calculation — works for all tabs
+  // Has more within current page fetch
   const hasMoreMemories = useMemo(() => {
     return filteredMemories.length > displayCount;
   }, [filteredMemories.length, displayCount]);
@@ -199,31 +194,34 @@ export default function AdminPanel() {
     return `Reveals in ${parts.join(' ')}`;
   }, []);
 
-  // Reset display count and clear search when tab changes
+  // Reset display count, page, and clear search when tab changes
   useEffect(() => {
-    setDisplayCount(10);
+    setDisplayCount(50);
     setSelectedMemoryIds(new Set());
     setSearchTerm("");
     searchTermRef.current = "";
+    setAdminPage(0);
   }, [selectedTab]);
-
-  // Reset display count when search changes
-  useEffect(() => {
-    setDisplayCount(10);
-  }, [searchTerm]);
 
   const handleLoadMore = useCallback(() => {
     setLoading(true);
     setTimeout(() => {
-      setDisplayCount(prev => prev + 10);
+      setDisplayCount(prev => prev + 50);
       setLoading(false);
     }, 300);
   }, []);
 
+  const [searchTrigger, setSearchTrigger] = useState(0);
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSearchTerm(val);
     searchTermRef.current = val;
+    // Debounce: trigger server-side search after 500ms of inactivity
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setAdminPage(0);
+      setSearchTrigger(prev => prev + 1);
+    }, 500);
   }, []);
 
   const broadcastContentUpdated = useCallback(() => {
@@ -247,16 +245,17 @@ export default function AdminPanel() {
   }, []);
 
   // Memoize refreshMemories to prevent infinite loops
-  const refreshMemories = useCallback(() => {
+  const refreshMemories = useCallback((page?: number) => {
     if (!isAuthorized) return;
     if (selectedTab !== 'pending' && selectedTab !== 'approved' && selectedTab !== 'banned') return;
     const status = selectedTab;
+    const fetchPage = typeof page === 'number' ? page : adminPage;
     setMemoriesLoading(true);
     setMemories([]);
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 15000);
     const searchQ = searchTermRef.current ? `&search=${encodeURIComponent(searchTermRef.current)}` : '';
-    fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200${searchQ}`, {
+    fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=${fetchPage}&pageSize=50${searchQ}`, {
       credentials: 'include',
       cache: 'no-store',
       signal: ctrl.signal,
@@ -265,6 +264,7 @@ export default function AdminPanel() {
       .then((res) => {
         setMemories((res?.data || []) as Memory[]);
         setMemoriesTotalCount(Number(res?.totalCount || 0));
+        setAdminTotalPages(Number(res?.totalPages || 0));
       })
       .catch((error) => {
         console.error('Error fetching memories:', error);
@@ -272,7 +272,14 @@ export default function AdminPanel() {
       .finally(() => {
         setMemoriesLoading(false);
       });
-  }, [isAuthorized, selectedTab]);
+  }, [isAuthorized, selectedTab, adminPage]);
+
+  // Trigger server-side search when debounced search fires
+  useEffect(() => {
+    if (searchTrigger > 0) {
+      refreshMemories(0);
+    }
+  }, [searchTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check authentication with API
   useEffect(() => {
@@ -321,7 +328,7 @@ export default function AdminPanel() {
           const memCtrl = new AbortController();
           const memTimer = setTimeout(() => memCtrl.abort(), 15000);
           const searchQ = searchTermRef.current ? `&search=${encodeURIComponent(searchTermRef.current)}` : '';
-          const res = await fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=0&pageSize=200${searchQ}`, {
+          const res = await fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=${adminPage}&pageSize=50${searchQ}`, {
             credentials: 'include',
             cache: 'no-store',
             signal: memCtrl.signal,
@@ -330,6 +337,7 @@ export default function AdminPanel() {
           const json = await res.json();
           setMemories((json?.data || []) as Memory[]);
           setMemoriesTotalCount(Number(json?.totalCount || 0));
+          setAdminTotalPages(Number(json?.totalPages || 0));
         } catch (error) {
           console.error('Error fetching memories:', error);
         } finally {
@@ -1620,6 +1628,28 @@ export default function AdminPanel() {
                           Loading...
                         </div>
                       ) : "Load More"}
+                    </button>
+                  </div>
+                )}
+                {/* Server-side pagination controls */}
+                {adminTotalPages > 1 && (
+                  <div className="flex items-center justify-center gap-4 mt-6 pt-4 border-t border-gray-200">
+                    <button
+                      onClick={() => { const p = Math.max(0, adminPage - 1); setAdminPage(p); setDisplayCount(50); refreshMemories(p); }}
+                      disabled={adminPage === 0 || memoriesLoading}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium"
+                    >
+                      ← Previous
+                    </button>
+                    <span className="text-sm text-gray-600 font-mono">
+                      Page {adminPage + 1} of {adminTotalPages}
+                    </span>
+                    <button
+                      onClick={() => { const p = Math.min(adminTotalPages - 1, adminPage + 1); setAdminPage(p); setDisplayCount(50); refreshMemories(p); }}
+                      disabled={adminPage >= adminTotalPages - 1 || memoriesLoading}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium"
+                    >
+                      Next →
                     </button>
                   </div>
                 )}

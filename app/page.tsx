@@ -74,7 +74,6 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [isAnnouncementDismissed, setIsAnnouncementDismissed] = useState(false);
   const [announcementCheckComplete, setAnnouncementCheckComplete] = useState(false);
-  const [totalMessageCount, setTotalMessageCount] = useState<number | null>(null);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -211,19 +210,6 @@ export default function Home() {
           setRecentMemories([]);
         }
 
-        // Fetch total message count (non-blocking, for display only)
-        if (isMounted) {
-          Promise.resolve(
-            supabase
-              .from('memories')
-              .select('id', { count: 'exact', head: true })
-              .eq('status', 'approved')
-          ).then(({ count }) => {
-            if (isMounted && typeof count === 'number') {
-              setTotalMessageCount(count);
-            }
-          }).catch(() => {});
-        }
       } catch (err) {
         console.error("Unexpected error:", err);
       } finally {
@@ -443,11 +429,6 @@ export default function Home() {
               <TypingEffect className="lg:text-2xl" />
             </div>
           </div>
-          {totalMessageCount !== null && (
-            <div className="mt-3 text-sm text-[var(--text)]/50 font-mono tracking-wide">
-              {totalMessageCount.toLocaleString()} unsent messages and counting
-            </div>
-          )}
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
@@ -720,6 +701,26 @@ export default function Home() {
             confessions, and heartfelt letter writing. All of this copy stays hidden from everyday visitors but gives
             crawlers context about our niche.
           </p>
+        </section>
+
+        {/* Hidden SEO: relationship query targeting */}
+        <section aria-label="Relationship unsent messages" className="sr-only">
+          <h2>Unsent messages by relationship</h2>
+          <p>
+            Find unsent messages to your ex, love letters never sent, confessions to a boyfriend or girlfriend,
+            and anonymous letters to someone you lost. Whether it's an ex-boyfriend, ex-girlfriend, best friend,
+            or first love — words left unspoken live here.
+          </p>
+          <ul>
+            <li><Link href="/memories">Unsent messages to my ex</Link></li>
+            <li><Link href="/memories">Love letters I never sent</Link></li>
+            <li><Link href="/memories">Dear ex boyfriend unsent letter</Link></li>
+            <li><Link href="/memories">Dear ex girlfriend confession</Link></li>
+            <li><Link href="/memories">Last memories for someone I loved</Link></li>
+            <li><Link href="/memories">Anonymous confession to my crush</Link></li>
+            <li><Link href="/memories">Things I wish I told you</Link></li>
+            <li><Link href="/submit">Write an unsent message to your ex</Link></li>
+          </ul>
         </section>
 
         {/* FAQ content is not rendered in the UI; FAQPage JSON-LD below is used only for SEO. */}
