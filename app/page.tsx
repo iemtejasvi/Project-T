@@ -74,6 +74,7 @@ export default function Home() {
   const [isClient, setIsClient] = useState(false);
   const [isAnnouncementDismissed, setIsAnnouncementDismissed] = useState(false);
   const [announcementCheckComplete, setAnnouncementCheckComplete] = useState(false);
+  const [totalMessageCount, setTotalMessageCount] = useState<number | null>(null);
 
   // Check if there are any active pinned memories or announcements that need monitoring
   const hasActiveItems = useMemo(() => {
@@ -208,6 +209,20 @@ export default function Home() {
           setRecentMemories(memoriesResult.data);
         } else {
           setRecentMemories([]);
+        }
+
+        // Fetch total message count (non-blocking, for display only)
+        if (isMounted) {
+          Promise.resolve(
+            supabase
+              .from('memories')
+              .select('id', { count: 'exact', head: true })
+              .eq('status', 'approved')
+          ).then(({ count }) => {
+            if (isMounted && typeof count === 'number') {
+              setTotalMessageCount(count);
+            }
+          }).catch(() => {});
         }
       } catch (err) {
         console.error("Unexpected error:", err);
@@ -428,6 +443,11 @@ export default function Home() {
               <TypingEffect className="lg:text-2xl" />
             </div>
           </div>
+          {totalMessageCount !== null && (
+            <div className="mt-3 text-sm text-[var(--text)]/50 font-mono tracking-wide">
+              {totalMessageCount.toLocaleString()} unsent messages and counting
+            </div>
+          )}
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
