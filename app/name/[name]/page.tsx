@@ -275,16 +275,6 @@ export default function NameArchivePage() {
               </div>
             )}
 
-            {/* CTA to submit a memory */}
-            <div className="text-center mt-10 mb-4">
-              <Link
-                href="/submit"
-                className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
-              >
-                Submit a Memory to them
-              </Link>
-            </div>
-
             {/* Related names section */}
             {relatedNames.length > 0 && (
               <div className="mt-10 mb-6">
