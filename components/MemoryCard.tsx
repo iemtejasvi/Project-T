@@ -929,7 +929,17 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   <span className="opacity-50">self-destructs in</span>{" "}
                   <span className="font-semibold">{destructCountdown}</span>
                 </div>
-              ) : isDestructedNow ? null : (isTimeCapsuleLocked && !timeCapsuleRevealed) ? null : (
+              ) : isDestructedNow ? null : (isTimeCapsuleLocked && !timeCapsuleRevealed) ? (
+                <div className="text-center">
+                  <span className="text-lg">🔒</span>
+                  <span className="block text-[10px] font-mono font-semibold text-[var(--text)] opacity-70 mt-0.5">Time Capsule</span>
+                  {timeCapsuleCountdown && (
+                    <span className="block text-[9px] font-mono text-[var(--text)] opacity-50 mt-0.5">
+                      reveals in {timeCapsuleCountdown}
+                    </span>
+                  )}
+                </div>
+              ) : (
                 <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
               )}
             </div>

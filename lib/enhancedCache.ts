@@ -21,6 +21,8 @@ interface Memory {
   reveal_at?: string;
   destruct_at?: string;
   is_time_capsule_locked?: string;
+  time_capsule_delay_minutes?: number;
+  typewriter_enabled?: boolean;
 }
 
 interface CachedData {
@@ -370,14 +372,14 @@ class UltraCache {
       
       throw new Error('Failed to fetch data');
     } catch (error) {
-      console.error('Fetch error:', error);
+      console.debug('UltraCache fetch fallback:', error instanceof Error ? error.message : 'unknown');
       
       // Return cached data if available, even if stale
       const cacheKey = this.getCacheKey(page, pageSize, filters, searchTerm, orderBy);
       const cached = this.cache.get(cacheKey);
       
       if (cached) {
-        console.warn('⚠️ Returning stale cache due to fetch error');
+        console.debug('UltraCache: returning stale cache due to fetch error');
         return {
           data: cached.data,
           totalCount: cached.totalCount,

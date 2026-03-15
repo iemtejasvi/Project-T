@@ -157,7 +157,7 @@ export default function NameArchivePage() {
 
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight break-words overflow-hidden">
             {loading
               ? "Loading..."
               : nameExists
@@ -214,13 +214,13 @@ export default function NameArchivePage() {
             <Loader text="Loading messages..." />
           </div>
         ) : !nameExists ? (
-          <div className="text-center py-16">
-            <p className="text-[var(--text)] text-lg mb-6">
+          <div className="text-center py-16 px-4">
+            <p className="text-[var(--text)] text-lg mb-6 break-words">
               No messages found for &ldquo;{displayNameStr}&rdquo;.
             </p>
             <Link
               href={`/submit?to=${encodeURIComponent(displayNameStr)}`}
-              className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
+              className="inline-block max-w-full px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform break-words"
             >
               Write a message to {displayNameStr}
             </Link>
@@ -276,10 +276,10 @@ export default function NameArchivePage() {
             )}
 
             {/* CTA to write a message to this name */}
-            <div className="text-center mt-10 mb-4">
+            <div className="text-center mt-10 mb-4 px-4">
               <Link
                 href={`/submit?to=${encodeURIComponent(displayNameStr)}`}
-                className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
+                className="inline-block max-w-full px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform break-words"
               >
                 Write a message to {displayNameStr}
               </Link>
