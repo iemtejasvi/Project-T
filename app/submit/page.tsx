@@ -1114,16 +1114,6 @@ export default function SubmitPage() {
                   >
                     Return Home
                   </Link>
-                  <div className="mt-8 pt-6 border-t border-[var(--border)]/30">
-                    <p className="text-sm mb-2" style={{ color: '#6b7280' }}>Curious if someone wrote about you?</p>
-                    <Link
-                      href="/memories"
-                      className="text-sm font-medium hover:underline"
-                      style={{ color: '#be185d' }}
-                    >
-                      Search your name &rarr;
-                    </Link>
-                  </div>
                 </div>
               ) : (
                 <form
@@ -1413,16 +1403,6 @@ export default function SubmitPage() {
                 >
                   Return Home
                 </Link>
-                <div className="mt-6 pt-4 border-t border-[var(--border)]/30">
-                  <p className="text-sm mb-2" style={{ color: '#6b7280' }}>Curious if someone wrote about you?</p>
-                  <Link
-                    href="/memories"
-                    className="text-sm font-medium hover:underline"
-                    style={{ color: '#be185d' }}
-                  >
-                    Search your name &rarr;
-                  </Link>
-                </div>
               </div>
             ) : (
               <form

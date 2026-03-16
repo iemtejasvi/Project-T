@@ -55,10 +55,12 @@ export async function GET(request: NextRequest) {
       return createSecureErrorResponse('Failed to fetch memories', 500, { origin });
     }
 
-    // Apply night-only filter and destruct redaction after cache
+    // Apply night-only filter and destruct redaction after cache, THEN trim to pageSize.
+    // The DB fetches extra items (buffer) so filtering doesn't reduce the count below pageSize.
     const liveData = (result.data as Parameters<typeof isNightOnlyVisibleNow>[0][])
       .filter(isNightOnlyVisibleNow)
-      .map(redactIfDestructed);
+      .map(redactIfDestructed)
+      .slice(0, pageSize);
     
     // Short CDN cache since redaction is time-sensitive
     return createSecureResponse({ ...result, data: liveData }, 200, {

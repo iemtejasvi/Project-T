@@ -299,9 +299,10 @@ export async function fetchMemoriesPaginated(
   const memories = (result.data || []).map(cleanMemoryData);
   const totalCount = result.count || 0;
 
-  // NOTE: Night-only filtering and time capsule/destruct redaction are applied
-  // AFTER caching in the API route, so cached data stays fresh for reveal_at checks.
-  const allMemories = memories.slice(0, pageSize);
+  // NOTE: Night-only filtering and destruct redaction are applied AFTER caching
+  // in the API route. Return all fetched items (including buffer) so the API can
+  // filter first, THEN trim to pageSize.
+  const allMemories = memories;
 
   const totalPages = Math.ceil(totalCount / pageSize);
   

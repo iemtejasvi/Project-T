@@ -453,12 +453,11 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   }, [memory.status]);
 
   const computeIsDestructedNow = useMemo(() => {
-    const messageEmpty = typeof memory.message === 'string' && memory.message.trim().length === 0;
-    if (messageEmpty) return true;
     if (!isApproved) return false;
     if (destructAtTs === null) return false;
+    // Only destructed if destruct_at is in the past — never for future dates
     return destructAtTs <= Date.now();
-  }, [destructAtTs, isApproved, memory.message]);
+  }, [destructAtTs, isApproved]);
 
   const [isDestructedNow, setIsDestructedNow] = useState<boolean>(computeIsDestructedNow);
 
