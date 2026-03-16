@@ -435,6 +435,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       setIsDestructedNow(true);
       return;
     }
+    // setTimeout uses a 32-bit signed int; delays > ~24.8 days overflow and fire instantly.
+    // For long delays, skip the timer — computeIsDestructedNow re-checks on every render.
+    if (delay > 2_147_483_647) return;
     const t = setTimeout(() => setIsDestructedNow(true), delay);
     return () => clearTimeout(t);
   }, [destructAtTs, isApproved, isDestructedNow]);
