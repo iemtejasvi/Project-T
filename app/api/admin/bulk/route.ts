@@ -1,8 +1,55 @@
 import { NextRequest } from 'next/server';
-import { updateMemory, deleteMemory } from '@/lib/memoryDB';
+import { updateMemory, deleteMemory, primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { revalidatePath, revalidateTag } from 'next/cache';
+
+type MemoryRow = {
+  id: string;
+  status?: string | null;
+  created_at?: string | null;
+  reveal_at?: string | null;
+  destruct_at?: string | null;
+  time_capsule_delay_minutes?: number | null;
+  destruct_delay_minutes?: number | null;
+};
+
+function msBetween(a?: string | null, b?: string | null): number {
+  const aTs = a ? new Date(a).getTime() : NaN;
+  const bTs = b ? new Date(b).getTime() : NaN;
+  if (!Number.isFinite(aTs) || !Number.isFinite(bTs)) return 0;
+  const diff = aTs - bTs;
+  return diff > 0 ? diff : 0;
+}
+
+function minutesFromMs(ms: number): number {
+  if (!Number.isFinite(ms) || ms <= 0) return 0;
+  return Math.round(ms / (60 * 1000));
+}
+
+async function buildApprovalUpdates(id: string): Promise<Record<string, unknown>> {
+  const updates: Record<string, unknown> = { status: 'approved' };
+  const res = await primaryDB.from('memories')
+    .select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes')
+    .eq('id', id).maybeSingle();
+  const current: MemoryRow | null = (!res.error && res.data) ? res.data as MemoryRow : null;
+  if (!current || String(current.status ?? '').toLowerCase() === 'approved') return updates;
+
+  const revealDelayMs = msBetween(current.reveal_at, current.created_at);
+  const destructDelayMs = msBetween(current.destruct_at, current.created_at);
+
+  const hasTc = typeof current.time_capsule_delay_minutes === 'number' && current.time_capsule_delay_minutes > 0;
+  const hasDestruct = typeof current.destruct_delay_minutes === 'number' && current.destruct_delay_minutes > 0;
+
+  if (!hasTc) updates.time_capsule_delay_minutes = minutesFromMs(revealDelayMs);
+  if (!hasDestruct) updates.destruct_delay_minutes = minutesFromMs(destructDelayMs);
+
+  const now = Date.now();
+  updates.reveal_at = new Date(now + revealDelayMs).toISOString();
+  updates.destruct_at = destructDelayMs > 0 ? new Date(now + destructDelayMs).toISOString() : null;
+
+  return updates;
+}
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -29,7 +76,8 @@ export async function POST(request: NextRequest) {
     if (action === 'approve') {
       const results = await Promise.all(
         uniqueIds.map(async (id) => {
-          const { data, error } = await updateMemory(id, { status: 'approved' });
+          const updates = await buildApprovalUpdates(id);
+          const { data, error } = await updateMemory(id, updates as Parameters<typeof updateMemory>[1]);
           return { id, ok: !error, error: error?.message || null, data: data || null };
         })
       );

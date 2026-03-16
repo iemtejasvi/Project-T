@@ -218,6 +218,10 @@ function cleanMemoryData(data: Record<string, unknown>): MemoryData {
     cleaned[key] = value === null ? undefined : value;
   }
 
+  // message must survive JSON round-trips (undefined is stripped by JSON.stringify).
+  // Fallback to empty string so unstable_cache never loses the field.
+  if (typeof cleaned.message !== 'string') cleaned.message = '';
+
   return cleaned as MemoryData;
 }
 
