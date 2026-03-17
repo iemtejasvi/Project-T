@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { fetchWithUltraCache, invalidateCache, warmUpCache } from "@/lib/enhancedCache";
@@ -31,7 +31,7 @@ interface Memory {
   typewriter_enabled?: boolean;
 }
 
-export default function Memories() {
+function MemoriesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialPage = useMemo(() => {
@@ -490,5 +490,17 @@ export default function Memories() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function Memories() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader text="Loading..." />
+      </div>
+    }>
+      <MemoriesContent />
+    </Suspense>
   );
 }
