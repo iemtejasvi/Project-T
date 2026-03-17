@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { fetchWithUltraCache, invalidateCache, warmUpCache } from "@/lib/enhancedCache";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
@@ -31,11 +32,19 @@ interface Memory {
 }
 
 export default function Memories() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const initialPage = useMemo(() => {
+    const p = parseInt(searchParams?.get('page') || '0', 10);
+    return Number.isFinite(p) && p >= 0 ? p : 0;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const initialSearch = useMemo(() => searchParams?.get('q') || '', []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [displayedMemories, setDisplayedMemories] = useState<Memory[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [initialLoading, setInitialLoading] = useState(false); // Start false for instant perceived load
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(initialPage);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoadingPage, setIsLoadingPage] = useState(false);
@@ -72,6 +81,16 @@ export default function Memories() {
     };
   }, []);
   
+  // Sync page & search to URL so browser back button restores position
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (page > 0) params.set('page', String(page));
+    if (searchTerm) params.set('q', searchTerm);
+    const qs = params.toString();
+    const newUrl = qs ? `/memories?${qs}` : '/memories';
+    window.history.replaceState(window.history.state, '', newUrl);
+  }, [page, searchTerm]);
+
   const pageSize = isDesktop ? 18 : 10;
 
   const hasNext = page < totalPages - 1;
@@ -165,11 +184,14 @@ export default function Memories() {
   }, [pageSize, initialLoading]);
   
   // Initial load and re-fetch when page size changes
+  const isFirstRender = useRef(true);
   useEffect(() => {
-    // Reset page when page size changes to avoid confusion
-    setPage(0);
+    // On first render, use the URL-restored page; on subsequent (resize), reset to 0
+    const startPage = isFirstRender.current ? initialPage : 0;
+    isFirstRender.current = false;
+    setPage(startPage);
     setDisplayedMemories([]);
-    fetchPageData(0, searchTerm, true);
+    fetchPageData(startPage, searchTerm, true);
     
     // Listen for real-time updates
     const handleRefreshArchives = async () => {
@@ -434,6 +456,32 @@ export default function Memories() {
             </p>
           </div>
         )}
+        {/* Hidden SEO: Archive page browsing content */}
+        <section aria-label="Browse unsent messages archive" className="sr-only">
+          <h2>Browse Thousands of Unsent Messages and Anonymous Confessions</h2>
+          <p>
+            The If Only I Sent This archive contains thousands of unsent love letters, heartbreak confessions,
+            goodbye messages, and words left unspoken. Browse by name, search for specific people, or explore
+            the full collection of anonymous memories.
+          </p>
+          <h3>What You&apos;ll Find in the Archive</h3>
+          <ul>
+            <li>Unsent letters to exes — breakup confessions and closure messages</li>
+            <li>Love letters never sent — first love, unrequited love, lost love</li>
+            <li>Apologies that were never delivered — regret and forgiveness</li>
+            <li>Goodbye messages — to people, pets, moments in time</li>
+            <li>Music-inspired confessions — songs by The 1975, Taylor Swift, Olivia Rodrigo, and more</li>
+            <li>Time capsule messages — locked until their reveal date</li>
+            <li>Self-destructing memories — messages that will vanish in the future</li>
+            <li>Emotional color-coded messages — blue for sadness, red for passion, yellow for hope</li>
+          </ul>
+          <h3>Better Than The Unsent Project</h3>
+          <p>
+            Unlike The Unsent Project where search is broken and messages disappear, our archive is reliable,
+            searchable, and beautifully presented. Find messages by name, browse by feeling, and never worry
+            about glitchy databases or months-long moderation backlogs.
+          </p>
+        </section>
       </main>
 
       <footer className="bg-[var(--card-bg)] shadow-md">

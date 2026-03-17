@@ -32,8 +32,8 @@ const nextConfig = {
             value: 'DENY',
           },
           {
-            key: 'Link',
-            value: '<https://ppkbuhaklzbgwvaaoudn.supabase.co>; rel=preconnect; crossorigin',
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
           },
         ],
       },
@@ -145,6 +145,11 @@ const nextConfig = {
       {
         source: '/privacy',
         destination: '/privacy-policy',
+        permanent: true,
+      },
+      {
+        source: '/&',
+        destination: '/',
         permanent: true,
       },
     ];

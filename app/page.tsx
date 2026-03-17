@@ -727,6 +727,110 @@ export default function Home() {
           </ul>
         </section>
 
+        {/* Hidden SEO: Competitor alternative positioning */}
+        <section aria-label="Alternative to unsent message projects" className="sr-only">
+          <h2>The Best Alternative to The Unsent Project</h2>
+          <p>
+            Looking for sites like The Unsent Project? If Only I Sent This is the instant, glitch-free alternative.
+            Unlike other unsent message platforms that suffer from months-long moderation backlogs and broken search,
+            your submissions here go live quickly after compassionate review. Our search actually works — find messages
+            by name, by feeling, or by color.
+          </p>
+          <p>
+            If Only I Sent This is a modern alternative to The Unsent Project, PostSecret, and Whisper. We offer
+            self-destructing messages, time capsule letters, emotional color coding, and a beautiful reading experience
+            without glitchy databases or disappearing submissions.
+          </p>
+          <ul>
+            <li><Link href="/submit">Submit your unsent message — no account needed</Link></li>
+            <li><Link href="/memories">Browse thousands of anonymous confessions</Link></li>
+            <li><Link href="/how-it-works">See how it works — instant, reliable, beautiful</Link></li>
+          </ul>
+        </section>
+
+        {/* Hidden SEO: Music-inspired unsent messages */}
+        <section aria-label="Music inspired unsent messages" className="sr-only">
+          <h2>Unsent Messages Inspired by Music</h2>
+          <p>
+            Many of our most powerful unsent messages are inspired by songs about heartbreak, love, and loss.
+            From The 1975&apos;s &quot;About You&quot; and &quot;Somebody Else&quot; to Taylor Swift&apos;s &quot;All Too Well&quot;
+            and Olivia Rodrigo&apos;s &quot;drivers license&quot; — music gives words to feelings we can&apos;t express alone.
+          </p>
+          <p>
+            Write an unsent message inspired by your favorite heartbreak song. Whether it&apos;s Conan Gray&apos;s &quot;Heather,&quot;
+            Hozier&apos;s &quot;Cherry Wine,&quot; Billie Eilish&apos;s &quot;when the party&apos;s over,&quot; or Adele&apos;s &quot;Someone Like You&quot; —
+            this is the place to say what the song couldn&apos;t.
+          </p>
+          <h3>Popular song-inspired unsent letter themes</h3>
+          <ul>
+            <li>About You by The 1975 — unsent letters about someone you still think about</li>
+            <li>Somebody Else by The 1975 — watching your ex move on</li>
+            <li>drivers license by Olivia Rodrigo — first heartbreak confessions</li>
+            <li>All Too Well by Taylor Swift — remembering every detail of a lost love</li>
+            <li>Heather by Conan Gray — loving someone who loves someone else</li>
+            <li>Someone Like You by Adele — wishing your ex well through tears</li>
+            <li>Cherry Wine by Hozier — complicated love letters</li>
+            <li>Sweater Weather by The Neighbourhood — nostalgic love notes</li>
+            <li>happier by Olivia Rodrigo — wanting them happy but not happier</li>
+            <li>exile by Taylor Swift — words left unsaid after a breakup</li>
+          </ul>
+        </section>
+
+        {/* Hidden SEO: Emotional color categories */}
+        <section aria-label="Emotional color categories" className="sr-only">
+          <h2>Unsent Messages by Emotional Color</h2>
+          <p>
+            Every unsent message carries a color — the color of the emotion behind it.
+            Browse messages by the feeling they represent: blue for sadness, red for passion,
+            black for despair, yellow for hope, green for healing, pink for first love,
+            and purple for grief.
+          </p>
+          <ul>
+            <li>Blue unsent messages — sadness, melancholy, missing someone</li>
+            <li>Red unsent messages — passion, intense love, anger</li>
+            <li>Black unsent messages — despair, toxic relationships, darkness</li>
+            <li>Yellow unsent messages — losing love but keeping hope</li>
+            <li>Green unsent messages — healing, growth, moving forward</li>
+            <li>Pink unsent messages — first love, innocence, butterflies</li>
+            <li>Purple unsent messages — grief, loss, remembrance</li>
+          </ul>
+        </section>
+
+        {/* Hidden SEO: Name search curiosity */}
+        <section aria-label="Search for messages about you" className="sr-only">
+          <h2>Did Someone Write an Unsent Message About You?</h2>
+          <p>
+            Curious if someone wrote about you? Search any name to find anonymous unsent messages,
+            love letters, and confessions written to that person. Thousands of names have messages waiting to be read.
+          </p>
+          <p>
+            Search for common names like Sarah, James, Emily, Michael, Alex, Jessica, David, Emma, Chris, or Ashley
+            to discover what someone wished they could say. Every name has a story.
+          </p>
+          <ul>
+            <li><Link href="/name/sarah">Unsent messages to Sarah</Link></li>
+            <li><Link href="/name/james">Unsent messages to James</Link></li>
+            <li><Link href="/name/emily">Unsent messages to Emily</Link></li>
+            <li><Link href="/name/michael">Unsent messages to Michael</Link></li>
+            <li><Link href="/name/alex">Unsent messages to Alex</Link></li>
+            <li><Link href="/name/jessica">Unsent messages to Jessica</Link></li>
+            <li><Link href="/name/david">Unsent messages to David</Link></li>
+            <li><Link href="/name/emma">Unsent messages to Emma</Link></li>
+            <li><Link href="/name/chris">Unsent messages to Chris</Link></li>
+            <li><Link href="/name/ashley">Unsent messages to Ashley</Link></li>
+            <li><Link href="/name/daniel">Unsent messages to Daniel</Link></li>
+            <li><Link href="/name/sophia">Unsent messages to Sophia</Link></li>
+            <li><Link href="/name/ryan">Unsent messages to Ryan</Link></li>
+            <li><Link href="/name/olivia">Unsent messages to Olivia</Link></li>
+            <li><Link href="/name/josh">Unsent messages to Josh</Link></li>
+            <li><Link href="/name/hannah">Unsent messages to Hannah</Link></li>
+            <li><Link href="/name/matt">Unsent messages to Matt</Link></li>
+            <li><Link href="/name/rachel">Unsent messages to Rachel</Link></li>
+            <li><Link href="/name/john">Unsent messages to John</Link></li>
+            <li><Link href="/name/anna">Unsent messages to Anna</Link></li>
+          </ul>
+        </section>
+
         {/* FAQ content is not rendered in the UI; FAQPage JSON-LD below is used only for SEO. */}
       </main>
 

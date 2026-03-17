@@ -140,6 +140,96 @@ export const metadata = {
     "celebrity unsent love",
     "trending music quotes",
     "song lyric love note",
+    // The 1975 & band keywords
+    "about you the 1975",
+    "about you 1975 lyrics",
+    "about you 1975 meaning",
+    "the 1975 heartbreak songs",
+    "the 1975 love songs",
+    "the 1975 somebody else",
+    "somebody else the 1975 lyrics",
+    "somebody else the 1975 meaning",
+    "the 1975 robbers",
+    "the 1975 be my mistake",
+    "the 1975 fallingforyou",
+    "the 1975 if i believe you",
+    "the 1975 a change of heart",
+    "the 1975 she lays down",
+    "the 1975 i always wanna die",
+    "the 1975 im in love with you",
+    "the 1975 part of the band",
+    "the 1975 all i need to hear",
+    "the 1975 looking for somebody",
+    "matty healy heartbreak",
+    "matty healy lyrics about love",
+    "the 1975 breakup playlist",
+    "the 1975 unsent message",
+    "about you lyrics meaning love",
+    "the 1975 sad songs playlist",
+    // Competitor alternative keywords
+    "sites like the unsent project",
+    "the unsent project alternative",
+    "the unsent project alternatives",
+    "unsent project alternative 2024",
+    "unsent project alternative 2025",
+    "unsent project alternative 2026",
+    "better than unsent project",
+    "unsent project not working",
+    "unsent project search not loading",
+    "unsent project submissions stuck",
+    "unsent project backlog",
+    "unsent project slow moderation",
+    "unsent message project alternative",
+    "anonymous message site like unsent project",
+    "write unsent letter online free",
+    "send anonymous confession online",
+    "anonymous love letter website",
+    "sites like postsecret",
+    "postsecret alternative",
+    "confession website like whisper",
+    "whisper app alternative",
+    "anonymous venting website",
+    "instant publish anonymous message",
+    "no wait anonymous confession site",
+    // Emotional color categories
+    "blue unsent messages sadness",
+    "red unsent messages passion",
+    "black unsent messages despair",
+    "yellow unsent messages hope",
+    "green unsent messages healing",
+    "pink unsent messages first love",
+    "purple unsent messages grief",
+    "orange unsent messages anger",
+    "white unsent messages peace",
+    "emotional color messages",
+    "color coded love letters",
+    "color of my feelings",
+    "what color is heartbreak",
+    "what color is love",
+    "what color is grief",
+    "color psychology emotions",
+    // High-intent curiosity searches
+    "find anonymous messages about me",
+    "search my name for secret confessions",
+    "did someone write about me",
+    "search unsent messages by name",
+    "unsent letters to my exes",
+    "what I wish I could tell my ex",
+    "anonymous confessions about someone",
+    "read anonymous messages to my name",
+    "has anyone written about me",
+    "search name anonymous letter",
+    // Emotional outlet & cathartic writing
+    "where to write unsent letters online",
+    "free anonymous confession platform",
+    "write letter you'll never send",
+    "therapeutic letter writing online",
+    "digital unsent letter box",
+    "anonymous emotional outlet",
+    "safe space to confess online",
+    "write feelings anonymously",
+    "share secrets without judgment",
+    "release emotions through writing",
     // Community & sharing
     "online confession forum",
     "community diary platform",
@@ -1393,13 +1483,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="color-scheme" content="light dark" />
         <meta name="referrer" content="no-referrer-when-downgrade" />
         <link rel="alternate" hrefLang="en" href="https://www.ifonlyisentthis.com/" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.google-analytics.com" />
-        <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ppkbuhaklzbgwvaaoudn.supabase.co" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        {ENABLE_ANALYTICS && <link rel="dns-prefetch" href="https://www.googletagmanager.com" />}
+        {ENABLE_ADS && <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />}
         <link rel="prefetch" href="/memories" />
         <link rel="prefetch" href="/submit" />
         <link rel="prefetch" href="/how-it-works" />
@@ -1422,14 +1510,46 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              "url": "https://www.ifonlyisentthis.com",
-              "logo": "https://www.ifonlyisentthis.com/favicon.ico",
-              "name": "If Only I Sent This",
-              "description": "A modern archive for unsent memories and heartfelt messages."
-            })
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "url": "https://www.ifonlyisentthis.com",
+                "logo": "https://www.ifonlyisentthis.com/favicon.ico",
+                "name": "If Only I Sent This",
+                "description": "A modern archive for unsent memories, anonymous confessions, and heartfelt messages you were never ready to send. The instant, glitch-free alternative to unsent message projects.",
+                "sameAs": []
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "url": "https://www.ifonlyisentthis.com",
+                "name": "If Only I Sent This",
+                "description": "Share unsent memories, anonymous confessions, and heartfelt messages you were never ready to send.",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "https://www.ifonlyisentthis.com/name/{search_term_string}"
+                  },
+                  "query-input": "required name=search_term_string"
+                }
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebApplication",
+                "name": "If Only I Sent This",
+                "url": "https://www.ifonlyisentthis.com",
+                "applicationCategory": "LifestyleApplication",
+                "operatingSystem": "All",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0",
+                  "priceCurrency": "USD"
+                },
+                "description": "Write and share unsent messages anonymously. No account needed. Submissions go live instantly after moderation."
+              }
+            ])
           }}
         />
         

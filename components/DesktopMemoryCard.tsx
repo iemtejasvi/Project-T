@@ -728,9 +728,9 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             )}
             <div className="text-xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5' }}>
               {destructCountdown && !isDestructedNow ? (
-                <div className="text-sm text-center font-mono opacity-70 text-[var(--text)]">
-                  <span className="opacity-50">self-destructs in</span>{" "}
-                  <span className="font-semibold">{destructCountdown}</span>
+                <div className="text-sm text-center font-mono opacity-90 text-[var(--text)]">
+                  <span className="opacity-80">self-destructs in</span>{" "}
+                  <span className="font-bold">{destructCountdown}</span>
                 </div>
               ) : isDestructedNow ? null : (
                 <TypewriterPrompt tag={memory.tag} subTag={memory.sub_tag} typewriterEnabled={memory.typewriter_enabled} />
