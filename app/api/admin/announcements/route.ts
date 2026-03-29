@@ -16,12 +16,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // Delete all existing announcements first
-    const { error: deleteError } = await primaryDB.from('announcements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    
-    if (deleteError) {
-      console.error('Error deleting existing announcements:', deleteError);
-      return createSecureErrorResponse('Failed to clear existing announcements', 500, { origin });
-    }
+    await primaryDB.from('announcements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     
     // Create new announcement
     const { data, error } = await primaryDB
