@@ -175,6 +175,10 @@ export default function Home() {
 
         if (announcementError) {
           console.error("Error fetching announcement:", announcementError.message);
+          if (isMounted) {
+            setAnnouncement(null);
+            setAnnouncementCheckComplete(true);
+          }
         } else if (announcementData) {
           const expiryTime = new Date(announcementData.expires_at);
           const now = new Date();
@@ -195,8 +199,10 @@ export default function Home() {
               setAnnouncementCheckComplete(true);
             }
             
-            // Schedule next check for this announcement
-            const timeUntilExpiry = expiryTime.getTime() - now.getTime();
+            // Schedule next check for this announcement.
+            // Guard against setTimeout 32-bit overflow (~24.8 days max).
+            const MAX_TIMEOUT = 0x7FFFFFFF; // 2^31 - 1 ms
+            const timeUntilExpiry = Math.min(expiryTime.getTime() - now.getTime(), MAX_TIMEOUT);
             timeoutId = setTimeout(() => {
               if (isMounted) fetchData();
             }, timeUntilExpiry);
@@ -219,6 +225,8 @@ export default function Home() {
       } finally {
         if (isMounted) {
           setMemoriesLoading(false);
+          // Safety net: always mark announcement check as complete
+          setAnnouncementCheckComplete(true);
         }
       }
     }
