@@ -244,7 +244,6 @@ export async function insertMemory(memoryData: Record<string, unknown>) {
       .single();
       
     if (!error && data) {
-      console.log('Successfully wrote to database');
       return { data, error: null, database: 'A' };
     } else {
       return { data: null, error: { message: error?.message || 'Unknown error' }, database: null };

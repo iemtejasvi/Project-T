@@ -163,7 +163,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; t
   // Check cache first
   const cached = countryCache.get(ip);
   if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
-    console.log(`🎯 Cache hit for IP ${ip}: ${cached.country}`);
+    // Cache hit — skip geolocation services
     return { country: cached.country };
   }
 
@@ -174,6 +174,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; t
   const geoServices = [
     {
       name: 'ip-api.com',
+      // ip-api.com free tier requires HTTP (HTTPS is paid only). HTTPS alternatives below serve as fallbacks.
       url: useAutoDetect ? `http://ip-api.com/json/?fields=status,country,timezone,query` : `http://ip-api.com/json/${ip}?fields=status,country,timezone`,
       extractCountry: (data: CountryServiceResponse) => data.status === 'success' ? data.country : null,
       extractTimezone: (data: CountryServiceResponse) => data.status === 'success' ? (data.timezone || null) : null,
@@ -239,60 +240,47 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; t
   // Try each service with timeout and error handling
   for (const service of geoServices) {
     try {
-      console.log(`Trying ${service.name} for IP: ${ip}`);
-      
       // Create AbortController for timeout
     const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), service.timeout);
-      
-      const response = await fetch(service.url, { 
+
+      const response = await fetch(service.url, {
         signal: controller.signal,
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; MemoryApp/1.0)'
         }
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     if (response.ok) {
       const data = await response.json();
         const country = service.extractCountry(data);
         const timezone = service.extractTimezone(data);
-        
+
         if (country) {
-          console.log(`✅ ${service.name} succeeded: ${country}`);
-          
           // For auto-detect, also get the IP address
           let detectedIP = null;
           if (useAutoDetect && service.canAutoDetectIP) {
             detectedIP = service.extractIP(data);
-            console.log(`🔍 ${service.name} also detected IP: ${detectedIP}`);
           }
-          
+
           // Cache the successful result (use detected IP if available)
           const cacheKey = detectedIP || ip;
           if (countryCache.size >= MAX_CACHE_SIZE) evictCountryCache();
           countryCache.set(cacheKey, { country, timestamp: Date.now() });
-          
+
           return { country, timezone: timezone || undefined, detectedIP: detectedIP || undefined };
-        } else {
-          console.log(`⚠️ ${service.name} returned no country data`);
         }
-      } else {
-        console.log(`❌ ${service.name} HTTP error: ${response.status}`);
       }
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.log(`⏱️ ${service.name} timed out`);
-      } else {
-        console.log(`❌ ${service.name} error:`, error instanceof Error ? error.message : String(error));
-      }
+    } catch {
+      // Service failed — try next one
     }
   }
 
-  console.log('🚨 All geolocation services failed for IP:', ip);
+  console.warn('All geolocation services failed for IP');
   // Cache the failed result to avoid repeated attempts for same IP
-  if (countryCache.size >= MAX_CACHE_SIZE) countryCache.clear();
+  if (countryCache.size >= MAX_CACHE_SIZE) evictCountryCache();
   countryCache.set(ip, { country: null, timestamp: Date.now() });
   return { country: null };
 }
@@ -374,7 +362,10 @@ export async function POST(request: NextRequest) {
     const ownerIP = process.env.OWNER_IP_ADDRESS;
     const isOwner = ownerIP && clientIP === ownerIP;
 
-    console.log(`🏠 Host: ${host}, IP: ${clientIP}, isLocalhost: ${isLocalhost}, isOwner: ${isOwner}`);
+    // Debug context logged only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Host: ${host}, IP: ${clientIP}, isLocalhost: ${isLocalhost}, isOwner: ${isOwner}`);
+    }
 
     if (!isOwner && !isLocalhost) {
       // Run site_settings and unlimited_users queries in parallel
@@ -485,7 +476,7 @@ export async function POST(request: NextRequest) {
         : null;
 
     if (isOwner || isLocalhost) {
-      console.log('✅ Localhost/Owner detected - skipping all limits');
+      // Owner/localhost — skip all limits
       // Allow owner and localhost to submit without limits
     } else {
       // Enforce 50-word limit unless unlimited or global override
@@ -593,7 +584,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      console.log(`✅ Memory successfully stored in database ${database} from ${rateLimitKey}`);
+      // Memory stored successfully
 
       // Fire-and-forget: resolve country from IP and update the row asynchronously.
       // This avoids blocking the response for 3-17s of external HTTP calls.

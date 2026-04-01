@@ -74,6 +74,7 @@ const faqItems = [
 
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
+  const [popularNames, setPopularNames] = useState<{ slug: string; display: string }[]>([]);
   const [memoriesLoading, setMemoriesLoading] = useState(true); // Start with true so we show a stable skeleton until data arrives
   const [showWelcome, setShowWelcome] = useState(false);
   const [announcementTransitioning, setAnnouncementTransitioning] = useState(false);
@@ -172,7 +173,15 @@ export default function Home() {
           ),
         ]);
 
-        const [announcementResult, memoriesResult] = await Promise.all([
+        const popularNamesPromise = fetch('/api/popular-names')
+          .then(async (res) => {
+            if (!res.ok) return [];
+            const json = await res.json();
+            return json.data ?? [];
+          })
+          .catch(() => []);
+
+        const [announcementResult, memoriesResult, popularNamesResult] = await Promise.all([
           announcementPromise,
           fetchWithUltraCache(
             0,
@@ -182,6 +191,7 @@ export default function Home() {
             { created_at: "desc" },
             { maxAge: 60000, staleWhileRevalidate: 120000 } // 60s fresh (matches ISR), 2min stale
           ),
+          popularNamesPromise,
         ]);
 
         if (!isMounted) return;
@@ -229,6 +239,10 @@ export default function Home() {
           setRecentMemories(memoriesResult.data);
         } else {
           setRecentMemories([]);
+        }
+
+        if (popularNamesResult.length > 0) {
+          setPopularNames(popularNamesResult);
         }
 
       } catch (err) {
@@ -363,16 +377,7 @@ export default function Home() {
       try {
         const expiredPinIds = expiredPins.map(memory => memory.id);
 
-        // Update expired pins via server API (keeps DB write logic server-side)
-        const unpinCtrl = new AbortController();
-        setTimeout(() => unpinCtrl.abort(), 8000);
-        fetch('/api/unpin-expired', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          signal: unpinCtrl.signal,
-        }).catch(() => {});
-
-        // Update local state without refetching
+        // Update local state without refetching (DB cleanup handled by admin/cron)
         if (isMounted) {
           setRecentMemories(prevMemories => 
             prevMemories.map(memory => 
@@ -795,40 +800,25 @@ export default function Home() {
           </ul>
         </section>
 
-        {/* Hidden SEO: Name search curiosity */}
-        <section aria-label="Search for messages about you" className="sr-only">
-          <h2>Did Someone Write an Unsent Message About You?</h2>
-          <p>
-            Curious if someone wrote about you? Search any name to find anonymous unsent messages,
-            love letters, and confessions written to that person. Thousands of names have messages waiting to be read.
-          </p>
-          <p>
-            Search for common names like Sarah, James, Emily, Michael, Alex, Jessica, David, Emma, Chris, or Ashley
-            to discover what someone wished they could say. Every name has a story.
-          </p>
-          <ul>
-            <li><Link href="/name/sarah">Unsent messages to Sarah</Link></li>
-            <li><Link href="/name/james">Unsent messages to James</Link></li>
-            <li><Link href="/name/emily">Unsent messages to Emily</Link></li>
-            <li><Link href="/name/michael">Unsent messages to Michael</Link></li>
-            <li><Link href="/name/alex">Unsent messages to Alex</Link></li>
-            <li><Link href="/name/jessica">Unsent messages to Jessica</Link></li>
-            <li><Link href="/name/david">Unsent messages to David</Link></li>
-            <li><Link href="/name/emma">Unsent messages to Emma</Link></li>
-            <li><Link href="/name/chris">Unsent messages to Chris</Link></li>
-            <li><Link href="/name/ashley">Unsent messages to Ashley</Link></li>
-            <li><Link href="/name/daniel">Unsent messages to Daniel</Link></li>
-            <li><Link href="/name/sophia">Unsent messages to Sophia</Link></li>
-            <li><Link href="/name/ryan">Unsent messages to Ryan</Link></li>
-            <li><Link href="/name/olivia">Unsent messages to Olivia</Link></li>
-            <li><Link href="/name/josh">Unsent messages to Josh</Link></li>
-            <li><Link href="/name/hannah">Unsent messages to Hannah</Link></li>
-            <li><Link href="/name/matt">Unsent messages to Matt</Link></li>
-            <li><Link href="/name/rachel">Unsent messages to Rachel</Link></li>
-            <li><Link href="/name/john">Unsent messages to John</Link></li>
-            <li><Link href="/name/anna">Unsent messages to Anna</Link></li>
-          </ul>
-        </section>
+        {/* Hidden SEO: Name search curiosity — dynamically populated from real user data */}
+        {popularNames.length > 0 && (
+          <section aria-label="Search for messages about you" className="sr-only">
+            <h2>Did Someone Write an Unsent Message About You?</h2>
+            <p>
+              Curious if someone wrote about you? Search any name to find anonymous unsent messages,
+              love letters, and confessions written to that person. Thousands of names have messages waiting to be read.
+            </p>
+            <ul>
+              {popularNames.map(({ slug, display }) => (
+                <li key={slug}>
+                  <Link href={`/name/${encodeURIComponent(slug)}`}>
+                    Unsent messages to {display}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* FAQ content is not rendered in the UI; FAQPage JSON-LD below is used only for SEO. */}
       </main>
@@ -847,27 +837,6 @@ export default function Home() {
                 text: item.answer,
               },
             })),
-          }),
-        }}
-      />
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            name: "If Only I Sent This",
-            alternateName: "IOIST",
-            url: "https://www.ifonlyisentthis.com",
-            potentialAction: {
-              "@type": "SearchAction",
-              target: "https://www.ifonlyisentthis.com/memories?q={search_term_string}",
-              "query-input": "required name=search_term_string",
-            },
-            inLanguage: "en",
-            description:
-              "A modern archive for unsent memories, anonymous confessions, and heartfelt messages you were never ready to send.",
           }),
         }}
       />

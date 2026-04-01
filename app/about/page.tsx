@@ -7,6 +7,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/about',
   },
+  openGraph: {
+    title: "About – If Only I Sent This",
+    description: "Learn about our mission to give your unspoken thoughts a safe, anonymous home. If Only I Sent This is a modern archive for unsent letters.",
+    url: 'https://www.ifonlyisentthis.com/about',
+    siteName: 'If Only I Sent This',
+    type: 'website',
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'If Only I Sent This' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "About – If Only I Sent This",
+    description: "Learn about our mission to give your unspoken thoughts a safe, anonymous home.",
+    images: ['/opengraph-image.png'],
+  },
 };
 
 export default function About() {

@@ -14,14 +14,25 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json();
-    
+    const { message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible } = body;
+    const sanitized = {
+      message: String(message || '').slice(0, 500),
+      expires_at: String(expires_at || ''),
+      ...(link_url ? { link_url: String(link_url).slice(0, 2000) } : {}),
+      ...(background_color ? { background_color: String(background_color).slice(0, 20) } : {}),
+      ...(text_color ? { text_color: String(text_color).slice(0, 20) } : {}),
+      ...(icon ? { icon: String(icon).slice(0, 10) } : {}),
+      ...(title ? { title: String(title).slice(0, 200) } : {}),
+      is_dismissible: typeof is_dismissible === 'boolean' ? is_dismissible : true,
+    };
+
     // Delete all existing announcements first
     await primaryDB.from('announcements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    
+
     // Create new announcement
     const { data, error } = await primaryDB
       .from('announcements')
-      .insert([body])
+      .insert([sanitized])
       .select()
       .single();
     

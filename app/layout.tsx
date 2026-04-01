@@ -25,9 +25,6 @@ export const metadata = {
   description:
     "Write and share unsent letters, anonymous confessions, and heartfelt messages you never had the courage to send. Free, no account needed.",
   other: {
-    'cache-control': 'no-cache, no-store, must-revalidate',
-    'pragma': 'no-cache',
-    'expires': '0',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
     'mobile-web-app-capable': 'yes',
@@ -224,20 +221,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Script>
           </>
         )}
-        <Script
-          id="ld-json-org"
+        <script
           type="application/ld+json"
-          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify([
               {
                 "@context": "https://schema.org",
                 "@type": "Organization",
                 "url": "https://www.ifonlyisentthis.com",
-                "logo": "https://www.ifonlyisentthis.com/favicon.ico",
+                "logo": "https://www.ifonlyisentthis.com/android-chrome-512x512.png",
                 "name": "If Only I Sent This",
                 "description": "A modern archive for unsent memories, anonymous confessions, and heartfelt messages you were never ready to send. The instant, glitch-free alternative to unsent message projects.",
-                "sameAs": []
+                "sameAs": ["https://buymeacoffee.com/ifonlyisentthis"]
               },
               {
                 "@context": "https://schema.org",
@@ -316,8 +311,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 } catch(e) {}
 
                 try {
-                  // 3) Clear storage (localStorage, sessionStorage, IndexedDB)
+                  // 3) Selective localStorage clear — preserve identity and cache
+                  var keysToKeep = ['user_uuid', 'app_version', 'ultraMemoryCache'];
+                  var preserved = {};
+                  keysToKeep.forEach(function(k) {
+                    var v = localStorage.getItem(k);
+                    if (v !== null) preserved[k] = v;
+                  });
                   localStorage.clear();
+                  Object.keys(preserved).forEach(function(k) {
+                    localStorage.setItem(k, preserved[k]);
+                  });
                 } catch(e) {}
 
                 try {

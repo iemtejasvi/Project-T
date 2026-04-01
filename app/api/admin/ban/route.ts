@@ -14,10 +14,16 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json();
-    
+    const { ip, uuid, reason } = body;
+    const sanitized = {
+      ...(ip ? { ip: String(ip).slice(0, 45) } : {}),
+      ...(uuid ? { uuid: String(uuid).slice(0, 36) } : {}),
+      ...(reason ? { reason: String(reason).slice(0, 500) } : {}),
+    };
+
     const { error } = await primaryDB
       .from('banned_users')
-      .insert([body]);
+      .insert([sanitized]);
     
     if (error) {
       return createSecureErrorResponse(error.message || 'Failed to ban user', 500, { origin });

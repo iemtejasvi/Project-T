@@ -103,22 +103,6 @@ export default function NameArchivePage() {
     return Math.min(totalCount, page * pageSize + memories.length);
   }, [page, pageSize, memories.length, totalCount]);
 
-  // noindex for pages with fewer than 3 messages (thin content)
-  useEffect(() => {
-    if (!loading && totalCount < 3 && nameExists) {
-      let meta = document.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.name = 'robots';
-        document.head.appendChild(meta);
-      }
-      meta.content = 'noindex, follow';
-      return () => {
-        if (meta && meta.parentNode) meta.parentNode.removeChild(meta);
-      };
-    }
-  }, [loading, totalCount, nameExists]);
-
   // SEO structured data with ItemList
   const structuredData = useMemo(() => {
     if (!displayNameStr || !nameExists) return null;

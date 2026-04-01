@@ -24,6 +24,7 @@ interface RateLimitResult {
 
 // In-memory fallback store (used when Redis is unavailable)
 const rateLimitStore = new Map<string, RateLimitEntry>();
+const MAX_STORE_SIZE = 50_000;
 
 // Different rate limits for different endpoints
 export const RATE_LIMITS = {
@@ -123,6 +124,15 @@ function inMemoryCheckRateLimit(identifier: string, config: RateLimitConfig): Ra
 
   // Reset if window expired or no entry exists
   if (!entry || entry.resetTime < now) {
+    // Evict oldest 20% if store is at capacity
+    if (rateLimitStore.size >= MAX_STORE_SIZE) {
+      const entries = Array.from(rateLimitStore.entries())
+        .sort((a, b) => a[1].resetTime - b[1].resetTime);
+      const toRemove = Math.max(1, Math.floor(entries.length * 0.2));
+      for (let i = 0; i < toRemove; i++) {
+        rateLimitStore.delete(entries[i][0]);
+      }
+    }
     entry = { count: 1, resetTime: now + config.windowMs };
     rateLimitStore.set(identifier, entry);
   } else {

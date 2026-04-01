@@ -90,11 +90,13 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
         url: `https://www.ifonlyisentthis.com/memories/${id}`,
         siteName: 'If Only I Sent This',
         type: 'article',
+        images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: title }],
       },
       twitter: {
         card: 'summary',
         title: longTitle,
         description,
+        images: ['/opengraph-image.png'],
       },
     };
   } catch {

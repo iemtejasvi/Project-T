@@ -14,10 +14,16 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json();
-    
+    const { ip, uuid, reason } = body;
+    const sanitized = {
+      ...(ip ? { ip: String(ip).slice(0, 45) } : {}),
+      ...(uuid ? { uuid: String(uuid).slice(0, 36) } : {}),
+      ...(reason ? { reason: String(reason).slice(0, 500) } : {}),
+    };
+
     const { error } = await primaryDB
       .from('unlimited_users')
-      .insert([body]);
+      .insert([sanitized]);
     
     if (error) {
       return createSecureErrorResponse(error.message || 'Failed to add user', 500, { origin });
@@ -76,10 +82,15 @@ export async function PATCH(request: NextRequest) {
   
   try {
     const body = await request.json();
-    
+    const { id, word_limit_disabled_until } = body;
+    const sanitized = {
+      id: id ?? 1,
+      ...(word_limit_disabled_until !== undefined ? { word_limit_disabled_until } : {}),
+    };
+
     const { error } = await primaryDB
       .from('site_settings')
-      .upsert(body);
+      .upsert(sanitized);
     
     if (error) {
       return createSecureErrorResponse(error.message || 'Failed to update settings', 500, { origin });

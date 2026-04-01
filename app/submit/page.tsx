@@ -988,7 +988,6 @@ export default function SubmitPage() {
         }
       } else {
         // Successfully submitted - user already sees success
-        console.log('Memory submitted successfully in background');
       }
     }).catch(err => {
       // Network or parsing error - log but don't disturb user experience

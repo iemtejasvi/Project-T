@@ -7,6 +7,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/terms',
   },
+  openGraph: {
+    title: "Terms & Conditions – If Only I Sent This",
+    description: "Terms for using If Only I Sent This. Submit content you own, keep it respectful, and your anonymous voice stays protected.",
+    url: 'https://www.ifonlyisentthis.com/terms',
+    siteName: 'If Only I Sent This',
+    type: 'website',
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'If Only I Sent This' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Terms & Conditions – If Only I Sent This",
+    description: "Terms for using If Only I Sent This. Submit content you own, keep it respectful, and your anonymous voice stays protected.",
+    images: ['/opengraph-image.png'],
+  },
 };
 
 export default function TermsPage() {

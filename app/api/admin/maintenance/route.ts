@@ -13,10 +13,18 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json();
-    
+    const { id, is_active, message, started_at, expected_end } = body;
+    const sanitized = {
+      id: id ?? 1,
+      is_active: typeof is_active === 'boolean' ? is_active : false,
+      ...(message ? { message: String(message).slice(0, 500) } : {}),
+      ...(started_at ? { started_at: String(started_at) } : {}),
+      ...(expected_end ? { expected_end: String(expected_end) } : {}),
+    };
+
     const { error } = await primaryDB
       .from('maintenance')
-      .upsert(body);
+      .upsert(sanitized);
     
     if (error) {
       return createSecureErrorResponse(error.message || 'Failed to update maintenance', 500, { origin });

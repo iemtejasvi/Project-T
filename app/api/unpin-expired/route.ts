@@ -2,12 +2,22 @@ import { NextRequest } from 'next/server';
 import { unpinExpiredMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
 
   try {
+    // Require admin authentication or cron secret
+    const cronSecret = process.env.CRON_SECRET;
+    const authHeader = request.headers.get('authorization');
+    const isCron = cronSecret && authHeader === `Bearer ${cronSecret}`;
+
+    if (!isAdminAuthenticated(request) && !isCron) {
+      return createSecureErrorResponse('Unauthorized', 401, { origin });
+    }
+
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       request.headers.get('x-real-ip') ||
       'anonymous';

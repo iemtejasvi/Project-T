@@ -7,6 +7,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/contact',
   },
+  openGraph: {
+    title: "Contact Us – If Only I Sent This",
+    description: "Questions, feedback, or content removal requests — reach the If Only I Sent This team. We typically respond within 24 hours.",
+    url: 'https://www.ifonlyisentthis.com/contact',
+    siteName: 'If Only I Sent This',
+    type: 'website',
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'If Only I Sent This' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Contact Us – If Only I Sent This",
+    description: "Questions, feedback, or content removal requests — reach the If Only I Sent This team.",
+    images: ['/opengraph-image.png'],
+  },
 };
 
 export default function Contact() {

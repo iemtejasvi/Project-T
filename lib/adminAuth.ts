@@ -150,7 +150,6 @@ export function isAdminAuthenticated(request: NextRequest): boolean {
   if (adminIP) {
     const clientIP = getClientIP(request);
     if (clientIP === adminIP) {
-      console.log('✅ Admin IP detected - auto-authenticated');
       return true;
     }
   }

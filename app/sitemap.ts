@@ -132,5 +132,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating name sitemap entries:', err);
   }
 
+  // Dynamic individual memory pages
+  try {
+    const supabase = getSupabase();
+    if (supabase) {
+      const nowIso = new Date().toISOString();
+      const MEM_PAGE_SIZE = 5000;
+      let memPage = 0;
+      let hasMoreMems = true;
+      while (hasMoreMems) {
+        const { data } = await supabase
+          .from('memories')
+          .select('id, created_at')
+          .eq('status', 'approved')
+          .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
+          .is('destruct_at', null)
+          .order('created_at', { ascending: false })
+          .range(memPage * MEM_PAGE_SIZE, (memPage + 1) * MEM_PAGE_SIZE - 1);
+        if (!data || data.length === 0) { hasMoreMems = false; break; }
+        for (const row of data) {
+          routes.push({
+            url: `${baseUrl}/memories/${row.id}`,
+            lastModified: new Date(row.created_at),
+            changeFrequency: 'monthly' as const,
+            priority: 0.5,
+          });
+        }
+        if (data.length < MEM_PAGE_SIZE) hasMoreMems = false;
+        memPage++;
+      }
+    }
+  } catch (err) {
+    console.error('Error generating memory sitemap entries:', err);
+  }
+
   return routes
 }
