@@ -1,4 +1,13 @@
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Us – If Only I Sent This",
+  description: "Questions, feedback, or content removal requests — reach the If Only I Sent This team. We typically respond within 24 hours.",
+  alternates: {
+    canonical: '/contact',
+  },
+};
 
 export default function Contact() {
   return (

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
                request.headers.get('x-real-ip') || 
                'anonymous';
     const rateLimitKey = generateRateLimitKey(ip, null, 'read');
-    const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.READ_MEMORIES);
+    const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.READ_MEMORIES);
     
     if (!rateLimit.allowed) {
       return createSecureErrorResponse(

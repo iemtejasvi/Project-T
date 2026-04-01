@@ -1,15 +1,18 @@
 import { MetadataRoute } from 'next'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { isLinkableName } from '@/lib/nameUtils'
 
-// Use service role to bypass RLS for sitemap generation
+// Module-level singleton — reused across requests in the same Lambda
+let _supabase: SupabaseClient | null | undefined;
 function getSupabase() {
+  if (_supabase !== undefined) return _supabase;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key, {
+  if (!url || !key) { _supabase = null; return null; }
+  _supabase = createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+  return _supabase;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -43,6 +46,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/about`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/donate`,
       lastModified: currentDate,
       changeFrequency: 'monthly' as const,
@@ -72,23 +81,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const supabase = getSupabase();
     if (supabase) {
-      // Fetch distinct recipient names (approved, revealed)
       const nowIso = new Date().toISOString();
-      const { data: recipients } = await supabase
-        .from('memories')
-        .select('recipient')
-        .eq('status', 'approved')
-        .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
-        .limit(5000);
 
-      // Fetch distinct sender names
-      const { data: senders } = await supabase
-        .from('memories')
-        .select('sender')
-        .eq('status', 'approved')
-        .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
-        .not('sender', 'is', null)
-        .limit(5000);
+      // Fetch recipients and senders in parallel
+      const [{ data: recipients }, { data: senders }] = await Promise.all([
+        supabase
+          .from('memories')
+          .select('recipient')
+          .eq('status', 'approved')
+          .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
+          .limit(5000),
+        supabase
+          .from('memories')
+          .select('sender')
+          .eq('status', 'approved')
+          .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
+          .not('sender', 'is', null)
+          .limit(5000),
+      ]);
 
       // Collect names and count occurrences
       const nameCounts = new Map<string, number>();

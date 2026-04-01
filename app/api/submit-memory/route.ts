@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { insertMemory, countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { validateMemoryInput, sanitizeString } from '@/lib/inputSanitizer';
@@ -61,11 +61,6 @@ const memoryLimitMessages = [
 ];
 
 // Type definitions for API responses
-interface IPServiceResponse {
-  ip?: string;
-  origin?: string;
-  query?: string;
-}
 
 interface CountryServiceResponse {
   status?: string;
@@ -77,12 +72,8 @@ interface CountryServiceResponse {
   query?: string;
 }
 
-// Cache for IP detection to avoid repeated API calls
-const ipCache = new Map<string, { ip: string | null; timestamp: number }>();
-const IP_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for IP cache
-
 async function getClientIP(request: NextRequest): Promise<string | null> {
-  // Try multiple headers for IP detection first
+  // On Vercel, x-forwarded-for is always present. Check headers only — no external calls.
   const forwardedFor = request.headers.get('x-forwarded-for');
   const realIP = request.headers.get('x-real-ip');
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
@@ -90,8 +81,7 @@ async function getClientIP(request: NextRequest): Promise<string | null> {
   const xClusterClientIP = request.headers.get('x-cluster-client-ip');
   const xOriginalForwardedFor = request.headers.get('x-original-forwarded-for');
   const forwarded = request.headers.get('forwarded');
-  
-  // Check all possible IP headers
+
   const possibleIPs = [
     forwardedFor?.split(',')[0]?.trim(),
     realIP,
@@ -101,138 +91,43 @@ async function getClientIP(request: NextRequest): Promise<string | null> {
     xOriginalForwardedFor?.split(',')[0]?.trim(),
     forwarded?.match(/for=([^;,\s]+)/)?.[1]?.replace(/"/g, '')
   ].filter(Boolean);
-  
-  // Return first valid public IP from headers
+
   for (const ip of possibleIPs) {
     if (ip && isValidPublicIP(ip)) {
-      console.log(`✅ Found valid public IP from headers: ${ip}`);
       return ip;
     }
   }
-  
-  // If no valid public IP from headers, try external IP detection services
-  console.log('🔍 No valid public IP in headers, trying external detection...');
-  return await getPublicIPFromServices();
+
+  return null;
 }
 
 function isValidPublicIP(ip: string): boolean {
   if (!ip) return false;
-  
-  // Remove any port numbers
-  const cleanIP = ip.split(':')[0];
-  
-  // Check if it's localhost or private IP
-  const isLocalhost = cleanIP === '::1' || cleanIP === '127.0.0.1' || cleanIP === 'localhost';
-  const isPrivate = cleanIP.startsWith('192.168.') || 
-                   cleanIP.startsWith('10.') || 
-                   cleanIP.startsWith('172.16.') || cleanIP.startsWith('172.17.') ||
-                   cleanIP.startsWith('172.18.') || cleanIP.startsWith('172.19.') ||
-                   cleanIP.startsWith('172.2') || cleanIP.startsWith('172.3') ||
-                   cleanIP.startsWith('169.254.'); // Link-local
-  
+
+  // IPv6: accept any non-localhost IPv6 address as valid public
+  if (ip === '::1') return false;
+  if (ip.includes('::') || (ip.match(/:/g) || []).length > 1) {
+    // It's an IPv6 address — treat as valid public IP
+    return true;
+  }
+
+  // IPv4: strip port suffix if present (e.g. "1.2.3.4:8080")
+  const cleanIP = ip.includes(':') ? ip.split(':')[0] : ip;
+
+  const isLocalhost = cleanIP === '127.0.0.1' || cleanIP === 'localhost';
+
+  // RFC 1918 private ranges + link-local
+  let isPrivate = cleanIP.startsWith('192.168.') ||
+                  cleanIP.startsWith('10.') ||
+                  cleanIP.startsWith('169.254.');
+
+  // 172.16.0.0 - 172.31.255.255: check second octet numerically
+  if (!isPrivate && cleanIP.startsWith('172.')) {
+    const secondOctet = parseInt(cleanIP.split('.')[1], 10);
+    if (secondOctet >= 16 && secondOctet <= 31) isPrivate = true;
+  }
+
   return !isLocalhost && !isPrivate && cleanIP.length > 6;
-}
-
-async function getPublicIPFromServices(): Promise<string | null> {
-  // Check cache first
-  const cacheKey = 'public_ip';
-  const cached = ipCache.get(cacheKey);
-  if (cached && (Date.now() - cached.timestamp) < IP_CACHE_DURATION) {
-    console.log(`🎯 IP Cache hit: ${cached.ip}`);
-    return cached.ip;
-  }
-
-  // Array of public IP detection services with fallbacks
-  const ipServices = [
-    {
-      name: 'ipify',
-      url: 'https://api.ipify.org?format=json',
-      extractIP: (data: IPServiceResponse) => data.ip,
-      timeout: 3000,
-      isJson: true
-    },
-    {
-      name: 'ipapi.co',
-      url: 'https://ipapi.co/ip/',
-      extractIP: (data: string) => data.trim(),
-      timeout: 3000,
-      isJson: false
-    },
-    {
-      name: 'ip-api.com',
-      url: 'http://ip-api.com/json/?fields=query',
-      extractIP: (data: IPServiceResponse) => data.query,
-      timeout: 3000,
-      isJson: true
-    },
-    {
-      name: 'httpbin',
-      url: 'https://httpbin.org/ip',
-      extractIP: (data: IPServiceResponse) => data.origin,
-      timeout: 4000,
-      isJson: true
-    },
-    {
-      name: 'ipinfo.io',
-      url: 'https://ipinfo.io/ip',
-      extractIP: (data: string) => data.trim(),
-      timeout: 3000,
-      isJson: false
-    },
-    {
-      name: 'icanhazip',
-      url: 'https://icanhazip.com',
-      extractIP: (data: string) => data.trim(),
-      timeout: 3000,
-      isJson: false
-    }
-  ];
-
-  for (const service of ipServices) {
-    try {
-      console.log(`Trying ${service.name} for IP detection...`);
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), service.timeout);
-      
-      const response = await fetch(service.url, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; MemoryApp/1.0)',
-          'Accept': service.isJson ? 'application/json' : 'text/plain'
-        }
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (response.ok) {
-        const data = service.isJson ? await response.json() : await response.text();
-        const ip = service.extractIP(data);
-        
-        if (ip && isValidPublicIP(ip)) {
-          console.log(`✅ ${service.name} detected IP: ${ip}`);
-          // Cache the successful result
-          ipCache.set(cacheKey, { ip, timestamp: Date.now() });
-          return ip;
-        } else {
-          console.log(`⚠️ ${service.name} returned invalid IP: ${ip}`);
-        }
-      } else {
-        console.log(`❌ ${service.name} HTTP error: ${response.status}`);
-      }
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.log(`⏱️ ${service.name} IP detection timed out`);
-      } else {
-        console.log(`❌ ${service.name} IP error:`, error instanceof Error ? error.message : String(error));
-      }
-    }
-  }
-
-  console.log('🚨 All IP detection services failed');
-  // Cache the failed result to avoid repeated attempts
-  ipCache.set(cacheKey, { ip: null, timestamp: Date.now() });
-  return null;
 }
 
 function getCookieValue(request: NextRequest, name: string): string | null {
@@ -249,9 +144,10 @@ function getCookieValue(request: NextRequest, name: string): string | null {
   return null;
 }
 
-// Simple in-memory cache for IP to country mapping
+// Simple in-memory cache for IP to country mapping (capped to prevent unbounded growth)
 const countryCache = new Map<string, { country: string | null; timestamp: number }>();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const MAX_CACHE_SIZE = 10_000;
 
 async function getCountryFromIP(ip: string): Promise<{ country: string | null; timezone?: string | null; detectedIP?: string }> {
   // Check cache first
@@ -365,6 +261,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; t
           
           // Cache the successful result (use detected IP if available)
           const cacheKey = detectedIP || ip;
+          if (countryCache.size >= MAX_CACHE_SIZE) countryCache.clear();
           countryCache.set(cacheKey, { country, timestamp: Date.now() });
           
           return { country, timezone: timezone || undefined, detectedIP: detectedIP || undefined };
@@ -385,6 +282,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; t
 
   console.log('🚨 All geolocation services failed for IP:', ip);
   // Cache the failed result to avoid repeated attempts for same IP
+  if (countryCache.size >= MAX_CACHE_SIZE) countryCache.clear();
   countryCache.set(ip, { country: null, timestamp: Date.now() });
   return { country: null };
 }
@@ -413,7 +311,7 @@ export async function POST(request: NextRequest) {
     
     // 3. SECURITY: Rate limiting - check BEFORE parsing body
     const rateLimitKey = generateRateLimitKey(clientIP, clientUUID, 'submit');
-    const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.SUBMIT_MEMORY);
+    const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.SUBMIT_MEMORY);
     
     if (!rateLimit.allowed) {
       return createSecureErrorResponse(
@@ -452,20 +350,8 @@ export async function POST(request: NextRequest) {
     let isUnlimited = false;
     let globalOverrideActive = false;
 
-    // SUPER-ROBUST FALLBACK: If IP detection completely fails,
-    // try country services that can auto-detect IP too!
     let country = null;
     let detectedTimezone: string | null = null;
-    if (!clientIP) {
-      console.log('🔄 IP detection failed, trying country services for IP auto-detection...');
-      const result = await getCountryFromIP('auto');
-      if (result.detectedIP) {
-        clientIP = result.detectedIP;
-        country = result.country;
-        detectedTimezone = result.timezone || null;
-        console.log(`🎯 Country service detected IP: ${clientIP} and country: ${country}`);
-      }
-    }
 
     // Owner exemption and localhost - skip all checks
     const host = request.headers.get('host') || '';
@@ -482,29 +368,31 @@ export async function POST(request: NextRequest) {
     console.log(`🏠 Host: ${host}, IP: ${clientIP}, isLocalhost: ${isLocalhost}, isOwner: ${isOwner}`);
 
     if (!isOwner && !isLocalhost) {
-      // Determine global override and unlimited status
-      {
-        const { data: settingsData } = await primaryDB
-          .from('site_settings')
-          .select('word_limit_disabled_until')
-          .eq('id', 1)
-          .single();
-        const until = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
-        globalOverrideActive = until ? new Date() < until : false;
-      }
-      if (clientIP || clientUUID) {
-        const unlimitedQueries: string[] = [];
-        if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
-        if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
-        if (unlimitedQueries.length) {
-          const { data: unData } = await primaryDB
-            .from('unlimited_users')
-            .select('id')
-            .or(unlimitedQueries.join(','))
-            .limit(1);
-          isUnlimited = !!(unData && unData.length);
-        }
-      }
+      // Run site_settings and unlimited_users queries in parallel
+      const settingsPromise = primaryDB
+        .from('site_settings')
+        .select('word_limit_disabled_until')
+        .eq('id', 1)
+        .single();
+
+      const unlimitedPromise = (clientIP || clientUUID)
+        ? (() => {
+            const unlimitedQueries: string[] = [];
+            if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
+            if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
+            return primaryDB
+              .from('unlimited_users')
+              .select('id')
+              .or(unlimitedQueries.join(','))
+              .limit(1);
+          })()
+        : Promise.resolve({ data: null });
+
+      const [settingsResult, unlimitedResult] = await Promise.all([settingsPromise, unlimitedPromise]);
+
+      const until = settingsResult.data?.word_limit_disabled_until ? new Date(settingsResult.data.word_limit_disabled_until) : null;
+      globalOverrideActive = until ? new Date() < until : false;
+      isUnlimited = !!(unlimitedResult.data && (unlimitedResult.data as unknown[]).length);
     }
 
     const allowLongWords = isOwner || isLocalhost || isUnlimited || globalOverrideActive;
@@ -595,95 +483,57 @@ export async function POST(request: NextRequest) {
       {
         const wordCount = message.trim().split(/[\s.]+/).filter((word) => word.length > 0).length;
         if (wordCount > 50 && !isUnlimited && !globalOverrideActive) {
-          return NextResponse.json(
-            { error: 'Message exceeds 50 word limit.' },
-            { status: 400 }
-          );
+          return createSecureErrorResponse('Message exceeds 50 word limit.', 400, { origin });
         }
       }
-      // Enhanced ban check - multiple validation layers
+      // Ban check + memory count check in parallel
       if (clientIP || clientUUID) {
         try {
-          // Check if banned by IP or UUID with comprehensive query
           const banQueries = [];
           if (clientIP) banQueries.push(`ip.eq.${clientIP}`);
           if (clientUUID) banQueries.push(`uuid.eq.${clientUUID}`);
-          
-          if (banQueries.length > 0) {
-            const { data: banData, error: banError } = await primaryDB
-              .from('banned_users')
-              .select('id, ip, uuid, country')
-              .or(banQueries.join(','))
-              .limit(1);
 
-            if (banError) {
-              console.error('Ban check error:', banError);
-              return NextResponse.json(
-                { error: 'Server error during validation. Please try again.' },
-                { status: 500 }
-              );
-            }
+          // Start ban check
+          const banPromise = banQueries.length > 0
+            ? primaryDB
+                .from('banned_users')
+                .select('id')
+                .or(banQueries.join(','))
+                .limit(1)
+            : Promise.resolve({ data: null, error: null });
 
-            if (banData && banData.length > 0) {
-              return NextResponse.json(
-                { error: 'You are banned from submitting memories.' },
-                { status: 403 }
-              );
-            }
+          // Start count checks in parallel with ban check
+          const needsCountCheck = !isUnlimited && !globalOverrideActive;
+          const countPromise = needsCountCheck
+            ? Promise.all([
+                clientIP ? countMemories({ ip: clientIP }) : Promise.resolve({ count: 0 }),
+                clientUUID ? countMemories({ uuid: clientUUID }) : Promise.resolve({ count: 0 }),
+              ])
+            : Promise.resolve(null);
+
+          const [banResult, countResults] = await Promise.all([banPromise, countPromise]);
+
+          // Check ban result
+          if (banResult.error) {
+            console.error('Ban check error:', banResult.error);
+            return createSecureErrorResponse('Server error during validation. Please try again.', 500, { origin });
+          }
+          if (banResult.data && (banResult.data as unknown[]).length > 0) {
+            return createSecureErrorResponse('You are banned from submitting memories.', 403, { origin });
           }
 
-          // Enhanced memory count check - multiple validation approaches
-          const memoryQueries = [];
-          if (clientIP) memoryQueries.push(`ip.eq.${clientIP}`);
-          if (clientUUID) memoryQueries.push(`uuid.eq.${clientUUID}`);
-          
-          if (!isUnlimited && !globalOverrideActive && memoryQueries.length > 0) {
-            // First check: Count by IP/UUID across both databases
-            if (clientIP && clientUUID) {
-              // If we have both, check both IP and UUID across both databases
-              const ipResult = await countMemories({ ip: clientIP });
-              const uuidResult = await countMemories({ uuid: clientUUID });
-              const totalCount = Math.max(ipResult.count, uuidResult.count);
-
-              if (totalCount >= 6) {
-                const randomMessage = memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)];
-                return NextResponse.json(
-                  { error: randomMessage },
-                  { status: 429 }
-                );
-              }
-            } else {
-              // Second check: Additional IP validation (in case UUID is spoofed)
-              if (clientIP) {
-                const { count: ipCount } = await countMemories({ ip: clientIP });
-                if (ipCount >= 6) {
-                  const randomMessage = memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)];
-                  return NextResponse.json(
-                    { error: randomMessage },
-                    { status: 429 }
-                  );
-                }
-              }
-
-              // Third check: Additional UUID validation (in case IP is spoofed)
-              if (clientUUID) {
-                const { count: uuidCount } = await countMemories({ uuid: clientUUID });
-                if (uuidCount >= 6) {
-                  const randomMessage = memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)];
-                  return NextResponse.json(
-                    { error: randomMessage },
-                    { status: 429 }
-                  );
-                }
-              }
+          // Check count result
+          if (countResults) {
+            const [ipResult, uuidResult] = countResults;
+            const totalCount = Math.max(ipResult.count, uuidResult.count);
+            if (totalCount >= 6) {
+              const randomMessage = memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)];
+              return createSecureErrorResponse(randomMessage, 429, { origin });
             }
           }
         } catch (error) {
           console.error('Validation error:', error);
-          return NextResponse.json(
-            { error: 'Server error during validation. Please try again.' },
-            { status: 500 }
-          );
+          return createSecureErrorResponse('Server error during validation. Please try again.', 500, { origin });
         }
       }
     }

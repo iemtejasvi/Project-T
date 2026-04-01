@@ -1,4 +1,13 @@
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy – If Only I Sent This",
+  description: "How we protect your privacy. Minimal data collection, no selling information, and your anonymous messages stay safe.",
+  alternates: {
+    canonical: '/privacy-policy',
+  },
+};
 
 export default function PrivacyPolicy() {
   return (

@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     
     // 3. SECURITY: Rate limiting
     const rateLimitKey = generateRateLimitKey(clientIP, clientUUID, 'status');
-    const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.CHECK_STATUS);
+    const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.CHECK_STATUS);
     
     if (!rateLimit.allowed) {
       return createSecureErrorResponse(
@@ -111,66 +111,51 @@ export async function POST(request: NextRequest) {
 
     if (!globalOverrideActive && (clientIP || clientUUID)) {
       try {
-        // Check ban status with multiple criteria
         const banQueries = [];
         if (clientIP) banQueries.push(`ip.eq.${clientIP}`);
         if (clientUUID) banQueries.push(`uuid.eq.${clientUUID}`);
-        
-        if (banQueries.length > 0) {
-          const { data: banData, error: banError } = await primaryDB
-            .from('banned_users')
-            .select('id')
-            .or(banQueries.join(','))
-            .limit(1);
 
-          if (banError) {
-            console.error('Ban check error:', banError);
-            return createSecureErrorResponse(
-              'Server error during validation.',
-              500,
-              { origin }
-            );
-          }
+        // Run ban check, count checks, and unlimited check all in parallel
+        const banPromise = banQueries.length > 0
+          ? primaryDB.from('banned_users').select('id').or(banQueries.join(',')).limit(1)
+          : Promise.resolve({ data: null, error: null });
 
-          isBanned = banData && banData.length > 0;
+        const countPromise = Promise.all([
+          clientIP ? countMemories({ ip: clientIP }) : Promise.resolve({ count: 0 }),
+          clientUUID ? countMemories({ uuid: clientUUID }) : Promise.resolve({ count: 0 }),
+        ]);
+
+        const unlimitedQueries: string[] = [];
+        if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
+        if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
+        const unlimitedPromise = unlimitedQueries.length > 0
+          ? primaryDB.from('unlimited_users').select('id').or(unlimitedQueries.join(',')).limit(1)
+          : Promise.resolve({ data: null });
+
+        const [banResult, countResults, unlimitedResult] = await Promise.all([
+          banPromise, countPromise, unlimitedPromise,
+        ]);
+
+        if (banResult.error) {
+          console.error('Ban check error:', banResult.error);
+          return createSecureErrorResponse('Server error during validation.', 500, { origin });
         }
 
-        // Check memory count with multiple criteria
+        isBanned = !!(banResult.data && (banResult.data as unknown[]).length > 0);
+
         if (!isBanned) {
-          const memoryQueries = [];
-          if (clientIP) memoryQueries.push(`ip.eq.${clientIP}`);
-          if (clientUUID) memoryQueries.push(`uuid.eq.${clientUUID}`);
-          
-          if (memoryQueries.length > 0) {
-            // Count memories across both databases
-            let totalCount = 0;
-            if (clientIP && clientUUID) {
-              const ipResult = await countMemories({ ip: clientIP });
-              const uuidResult = await countMemories({ uuid: clientUUID });
-              totalCount = Math.max(ipResult.count, uuidResult.count);
-            } else if (clientIP) {
-              const result = await countMemories({ ip: clientIP });
-              totalCount = result.count;
-            } else if (clientUUID) {
-              const result = await countMemories({ uuid: clientUUID });
-              totalCount = result.count;
-            }
-            memoryCount = totalCount;
-          }
+          const [ipResult, uuidResult] = countResults;
+          memoryCount = Math.max(ipResult.count, uuidResult.count);
         }
+
+        isUnlimited = !!(unlimitedResult.data && (unlimitedResult.data as unknown[]).length);
       } catch (error) {
         console.error('Validation error:', error);
-        return createSecureErrorResponse(
-          'Server error during validation.',
-          500,
-          { origin }
-        );
+        return createSecureErrorResponse('Server error during validation.', 500, { origin });
       }
-    }
-
-    // Unlimited check (either global override or specific user)
-    if (!isUnlimited && !globalOverrideActive && (clientIP || clientUUID)) {
-      const unlimitedQueries = [];
+    } else if (clientIP || clientUUID) {
+      // Global override active — still check unlimited status
+      const unlimitedQueries: string[] = [];
       if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
       if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
       if (unlimitedQueries.length) {

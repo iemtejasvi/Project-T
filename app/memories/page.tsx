@@ -127,8 +127,6 @@ function MemoriesContent() {
     showLoader = true,
     isLoadMore = false
   ) => {
-    let isMounted = true;
-    
     try {
       const startTime = Date.now();
       const result = await fetchWithUltraCache(
@@ -140,8 +138,6 @@ function MemoriesContent() {
         { maxAge: 60000, staleWhileRevalidate: 120000, prefetchDepth: 5 } // 60s fresh (matches ISR), 2min stale
       );
 
-      if (!isMounted) return;
-      
       // Only show loader for non-cached, slow loads
       if (showLoader && !result.fromCache && (Date.now() - startTime) > 100) {
         if (isLoadMore) {
@@ -171,16 +167,12 @@ function MemoriesContent() {
     } catch (err) {
       console.error("Unexpected error:", err);
     } finally {
-      if (isMounted) {
-        setIsLoadingPage(false);
-        setIsLoadingMore(false);
-        if (initialLoading) {
-          setInitialLoading(false);
-        }
+      setIsLoadingPage(false);
+      setIsLoadingMore(false);
+      if (initialLoading) {
+        setInitialLoading(false);
       }
     }
-    
-    return () => { isMounted = false; };
   }, [pageSize, initialLoading]);
   
   // Initial load and re-fetch when page size changes
@@ -470,7 +462,7 @@ function MemoriesContent() {
             <li>Love letters never sent — first love, unrequited love, lost love</li>
             <li>Apologies that were never delivered — regret and forgiveness</li>
             <li>Goodbye messages — to people, pets, moments in time</li>
-            <li>Music-inspired confessions — songs by The 1975, Taylor Swift, Olivia Rodrigo, and more</li>
+            <li>Music-inspired confessions</li>
             <li>Time capsule messages — locked until their reveal date</li>
             <li>Self-destructing memories — messages that will vanish in the future</li>
             <li>Emotional color-coded messages — blue for sadness, red for passion, yellow for hope</li>

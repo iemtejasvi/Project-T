@@ -1,4 +1,13 @@
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About – If Only I Sent This",
+  description: "Learn about our mission to give your unspoken thoughts a safe, anonymous home. If Only I Sent This is a modern archive for unsent letters.",
+  alternates: {
+    canonical: '/about',
+  },
+};
 
 export default function About() {
   return (

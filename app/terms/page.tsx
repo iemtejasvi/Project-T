@@ -1,4 +1,13 @@
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions – If Only I Sent This",
+  description: "Terms for using If Only I Sent This. Submit content you own, keep it respectful, and your anonymous voice stays protected.",
+  alternates: {
+    canonical: '/terms',
+  },
+};
 
 export default function TermsPage() {
   return (

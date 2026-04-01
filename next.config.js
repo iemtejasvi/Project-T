@@ -3,26 +3,10 @@ const nextConfig = {
   generateEtags: false, // Disable ETags to prevent caching issues
   async headers() {
     return [
-      // Cache control for HTML pages - ensure updates are visible
+      // Security headers on all routes
       {
         source: '/(.*)',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0',
-          },
-          {
-            key: 'Pragma',
-            value: 'no-cache',
-          },
-          {
-            key: 'Expires',
-            value: '0',
-          },
-          {
-            key: 'Vary',
-            value: '*',
-          },
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
@@ -37,18 +21,26 @@ const nextConfig = {
           },
         ],
       },
-      // All other API routes - no caching (must come BEFORE memories override)
+      // Mutation API routes (submit, track, admin) — no caching
       {
-        source: '/api/(.*)',
+        source: '/api/submit-memory',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
+            value: 'no-store',
           },
         ],
       },
-      // Public memory API routes - CDN cached for 60s (ISR pattern)
-      // MUST come AFTER the general /api no-cache rule so it overrides for this path
+      {
+        source: '/api/admin/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store',
+          },
+        ],
+      },
+      // Read-only API routes — CDN cached with ISR pattern
       {
         source: '/api/memories/:path*',
         headers: [
@@ -62,13 +54,16 @@ const nextConfig = {
           },
         ],
       },
-      // Static assets - can be cached longer since they have hashed names
       {
-        source: '/_next/static/(.*)',
+        source: '/api/announcements',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'public, s-maxage=30, stale-while-revalidate=60',
+          },
+          {
+            key: 'Vary',
+            value: 'Accept-Encoding',
           },
         ],
       },

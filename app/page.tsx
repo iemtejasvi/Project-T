@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+
 import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
 import { storage } from "@/lib/persistentStorage";
 import { browserSession } from "@/lib/browserSession";
@@ -48,12 +48,27 @@ const faqItems = [
   {
     question: "How can I submit my own unsent memory?",
     answer:
-      "Use the Confess page to write a short, honest message. Keep paragraphs tight, use clear headings, and focus on one emotion or story per section so your words stay readable.",
+      "Click Confess in the navigation to write a short, honest message. Choose a color, add optional effects, and submit. Your words go live after a quick, compassionate review.",
   },
   {
-    question: "Can I link to external resources or support pages?",
+    question: "Can I search for messages written to me?",
     answer:
-      "You can add links to non-competing, helpful resources. For outbound links, we recommend using rel=\"noopener noreferrer nofollow\" so your browser and search visibility stay safe.",
+      "Yes! Use the search feature on the archive page or visit ifonlyisentthis.com/name/yourname to see all anonymous messages addressed to that name.",
+  },
+  {
+    question: "What makes this different from The Unsent Project?",
+    answer:
+      "Faster moderation (hours, not months), reliable search by name, self-destructing messages, time capsule letters, and a beautiful reading experience — all completely free.",
+  },
+  {
+    question: "What are self-destructing and time capsule messages?",
+    answer:
+      "Self-destructing messages automatically erase their content after a time period you choose. Time capsule messages stay hidden until a future reveal date arrives.",
+  },
+  {
+    question: "Is If Only I Sent This really free?",
+    answer:
+      "Completely free. No account, no subscription, no hidden fees. You can donate to support the platform if you wish.",
   },
 ] as const;
 
@@ -124,10 +139,10 @@ export default function Home() {
     // Warm up cache for instant navigation without over-fetching
     async function warmUpCacheForAllPages() {
       try {
-        // Keep warmup lightweight: only warm the first archive page
+        // Only warm the page size matching the current device
+        const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
         const pagesToWarm = [
-          { page: 0, pageSize: 18 },  // Archive first page (desktop)
-          { page: 0, pageSize: 10 },  // Archive first page (mobile)
+          { page: 0, pageSize: isDesktop ? 18 : 10 },
         ];
 
         await warmUpCache(pagesToWarm);
@@ -147,11 +162,11 @@ export default function Home() {
         // Fetch announcement and recent memories in parallel so the main LCP content isn't delayed by announcement checks
         // Wrap announcement fetch in a timeout so a slow Supabase call can never block the page
         const announcementPromise = Promise.race([
-          supabase
-            .from("announcements")
-            .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible")
-            .eq("is_active", true)
-            .maybeSingle(),
+          fetch('/api/announcements').then(async (res) => {
+            if (!res.ok) return { data: null, error: { message: `HTTP ${res.status}` } };
+            const json = await res.json();
+            return { data: json.data ?? null, error: null };
+          }),
           new Promise<{ data: null; error: { message: string } }>((resolve) =>
             setTimeout(() => resolve({ data: null, error: { message: 'Announcement fetch timeout' } }), 8000)
           ),
@@ -197,9 +212,11 @@ export default function Home() {
             
             // Schedule next check for this announcement
             const timeUntilExpiry = expiryTime.getTime() - now.getTime();
+            // Clamp to 2^31-1 ms (~24.8 days) to avoid 32-bit setTimeout overflow
+            const safeDelay = Math.min(timeUntilExpiry, 2147483647);
             timeoutId = setTimeout(() => {
               if (isMounted) fetchData();
-            }, timeUntilExpiry);
+            }, safeDelay);
           }
         } else {
           if (isMounted) {
@@ -280,7 +297,11 @@ export default function Home() {
       if (!sessionStorage.getItem(viewedKey)) {
         (async () => {
           const result = await Promise.race([
-            supabase.rpc('increment_announcement_view', { announcement_id_in: announcement.id }).then((r) => r),
+            fetch('/api/announcements/track', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ announcement_id: announcement.id, type: 'view' }),
+            }).then((r) => (r.ok ? { error: null } : { error: { message: `HTTP ${r.status}` } })),
             new Promise<null>((r) => setTimeout(() => r(null), 5000)),
           ]);
           if (!result) return; // timeout
@@ -489,7 +510,11 @@ export default function Home() {
                       className="underline hover:opacity-80 transition-opacity ml-2"
                       onClick={async () => {
                         const r = await Promise.race([
-                          supabase.rpc('increment_announcement_click', { announcement_id_in: announcement.id }).then((r) => r),
+                          fetch('/api/announcements/track', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ announcement_id: announcement.id, type: 'click' }),
+                          }).then((res) => (res.ok ? { error: null } : { error: { message: `HTTP ${res.status}` } })),
                           new Promise<null>((r) => setTimeout(() => r(null), 5000)),
                         ]);
                         if (r?.error) console.error('Error tracking click:', r.error);
@@ -541,7 +566,11 @@ export default function Home() {
                     className="underline hover:opacity-80 transition-opacity"
                     onClick={async () => {
                       const r = await Promise.race([
-                        supabase.rpc('increment_announcement_click', { announcement_id_in: announcement.id }).then((r) => r),
+                        fetch('/api/announcements/track', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ announcement_id: announcement.id, type: 'click' }),
+                        }).then((res) => (res.ok ? { error: null } : { error: { message: `HTTP ${res.status}` } })),
                         new Promise<null>((r) => setTimeout(() => r(null), 5000)),
                       ]);
                       if (r?.error) console.error('Error tracking click:', r.error);
@@ -688,43 +717,19 @@ export default function Home() {
           </p>
           <ul>
             <li>
-              <Link href="/memories">Unsent messages archive by feeling</Link>
+              <Link href="/memories">Browse the unsent messages archive</Link>
             </li>
             <li>
-              <Link href="/memories?tag=holiday">Holiday heartbreak unsent notes</Link>
+              <Link href="/submit">Write an anonymous unsent letter</Link>
             </li>
             <li>
-              <Link href="/memories?tag=music">Music-referenced unsent letters</Link>
-            </li>
-            <li>
-              <Link href="/submit">Write an anonymous confession</Link>
+              <Link href="/how-it-works">Learn how the platform works</Link>
             </li>
           </ul>
           <p>
             Topics include unsent text messages, breakup archives, digital journals for emotions, music-inspired
-            confessions, and heartfelt letter writing. All of this copy stays hidden from everyday visitors but gives
-            crawlers context about our niche.
+            confessions, and heartfelt letter writing.
           </p>
-        </section>
-
-        {/* Hidden SEO: relationship query targeting */}
-        <section aria-label="Relationship unsent messages" className="sr-only">
-          <h2>Unsent messages by relationship</h2>
-          <p>
-            Find unsent messages to your ex, love letters never sent, confessions to a boyfriend or girlfriend,
-            and anonymous letters to someone you lost. Whether it's an ex-boyfriend, ex-girlfriend, best friend,
-            or first love — words left unspoken live here.
-          </p>
-          <ul>
-            <li><Link href="/memories">Unsent messages to my ex</Link></li>
-            <li><Link href="/memories">Love letters I never sent</Link></li>
-            <li><Link href="/memories">Dear ex boyfriend unsent letter</Link></li>
-            <li><Link href="/memories">Dear ex girlfriend confession</Link></li>
-            <li><Link href="/memories">Last memories for someone I loved</Link></li>
-            <li><Link href="/memories">Anonymous confession to my crush</Link></li>
-            <li><Link href="/memories">Things I wish I told you</Link></li>
-            <li><Link href="/submit">Write an unsent message to your ex</Link></li>
-          </ul>
         </section>
 
         {/* Hidden SEO: Competitor alternative positioning */}
@@ -745,6 +750,7 @@ export default function Home() {
             <li><Link href="/submit">Submit your unsent message — no account needed</Link></li>
             <li><Link href="/memories">Browse thousands of anonymous confessions</Link></li>
             <li><Link href="/how-it-works">See how it works — instant, reliable, beautiful</Link></li>
+            <li><Link href="/about">Learn more about our mission</Link></li>
           </ul>
         </section>
 
@@ -753,26 +759,19 @@ export default function Home() {
           <h2>Unsent Messages Inspired by Music</h2>
           <p>
             Many of our most powerful unsent messages are inspired by songs about heartbreak, love, and loss.
-            From The 1975&apos;s &quot;About You&quot; and &quot;Somebody Else&quot; to Taylor Swift&apos;s &quot;All Too Well&quot;
-            and Olivia Rodrigo&apos;s &quot;drivers license&quot; — music gives words to feelings we can&apos;t express alone.
-          </p>
-          <p>
-            Write an unsent message inspired by your favorite heartbreak song. Whether it&apos;s Conan Gray&apos;s &quot;Heather,&quot;
-            Hozier&apos;s &quot;Cherry Wine,&quot; Billie Eilish&apos;s &quot;when the party&apos;s over,&quot; or Adele&apos;s &quot;Someone Like You&quot; —
-            this is the place to say what the song couldn&apos;t.
+            Music gives words to feelings we can&apos;t express alone. Write an unsent message inspired by
+            the songs that speak to your heart.
           </p>
           <h3>Popular song-inspired unsent letter themes</h3>
           <ul>
-            <li>About You by The 1975 — unsent letters about someone you still think about</li>
-            <li>Somebody Else by The 1975 — watching your ex move on</li>
-            <li>drivers license by Olivia Rodrigo — first heartbreak confessions</li>
-            <li>All Too Well by Taylor Swift — remembering every detail of a lost love</li>
-            <li>Heather by Conan Gray — loving someone who loves someone else</li>
-            <li>Someone Like You by Adele — wishing your ex well through tears</li>
-            <li>Cherry Wine by Hozier — complicated love letters</li>
-            <li>Sweater Weather by The Neighbourhood — nostalgic love notes</li>
-            <li>happier by Olivia Rodrigo — wanting them happy but not happier</li>
-            <li>exile by Taylor Swift — words left unsaid after a breakup</li>
+            <li>Unsent letters about someone you still think about</li>
+            <li>Watching your ex move on</li>
+            <li>First heartbreak confessions</li>
+            <li>Remembering every detail of a lost love</li>
+            <li>Loving someone who loves someone else</li>
+            <li>Wishing your ex well through tears</li>
+            <li>Complicated love letters</li>
+            <li>Nostalgic love notes</li>
           </ul>
         </section>
 

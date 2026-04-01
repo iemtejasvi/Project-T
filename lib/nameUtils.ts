@@ -31,6 +31,10 @@ export function isLinkableName(name: string | undefined | null): boolean {
   if (trimmed.length < 2) return false;
   if (trimmed.length > 30) return false;
 
+  // Strip trailing/leading punctuation to catch "T.", "A!", "J," etc.
+  const stripped = trimmed.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '');
+  if (stripped.length < 2) return false;
+
   const normalized = trimmed.toLowerCase();
 
   // Block reserved names

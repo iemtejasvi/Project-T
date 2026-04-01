@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Clear the rate limit for this identifier
-    unblockIdentifier(identifier);
+    await unblockIdentifier(identifier);
     
     return createSecureResponse({ 
       success: true, 

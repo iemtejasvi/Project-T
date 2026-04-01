@@ -132,11 +132,12 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
     if (!isDeleting && charIndex === 0) {
       delay += randomOffset;
     }
+    let pauseTimeout: ReturnType<typeof setTimeout>;
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setDisplayedText(currentPrompt.substring(0, charIndex + 1));
         if (charIndex + 1 === currentPrompt.length) {
-          setTimeout(() => setIsDeleting(true), 2000);
+          pauseTimeout = setTimeout(() => setIsDeleting(true), 2000);
         } else {
           setCharIndex(charIndex + 1);
         }
@@ -156,7 +157,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
         }
       }
     }, delay);
-    return () => clearTimeout(timeout);
+    return () => { clearTimeout(timeout); clearTimeout(pauseTimeout); };
   }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
 
   if (isDisabled) {
@@ -202,133 +203,50 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   );
 };
 
+// Static color data — module-level to avoid re-creation on every render
+const allowedColors = new Set([
+  "default", "aqua", "azure", "berry", "brass", "bronze", "clay", "cloud",
+  "copper", "coral", "cream", "cyan", "dune", "garnet", "gold", "honey",
+  "ice", "ivory", "jade", "lilac", "mint", "moss", "night", "ocean",
+  "olive", "peach", "pearl", "pine", "plum", "rose", "rouge", "ruby",
+  "sage", "sand", "sepia", "sky", "slate", "steel", "sunny", "teal", "wine"
+]);
+const colorMapping: Record<string, string> = {
+  plain: "default", cherry: "ruby", sapphire: "azure", lavender: "lilac",
+  turquoise: "cyan", amethyst: "pearl", midnight: "night", emerald: "jade",
+  periwinkle: "sky", lemon: "sunny", graphite: "steel", "dusty-rose": "rose",
+  "vintage-blue": "ice", terracotta: "clay", mustard: "honey", parchment: "ivory",
+  burgundy: "wine", "antique-brass": "brass", "forest-green": "pine",
+  maroon: "garnet", navy: "ocean", khaki: "sand"
+};
+const colorBgMap: Record<string, string> = {
+  default: "#E8E0D0", aqua: "#B8D8D8", azure: "#C0D0DB", berry: "#D1C3D8",
+  brass: "#E0D8C8", bronze: "#DDC7B0", clay: "#E0C5B2", cloud: "#DCDFF1",
+  copper: "#E0C8B3", coral: "#E3C6B2", cream: "#E5E3CD", cyan: "#C2DCDC",
+  dune: "#E2DECA", garnet: "#D8C0C0", gold: "#E3E0C4", honey: "#E3CDC3",
+  ice: "#C7CBCD", ivory: "#E6E5D2", jade: "#C5DCC8", lilac: "#DBC8DD",
+  mint: "#C9E0C9", moss: "#C6D8C2", night: "#C1C3D9", ocean: "#C2C6DA",
+  olive: "#DCDAC2", peach: "#E5CDC7", pearl: "#DCC9DE", pine: "#C2D6C3",
+  plum: "#D7C2C4", rose: "#E2CACB", rouge: "#E0C6C8", ruby: "#E1C3C3",
+  sage: "#DADCC8", sand: "#E5E2CA", sepia: "#D9D5C2", sky: "#DBDFE4",
+  slate: "#D6D8DA", steel: "#D8D9DA", sunny: "#E6E4C9", teal: "#C2DBDA",
+  wine: "#D9C3C4"
+};
+
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "default" }) => {
   const [flipped, setFlipped] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
-    checkDesktop();
+  const [isClient, setIsClient] = useState(false);  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mql.matches);
     setIsClient(true);
-    window.addEventListener("resize", checkDesktop);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener("change", handler);
     return () => {
-      window.removeEventListener("resize", checkDesktop);
+      mql.removeEventListener("change", handler);
     };
   }, []);
 
-  const allowedColors = new Set([
-    "default",
-    "aqua",
-    "azure",
-    "berry",
-    "brass",
-    "bronze",
-    "clay",
-    "cloud",
-    "copper",
-    "coral",
-    "cream",
-    "cyan",
-    "dune",
-    "garnet",
-    "gold",
-    "honey",
-    "ice",
-    "ivory",
-    "jade",
-    "lilac",
-    "mint",
-    "moss",
-    "night",
-    "ocean",
-    "olive",
-    "peach",
-    "pearl",
-    "pine",
-    "plum",
-    "rose",
-    "rouge",
-    "ruby",
-    "sage",
-    "sand",
-    "sepia",
-    "sky",
-    "slate",
-    "steel",
-    "sunny",
-    "teal",
-    "wine"
-  ]);
-  const colorMapping: Record<string, string> = { 
-    plain: "default",
-    cherry: "ruby",
-    sapphire: "azure",
-    lavender: "lilac",
-    turquoise: "cyan",
-    amethyst: "pearl",
-    midnight: "night",
-    emerald: "jade",
-    periwinkle: "sky",
-    lemon: "sunny",
-    graphite: "steel",
-    "dusty-rose": "rose",
-    "vintage-blue": "ice",
-    terracotta: "clay",
-    mustard: "honey",
-    parchment: "ivory",
-    burgundy: "wine",
-    "antique-brass": "brass",
-    "forest-green": "pine",
-    maroon: "garnet",
-    navy: "ocean",
-    khaki: "sand"
-  };
-
-  // Direct hex values with more saturated/visible colors (20-30% darker than CSS variables)
-  const colorBgMap: Record<string, string> = {
-    default: "#E8E0D0",
-    aqua: "#B8D8D8",      // was #E0EBEB
-    azure: "#C0D0DB",     // was #E4E8EB
-    berry: "#D1C3D8",     // was #E9E3E8
-    brass: "#E0D8C8",     // was #F0EDE8
-    bronze: "#DDC7B0",    // was #EDE7E0
-    clay: "#E0C5B2",      // was #F0E5E2
-    cloud: "#DCDFF1",     // was #ECEFF1
-    copper: "#E0C8B3",    // was #F0E8E3
-    coral: "#E3C6B2",     // was #F3E6E2
-    cream: "#E5E3CD",     // was #F5F3ED
-    cyan: "#C2DCDC",      // was #E2ECEC
-    dune: "#E2DECA",      // was #F2F0EA
-    garnet: "#D8C0C0",    // was #E8E0E0
-    gold: "#E3E0C4",      // was #F3F0E4
-    honey: "#E3CDC3",     // was #F3EDE3
-    ice: "#C7CBCD",       // was #E7EBED
-    ivory: "#E6E5D2",     // was #F6F5F2
-    jade: "#C5DCC8",      // was #E5ECE8
-    lilac: "#DBC8DD",     // was #EBE8ED
-    mint: "#C9E0C9",      // was #E9F0E9
-    moss: "#C6D8C2",      // was #E6E8E2
-    night: "#C1C3D9",     // was #E1E3E9
-    ocean: "#C2C6DA",     // was #E2E6EA
-    olive: "#DCDAC2",     // was #EAEAE2
-    peach: "#E5CDC7",     // was #F5EDE7
-    pearl: "#DCC9DE",     // was #ECE9EE
-    pine: "#C2D6C3",      // was #E2E6E3
-    plum: "#D7C2C4",      // was #E7E2E4
-    rose: "#E2CACB",      // was #F2EAEB
-    rouge: "#E0C6C8",     // was #F0E6E8
-    ruby: "#E1C3C3",      // was #F1E3E3
-    sage: "#DADCC8",      // was #EAECE8
-    sand: "#E5E2CA",      // was #F5F2EA
-    sepia: "#D9D5C2",     // was #E9E5E2
-    sky: "#DBDFE4",       // was #EBEFF4
-    slate: "#D6D8DA",     // was #E6E8EA
-    steel: "#D8D9DA",     // was #E8E9EA
-    sunny: "#E6E4C9",     // was #F6F4E9
-    teal: "#C2DBDA",      // was #E2EBEA
-    wine: "#D9C3C4"       // was #E9E3E4
-  };
   let effectiveColor = memory.color;
   if (!allowedColors.has(memory.color)) {
     effectiveColor = colorMapping[memory.color] || "default";
@@ -591,7 +509,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           <>
             <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
               <defs>
-                <filter id="roughpaper">
+                <filter id={`roughpaper-${memory.id}`}>
                   <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
                   <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
                     <feDistantLight azimuth="45" elevation="35" />
@@ -603,7 +521,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               aria-hidden
               className="absolute inset-0 rounded-[inherit]"
               style={{
-                filter: "url(#roughpaper)",
+                filter: `url(#roughpaper-${memory.id})`,
                 background:
                   effectiveColor && effectiveColor !== "default"
                     ? `var(--color-${effectiveColor}-bg)`
@@ -704,7 +622,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           <>
             <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
               <defs>
-                <filter id="roughpaper">
+                <filter id={`roughpaper-${memory.id}`}>
                   <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
                   <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
                     <feDistantLight azimuth="45" elevation="35" />
@@ -716,7 +634,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               aria-hidden
               className="absolute inset-0 rounded-[inherit]"
               style={{
-                filter: "url(#roughpaper)",
+                filter: `url(#roughpaper-${memory.id})`,
                 background:
                   effectiveColor && effectiveColor !== "default"
                     ? `var(--color-${effectiveColor}-bg)`
@@ -737,24 +655,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             className={`flip-card-front absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : ""} p-5 flex flex-col justify-between`}
             style={{ ...bgStyle, ...borderStyle }}
           >
-            {/* Rough paper defs and overlay for front */}
+            {/* Rough paper overlay for front */}
             {memory.animation === "rough" && (
               <>
-                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
-                  <defs>
-                    <filter id="roughpaper">
-                      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-                      <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
-                        <feDistantLight azimuth="45" elevation="35" />
-                      </feDiffuseLighting>
-                    </filter>
-                  </defs>
-                </svg>
                 <div
                   aria-hidden
                   className="absolute inset-0 rounded-[inherit]"
                   style={{
-                    filter: "url(#roughpaper)",
+                    filter: `url(#roughpaper-${memory.id})`,
                     background:
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
@@ -869,24 +777,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             className={`flip-card-back absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : ""} p-5 flex flex-col justify-start rotate-y-180`}
             style={{ ...bgStyle, ...borderStyle }}
           >
-            {/* Rough paper defs and overlay for back */}
+            {/* Rough paper overlay for back */}
             {memory.animation === "rough" && (
               <>
-                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
-                  <defs>
-                    <filter id="roughpaper">
-                      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-                      <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
-                        <feDistantLight azimuth="45" elevation="35" />
-                      </feDiffuseLighting>
-                    </filter>
-                  </defs>
-                </svg>
                 <div
                   aria-hidden
                   className="absolute inset-0 rounded-[inherit]"
                   style={{
-                    filter: "url(#roughpaper)",
+                    filter: `url(#roughpaper-${memory.id})`,
                     background:
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`

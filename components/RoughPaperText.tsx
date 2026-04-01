@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useId } from "react";
 import HandwrittenText from "./HandwrittenText";
 
 interface RoughPaperTextProps {
@@ -10,12 +10,13 @@ interface RoughPaperTextProps {
 
 // Renders the same text styling as Handwritten, but adds a subtle rough paper backdrop via SVG filter
 const RoughPaperText: React.FC<RoughPaperTextProps> = ({ message, textClass, effectiveColor }) => {
+  const filterId = `roughpaper-${useId().replace(/:/g, '')}`;
+
   return (
     <div className="relative">
-      {/* SVG defs for rough paper filter (scoped here to avoid global collisions) */}
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
         <defs>
-          <filter id="roughpaper">
+          <filter id={filterId}>
             <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
             <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
               <feDistantLight azimuth="45" elevation="35" />
@@ -24,13 +25,11 @@ const RoughPaperText: React.FC<RoughPaperTextProps> = ({ message, textClass, eff
         </defs>
       </svg>
 
-      {/* Background layer with rough paper effect */}
       <div
         aria-hidden
         className="absolute inset-0 rounded-xl"
         style={{
-          filter: "url(#roughpaper)",
-          // Use a subtle base tone derived from the effective color background if available
+          filter: `url(#${filterId})`,
           background:
             effectiveColor && effectiveColor !== "default"
               ? `var(--color-${effectiveColor}-bg)`
@@ -39,7 +38,6 @@ const RoughPaperText: React.FC<RoughPaperTextProps> = ({ message, textClass, eff
         }}
       />
 
-      {/* Foreground text using existing handwritten styling */}
       <div className="relative">
         <HandwrittenText message={message} textClass={textClass} />
       </div>
@@ -48,5 +46,3 @@ const RoughPaperText: React.FC<RoughPaperTextProps> = ({ message, textClass, eff
 };
 
 export default RoughPaperText;
-
-

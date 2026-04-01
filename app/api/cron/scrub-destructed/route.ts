@@ -7,10 +7,6 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
   if (secret && secret.length > 0) {
-    const url = new URL(request.url);
-    const provided = url.searchParams.get('secret');
-    if (provided && provided === secret) return true;
-
     const auth = request.headers.get('authorization');
     if (auth && auth === `Bearer ${secret}`) return true;
 
@@ -35,7 +31,7 @@ export async function GET(request: NextRequest) {
       'anonymous';
 
     const rateLimitKey = generateRateLimitKey(ip, null, 'cron-scrub-destructed');
-    const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);
+    const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);
 
     if (!rateLimit.allowed) {
       return createSecureErrorResponse(

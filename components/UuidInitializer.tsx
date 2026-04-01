@@ -1,16 +1,15 @@
 "use client";
 import { useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 
 export default function UuidInitializer() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Check if UUID exists in either localStorage or cookies
       const storedUuid = localStorage.getItem("user_uuid") || getCookie("user_uuid");
-      
+
       if (!storedUuid) {
-        // Generate new UUID
-        const newUuid = uuidv4();
+        // Generate new UUID using native browser API (zero bundle cost)
+        const newUuid = crypto.randomUUID();
         
         // Store in localStorage
         localStorage.setItem("user_uuid", newUuid);
@@ -61,7 +60,6 @@ export default function UuidInitializer() {
         } catch {
           // Fallback: just update version if any error occurs
           localStorage.setItem('app_version', currentVersion);
-          console.log('Cache refresh handled gracefully');
         }
       }
     }

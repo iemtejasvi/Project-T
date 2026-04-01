@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Memories - If Only I Sent This',
-  description: 'Browse through heartfelt unsent messages and memories shared by people around the world.',
+  title: 'Unsent Messages Archive – Browse Anonymous Letters',
+  description: 'Browse thousands of anonymous unsent letters, love confessions, and heartfelt messages. Search by name to find words someone never sent.',
   alternates: {
     canonical: '/memories',
   },

@@ -6,7 +6,12 @@ const dbA = {
   url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
   key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   // Read client (anon key) - respects RLS
-  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!),
+  client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }),
   // Write client (service role) - bypasses RLS for server-side operations
   writeClient: createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

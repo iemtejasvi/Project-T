@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -34,7 +35,6 @@ interface Memory {
 
 interface DesktopMemoryCardProps {
   memory: Memory;
-  detail?: boolean;
   large?: boolean;
 }
 
@@ -383,11 +383,12 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
     
     const currentPrompt = prompts[currentIndex];
     const delay = isDeleting ? 50 : 100;
+    let pauseTimeout: ReturnType<typeof setTimeout>;
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setDisplayedText(currentPrompt.substring(0, charIndex + 1));
         if (charIndex + 1 === currentPrompt.length) {
-          setTimeout(() => setIsDeleting(true), 2000);
+          pauseTimeout = setTimeout(() => setIsDeleting(true), 2000);
         } else {
           setCharIndex(charIndex + 1);
         }
@@ -402,7 +403,7 @@ const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnab
         }
       }
     }, delay);
-    return () => clearTimeout(timeout);
+    return () => { clearTimeout(timeout); clearTimeout(pauseTimeout); };
   }, [charIndex, isDeleting, currentIndex, prompts]);
   
   if (isDisabled || prompts.length === 0) return null;
@@ -586,7 +587,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
           <>
             <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
               <defs>
-                <filter id="roughpaper">
+                <filter id={`roughpaper-${memory.id}`}>
                   <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
                   <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
                     <feDistantLight azimuth="45" elevation="35" />
@@ -598,7 +599,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               aria-hidden
               className="absolute inset-0 rounded-[inherit]"
               style={{
-                filter: "url(#roughpaper)",
+                filter: `url(#roughpaper-${memory.id})`,
                 background:
                   effectiveColor && effectiveColor !== "default"
                     ? `var(--color-${effectiveColor}-bg)`
@@ -622,21 +623,11 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
           >
             {memory.animation === "rough" && (
               <>
-                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
-                  <defs>
-                    <filter id="roughpaper">
-                      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-                      <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
-                        <feDistantLight azimuth="45" elevation="35" />
-                      </feDiffuseLighting>
-                    </filter>
-                  </defs>
-                </svg>
                 <div
                   aria-hidden
                   className="absolute inset-0 rounded-[inherit]"
                   style={{
-                    filter: "url(#roughpaper)",
+                    filter: `url(#roughpaper-${memory.id})`,
                     background:
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
@@ -748,21 +739,11 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
           >
             {memory.animation === "rough" && (
               <>
-                <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
-                  <defs>
-                    <filter id="roughpaper">
-                      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-                      <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
-                        <feDistantLight azimuth="45" elevation="35" />
-                      </feDiffuseLighting>
-                    </filter>
-                  </defs>
-                </svg>
                 <div
                   aria-hidden
                   className="absolute inset-0 rounded-[inherit]"
                   style={{
-                    filter: "url(#roughpaper)",
+                    filter: `url(#roughpaper-${memory.id})`,
                     background:
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`

@@ -169,7 +169,7 @@ export default function HowItWorks() {
           <h3>Perfect for Every Emotion</h3>
           <p>
             Whether you need to write an unsent love letter, a goodbye to someone you lost, an apology you&apos;ll never deliver,
-            or a confession inspired by a song like &quot;About You&quot; by The 1975 or &quot;All Too Well&quot; by Taylor Swift —
+            or a confession inspired by a song that speaks to your heart —
             this platform gives your words a home.
           </p>
         </section>
@@ -190,7 +190,7 @@ export default function HowItWorks() {
           <h3>Is this site like The Unsent Project?</h3>
           <p>Similar concept, better execution. If Only I Sent This offers faster moderation, reliable search, self-destructing messages, time capsules, and a more beautiful reading experience.</p>
           <h3>Can I write a message inspired by a song?</h3>
-          <p>Absolutely. Many of our best messages are inspired by songs from The 1975, Taylor Swift, Olivia Rodrigo, Conan Gray, Hozier, and more. Tag your message with the song or artist.</p>
+          <p>Absolutely. Many of our best messages are inspired by heartbreak songs. Tag your message with the song or artist.</p>
         </section>
 
         <script
@@ -205,7 +205,7 @@ export default function HowItWorks() {
                 { "@type": "Question", name: "Can I search for messages about me?", acceptedAnswer: { "@type": "Answer", text: "Yes! Visit /name/yourname to see all anonymous messages written to that name." } },
                 { "@type": "Question", name: "What are self-destructing messages?", acceptedAnswer: { "@type": "Answer", text: "You can set your message to automatically disappear after 1 week, 3 months, 6 months, or 1 year." } },
                 { "@type": "Question", name: "Is this site like The Unsent Project?", acceptedAnswer: { "@type": "Answer", text: "Similar concept, better execution. Faster moderation, reliable search, self-destructing messages, time capsules, and a more beautiful reading experience." } },
-                { "@type": "Question", name: "Can I write a message inspired by a song?", acceptedAnswer: { "@type": "Answer", text: "Absolutely. Many messages are inspired by songs from The 1975, Taylor Swift, Olivia Rodrigo, and more." } },
+                { "@type": "Question", name: "Can I write a message inspired by a song?", acceptedAnswer: { "@type": "Answer", text: "Absolutely. Many messages are inspired by heartbreak songs. Tag your message with the song or artist." } },
               ],
             }),
           }}

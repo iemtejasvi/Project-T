@@ -1,5 +1,7 @@
 // lib/rateLimiter.ts
-// Advanced rate limiting system with multiple protection layers
+// Redis-backed rate limiting with in-memory fallback
+
+import { redis } from './redis';
 
 interface RateLimitConfig {
   windowMs: number;      // Time window in milliseconds
@@ -13,7 +15,14 @@ interface RateLimitEntry {
   blockedUntil?: number;
 }
 
-// In-memory store for rate limits (use Redis in production for multi-server setups)
+interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  resetIn: number;
+  retryAfter?: number;
+}
+
+// In-memory fallback store (used when Redis is unavailable)
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 // Different rate limits for different endpoints
@@ -24,21 +33,21 @@ export const RATE_LIMITS = {
     maxRequests: 3,      // 3 requests per minute
     blockDuration: 60 * 1000 // Block for 1 minute if exceeded
   },
-  
+
   // API reads - more lenient
   READ_MEMORIES: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,     // 60 requests per minute
     blockDuration: 60 * 1000 // Block for 1 minute if exceeded
   },
-  
+
   // User status checks
   CHECK_STATUS: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 30,     // 30 requests per minute
     blockDuration: 60 * 1000
   },
-  
+
   // General API protection
   GENERAL: {
     windowMs: 60 * 1000, // 1 minute
@@ -47,103 +56,183 @@ export const RATE_LIMITS = {
   }
 } as const;
 
+// Lua script for atomic rate limit check + increment + conditional block.
+// Returns: [allowed (0/1), remaining, resetInSec, retryAfterSec]
+const RATE_LIMIT_SCRIPT = `
+local countKey = KEYS[1]
+local blockKey = KEYS[2]
+local now = tonumber(ARGV[1])
+local windowMs = tonumber(ARGV[2])
+local maxReqs = tonumber(ARGV[3])
+local blockMs = tonumber(ARGV[4])
+
+-- 1. Check active block
+local blockedUntil = redis.call('GET', blockKey)
+if blockedUntil then
+  blockedUntil = tonumber(blockedUntil)
+  if blockedUntil > now then
+    local retryAfter = math.ceil((blockedUntil - now) / 1000)
+    return {0, 0, retryAfter, retryAfter}
+  end
+end
+
+-- 2. Get current count and resetTime
+local count = tonumber(redis.call('HGET', countKey, 'count')) or 0
+local resetTime = tonumber(redis.call('HGET', countKey, 'resetTime')) or 0
+
+-- 3. Reset window if expired or first request
+if resetTime < now or count == 0 then
+  count = 1
+  resetTime = now + windowMs
+  redis.call('HSET', countKey, 'count', count, 'resetTime', resetTime)
+  redis.call('PEXPIRE', countKey, windowMs + 5000)
+else
+  count = redis.call('HINCRBY', countKey, 'count', 1)
+end
+
+-- 4. Check if over limit
+if count > maxReqs then
+  local resetIn = math.ceil((resetTime - now) / 1000)
+  local retryAfter = resetIn
+  if blockMs > 0 then
+    redis.call('SET', blockKey, tostring(now + blockMs), 'PX', blockMs)
+    retryAfter = math.ceil(blockMs / 1000)
+  end
+  return {0, 0, resetIn, retryAfter}
+end
+
+-- 5. Allowed
+local remaining = maxReqs - count
+local resetIn = math.ceil((resetTime - now) / 1000)
+return {1, remaining, resetIn, 0}
+`;
+
 /**
- * Check if a request should be rate limited
- * @param identifier - Unique identifier (IP address, user ID, etc.)
- * @param config - Rate limit configuration
- * @returns Object with allowed status and remaining requests
+ * In-memory rate limit check (fallback when Redis is unavailable)
  */
-export function checkRateLimit(
-  identifier: string,
-  config: RateLimitConfig
-): { 
-  allowed: boolean; 
-  remaining: number; 
-  resetIn: number;
-  retryAfter?: number;
-} {
+function inMemoryCheckRateLimit(identifier: string, config: RateLimitConfig): RateLimitResult {
   const now = Date.now();
-  const key = identifier;
-  
-  // Get or create rate limit entry
-  let entry = rateLimitStore.get(key);
-  
+
+  let entry = rateLimitStore.get(identifier);
+
   // Check if currently blocked
   if (entry?.blockedUntil && entry.blockedUntil > now) {
     const retryAfter = Math.ceil((entry.blockedUntil - now) / 1000);
-    return {
-      allowed: false,
-      remaining: 0,
-      resetIn: retryAfter,
-      retryAfter
-    };
+    return { allowed: false, remaining: 0, resetIn: retryAfter, retryAfter };
   }
-  
+
   // Reset if window expired or no entry exists
   if (!entry || entry.resetTime < now) {
-    entry = {
-      count: 1, // Start at 1 for this request
-      resetTime: now + config.windowMs
-    };
-    rateLimitStore.set(key, entry);
+    entry = { count: 1, resetTime: now + config.windowMs };
+    rateLimitStore.set(identifier, entry);
   } else {
-    // Increment request count for existing entry
     entry.count++;
   }
-  
+
   // Check if limit exceeded
   if (entry.count > config.maxRequests) {
-
-    // Block the identifier if blockDuration is specified
     if (config.blockDuration) {
       entry.blockedUntil = now + config.blockDuration;
     }
-    
     const resetIn = Math.ceil((entry.resetTime - now) / 1000);
-    const retryAfter = config.blockDuration 
+    const retryAfter = config.blockDuration
       ? Math.ceil(config.blockDuration / 1000)
       : resetIn;
-    
-    return {
-      allowed: false,
-      remaining: 0,
-      resetIn,
-      retryAfter
-    };
+    return { allowed: false, remaining: 0, resetIn, retryAfter };
   }
-  
-  const remaining = config.maxRequests - entry.count;
-  const resetIn = Math.ceil((entry.resetTime - now) / 1000);
-  
+
   return {
     allowed: true,
-    remaining,
-    resetIn
+    remaining: config.maxRequests - entry.count,
+    resetIn: Math.ceil((entry.resetTime - now) / 1000),
   };
 }
 
 /**
- * Clean up expired entries from the store (should be called periodically)
+ * Check if a request should be rate limited.
+ * Uses Redis when available, falls back to in-memory.
  */
-export function cleanupRateLimitStore(): number {
+export async function checkRateLimit(
+  identifier: string,
+  config: RateLimitConfig
+): Promise<RateLimitResult> {
+  if (!redis) return inMemoryCheckRateLimit(identifier, config);
+
+  try {
+    const now = Date.now();
+    const countKey = `rl:count:${identifier}`;
+    const blockKey = `rl:block:${identifier}`;
+
+    const result = await redis.eval(
+      RATE_LIMIT_SCRIPT,
+      [countKey, blockKey],
+      [String(now), String(config.windowMs), String(config.maxRequests), String(config.blockDuration || 0)]
+    ) as number[];
+
+    const [allowed, remaining, resetIn, retryAfter] = result;
+    return {
+      allowed: allowed === 1,
+      remaining,
+      resetIn,
+      ...(retryAfter > 0 ? { retryAfter } : {}),
+    };
+  } catch (err) {
+    console.warn('Redis rate limit failed, using in-memory fallback:', err);
+    return inMemoryCheckRateLimit(identifier, config);
+  }
+}
+
+/**
+ * Clean up expired entries. No-op with Redis (TTLs handle expiry).
+ * Only cleans the in-memory fallback store.
+ */
+export async function cleanupRateLimitStore(): Promise<number> {
   const now = Date.now();
   let cleaned = 0;
-  
   for (const [key, entry] of rateLimitStore.entries()) {
-    // Remove if reset time and block time have both passed
     if (entry.resetTime < now && (!entry.blockedUntil || entry.blockedUntil < now)) {
       rateLimitStore.delete(key);
       cleaned++;
     }
   }
-  
   return cleaned;
 }
 
 /**
  * Get rate limit store statistics
  */
-export function getRateLimitStats() {
+export async function getRateLimitStats() {
+  if (redis) {
+    try {
+      const keys: string[] = [];
+      let done = false;
+      let scanCursor = 0;
+      while (!done) {
+        const [nextCursor, batch] = await redis.scan(scanCursor, { match: 'rl:count:*', count: 100 });
+        keys.push(...batch);
+        scanCursor = Number(nextCursor);
+        if (scanCursor === 0) done = true;
+      }
+
+      const entries = await Promise.all(
+        keys.map(async (key) => {
+          const data = await redis!.hgetall(key) as Record<string, string> | null;
+          const identifier = key.replace('rl:count:', '');
+          return {
+            identifier,
+            count: data ? Number(data.count) : 0,
+            resetTime: data ? new Date(Number(data.resetTime)).toISOString() : null,
+            blockedUntil: null as string | null,
+          };
+        })
+      );
+
+      return { totalEntries: entries.length, entries };
+    } catch {
+      // Fall through to in-memory stats
+    }
+  }
+
   return {
     totalEntries: rateLimitStore.size,
     entries: Array.from(rateLimitStore.entries()).map(([key, entry]) => ({
@@ -158,7 +247,23 @@ export function getRateLimitStats() {
 /**
  * Manually block an identifier (for banning purposes)
  */
-export function blockIdentifier(identifier: string, durationMs: number = 24 * 60 * 60 * 1000) {
+export async function blockIdentifier(identifier: string, durationMs: number = 24 * 60 * 60 * 1000) {
+  if (redis) {
+    try {
+      const now = Date.now();
+      const blockKey = `rl:block:${identifier}`;
+      const countKey = `rl:count:${identifier}`;
+      const pipeline = redis.pipeline();
+      pipeline.set(blockKey, String(now + durationMs), { px: durationMs });
+      pipeline.hset(countKey, { count: 999999, resetTime: now + durationMs });
+      pipeline.pexpire(countKey, durationMs);
+      await pipeline.exec();
+      return;
+    } catch (err) {
+      console.warn('Redis block failed, using in-memory fallback:', err);
+    }
+  }
+
   const now = Date.now();
   rateLimitStore.set(identifier, {
     count: 999999,
@@ -170,25 +275,33 @@ export function blockIdentifier(identifier: string, durationMs: number = 24 * 60
 /**
  * Unblock an identifier
  */
-export function unblockIdentifier(identifier: string) {
+export async function unblockIdentifier(identifier: string) {
+  if (redis) {
+    try {
+      const pipeline = redis.pipeline();
+      pipeline.del(`rl:block:${identifier}`);
+      pipeline.del(`rl:count:${identifier}`);
+      await pipeline.exec();
+      return;
+    } catch (err) {
+      console.warn('Redis unblock failed, using in-memory fallback:', err);
+    }
+  }
+
   rateLimitStore.delete(identifier);
 }
 
 /**
  * Generate a rate limit key from IP and UUID with fallback
- * @param ip - Client IP address
- * @param uuid - Client UUID
- * @param endpoint - Endpoint name to create separate buckets per API
- * @param fallback - Fallback identifier
  */
 export function generateRateLimitKey(
-  ip: string | null, 
-  uuid: string | null, 
+  ip: string | null,
+  uuid: string | null,
   endpoint: string = 'general',
   fallback: string = 'anonymous'
 ): string {
   let identifier: string;
-  
+
   if (ip && ip.length > 6) {
     identifier = `ip:${ip}`;
   } else if (uuid && uuid.length > 10) {
@@ -196,17 +309,6 @@ export function generateRateLimitKey(
   } else {
     identifier = `fallback:${fallback}`;
   }
-  
-  // Add endpoint to create separate rate limit buckets per API
-  return `${endpoint}:${identifier}`;
-}
 
-// Auto-cleanup every 10 minutes
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    const cleaned = cleanupRateLimitStore();
-    if (cleaned > 0) {
-      console.log(`🧹 Cleaned up ${cleaned} expired rate limit entries`);
-    }
-  }, 10 * 60 * 1000);
+  return `${endpoint}:${identifier}`;
 }

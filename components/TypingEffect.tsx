@@ -255,6 +255,7 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
       delay = 50; // Faster deletion
     }
 
+    let pauseTimeout: ReturnType<typeof setTimeout>;
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         if (!isMistyped && Math.random() < 0.1 && charIndex > 0) {
@@ -269,7 +270,7 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
           setDisplayText(currentMessage.substring(0, nextCharIndex));
           setCharIndex(nextCharIndex);
           if (nextCharIndex === currentMessage.length) {
-            setTimeout(() => setIsDeleting(true), 2000);
+            pauseTimeout = setTimeout(() => setIsDeleting(true), 2000);
           }
         }
       } else {
@@ -288,7 +289,7 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
       }
     }, delay);
 
-    return () => clearTimeout(timeout);
+    return () => { clearTimeout(timeout); clearTimeout(pauseTimeout); };
   }, [charIndex, isDeleting, isMistyped, currentIndex]);
 
   return (

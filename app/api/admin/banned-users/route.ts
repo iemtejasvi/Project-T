@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     'anonymous';
 
   const rateLimitKey = generateRateLimitKey(ip, null, 'admin-banned-users');
-  const rateLimit = checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);
+  const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);
 
   if (!rateLimit.allowed) {
     return createSecureErrorResponse(

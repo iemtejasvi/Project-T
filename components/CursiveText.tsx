@@ -22,21 +22,22 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
 
     const container = containerRef.current;
     const chars = Array.from(container.querySelectorAll('.cursive-char'));
-    
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
     // Shuffle characters for random melting
     const shuffledChars = [...chars].sort(() => Math.random() - 0.5);
-    
+
     // Function to create a drip effect
     const createDrip = (char: Element) => {
-      const numDrips = 1 + Math.floor(Math.random() * 3); // More drips
+      const numDrips = 1 + Math.floor(Math.random() * 3);
       for (let i = 0; i < numDrips; i++) {
         const charDrip = document.createElement('div');
         charDrip.className = 'cursive-char-drip';
-        
-        const dripHeight = 20 + Math.random() * 35; // Taller drips
-        const delay = 0.3 + Math.random() * 0.7; // Faster initial drip
-        const duration = 2 + Math.random() * 2; // Longer duration
-        const horizontalOffset = (Math.random() - 0.5) * 4; // More spread
+
+        const dripHeight = 20 + Math.random() * 35;
+        const delay = 0.3 + Math.random() * 0.7;
+        const duration = 2 + Math.random() * 2;
+        const horizontalOffset = (Math.random() - 0.5) * 4;
 
         Object.assign(charDrip.style, {
           '--drip-height': `${dripHeight}px`,
@@ -46,59 +47,55 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
         });
 
         char.appendChild(charDrip);
-        
-        // Activate drip with a slight delay
-        setTimeout(() => {
+
+        timers.push(setTimeout(() => {
           charDrip.classList.add('active');
-        }, 100);
+        }, 100));
       }
     };
 
     // Function to melt a character
     const meltCharacter = (char: Element, index: number) => {
-      const meltDistance = 3 + Math.random() * 4 + (index % 4); // More variation
+      const meltDistance = 3 + Math.random() * 4 + (index % 4);
       char.setAttribute('style', `--melt-distance: ${meltDistance}px`);
-      
-      // Start melting with a slight delay
-      setTimeout(() => {
-        char.classList.add('melting');
-        
-        // Create drips after melting starts
-        setTimeout(() => {
-          createDrip(char);
-        }, 300);
 
-        // Complete melting after a longer delay
-        setTimeout(() => {
+      timers.push(setTimeout(() => {
+        char.classList.add('melting');
+
+        timers.push(setTimeout(() => {
+          createDrip(char);
+        }, 300));
+
+        timers.push(setTimeout(() => {
           char.classList.remove('melting');
           char.classList.add('melted');
-        }, 2000);
-      }, 100);
+        }, 2000));
+      }, 100));
     };
 
     // Start melting characters with varying delays
     shuffledChars.forEach((char, index) => {
-      const baseDelay = index * (800 + Math.random() * 1200); // Longer delays between characters
-      const randomOffset = Math.random() * 500; // Random offset for more natural feel
-      setTimeout(() => {
+      const baseDelay = index * (800 + Math.random() * 1200);
+      const randomOffset = Math.random() * 500;
+      timers.push(setTimeout(() => {
         meltCharacter(char, index);
-      }, baseDelay + randomOffset);
+      }, baseDelay + randomOffset));
     });
 
     // Add line-level drips for additional effect
     const lines = container.querySelectorAll('.cursive-line');
     lines.forEach((line) => {
       const lineWidth = line.getBoundingClientRect().width;
-      const numberOfDrips = Math.floor(lineWidth / 15); // More frequent drips
+      const numberOfDrips = Math.floor(lineWidth / 15);
 
       for (let i = 0; i < numberOfDrips; i++) {
         const drip = document.createElement('div');
         drip.className = 'cursive-drip';
-        
+
         const left = (i * 15) + Math.random() * 10;
-        const height = 25 + Math.random() * 40; // Taller drips
-        const delay = Math.random() * 3; // More varied delays
-        const duration = 3 + Math.random() * 2; // Longer duration
+        const height = 25 + Math.random() * 40;
+        const delay = Math.random() * 3;
+        const duration = 3 + Math.random() * 2;
 
         Object.assign(drip.style, {
           left: `${left}px`,
@@ -110,6 +107,10 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
         line.appendChild(drip);
       }
     });
+
+    return () => {
+      timers.forEach(clearTimeout);
+    };
   }, [message]);
 
   return (

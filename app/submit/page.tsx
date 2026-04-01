@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+
 import Link from "next/link";
 import { typewriterTags, typewriterSubTags } from "@/components/typewriterPrompts";
 import { hasSuspiciouslyLongWords } from "@/lib/inputSanitizer";
@@ -208,6 +208,7 @@ export default function SubmitPage() {
           signal: statusCtrl.signal,
         });
         clearTimeout(statusTimer);
+        if (!res.ok) { setIsUnlimitedUser(false); return; }
         const data = await res.json();
         setIsUnlimitedUser(data.isUnlimited || data.globalOverrideActive || data.isOwner);
       } catch {
@@ -854,69 +855,43 @@ export default function SubmitPage() {
       uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
     }
 
-    // Enhanced ban and limit checking (with 10s timeout — server re-checks anyway)
-    if (ipData?.ip || uuid) {
-      try {
-        const clientCheck = async () => {
-          const banQuery = [];
-          if (ipData?.ip) banQuery.push(`ip.eq.${ipData.ip}`);
-          if (uuid) banQuery.push(`uuid.eq.${uuid}`);
-
-          if (banQuery.length > 0) {
-            const { data: banData, error: banErr } = await supabase
-              .from("banned_users")
-              .select("id, ip, uuid")
-              .or(banQuery.join(","))
-              .limit(1);
-
-            if (banErr) return { blocked: false, reason: '' };
-            if (banData && banData.length > 0) return { blocked: true, reason: 'banned' };
-          }
-
-          const memoryQuery = [];
-          if (ipData?.ip) memoryQuery.push(`ip.eq.${ipData.ip}`);
-          if (uuid) memoryQuery.push(`uuid.eq.${uuid}`);
-
-          if (memoryQuery.length > 0) {
-            const { count, error: memErr } = await supabase
-              .from("memories")
-              .select("id", { count: "exact" })
-              .or(memoryQuery.join(","));
-
-            if (!memErr && count && count >= 6) return { blocked: true, reason: 'limit' };
-          }
+    // Enhanced ban and limit checking via API route (with 10s timeout — server re-checks anyway)
+    try {
+      const statusCheck = await Promise.race([
+        fetch('/api/check-user-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }).then(async (res) => {
+          if (!res.ok) return { blocked: false, reason: '' };
+          const data = await res.json();
+          if (data.isBanned) return { blocked: true, reason: 'banned' };
+          if (data.hasReachedLimit) return { blocked: true, reason: 'limit' };
           return { blocked: false, reason: '' };
-        };
-
-        const timeout = new Promise<{ blocked: false; reason: '' }>((resolve) =>
+        }),
+        new Promise<{ blocked: false; reason: '' }>((resolve) =>
           setTimeout(() => resolve({ blocked: false, reason: '' }), 10000)
-        );
+        ),
+      ]);
 
-        const result = await Promise.race([clientCheck(), timeout]);
-
-        if (result.blocked) {
-          if (result.reason === 'banned') {
-            setError("You are banned from submitting memories.");
-            setIsBanned(true);
-          } else {
-            setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
-          }
-          setHasReachedLimit(true);
-          setIsFormDisabled(true);
-          setIsSubmitting(false);
-          return;
+      if (statusCheck.blocked) {
+        if (statusCheck.reason === 'banned') {
+          setError("You are banned from submitting memories.");
+          setIsBanned(true);
+        } else {
+          setError(twoMemoryLimitMessages[Math.floor(Math.random() * twoMemoryLimitMessages.length)]);
         }
-      } catch (err) {
-        console.error("Unexpected error during validation:", err);
-        // Let server handle validation — don't block submission
+        setHasReachedLimit(true);
+        setIsFormDisabled(true);
+        setIsSubmitting(false);
+        return;
       }
+    } catch (err) {
+      console.error("Unexpected error during validation:", err);
+      // Let server handle validation — don't block submission
     }
 
     const shortTag = enableTypewriter && tag && subTag ? getShortTag(subTag) : null;
-    
-    // Debug: log the form values
-    console.log('Form values:', { enableTypewriter, tag, subTag, shortTag });
-    
+
     const submission = {
       recipient: recipient.trim(),
       message: message.trim(),
@@ -939,13 +914,6 @@ export default function SubmitPage() {
         }
       })(),
     };
-
-    // Validate required fields first
-    if (!recipient || !message) {
-      setError("Missing required fields. Please check your submission.");
-      setIsSubmitting(false);
-      return;
-    }
 
     if (message.length > MAX_MESSAGE_LENGTH) {
       setError(`Message must be ${MAX_MESSAGE_LENGTH} characters or less.`);
@@ -1679,7 +1647,7 @@ export default function SubmitPage() {
           <h3>What to Write</h3>
           <p>
             Write an unsent love letter. A goodbye to someone you lost. An apology you&apos;ll never deliver.
-            A confession inspired by &quot;About You&quot; by The 1975 or &quot;All Too Well&quot; by Taylor Swift.
+            A confession inspired by your favorite heartbreak song.
             Words you wish you said to your ex, your first love, your best friend, or someone who got away.
           </p>
           <p>
