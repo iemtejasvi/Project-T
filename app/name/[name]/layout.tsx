@@ -41,7 +41,7 @@ const getCachedNameCount = unstable_cache(
 
 export async function generateMetadata({ params }: NameLayoutProps): Promise<Metadata> {
   const { name: rawSlug } = await params;
-  const slug = decodeURIComponent(rawSlug).toLowerCase().trim();
+  const slug = decodeURIComponent(rawSlug).toLowerCase().trim().replace(/[^a-z0-9\s'-]/g, '').replace(/\s+/g, ' ');
   const displayName = slug
     .split(' ')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))

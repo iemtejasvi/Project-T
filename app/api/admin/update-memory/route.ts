@@ -48,8 +48,21 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse('Missing id or updates', 400, { origin });
     }
 
+    // Whitelist allowed fields to prevent arbitrary column writes
+    const ALLOWED_FIELDS = new Set([
+      'status', 'recipient', 'message', 'sender', 'color', 'full_bg',
+      'animation', 'pinned', 'pinned_until', 'reveal_at', 'destruct_at',
+      'time_capsule_delay_minutes', 'destruct_delay_minutes',
+      'tag', 'sub_tag', 'typewriter_enabled', 'night_only', 'night_tz',
+      'night_start_hour', 'night_end_hour',
+    ]);
+    const sanitizedUpdates: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(updates as Record<string, unknown>)) {
+      if (ALLOWED_FIELDS.has(key)) sanitizedUpdates[key] = value;
+    }
+
     // If transitioning to approved, start timers from approval time.
-    const nextStatus = String((updates as Record<string, unknown>).status ?? '').toLowerCase();
+    const nextStatus = String(sanitizedUpdates.status ?? '').toLowerCase();
     if (nextStatus === 'approved') {
       const current = await fetchMemoryRowById(id);
       const currentStatus = String(current?.status ?? '').toLowerCase();
@@ -65,22 +78,22 @@ export async function POST(request: NextRequest) {
         const hasDestruct = typeof existingDestruct === 'number' && Number.isFinite(existingDestruct) && existingDestruct > 0;
 
         if (!hasTc) {
-          (updates as Record<string, unknown>).time_capsule_delay_minutes = minutesFromMs(revealDelayMs);
+          sanitizedUpdates.time_capsule_delay_minutes = minutesFromMs(revealDelayMs);
         }
         if (!hasDestruct) {
-          (updates as Record<string, unknown>).destruct_delay_minutes = minutesFromMs(destructDelayMs);
+          sanitizedUpdates.destruct_delay_minutes = minutesFromMs(destructDelayMs);
         }
 
         const now = Date.now();
         const revealAtIso = new Date(now + revealDelayMs).toISOString();
         const destructAtIso = destructDelayMs > 0 ? new Date(now + destructDelayMs).toISOString() : null;
 
-        (updates as Record<string, unknown>).reveal_at = revealAtIso;
-        (updates as Record<string, unknown>).destruct_at = destructAtIso;
+        sanitizedUpdates.reveal_at = revealAtIso;
+        sanitizedUpdates.destruct_at = destructAtIso;
       }
     }
-    
-    const { data, error } = await updateMemory(id, updates);
+
+    const { data, error } = await updateMemory(id, sanitizedUpdates as Record<string, string | boolean | undefined>);
     
     if (error) {
       return createSecureErrorResponse(error.message || 'Update failed', 500, { origin });

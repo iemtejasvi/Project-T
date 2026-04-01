@@ -837,7 +837,7 @@ export default function Home() {
                 text: item.answer,
               },
             })),
-          }),
+          }).replace(/</g, '\\u003c'),
         }}
       />
 

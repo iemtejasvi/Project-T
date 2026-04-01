@@ -207,7 +207,7 @@ export default function HowItWorks() {
                 { "@type": "Question", name: "Is this site like The Unsent Project?", acceptedAnswer: { "@type": "Answer", text: "Similar concept, better execution. Faster moderation, reliable search, self-destructing messages, time capsules, and a more beautiful reading experience." } },
                 { "@type": "Question", name: "Can I write a message inspired by a song?", acceptedAnswer: { "@type": "Answer", text: "Absolutely. Many messages are inspired by heartbreak songs. Tag your message with the song or artist." } },
               ],
-            }),
+            }).replace(/</g, '\\u003c'),
           }}
         />
       </main>

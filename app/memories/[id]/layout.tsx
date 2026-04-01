@@ -50,12 +50,12 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
     const data = await getCachedMemoryMeta(id);
 
     if (!data) {
-      return { title: FALLBACK_TITLE, description: FALLBACK_DESC };
+      return { title: FALLBACK_TITLE, description: FALLBACK_DESC, robots: { index: false, follow: true } };
     }
 
     // Don't expose metadata for unrevealed time capsules
     if (data.reveal_at && new Date(data.reveal_at).getTime() > Date.now()) {
-      return { title: FALLBACK_TITLE, description: FALLBACK_DESC };
+      return { title: FALLBACK_TITLE, description: FALLBACK_DESC, robots: { index: false, follow: true } };
     }
 
     const recipient = data.recipient || 'Someone';
@@ -100,7 +100,7 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
       },
     };
   } catch {
-    return { title: FALLBACK_TITLE, description: FALLBACK_DESC };
+    return { title: FALLBACK_TITLE, description: FALLBACK_DESC, robots: { index: false, follow: true } };
   }
 }
 

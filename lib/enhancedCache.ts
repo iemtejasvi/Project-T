@@ -519,9 +519,13 @@ class UltraCache {
     } catch {
       // Ignore prefetch errors
     } finally {
-      const params = JSON.parse(item);
-      const cacheKey = this.getCacheKey(params.page, params.pageSize, params.filters, params.searchTerm, params.orderBy);
-      this.pendingFetches.delete(cacheKey);
+      try {
+        const params = JSON.parse(item);
+        const cacheKey = this.getCacheKey(params.page, params.pageSize, params.filters, params.searchTerm, params.orderBy);
+        this.pendingFetches.delete(cacheKey);
+      } catch {
+        // item already parsed above; if it fails here too, just skip cleanup
+      }
     }
   }
   

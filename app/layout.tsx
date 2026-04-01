@@ -196,11 +196,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="msapplication-TileImage" content="/mstile-150x150.png" />
         <meta name="google-site-verification" content="-3cysNzrb6ZgU44DFdsfeiwU61zydgZWRMyXebgmsUM" />
-        <meta name="robots" content="index, follow" />
         <meta name="color-scheme" content="light dark" />
         <meta name="referrer" content="no-referrer-when-downgrade" />
-        <link rel="alternate" hrefLang="en" href="https://www.ifonlyisentthis.com/" />
-        <link rel="preconnect" href="https://ppkbuhaklzbgwvaaoudn.supabase.co" crossOrigin="anonymous" />
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL || ''} crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         {ENABLE_ANALYTICS && <link rel="dns-prefetch" href="https://www.googletagmanager.com" />}
@@ -263,7 +261,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 },
                 "description": "Write and share unsent messages anonymously. No account needed. Submissions go live instantly after moderation."
               }
-            ])
+            ]).replace(/</g, '\\u003c')
           }}
         />
         
