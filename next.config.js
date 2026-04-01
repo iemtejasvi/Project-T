@@ -40,13 +40,13 @@ const nextConfig = {
           },
         ],
       },
-      // Read-only API routes — CDN cached with ISR pattern
+      // Read-only API routes — CDN cache hint (route handlers override with their own headers)
       {
         source: '/api/memories/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, s-maxage=60, stale-while-revalidate=120',
+            value: 'public, s-maxage=10, stale-while-revalidate=30',
           },
           {
             key: 'Vary',

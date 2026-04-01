@@ -32,7 +32,7 @@ const getCachedNameMemories = unstable_cache(
     // Query memories where recipient OR sender matches the name (case-insensitive)
     let query = supabaseServer
       .from('memories')
-      .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled', { count: 'exact' })
+      .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled', { count: 'estimated' })
       .eq('status', 'approved')
       .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
       .or(`recipient.ilike.${normalizedName},sender.ilike.${normalizedName}`);

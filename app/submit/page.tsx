@@ -225,14 +225,16 @@ export default function SubmitPage() {
 
   // Trigger special-effect warning and disable existing effect when crossing 30-word threshold
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
     if (wordCount > 30 && !hasCrossed) {
       setSpecialEffectVisible(true);
       setHasCrossed(true);
       setSpecialEffect("");
-      setTimeout(() => setSpecialEffectVisible(false), 5000);
+      timer = setTimeout(() => setSpecialEffectVisible(false), 5000);
     } else if (wordCount <= 30 && hasCrossed) {
       setHasCrossed(false);
     }
+    return () => clearTimeout(timer);
   }, [wordCount, hasCrossed]);
 
   // Random message when exceeding 50 words

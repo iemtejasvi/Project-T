@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { insertMemory, countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
-import { validateMemoryInput, sanitizeString } from '@/lib/inputSanitizer';
+import { validateMemoryInput, sanitizeString, sanitizeUUID } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
@@ -149,6 +149,16 @@ const countryCache = new Map<string, { country: string | null; timestamp: number
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 const MAX_CACHE_SIZE = 10_000;
 
+/** Evict oldest 20% of entries instead of clearing the entire cache (prevents thundering herd) */
+function evictCountryCache() {
+  const entries = Array.from(countryCache.entries())
+    .sort((a, b) => a[1].timestamp - b[1].timestamp);
+  const toRemove = Math.max(1, Math.floor(entries.length * 0.2));
+  for (let i = 0; i < toRemove; i++) {
+    countryCache.delete(entries[i][0]);
+  }
+}
+
 async function getCountryFromIP(ip: string): Promise<{ country: string | null; timezone?: string | null; detectedIP?: string }> {
   // Check cache first
   const cached = countryCache.get(ip);
@@ -261,7 +271,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; t
           
           // Cache the successful result (use detected IP if available)
           const cacheKey = detectedIP || ip;
-          if (countryCache.size >= MAX_CACHE_SIZE) countryCache.clear();
+          if (countryCache.size >= MAX_CACHE_SIZE) evictCountryCache();
           countryCache.set(cacheKey, { country, timestamp: Date.now() });
           
           return { country, timezone: timezone || undefined, detectedIP: detectedIP || undefined };
@@ -307,7 +317,7 @@ export async function POST(request: NextRequest) {
     
     // Get client IP and UUID early for rate limiting
     let clientIP: string | null = await getClientIP(request);
-    const clientUUID: string | null = getCookieValue(request, 'user_uuid');
+    const clientUUID: string | null = sanitizeUUID(getCookieValue(request, 'user_uuid') || '');
     
     // 3. SECURITY: Rate limiting - check BEFORE parsing body
     const rateLimitKey = generateRateLimitKey(clientIP, clientUUID, 'submit');
@@ -351,7 +361,6 @@ export async function POST(request: NextRequest) {
     let globalOverrideActive = false;
 
     let country = null;
-    let detectedTimezone: string | null = null;
 
     // Owner exemption and localhost - skip all checks
     const host = request.headers.get('host') || '';
@@ -538,19 +547,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get country from IP (if not already detected)
-    if (!country && clientIP) {
-      const result = await getCountryFromIP(clientIP);
-      country = result.country;
-      detectedTimezone = result.timezone || detectedTimezone;
-    }
-
     const nightOnlyEnabled = typeof night_only === 'boolean' ? night_only : false;
     const nightTzFromClient = typeof night_tz === 'string' && night_tz.length <= 64 ? night_tz : null;
     const nightStartHour = 21;
     const nightEndHour = 6;
     const nightTzFinal = nightOnlyEnabled
-      ? (nightTzFromClient || detectedTimezone || 'UTC')
+      ? (nightTzFromClient || 'UTC')
       : null;
 
     // Prepare submission data with sanitized values
@@ -592,6 +594,24 @@ export async function POST(request: NextRequest) {
       }
 
       console.log(`✅ Memory successfully stored in database ${database} from ${rateLimitKey}`);
+
+      // Fire-and-forget: resolve country from IP and update the row asynchronously.
+      // This avoids blocking the response for 3-17s of external HTTP calls.
+      if (clientIP && !country) {
+        const memoryId = (data as Record<string, unknown>).id;
+        getCountryFromIP(clientIP).then(async (geo) => {
+          if (!geo.country && !geo.timezone) return;
+          const update: Record<string, string | null> = {};
+          if (geo.country) update.country = geo.country;
+          // If night_only was enabled and no client tz, backfill detected tz
+          if (nightOnlyEnabled && !nightTzFromClient && geo.timezone) {
+            update.night_tz = geo.timezone;
+          }
+          if (Object.keys(update).length > 0) {
+            await primaryDB.from('memories').update(update).eq('id', memoryId);
+          }
+        }).catch((err) => console.warn('Background geolocation update failed:', err));
+      }
 
       // Purge ISR data cache + route cache so new content appears instantly
       revalidateTag('memories-feed', 'max');

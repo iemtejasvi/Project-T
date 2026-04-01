@@ -1,11 +1,27 @@
 import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/memoryDB';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
 
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'anonymous';
+
+    const rateLimitKey = generateRateLimitKey(ip, null, 'announcement-track');
+    const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);
+
+    if (!rateLimit.allowed) {
+      return createSecureErrorResponse(
+        'Too many requests. Please slow down.',
+        429,
+        { origin, details: { retryAfter: rateLimit.retryAfter } }
+      );
+    }
+
     const { announcement_id, type } = await request.json();
 
     if (!announcement_id || !['view', 'click'].includes(type)) {

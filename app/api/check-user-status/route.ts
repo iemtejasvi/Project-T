@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse, validateRequest } from '@/lib/securityHeaders';
+import { sanitizeUUID } from '@/lib/inputSanitizer';
 
 function getClientIP(request: NextRequest): string | null {
   // Try multiple headers for IP detection
@@ -59,8 +60,7 @@ export async function POST(request: NextRequest) {
     
     // 2. Get client IP and UUID
     const clientIP = getClientIP(request);
-    // SECURITY: do not trust UUID provided in body; only use cookie value
-    const clientUUID = getCookieValue(request, 'user_uuid');
+    const clientUUID = sanitizeUUID(getCookieValue(request, 'user_uuid') || '');
     
     // 3. SECURITY: Rate limiting
     const rateLimitKey = generateRateLimitKey(clientIP, clientUUID, 'status');
@@ -99,23 +99,19 @@ export async function POST(request: NextRequest) {
     let memoryCount = 0;
     let isUnlimited = false;
 
-    // Check global override first
-    const { data: settingsData } = await primaryDB
+    // Run settings query in parallel with all other checks
+    const settingsPromise = primaryDB
       .from('site_settings')
       .select('word_limit_disabled_until')
       .eq('id', 1)
       .single();
-    const overrideUntil = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
-    const now = new Date();
-    const globalOverrideActive = overrideUntil ? now < overrideUntil : false;
 
-    if (!globalOverrideActive && (clientIP || clientUUID)) {
+    if (clientIP || clientUUID) {
       try {
-        const banQueries = [];
+        const banQueries: string[] = [];
         if (clientIP) banQueries.push(`ip.eq.${clientIP}`);
         if (clientUUID) banQueries.push(`uuid.eq.${clientUUID}`);
 
-        // Run ban check, count checks, and unlimited check all in parallel
         const banPromise = banQueries.length > 0
           ? primaryDB.from('banned_users').select('id').or(banQueries.join(',')).limit(1)
           : Promise.resolve({ data: null, error: null });
@@ -132,9 +128,14 @@ export async function POST(request: NextRequest) {
           ? primaryDB.from('unlimited_users').select('id').or(unlimitedQueries.join(',')).limit(1)
           : Promise.resolve({ data: null });
 
-        const [banResult, countResults, unlimitedResult] = await Promise.all([
-          banPromise, countPromise, unlimitedPromise,
+        // All 4 queries run in parallel (settings + ban + counts + unlimited)
+        const [settingsResult, banResult, countResults, unlimitedResult] = await Promise.all([
+          settingsPromise, banPromise, countPromise, unlimitedPromise,
         ]);
+
+        const overrideUntil = settingsResult.data?.word_limit_disabled_until ? new Date(settingsResult.data.word_limit_disabled_until) : null;
+        const now = new Date();
+        const globalOverrideActive = overrideUntil ? now < overrideUntil : false;
 
         if (banResult.error) {
           console.error('Ban check error:', banResult.error);
@@ -149,20 +150,29 @@ export async function POST(request: NextRequest) {
         }
 
         isUnlimited = !!(unlimitedResult.data && (unlimitedResult.data as unknown[]).length);
+
+        const canSubmit = !isBanned && (isUnlimited || globalOverrideActive || memoryCount < 6);
+
+        return createSecureResponse({
+          canSubmit,
+          isBanned,
+          memoryCount,
+          hasReachedLimit: isUnlimited || globalOverrideActive ? false : memoryCount >= 6,
+          isOwner: false,
+          isUnlimited,
+          globalOverrideActive
+        }, 200, { origin });
       } catch (error) {
         console.error('Validation error:', error);
         return createSecureErrorResponse('Server error during validation.', 500, { origin });
       }
-    } else if (clientIP || clientUUID) {
-      // Global override active — still check unlimited status
-      const unlimitedQueries: string[] = [];
-      if (clientIP) unlimitedQueries.push(`ip.eq.${clientIP}`);
-      if (clientUUID) unlimitedQueries.push(`uuid.eq.${clientUUID}`);
-      if (unlimitedQueries.length) {
-        const { data: unData } = await primaryDB.from('unlimited_users').select('id').or(unlimitedQueries.join(',')).limit(1);
-        isUnlimited = !!(unData && unData.length);
-      }
     }
+
+    // No IP or UUID — just check settings
+    const { data: settingsData } = await settingsPromise;
+    const overrideUntil = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
+    const now = new Date();
+    const globalOverrideActive = overrideUntil ? now < overrideUntil : false;
 
     const canSubmit = !isBanned && (isUnlimited || globalOverrideActive || memoryCount < 6);
 

@@ -49,7 +49,10 @@ export async function GET(request: NextRequest) {
     if (status) query = query.eq('status', status);
     if (typeof pinned === 'boolean') query = query.eq('pinned', pinned);
     if (search) {
-      query = query.or(`recipient.ilike.%${search}%,sender.ilike.%${search}%,message.ilike.%${search}%`);
+      const safe = search.replace(/[,.()"\\]/g, '');
+      if (safe.length > 0) {
+        query = query.or(`recipient.ilike.%${safe}%,sender.ilike.%${safe}%,message.ilike.%${safe}%`);
+      }
     }
 
     // Admin ordering: pinned first, then newest

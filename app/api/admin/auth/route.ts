@@ -1,12 +1,28 @@
 import { NextRequest } from 'next/server';
 import { verifyAdminCredentials, generateSignedSessionToken, isAdminAuthenticated, getSessionToken, deleteSession } from '@/lib/adminAuth';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { checkRateLimit, generateRateLimitKey } from '@/lib/rateLimiter';
 
 // Login
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
+
   try {
+    // Rate limit login attempts: 5 per minute per IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') || 'anonymous';
+    const rateLimitKey = generateRateLimitKey(ip, null, 'admin-login');
+    const rateLimit = await checkRateLimit(rateLimitKey, {
+      windowMs: 60 * 1000,
+      maxRequests: 5,
+      blockDuration: 5 * 60 * 1000, // Block for 5 min after exceeding
+    });
+    if (!rateLimit.allowed) {
+      return createSecureErrorResponse('Too many login attempts. Please try again later.', 429, {
+        origin, details: { retryAfter: rateLimit.retryAfter },
+      });
+    }
+
     const { username, password } = await request.json();
     
     if (!username || !password) {

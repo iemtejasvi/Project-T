@@ -189,15 +189,25 @@ class UltraCache {
   private cleanupOldEntries(): void {
     const now = Date.now();
     const keysToDelete: string[] = [];
-    
+
     this.cache.forEach((value, key) => {
       if (now - value.timestamp > this.staleWhileRevalidate) {
         keysToDelete.push(key);
       }
     });
-    
-    keysToDelete.forEach(key => this.cache.delete(key));
-    
+
+    keysToDelete.forEach(key => {
+      this.cache.delete(key);
+      this.lastFetchTime.delete(key);
+    });
+
+    // Cap lastFetchTime to prevent unbounded growth
+    if (this.lastFetchTime.size > this.maxSize) {
+      const entries = Array.from(this.lastFetchTime.entries())
+        .sort((a, b) => a[1] - b[1]);
+      entries.slice(0, entries.length - this.maxSize).forEach(([key]) => this.lastFetchTime.delete(key));
+    }
+
     if (keysToDelete.length > 0) {
       console.debug(`🧹 Cleaned ${keysToDelete.length} old cache entries`);
     }

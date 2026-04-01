@@ -83,46 +83,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (supabase) {
       const nowIso = new Date().toISOString();
 
-      // Fetch recipients and senders in parallel
-      const [{ data: recipients }, { data: senders }] = await Promise.all([
-        supabase
-          .from('memories')
-          .select('recipient')
-          .eq('status', 'approved')
-          .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
-          .limit(5000),
-        supabase
-          .from('memories')
-          .select('sender')
-          .eq('status', 'approved')
-          .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
-          .not('sender', 'is', null)
-          .limit(5000),
-      ]);
-
-      // Collect names and count occurrences
+      // Paginate through all approved memories to avoid the 5000-row Supabase limit.
+      // Only select the name columns to minimize payload.
       const nameCounts = new Map<string, number>();
-      if (recipients) {
-        for (const r of recipients) {
-          if (r.recipient) {
-            const n = r.recipient.toLowerCase().trim();
-            nameCounts.set(n, (nameCounts.get(n) || 0) + 1);
+      const PAGE_SIZE = 5000;
+
+      async function fetchAllNames(column: 'recipient' | 'sender') {
+        let page = 0;
+        let hasMore = true;
+        const notNullFilter = column === 'sender';
+        while (hasMore) {
+          let query = supabase!
+            .from('memories')
+            .select(column)
+            .eq('status', 'approved')
+            .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
+            .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+          if (notNullFilter) query = query.not('sender', 'is', null);
+          const { data } = await query;
+          if (!data || data.length === 0) { hasMore = false; break; }
+          for (const row of data) {
+            const name = (row as Record<string, string>)[column];
+            if (name) {
+              const n = name.toLowerCase().trim();
+              nameCounts.set(n, (nameCounts.get(n) || 0) + 1);
+            }
           }
+          if (data.length < PAGE_SIZE) hasMore = false;
+          page++;
         }
       }
-      if (senders) {
-        for (const s of senders) {
-          if (s.sender) {
-            const n = s.sender.toLowerCase().trim();
-            nameCounts.set(n, (nameCounts.get(n) || 0) + 1);
-          }
-        }
-      }
+
+      await Promise.all([fetchAllNames('recipient'), fetchAllNames('sender')]);
 
       // Add name routes: only linkable names with >= 3 messages (avoid thin content)
-      let nameCount = 0;
       for (const [name, count] of nameCounts) {
-        if (nameCount >= 5000) break;
         if (count < 3) continue;
         if (!isLinkableName(name)) continue;
         routes.push({
@@ -131,7 +126,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: 'weekly' as const,
           priority: 0.6,
         });
-        nameCount++;
       }
     }
   } catch (err) {

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { unstable_cache } from 'next/cache';
 
 // ISR: cache active announcement for 30s so thousands of visitors share one DB call.
@@ -26,6 +27,16 @@ export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
 
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') || 'anonymous';
+    const rateLimitKey = generateRateLimitKey(ip, null, 'announcements');
+    const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);
+    if (!rateLimit.allowed) {
+      return createSecureErrorResponse('Too many requests.', 429, {
+        origin, details: { retryAfter: rateLimit.retryAfter },
+      });
+    }
+
     const data = await getCachedAnnouncement();
 
     // Check expiry at request time (cache returns raw data)

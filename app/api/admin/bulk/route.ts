@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { updateMemory, deleteMemory, primaryDB } from '@/lib/memoryDB';
+import { updateMemory, deleteMemoriesBatch, fetchMemoriesByIds, primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { revalidatePath, revalidateTag } from 'next/cache';
@@ -27,19 +27,15 @@ function minutesFromMs(ms: number): number {
   return Math.round(ms / (60 * 1000));
 }
 
-async function buildApprovalUpdates(id: string): Promise<Record<string, unknown>> {
+function buildApprovalUpdatesFromRow(row: MemoryRow): Record<string, unknown> {
   const updates: Record<string, unknown> = { status: 'approved' };
-  const res = await primaryDB.from('memories')
-    .select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes')
-    .eq('id', id).maybeSingle();
-  const current: MemoryRow | null = (!res.error && res.data) ? res.data as MemoryRow : null;
-  if (!current || String(current.status ?? '').toLowerCase() === 'approved') return updates;
+  if (String(row.status ?? '').toLowerCase() === 'approved') return updates;
 
-  const revealDelayMs = msBetween(current.reveal_at, current.created_at);
-  const destructDelayMs = msBetween(current.destruct_at, current.created_at);
+  const revealDelayMs = msBetween(row.reveal_at, row.created_at);
+  const destructDelayMs = msBetween(row.destruct_at, row.created_at);
 
-  const hasTc = typeof current.time_capsule_delay_minutes === 'number' && current.time_capsule_delay_minutes > 0;
-  const hasDestruct = typeof current.destruct_delay_minutes === 'number' && current.destruct_delay_minutes > 0;
+  const hasTc = typeof row.time_capsule_delay_minutes === 'number' && row.time_capsule_delay_minutes > 0;
+  const hasDestruct = typeof row.destruct_delay_minutes === 'number' && row.destruct_delay_minutes > 0;
 
   if (!hasTc) updates.time_capsule_delay_minutes = minutesFromMs(revealDelayMs);
   if (!hasDestruct) updates.destruct_delay_minutes = minutesFromMs(destructDelayMs);
@@ -74,36 +70,76 @@ export async function POST(request: NextRequest) {
     const uniqueIds = Array.from(new Set(ids)).slice(0, 200);
 
     if (action === 'approve') {
-      const results = await Promise.all(
-        uniqueIds.map(async (id) => {
-          const updates = await buildApprovalUpdates(id);
-          const { data, error } = await updateMemory(id, updates as Parameters<typeof updateMemory>[1]);
-          return { id, ok: !error, error: error?.message || null, data: data || null };
-        })
-      );
-      const ok = results.filter((r) => r.ok).length;
-      const failed = results.length - ok;
+      // 1 query: fetch all rows that need approval
+      const { data: rows, error: fetchErr } = await fetchMemoriesByIds(uniqueIds);
+      if (fetchErr || !rows) {
+        return createSecureErrorResponse(fetchErr?.message || 'Failed to fetch memories', 500, { origin });
+      }
+
+      const rowMap = new Map(rows.map((r: MemoryRow) => [r.id, r]));
+
+      // Group IDs that can be simple-approved (already approved or no timer recalc needed)
+      // vs IDs that need per-row timer updates
+      const simpleIds: string[] = [];
+      const timerUpdates: { id: string; updates: Record<string, unknown> }[] = [];
+
+      for (const id of uniqueIds) {
+        const row = rowMap.get(id);
+        if (!row) continue; // ID not found, skip
+        const updates = buildApprovalUpdatesFromRow(row);
+        // If updates only contain status (no timer recalc), batch them
+        if (Object.keys(updates).length === 1) {
+          simpleIds.push(id);
+        } else {
+          timerUpdates.push({ id, updates });
+        }
+      }
+
+      let ok = 0;
+      let failed = 0;
+
+      // Batch-approve simple ones in a single query
+      if (simpleIds.length > 0) {
+        const { error } = await primaryDB
+          .from('memories')
+          .update({ status: 'approved' })
+          .in('id', simpleIds);
+        if (error) {
+          failed += simpleIds.length;
+        } else {
+          ok += simpleIds.length;
+        }
+      }
+
+      // Timer updates need per-row values, but run them all concurrently
+      if (timerUpdates.length > 0) {
+        const results = await Promise.all(
+          timerUpdates.map(async ({ id, updates }) => {
+            const { error } = await updateMemory(id, updates as Parameters<typeof updateMemory>[1]);
+            return !error;
+          })
+        );
+        ok += results.filter(Boolean).length;
+        failed += results.filter((r) => !r).length;
+      }
+
       revalidateTag('memories-feed', 'max');
       revalidatePath('/api/memories');
       revalidatePath('/memories');
       revalidatePath('/');
-      return createSecureResponse({ success: true, action, ok, failed, results }, 200, { origin });
+      return createSecureResponse({ success: true, action, ok, failed }, 200, { origin });
     }
 
     if (action === 'delete') {
-      const results = await Promise.all(
-        uniqueIds.map(async (id) => {
-          const { data, error } = await deleteMemory(id);
-          return { id, ok: !error, error: error?.message || null, data: data || null };
-        })
-      );
-      const ok = results.filter((r) => r.ok).length;
-      const failed = results.length - ok;
+      // Single batch delete — 1 query instead of N
+      const { deleted, error } = await deleteMemoriesBatch(uniqueIds);
+      const ok = deleted;
+      const failed = error ? uniqueIds.length : uniqueIds.length - deleted;
       revalidateTag('memories-feed', 'max');
       revalidatePath('/api/memories');
       revalidatePath('/memories');
       revalidatePath('/');
-      return createSecureResponse({ success: true, action, ok, failed, results }, 200, { origin });
+      return createSecureResponse({ success: true, action, ok, failed }, 200, { origin });
     }
 
     return createSecureErrorResponse('Invalid action', 400, { origin });

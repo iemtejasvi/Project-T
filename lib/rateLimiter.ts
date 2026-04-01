@@ -198,6 +198,11 @@ export async function cleanupRateLimitStore(): Promise<number> {
   return cleaned;
 }
 
+// Auto-cleanup in-memory fallback store every 5 minutes (serverless-safe: no-op if Redis handles it)
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => { cleanupRateLimitStore().catch(() => {}); }, 5 * 60 * 1000);
+}
+
 /**
  * Get rate limit store statistics
  */

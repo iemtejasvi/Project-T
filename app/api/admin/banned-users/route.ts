@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
   try {
     const { data, error } = await primaryDB
       .from('banned_users')
-      .select('ip, uuid, country');
+      .select('ip, uuid, country')
+      .limit(1000);
 
     if (error) {
       return createSecureErrorResponse(error.message || 'Failed to fetch banned users', 500, { origin });

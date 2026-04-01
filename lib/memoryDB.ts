@@ -259,9 +259,13 @@ export async function fetchMemoriesPaginated(
   pageSize: number = 10,
   filters: Record<string, string> = {},
   searchTerm: string = '',
-  orderBy: Record<string, string> = {}
+  orderBy: Record<string, string> = {},
+  options: { exactCount?: boolean } = {}
 ) {
-  let query = dbA.client.from('memories').select('*', { count: 'exact' });
+  // Use estimated count for public feeds (much cheaper at scale).
+  // Admin pages can pass exactCount: true when precision matters.
+  const countMethod = options.exactCount ? 'exact' as const : 'estimated' as const;
+  let query = dbA.client.from('memories').select('*', { count: countMethod });
 
   // Filter out unrevealed time capsule memories at DB level for public views.
   // Cards simply don't appear until reveal_at passes.
@@ -281,7 +285,11 @@ export async function fetchMemoriesPaginated(
   
   // Search by recipient or sender name
   if (searchTerm) {
-    query = query.or(`recipient.ilike.%${searchTerm}%,sender.ilike.%${searchTerm}%`);
+    // Escape PostgREST filter metacharacters to prevent filter injection
+    const safe = searchTerm.replace(/[,.()"\\]/g, '');
+    if (safe.length > 0) {
+      query = query.or(`recipient.ilike.%${safe}%,sender.ilike.%${safe}%`);
+    }
   }
   
   // Order by pinned first, then created_at
@@ -476,14 +484,49 @@ export async function deleteMemory(id: string) {
       .delete()
       .eq('id', id)
       .select();
-    
+
     if (error || !data || data.length === 0) {
       return { data: null, error: { message: error?.message || 'Memory not found or deletion failed' } };
     }
-    
+
     return { data: data[0], error: null };
   } catch (err) {
     console.error('Delete memory error:', err);
+    return { data: null, error: { message: String(err) } };
+  }
+}
+
+/**
+ * Batch delete memories by IDs (single query instead of N queries)
+ */
+export async function deleteMemoriesBatch(ids: string[]) {
+  try {
+    const { data, error } = await dbA.writeClient
+      .from('memories')
+      .delete()
+      .in('id', ids)
+      .select('id');
+    if (error) return { deleted: 0, error: { message: error.message } };
+    return { deleted: data?.length ?? 0, error: null };
+  } catch (err) {
+    console.error('Batch delete error:', err);
+    return { deleted: 0, error: { message: String(err) } };
+  }
+}
+
+/**
+ * Fetch multiple memories by IDs for bulk processing (single query)
+ */
+export async function fetchMemoriesByIds(ids: string[]) {
+  try {
+    const { data, error } = await dbA.client
+      .from('memories')
+      .select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes')
+      .in('id', ids);
+    if (error) return { data: null, error: { message: error.message } };
+    return { data: data || [], error: null };
+  } catch (err) {
+    console.error('Batch fetch error:', err);
     return { data: null, error: { message: String(err) } };
   }
 }
