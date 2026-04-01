@@ -843,7 +843,7 @@ export default function Home() {
 
       <footer className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          {new Date().getFullYear()} If Only I Sent This
+          &copy; {new Date().getFullYear()} If Only I Sent This
         </div>
       </footer>
     </div>

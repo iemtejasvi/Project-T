@@ -135,7 +135,7 @@ export default function NameArchivePage() {
       {structuredData && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }}
         />
       )}
 
@@ -293,7 +293,7 @@ export default function NameArchivePage() {
         )}
 
         {/* Hidden SEO content */}
-        <div className="sr-only" aria-hidden="false">
+        <div className="sr-only">
           <h2>Unsent messages to {displayNameStr}</h2>
           <p>
             This page contains {totalCount} unsent {totalCount === 1 ? "message" : "messages"} and letters written to {displayNameStr}.

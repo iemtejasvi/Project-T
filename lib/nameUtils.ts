@@ -7,6 +7,8 @@ const BLOCKED_NAMES = new Set([
   'your friend', 'your ex', 'a friend', 'a stranger', 'no one',
   'test', 'testing', 'admin', 'moderator', 'mod', 'system',
   'null', 'undefined', 'none', 'n/a', 'na', 'idk',
+  'you', 'him', 'her', 'mom', 'dad', 'hey', 'hello', 'hi', 'god',
+  'bro', 'dude', 'bruh', 'sir', 'ma', 'babe', 'baby',
 ]);
 
 // Obvious placeholder patterns
@@ -33,7 +35,7 @@ export function isLinkableName(name: string | undefined | null): boolean {
 
   // Strip trailing/leading punctuation to catch "T.", "A!", "J," etc.
   const stripped = trimmed.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '');
-  if (stripped.length < 2) return false;
+  if (stripped.length < 3) return false;
 
   const normalized = trimmed.toLowerCase();
 

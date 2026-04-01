@@ -271,7 +271,7 @@ export function detectSuspiciousRequest(request: Request): {
   const botSignatures = ['bot', 'crawler', 'spider', 'scraper', 'curl', 'wget'];
   if (userAgent && botSignatures.some(sig => userAgent.toLowerCase().includes(sig))) {
     // Allow legitimate bots but log them
-    console.log(`Bot detected: ${userAgent}`);
+    // Bot detected — no action needed, logged for future monitoring integration
   }
   
   // Check content-type for POST/PUT

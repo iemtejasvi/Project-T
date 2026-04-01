@@ -85,7 +85,9 @@ export async function DELETE(request: NextRequest) {
   const response = createSecureResponse({ success: true }, 200, { origin });
   response.headers.set(
     'Set-Cookie',
-    `admin_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`
+    `admin_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${
+        process.env.NODE_ENV === 'production' ? '; Secure' : ''
+      }`
   );
   
   return response;
