@@ -166,7 +166,7 @@ export default function Home() {
             if (!res.ok) return { data: null, error: { message: `HTTP ${res.status}` } };
             const json = await res.json();
             return { data: json.data ?? null, error: null };
-          }),
+          }).catch(() => ({ data: null, error: { message: 'Announcement fetch failed' } })),
           new Promise<{ data: null; error: { message: string } }>((resolve) =>
             setTimeout(() => resolve({ data: null, error: { message: 'Announcement fetch timeout' } }), 8000)
           ),

@@ -9,7 +9,8 @@ const dbA = {
   client: createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
+      persistSession: false,
+      storageKey: 'sb-read',
     }
   }),
   // Write client (service role) - bypasses RLS for server-side operations
@@ -19,7 +20,8 @@ const dbA = {
     {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
+        persistSession: false,
+        storageKey: 'sb-write',
       }
     }
   )
