@@ -426,7 +426,7 @@ export async function deleteMemoriesBatch(ids: string[]) {
  */
 export async function fetchMemoriesByIds(ids: string[]) {
   try {
-    const { data, error } = await dbA.client
+    const { data, error } = await dbA.writeClient
       .from('memories')
       .select('id,status,created_at,reveal_at,destruct_at,time_capsule_delay_minutes,destruct_delay_minutes')
       .in('id', ids);

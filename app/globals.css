@@ -977,7 +977,7 @@ input::placeholder, textarea::placeholder {
   .flip-card-back div.text-2xl,
   .flip-card-back .la-belle-aurore-regular,
   .flip-card-back .space-y-2 p {
-    font-weight: 300 !important; /* Light */
+    font-weight: 400 !important;
     opacity: 0.9 !important; /* Slightly darker */
   }
   
@@ -995,7 +995,7 @@ input::placeholder, textarea::placeholder {
   div.font-serif p.text-4xl,
   div.font-serif div.text-5xl,
   div.font-serif div.text-4xl {
-    font-weight: 300 !important; /* Light */
+    font-weight: 400 !important;
     opacity: 0.9 !important; /* Slightly darker */
   }
 }

@@ -747,7 +747,7 @@ export default function AdminPanel() {
         return;
       }
 
-      addToast(`${json?.ok || ids.length} memories ${action === 'approve' ? 'approved' : 'deleted'}`, 'success');
+      addToast(`${json?.ok ?? ids.length} memories ${action === 'approve' ? 'approved' : 'deleted'}`, 'success');
       broadcastContentUpdated();
       refreshMemories();
     } catch {
