@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { warmUpCache } from "@/lib/enhancedCache";
 
 export default function RoutePrefetcher() {
   const router = useRouter();
@@ -20,13 +19,6 @@ export default function RoutePrefetcher() {
         router.prefetch("/memories");
         router.prefetch("/submit");
         router.prefetch("/how-it-works");
-
-        // Warm up archive data so /memories feels instant.
-        // Use desktop pageSize since it is the heaviest; cache is shared.
-        await warmUpCache([
-          { page: 0, pageSize: 18 },
-          { page: 0, pageSize: 10 },
-        ]);
       } catch {
         // Silent
       }

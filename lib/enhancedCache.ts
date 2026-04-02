@@ -73,6 +73,7 @@ class UltraCache {
   private readonly maxSize: number = 1000; // Support thousands of pages
   private readonly prefetchDepth: number = 1; // Prefetch adjacent page only
   private readonly minRefreshInterval: number = 30000; // Minimum 30s between refreshes (ISR handles freshness)
+  private prefetchScheduled: boolean = false;
   
   constructor() {
     this.cache = new Map();
@@ -104,13 +105,12 @@ class UltraCache {
       
       // Save to localStorage periodically
       setInterval(() => this.persistToLocalStorage(), 30000); // Save every 30s
-      
+
       // Clean up old entries more frequently for fresher content
       setInterval(() => this.cleanupOldEntries(), 300000); // Clean every 5 minutes
-      
-      // Process prefetch queue (slightly slower to avoid bursty background traffic)
-      setInterval(() => this.processPrefetchQueue(), 500);
-      
+
+      // Prefetch queue is now demand-driven — triggered by prefetchAdjacentPages()
+
       // Check for fresh content periodically
       setInterval(() => this.checkForFreshContent(), 60000); // Check every 60s (matches ISR window)
       
@@ -208,9 +208,7 @@ class UltraCache {
       entries.slice(0, entries.length - this.maxSize).forEach(([key]) => this.lastFetchTime.delete(key));
     }
 
-    if (keysToDelete.length > 0) {
-      console.debug(`🧹 Cleaned ${keysToDelete.length} old cache entries`);
-    }
+    // Cleaned old cache entries
   }
   
   private enforceMaxSize(): void {
@@ -222,7 +220,6 @@ class UltraCache {
       const toRemove = entries.slice(0, Math.floor(this.maxSize * 0.2)); // Remove 20% when full
       toRemove.forEach(([key]) => this.cache.delete(key));
       
-      console.debug(`📦 Evicted ${toRemove.length} cache entries`);
     }
   }
   
@@ -244,7 +241,6 @@ class UltraCache {
     // Check if already fetching — but discard stale promises (>15s) to prevent infinite hang
     const pending = this.pendingFetches.get(cacheKey);
     if (pending && (Date.now() - pending.startedAt) < 15_000) {
-      console.debug('⏳ Waiting for pending fetch...');
       return pending.promise;
     } else if (pending) {
       // Stale pending fetch — discard it
@@ -294,7 +290,6 @@ class UltraCache {
     
     // Return stale data while revalidating if within stale window
     if (cached && (now - cached.timestamp) < staleWhileRevalidate) {
-      console.debug(`♻️ Serving stale-while-revalidate for page ${page}`);
       
       // Revalidate in background
       this.revalidateInBackground(page, pageSize, filters, searchTerm, orderBy);
@@ -429,7 +424,6 @@ class UltraCache {
             etag: `${result.totalCount}-${Date.now()}`,
             isStale: false
           });
-          console.debug(`🔄 Background revalidation complete for page ${page}`);
         }
       })
       .catch(() => {
@@ -451,45 +445,56 @@ class UltraCache {
       if (currentPage + i < totalPages) {
         this.prefetchQueue.add(JSON.stringify({ page: currentPage + i, pageSize, filters, searchTerm, orderBy }));
       }
-      
+
       // Prefetch previous pages
       if (currentPage - i >= 0) {
         this.prefetchQueue.add(JSON.stringify({ page: currentPage - i, pageSize, filters, searchTerm, orderBy }));
       }
     }
+
+    // Demand-driven: schedule processing when items are queued
+    if (this.prefetchQueue.size > 0 && !this.prefetchScheduled) {
+      this.prefetchScheduled = true;
+      setTimeout(() => {
+        this.prefetchScheduled = false;
+        this.processPrefetchQueue();
+      }, 100);
+    }
   }
   
   private async processPrefetchQueue(): Promise<void> {
     if (this.prefetchQueue.size === 0) return;
-    
+
     // Process one item at a time to avoid overwhelming
     const item = this.prefetchQueue.values().next().value;
     if (!item) return;
-    
+
     this.prefetchQueue.delete(item);
-    
+
+    // Parse once, use in both try and finally
+    let cacheKey: string | undefined;
     try {
       const params = JSON.parse(item);
-      const cacheKey = this.getCacheKey(params.page, params.pageSize, params.filters, params.searchTerm, params.orderBy);
-      
+      cacheKey = this.getCacheKey(params.page, params.pageSize, params.filters, params.searchTerm, params.orderBy);
+
       // Skip if already cached and fresh
       const cached = this.cache.get(cacheKey);
       if (cached && (Date.now() - cached.timestamp) < this.maxAge) {
         return;
       }
-      
+
       // Skip if already fetching
       if (this.pendingFetches.has(cacheKey)) {
         return;
       }
-      
+
       // Fetch in background
       const fetchPromise = fetchFromAPI(
         params.page,
         params.pageSize,
         params.searchTerm || ''
       );
-      
+
       this.pendingFetches.set(cacheKey, {
         promise: fetchPromise.then(result => ({
           data: result.data,
@@ -500,9 +505,9 @@ class UltraCache {
         })),
         startedAt: Date.now()
       });
-      
+
       const result = await fetchPromise;
-      
+
       if (!result.error) {
         this.cache.set(cacheKey, {
           data: result.data,
@@ -512,19 +517,14 @@ class UltraCache {
           etag: `${result.totalCount}-${Date.now()}`,
           isStale: false
         });
-        
+
         this.enforceMaxSize();
-        console.debug(`📥 Prefetched page ${params.page}`);
       }
     } catch {
       // Ignore prefetch errors
     } finally {
-      try {
-        const params = JSON.parse(item);
-        const cacheKey = this.getCacheKey(params.page, params.pageSize, params.filters, params.searchTerm, params.orderBy);
+      if (cacheKey) {
         this.pendingFetches.delete(cacheKey);
-      } catch {
-        // item already parsed above; if it fails here too, just skip cleanup
       }
     }
   }
@@ -540,12 +540,10 @@ class UltraCache {
         }
       });
       keysToDelete.forEach(key => this.cache.delete(key));
-      console.debug(`🗑️ Invalidated ${keysToDelete.length} entries for search: ${searchTerm}`);
     } else {
       // Clear all cache
       this.cache.clear();
       this.prefetchQueue.clear();
-      console.debug('🗑️ Cleared all cache');
     }
     
     // Clear localStorage cache too
@@ -558,7 +556,6 @@ class UltraCache {
   
   // Warm up cache with specific pages
   async warmUp(pages: { page: number, pageSize: number }[]): Promise<void> {
-    console.debug(`🔥 Warming up cache with ${pages.length} pages`);
     
     const promises = pages.map(({ page, pageSize }) => 
       this.get(page, pageSize, { status: 'approved' }, '', { created_at: 'desc' })
@@ -685,17 +682,14 @@ export function setupRealtimeUpdates() {
   if (typeof window !== 'undefined') {
     // Listen for custom events that indicate data changes
     window.addEventListener('memory-added', () => {
-      console.debug('🔄 New memory detected, refreshing caches...');
       forceRefreshAllCaches();
     });
     
     window.addEventListener('memory-updated', () => {
-      console.debug('🔄 Memory update detected, refreshing caches...');
       forceRefreshAllCaches();
     });
     
     window.addEventListener('feature-changed', () => {
-      console.debug('🔄 Feature change detected, refreshing caches...');
       forceRefreshAllCaches();
     });
     
@@ -706,7 +700,6 @@ export function setupRealtimeUpdates() {
         (e.key && e.key.includes('feature')) ||
         e.key === 'last_content_update'
       ) {
-        console.debug('🔄 Storage change detected, refreshing caches...');
         forceRefreshAllCaches();
 
         window.dispatchEvent(new CustomEvent('content-updated'));

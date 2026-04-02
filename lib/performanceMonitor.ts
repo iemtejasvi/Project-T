@@ -12,7 +12,6 @@ class PerformanceMonitor {
   endTimer(operation: string): number {
     const startTime = this.activeTimers.get(operation);
     if (!startTime) {
-      console.warn(`No active timer for operation: ${operation}`);
       return 0;
     }
     
@@ -31,12 +30,6 @@ class PerformanceMonitor {
       measurements.shift();
     }
     
-    // Log if operation took more than 100ms (not instant)
-    if (duration > 100) {
-      console.warn(`⚠️ Slow operation detected: ${operation} took ${duration.toFixed(2)}ms`);
-    } else if (duration < 50) {
-      console.debug(`✅ Fast operation: ${operation} took ${duration.toFixed(2)}ms`);
-    }
     
     return duration;
   }
@@ -80,7 +73,6 @@ class PerformanceMonitor {
       if (measurements.length === 0) continue;
       const avg = measurements.reduce((a, b) => a + b, 0) / measurements.length;
       if (avg > 100) {
-        console.warn(`Performance issue: ${operation} averages ${avg.toFixed(2)}ms`);
         return false;
       }
     }

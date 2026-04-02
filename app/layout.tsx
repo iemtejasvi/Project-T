@@ -95,9 +95,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         {ENABLE_ANALYTICS && <link rel="dns-prefetch" href="https://www.googletagmanager.com" />}
         {ENABLE_ADS && <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />}
-        <link rel="prefetch" href="/memories" />
-        <link rel="prefetch" href="/submit" />
-        <link rel="prefetch" href="/how-it-works" />
         {ENABLE_ANALYTICS && (
           <>
             <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
@@ -202,7 +199,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                 try {
                   // 3) Selective localStorage clear — preserve identity and cache
-                  var keysToKeep = ['user_uuid', 'app_version', 'ultraMemoryCache'];
+                  var keysToKeep = ['user_uuid', 'app_version', 'ultraCache', 'browser_session_heartbeat'];
                   var preserved = {};
                   keysToKeep.forEach(function(k) {
                     var v = localStorage.getItem(k);

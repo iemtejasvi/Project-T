@@ -6,7 +6,8 @@ import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
 import { laBelleAurore } from '@/lib/fonts';
 import "../app/globals.css";
-import { typewriterSubTags, typewriterPromptsBySubTag } from './typewriterPrompts';
+import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
+import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
 
 interface Memory {
@@ -40,143 +41,6 @@ interface MemoryCardProps {
   variant?: "default" | "home";
 }
 
-const DESTRUCTED_MESSAGES = [
-  "This memory has faded. The words are gone.",
-  "Only silence remains where this message used to be.",
-  "This message has been destructed. Nothing can be recovered.",
-  "What was here is gone now.",
-  "The message is gone, but the memory remains.",
-  "This message disappeared when its time ran out.",
-  "These words are no longer here.",
-  "This memory holds an empty space where the message once lived.",
-  "The message has vanished.",
-  "Gone. Like it was never written.",
-  "This message was meant to disappear.",
-  "Nothing is left to read.",
-  "The ink is gone. The feeling stays.",
-  "This message is no longer available.",
-  "This space is all that remains.",
-  "The message has been erased by time.",
-  "Only the outline of a memory remains.",
-  "This message has slipped away.",
-  "Some words don’t last. This one didn’t.",
-  "A quiet end: this message is gone.",
-  "You arrived after the ending.",
-  "The page is blank now.",
-  "There’s nothing left to recover.",
-  "The words didn’t survive.",
-  "Time took the message first.",
-  "You missed it by a moment—or a lifetime.",
-  "The message expired. The space stayed.",
-  "This was here. Now it isn’t.",
-  "It ended before you opened it.",
-  "A message that chose to vanish.",
-  "This line is all that’s left.",
-  "It’s gone, and it won’t come back.",
-  "Nothing to read. Only the fact it existed.",
-  "The message ran out of time.",
-  "You’re late. The words are gone.",
-  "The message has already left.",
-  "An empty place where meaning used to be.",
-  "This memory kept its shape, not its words.",
-  "The message is beyond reach now."
-];
-
-
-
-const TypewriterPrompt: React.FC<{ tag?: string; subTag?: string; typewriterEnabled?: boolean }> = ({ tag, subTag, typewriterEnabled }) => {
-  // For new memories: use the typewriter_enabled field
-  // For old memories: show typewriter by default (typewriter_enabled will be undefined)
-  const isDisabled = typewriterEnabled === false;
-
-  const prompts = useMemo(() => {
-    // If we have a specific subTag (short tag), use prompts from that subcategory
-    if (subTag && subTag !== "undefined" && subTag !== "null" && typewriterPromptsBySubTag[subTag]) {
-      return typewriterPromptsBySubTag[subTag];
-    }
-    
-    // If we have a main tag, use all prompts from that tag
-    if (tag && typewriterSubTags[tag]) {
-      const allPrompts: string[] = [];
-      typewriterSubTags[tag].forEach(subTag => {
-        const subPrompts = typewriterPromptsBySubTag[subTag] || [];
-        allPrompts.push(...subPrompts);
-      });
-      
-      return allPrompts.length > 0 ? allPrompts : typewriterPromptsBySubTag["other_feeling"] || [];
-    }
-    
-    // If no tag is selected, show a mix of all categories
-    const mixedPrompts: string[] = [];
-    Object.values(typewriterPromptsBySubTag).forEach(categoryPrompts => {
-      // Take 1-2 random prompts from each category to create a diverse mix
-      const shuffled = [...categoryPrompts].sort(() => 0.5 - Math.random());
-      mixedPrompts.push(...shuffled.slice(0, Math.min(2, shuffled.length)));
-    });
-    
-    // Shuffle the mixed prompts and limit to a reasonable number
-    return mixedPrompts.sort(() => 0.5 - Math.random()).slice(0, 20);
-  }, [tag, subTag]);
-
-  const randomOffset = useMemo(() => Math.random() * 1000, []);
-  const [currentIndex, setCurrentIndex] = useState(
-    Math.floor(Math.random() * prompts.length)
-  );
-  const [displayedText, setDisplayedText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [charIndex, setCharIndex] = useState(0);
-
-  useEffect(() => {
-    const currentPrompt = prompts[currentIndex];
-    let delay = isDeleting ? 50 : 100;
-    if (!isDeleting && charIndex === 0) {
-      delay += randomOffset;
-    }
-    let pauseTimeout: ReturnType<typeof setTimeout>;
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setDisplayedText(currentPrompt.substring(0, charIndex + 1));
-        if (charIndex + 1 === currentPrompt.length) {
-          pauseTimeout = setTimeout(() => setIsDeleting(true), 2000);
-        } else {
-          setCharIndex(charIndex + 1);
-        }
-      } else {
-        setDisplayedText(currentPrompt.substring(0, charIndex - 1));
-        if (charIndex - 1 === 0) {
-          setIsDeleting(false);
-          // Ensure we get a different random index
-          let newIndex;
-          do {
-            newIndex = Math.floor(Math.random() * prompts.length);
-          } while (newIndex === currentIndex && prompts.length > 1);
-          setCurrentIndex(newIndex);
-          setCharIndex(0);
-        } else {
-          setCharIndex(charIndex - 1);
-        }
-      }
-    }, delay);
-    return () => { clearTimeout(timeout); clearTimeout(pauseTimeout); };
-  }, [charIndex, isDeleting, currentIndex, prompts, randomOffset]);
-
-  if (isDisabled) {
-    return <></>;
-  }
-
-  return (
-    <div className="min-h-[2rem] text-center text-sm text-[var(--text)] font-serif transition-all duration-300 break-words" style={{ 
-      wordWrap: 'break-word',
-      overflowWrap: 'break-word',
-      hyphens: 'none',
-      WebkitHyphens: 'none',
-      msHyphens: 'none',
-      MozHyphens: 'none'
-    }}>
-      {displayedText}
-    </div>
-  );
-};
 
 const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -203,36 +67,6 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   );
 };
 
-// Static color data — module-level to avoid re-creation on every render
-const allowedColors = new Set([
-  "default", "aqua", "azure", "berry", "brass", "bronze", "clay", "cloud",
-  "copper", "coral", "cream", "cyan", "dune", "garnet", "gold", "honey",
-  "ice", "ivory", "jade", "lilac", "mint", "moss", "night", "ocean",
-  "olive", "peach", "pearl", "pine", "plum", "rose", "rouge", "ruby",
-  "sage", "sand", "sepia", "sky", "slate", "steel", "sunny", "teal", "wine"
-]);
-const colorMapping: Record<string, string> = {
-  plain: "default", cherry: "ruby", sapphire: "azure", lavender: "lilac",
-  turquoise: "cyan", amethyst: "pearl", midnight: "night", emerald: "jade",
-  periwinkle: "sky", lemon: "sunny", graphite: "steel", "dusty-rose": "rose",
-  "vintage-blue": "ice", terracotta: "clay", mustard: "honey", parchment: "ivory",
-  burgundy: "wine", "antique-brass": "brass", "forest-green": "pine",
-  maroon: "garnet", navy: "ocean", khaki: "sand"
-};
-const colorBgMap: Record<string, string> = {
-  default: "#E8E0D0", aqua: "#B8D8D8", azure: "#C0D0DB", berry: "#D1C3D8",
-  brass: "#E0D8C8", bronze: "#DDC7B0", clay: "#E0C5B2", cloud: "#DCDFF1",
-  copper: "#E0C8B3", coral: "#E3C6B2", cream: "#E5E3CD", cyan: "#C2DCDC",
-  dune: "#E2DECA", garnet: "#D8C0C0", gold: "#E3E0C4", honey: "#E3CDC3",
-  ice: "#C7CBCD", ivory: "#E6E5D2", jade: "#C5DCC8", lilac: "#DBC8DD",
-  mint: "#C9E0C9", moss: "#C6D8C2", night: "#C1C3D9", ocean: "#C2C6DA",
-  olive: "#DCDAC2", peach: "#E5CDC7", pearl: "#DCC9DE", pine: "#C2D6C3",
-  plum: "#D7C2C4", rose: "#E2CACB", rouge: "#E0C6C8", ruby: "#E1C3C3",
-  sage: "#DADCC8", sand: "#E5E2CA", sepia: "#D9D5C2", sky: "#DBDFE4",
-  slate: "#D6D8DA", steel: "#D8D9DA", sunny: "#E6E4C9", teal: "#C2DBDA",
-  wine: "#D9C3C4"
-};
-
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "default" }) => {
   const [flipped, setFlipped] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -252,27 +86,32 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     effectiveColor = colorMapping[memory.color] || "default";
   }
 
-  const borderStyle = {
+  const borderStyle = useMemo(() => ({
     borderWidth: '1px',
-    borderStyle: 'solid',
+    borderStyle: 'solid' as const,
     borderColor: 'var(--border)'
-  };
+  }), []);
 
-  const bgStyle =
+  const bgStyle = useMemo(() =>
     effectiveColor === "default"
       ? { backgroundColor: colorBgMap.default }
       : memory.full_bg
       ? { backgroundColor: colorBgMap[effectiveColor] || colorBgMap.default }
-      : {};
+      : {},
+    [effectiveColor, memory.full_bg]
+  );
 
-  const arrowStyle =
+  const arrowStyle = useMemo(() =>
     effectiveColor === "default"
       ? { color: "#D9D9D9" }
-      : { color: `var(--color-${effectiveColor}-border)` };
+      : { color: `var(--color-${effectiveColor}-border)` },
+    [effectiveColor]
+  );
 
-  const dateStr = new Date(memory.created_at).toLocaleDateString();
-  const timeStr = new Date(memory.created_at).toLocaleTimeString();
-  const dayStr = new Date(memory.created_at).toLocaleDateString(undefined, { weekday: "long" });
+  const createdDate = useMemo(() => new Date(memory.created_at), [memory.created_at]);
+  const dateStr = createdDate.toLocaleDateString();
+  const timeStr = createdDate.toLocaleTimeString();
+  const dayStr = createdDate.toLocaleDateString(undefined, { weekday: "long" });
 
   const timeCapsuleDelayMinutes = useMemo(() => {
     const rawDelayMinutes = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
@@ -828,4 +667,4 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   );
 };
 
-export default MemoryCard;
+export default React.memo(MemoryCard);

@@ -18,7 +18,6 @@ class BrowserSessionManager {
     if (existingSession && sessionStart) {
       // Session exists, browser hasn't been restarted
       this.sessionId = existingSession;
-      console.debug('🔄 Continuing browser session:', this.sessionId);
     } else {
       // New browser session (browser was restarted)
       this.sessionId = this.generateSessionId();
@@ -31,7 +30,6 @@ class BrowserSessionManager {
       // Clear any cookies/storage that should reset on browser restart
       this.clearBrowserRestartData();
       
-      console.debug('🆕 New browser session started:', this.sessionId);
     }
   }
   
@@ -40,7 +38,6 @@ class BrowserSessionManager {
   }
   
   private clearBrowserRestartData(): void {
-    console.debug('🧹 Clearing browser restart data...');
     
     // Clear cookies that should reset on browser restart
     const cookiesToClear = [
@@ -122,7 +119,7 @@ class BrowserSessionManager {
           return data.value;
         }
       } catch (e) {
-        console.debug('Session data parse error:', e);
+        // Parse error — ignore
       }
     }
     

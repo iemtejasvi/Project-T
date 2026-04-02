@@ -109,6 +109,14 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
     });
 
     return () => {
+      // Remove dynamically created drip elements before clearing timeouts
+      if (container) {
+        container.querySelectorAll('.cursive-char-drip').forEach(el => el.remove());
+        container.querySelectorAll('.cursive-drip').forEach(el => el.remove());
+        container.querySelectorAll('.melting, .melted').forEach(el => {
+          el.classList.remove('melting', 'melted');
+        });
+      }
       timers.forEach(clearTimeout);
     };
   }, [message]);

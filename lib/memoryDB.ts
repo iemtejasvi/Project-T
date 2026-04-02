@@ -266,7 +266,7 @@ export async function fetchMemoriesPaginated(
   // Use estimated count for public feeds (much cheaper at scale).
   // Admin pages can pass exactCount: true when precision matters.
   const countMethod = options.exactCount ? 'exact' as const : 'estimated' as const;
-  let query = dbA.client.from('memories').select('*', { count: countMethod });
+  let query = dbA.client.from('memories').select('id,recipient,message,sender,created_at,status,color,full_bg,animation,pinned,pinned_until,tag,sub_tag,reveal_at,destruct_at,typewriter_enabled,time_capsule_delay_minutes,night_only,night_tz,night_start_hour,night_end_hour', { count: countMethod });
 
   // Filter out unrevealed time capsule memories at DB level for public views.
   // Cards simply don't appear until reveal_at passes.
@@ -369,38 +369,6 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   // Apply night-only filter, then redact unrevealed time capsules and destructed messages
   const nightFiltered = shouldFilterByRevealAt(filters) ? allMemories.filter(isNightOnlyVisibleNow) : allMemories;
   let filteredMemories = nightFiltered.map(redactIfUnrevealed).map(redactIfDestructed);
-  
-  // Apply in-memory filters (redundant safety — already applied at DB level)
-  if (filters.status) {
-    filteredMemories = filteredMemories.filter(m => m.status === filters.status);
-  }
-  if (filters.id) {
-    filteredMemories = filteredMemories.filter(m => m.id === filters.id);
-  }
-  if (filters.ip) {
-    filteredMemories = filteredMemories.filter(m => m.ip === filters.ip);
-  }
-  if (filters.uuid) {
-    filteredMemories = filteredMemories.filter(m => m.uuid === filters.uuid);
-  }
-  if (typeof filters.pinned !== 'undefined') {
-    const pinnedFlag = String(filters.pinned).toLowerCase() === 'true';
-    filteredMemories = filteredMemories.filter(m => Boolean(m.pinned) === pinnedFlag);
-  }
-  
-  // Apply ordering - pinned first, then by created_at
-  filteredMemories.sort((a, b) => {
-    if (a.pinned && !b.pinned) return -1;
-    if (!a.pinned && b.pinned) return 1;
-    
-    if (orderBy.created_at) {
-      const dateA = new Date(a.created_at || '').getTime();
-      const dateB = new Date(b.created_at || '').getTime();
-      return orderBy.created_at === 'desc' ? dateB - dateA : dateA - dateB;
-    }
-    
-    return 0;
-  });
 
   return { data: filteredMemories, error: null };
 }
