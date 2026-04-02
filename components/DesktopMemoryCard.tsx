@@ -6,7 +6,7 @@ import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
 import { laBelleAurore } from '@/lib/fonts';
 import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
-import { SPECIAL_EFFECT_WORD_LIMIT } from '@/lib/constants';
+import { SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
 import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
 import type { Memory } from '@/types/memory';
@@ -172,7 +172,7 @@ function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMe
     );
   }
   const messageToRender = memory.message;
-  const wordCount = messageToRender.split(/[\s.]+/).filter(word => word.length > 0).length;
+  const wordCount = countWords(messageToRender);
   const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
   const textClass = isShortOrExact
     ? "text-4xl tracking-wide leading-snug break-words hyphens-none"

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { typewriterTags, typewriterSubTags } from "@/components/typewriterPrompts";
 import { hasSuspiciouslyLongWords } from "@/lib/inputSanitizer";
 import { getCookie } from '@/lib/cookies';
-import { WORD_LIMIT, SPECIAL_EFFECT_WORD_LIMIT } from '@/lib/constants';
+import { WORD_LIMIT, SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
 import InlineLoader from "@/components/InlineLoader";
 import Footer from "@/components/Footer";
 
@@ -220,7 +220,7 @@ export default function SubmitPage() {
     })();
   }, []);
 
-  const wordCount = message.trim() ? message.trim().split(/[\s.]+/).filter(word => word.length > 0).length : 0;
+  const wordCount = message.trim() ? countWords(message) : 0;
   const isSpecialAllowed = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
   const percentNumber = isUnlimitedUser ? Math.min(wordCount, 100) : Math.min((wordCount / WORD_LIMIT) * 100, 100);
   const percent = percentNumber.toFixed(0);

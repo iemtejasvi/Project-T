@@ -7,7 +7,7 @@ import HandwrittenText from './HandwrittenText';
 import { laBelleAurore } from '@/lib/fonts';
 import "../app/globals.css";
 import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
-import { SPECIAL_EFFECT_WORD_LIMIT } from '@/lib/constants';
+import { SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
 import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
 import type { Memory } from '@/types/memory';
@@ -228,7 +228,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       );
     }
     const messageToRender = memory.message;
-    const wordCount = messageToRender.split(/[\s.]+/).filter(word => word.length > 0).length;
+    const wordCount = countWords(messageToRender);
     const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
     const textClass = forceLarge
       ? "text-[26px] tracking-wide leading-snug break-words hyphens-none"
@@ -284,7 +284,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           </div>
         );
       }
-      const wordCount = memory.message.split(/[\s.]+/).filter(w => w.length > 0).length;
+      const wordCount = countWords(memory.message);
       const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
       const textClass = isShortOrExact
         ? "text-5xl tracking-wide leading-snug break-words hyphens-none"

@@ -3,7 +3,7 @@ import { insertMemory, countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { validateMemoryInput, sanitizeString, sanitizeUUID, isValidIP } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
-import { MEMORY_LIMIT, WORD_LIMIT } from '@/lib/constants';
+import { MEMORY_LIMIT, WORD_LIMIT, countWords } from '@/lib/constants';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 interface SubmissionData {
@@ -483,7 +483,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Enforce 50-word limit unless unlimited or global override
       {
-        const wordCount = message.trim().split(/[\s.]+/).filter((word) => word.length > 0).length;
+        const wordCount = countWords(message);
         if (wordCount > WORD_LIMIT && !isUnlimited && !globalOverrideActive) {
           return createSecureErrorResponse(`Message exceeds ${WORD_LIMIT} word limit.`, 400, { origin });
         }
