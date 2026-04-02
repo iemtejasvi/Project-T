@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
-import { laBelleAurore } from '@/lib/fonts';
+import { laBelleAuroreClass } from '@/lib/fonts';
 import "../app/globals.css";
 import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
 import { SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
@@ -249,7 +249,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         return <HandwrittenText message={messageToRender} textClass={textClass} />;
       case "rough":
         // Use handwritten text sizing/feel; card-level background handles rough paper
-        return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{messageToRender}</p>;
+        return <p className={`${textClass} ${laBelleAuroreClass} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{messageToRender}</p>;
       default:
         return (
           <div className="space-y-2">
@@ -302,7 +302,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           return <HandwrittenText message={memory.message} textClass={textClass} />;
         case "rough":
           // Use handwritten text sizing/feel; card-level background handles rough paper
-          return <p className={`${textClass} ${laBelleAurore.className} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{memory.message}</p>;
+          return <p className={`${textClass} ${laBelleAuroreClass} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{memory.message}</p>;
         default:
           return (
             <div className="space-y-2">

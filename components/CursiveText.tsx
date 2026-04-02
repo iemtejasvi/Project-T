@@ -1,12 +1,6 @@
 "use client";
 import React, { useEffect, useRef } from 'react';
-import { Pacifico } from 'next/font/google';
-
-const pacifico = Pacifico({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap',
-});
+import { pacificoClass } from '@/lib/fonts';
 
 interface CursiveTextProps {
   message: string;
@@ -124,7 +118,7 @@ const CursiveText: React.FC<CursiveTextProps> = ({ message, textClass, effective
   return (
     <div ref={containerRef} className="cursive-text px-[0.05rem] sm:px-[0.05rem] antialiased space-y-2">
       <p 
-        className={`${textClass} ${pacifico.className}`}
+        className={`${textClass} ${pacificoClass}`}
         style={{ 
           color: `var(--color-${effectiveColor}-border)`,
           textShadow: `0px 0px 3px var(--color-${effectiveColor}-border), 

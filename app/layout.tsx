@@ -5,6 +5,21 @@ import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 import Script from "next/script";
 import RoutePrefetcher from "@/components/RoutePrefetcher";
+import { La_Belle_Aurore, Pacifico } from 'next/font/google';
+
+const laBelleAurore = La_Belle_Aurore({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-la-belle-aurore',
+});
+
+const pacifico = Pacifico({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-pacifico',
+});
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_ID || '';
@@ -155,7 +170,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
       </head>
-      <body className="min-h-screen bg-[var(--background)] text-[var(--text)]">
+      <body className={`min-h-screen bg-[var(--background)] text-[var(--text)] ${laBelleAurore.variable} ${pacifico.variable}`}>
         <ThemeSwitcher />
         <UuidInitializer />
         <RoutePrefetcher />
