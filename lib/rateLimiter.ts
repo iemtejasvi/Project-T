@@ -196,7 +196,7 @@ export async function checkRateLimit(
  * Clean up expired entries. No-op with Redis (TTLs handle expiry).
  * Only cleans the in-memory fallback store.
  */
-export async function cleanupRateLimitStore(): Promise<number> {
+async function cleanupRateLimitStore(): Promise<number> {
   const now = Date.now();
   let cleaned = 0;
   for (const [key, entry] of rateLimitStore.entries()) {
@@ -206,57 +206,6 @@ export async function cleanupRateLimitStore(): Promise<number> {
     }
   }
   return cleaned;
-}
-
-// Auto-cleanup in-memory fallback store every 5 minutes (serverless-safe: no-op if Redis handles it)
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => { cleanupRateLimitStore().catch(() => {}); }, 5 * 60 * 1000);
-}
-
-/**
- * Get rate limit store statistics
- */
-export async function getRateLimitStats() {
-  if (redis) {
-    try {
-      const keys: string[] = [];
-      let done = false;
-      let scanCursor = 0;
-      while (!done) {
-        const [nextCursor, batch] = await redis.scan(scanCursor, { match: 'rl:count:*', count: 100 });
-        keys.push(...batch);
-        scanCursor = Number(nextCursor);
-        if (scanCursor === 0) done = true;
-      }
-
-      const entries = await Promise.all(
-        keys.map(async (key) => {
-          const data = await redis!.hgetall(key) as Record<string, string> | null;
-          const identifier = key.replace('rl:count:', '');
-          return {
-            identifier,
-            count: data ? Number(data.count) : 0,
-            resetTime: data ? new Date(Number(data.resetTime)).toISOString() : null,
-            blockedUntil: null as string | null,
-          };
-        })
-      );
-
-      return { totalEntries: entries.length, entries };
-    } catch {
-      // Fall through to in-memory stats
-    }
-  }
-
-  return {
-    totalEntries: rateLimitStore.size,
-    entries: Array.from(rateLimitStore.entries()).map(([key, entry]) => ({
-      identifier: key,
-      count: entry.count,
-      resetTime: new Date(entry.resetTime).toISOString(),
-      blockedUntil: entry.blockedUntil ? new Date(entry.blockedUntil).toISOString() : null
-    }))
-  };
 }
 
 /**
@@ -322,7 +271,8 @@ export function generateRateLimitKey(
   } else if (uuid && uuid.length > 10) {
     identifier = `uuid:${uuid}`;
   } else {
-    identifier = `fallback:${fallback}`;
+    // No identifiable user — randomize key to prevent shared bucket DoS
+    identifier = `fallback:${fallback}:${Math.random().toString(36).slice(2, 8)}`;
   }
 
   return `${endpoint}:${identifier}`;

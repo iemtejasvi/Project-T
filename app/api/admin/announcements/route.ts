@@ -27,19 +27,19 @@ export async function POST(request: NextRequest) {
       is_dismissible: typeof is_dismissible === 'boolean' ? is_dismissible : true,
     };
 
-    // Delete all existing announcements first
-    await primaryDB.from('announcements').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-
-    // Create new announcement
+    // Insert new announcement first, then delete old ones (atomic-safe)
     const { data, error } = await primaryDB
       .from('announcements')
       .insert([sanitized])
       .select()
       .single();
-    
+
     if (error) {
       return createSecureErrorResponse(error.message || 'Failed to create announcement', 500, { origin });
     }
+
+    // Only delete old announcements AFTER successful insert
+    await primaryDB.from('announcements').delete().neq('id', data.id);
     
     return createSecureResponse({ success: true, data }, 201, { origin });
     

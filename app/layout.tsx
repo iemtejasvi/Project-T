@@ -81,12 +81,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
-        <meta name="msapplication-TileColor" content="#ffffff" />
-        <meta name="msapplication-TileImage" content="/mstile-150x150.png" />
         <meta name="google-site-verification" content="-3cysNzrb6ZgU44DFdsfeiwU61zydgZWRMyXebgmsUM" />
         <meta name="color-scheme" content="light dark" />
         <meta name="referrer" content="no-referrer-when-downgrade" />
@@ -153,8 +147,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             ]).replace(/</g, '\\u003c')
           }}
         />
-        
-        <link rel="manifest" href="/site.webmanifest" />
         {ENABLE_ADS && (
           <Script
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}

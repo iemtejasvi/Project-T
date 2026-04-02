@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { primaryDB } from '@/lib/memoryDB';
 import { unstable_cache } from 'next/cache';
 import { normalizeNameSlug, sanitizeForPostgrestFilter } from '@/lib/nameUtils';
 
@@ -8,27 +8,12 @@ interface NameLayoutProps {
   params: Promise<{ name: string }>;
 }
 
-// Module-level singleton — reused across requests in the same Lambda
-let _supabase: SupabaseClient | null | undefined;
-function getSupabase() {
-  if (_supabase !== undefined) return _supabase;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) { _supabase = null; return null; }
-  _supabase = createClient(url, key, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-  return _supabase;
-}
-
 // ISR cache: count of approved memories for a name (revalidate every 2 min)
 const getCachedNameCount = unstable_cache(
   async (slug: string) => {
-    const supabase = getSupabase();
-    if (!supabase) return 0;
     const nowIso = new Date().toISOString();
     const safeSlug = sanitizeForPostgrestFilter(slug);
-    const { count, error } = await supabase
+    const { count, error } = await primaryDB
       .from('memories')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'approved')
@@ -38,7 +23,7 @@ const getCachedNameCount = unstable_cache(
     return count || 0;
   },
   ['name-count'],
-  { revalidate: 120, tags: ['memories-feed'] }
+  { revalidate: 120, tags: ['name-data'] }
 );
 
 export async function generateMetadata({ params }: NameLayoutProps): Promise<Metadata> {

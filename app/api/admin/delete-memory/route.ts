@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
     }
     
     revalidateTag('memories-feed', 'max');
+    revalidateTag('name-data', 'max');
     revalidatePath('/api/memories');
     revalidatePath('/memories');
     revalidatePath('/');

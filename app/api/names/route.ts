@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { supabaseServer } from '@/lib/supabaseServer';
+import { primaryDB } from '@/lib/memoryDB';
 import { sanitizeString } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
@@ -31,7 +31,7 @@ const getCachedNameMemories = unstable_cache(
     const safeName = sanitizeForPostgrestFilter(normalizedName);
 
     // Query memories where recipient OR sender matches the name (case-insensitive)
-    let query = supabaseServer
+    let query = primaryDB
       .from('memories')
       .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled', { count: 'estimated' })
       .eq('status', 'approved')
@@ -56,7 +56,7 @@ const getCachedNameMemories = unstable_cache(
     return { data: data || [], totalCount, totalPages, error: null };
   },
   ['name-archive'],
-  { revalidate: 60, tags: ['memories-feed'] }
+  { revalidate: 60, tags: ['name-data'] }
 );
 
 // Check if a name exists (has at least one approved memory)
@@ -65,7 +65,7 @@ const getCachedNameExists = unstable_cache(
     const nowIso = new Date().toISOString();
     const safeName = sanitizeForPostgrestFilter(normalizedName);
 
-    const { count, error } = await supabaseServer
+    const { count, error } = await primaryDB
       .from('memories')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'approved')
@@ -76,7 +76,7 @@ const getCachedNameExists = unstable_cache(
     return (count || 0) > 0;
   },
   ['name-exists'],
-  { revalidate: 120, tags: ['memories-feed'] }
+  { revalidate: 120, tags: ['name-data'] }
 );
 
 // Fetch related names: other recipients/senders that appear in the same memories
@@ -84,7 +84,7 @@ const getCachedRelatedNames = unstable_cache(
   async (normalizedName: string) => {
     // Get memories where this name is recipient or sender
     const safeName = sanitizeForPostgrestFilter(normalizedName);
-    const { data, error } = await supabaseServer
+    const { data, error } = await primaryDB
       .from('memories')
       .select('recipient, sender')
       .eq('status', 'approved')
@@ -115,7 +115,7 @@ const getCachedRelatedNames = unstable_cache(
     return related;
   },
   ['related-names'],
-  { revalidate: 300, tags: ['memories-feed'] }
+  { revalidate: 300, tags: ['name-data'] }
 );
 
 export async function GET(request: NextRequest) {

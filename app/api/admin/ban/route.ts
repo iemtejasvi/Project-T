@@ -52,10 +52,16 @@ export async function DELETE(request: NextRequest) {
     const uuid = searchParams.get('uuid');
     
     if (ip) {
-      await primaryDB.from('banned_users').delete().eq('ip', ip);
+      const { error } = await primaryDB.from('banned_users').delete().eq('ip', ip);
+      if (error) {
+        return createSecureErrorResponse(error.message || 'Failed to unban by IP', 500, { origin });
+      }
     }
     if (uuid) {
-      await primaryDB.from('banned_users').delete().eq('uuid', uuid);
+      const { error } = await primaryDB.from('banned_users').delete().eq('uuid', uuid);
+      if (error) {
+        return createSecureErrorResponse(error.message || 'Failed to unban by UUID', 500, { origin });
+      }
     }
     
     return createSecureResponse({ success: true }, 200, { origin });

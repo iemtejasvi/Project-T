@@ -122,6 +122,7 @@ export async function POST(request: NextRequest) {
     
     // Purge ISR data cache + route cache so updated content appears instantly
     revalidateTag('memories-feed', 'max');
+    revalidateTag('name-data', 'max');
     revalidatePath('/api/memories');
     revalidatePath('/memories');
     revalidatePath('/');

@@ -124,6 +124,8 @@ export async function POST(request: NextRequest) {
       }
 
       revalidateTag('memories-feed', 'max');
+      revalidateTag('name-data', 'max');
+      revalidateTag('popular-names', 'max');
       revalidatePath('/api/memories');
       revalidatePath('/memories');
       revalidatePath('/');
@@ -136,6 +138,8 @@ export async function POST(request: NextRequest) {
       const ok = deleted;
       const failed = error ? uniqueIds.length : uniqueIds.length - deleted;
       revalidateTag('memories-feed', 'max');
+      revalidateTag('name-data', 'max');
+      revalidateTag('popular-names', 'max');
       revalidatePath('/api/memories');
       revalidatePath('/memories');
       revalidatePath('/');

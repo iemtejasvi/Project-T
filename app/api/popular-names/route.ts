@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { supabaseServer } from '@/lib/supabaseServer';
+import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { isLinkableName } from '@/lib/nameUtils';
@@ -9,7 +9,7 @@ import { unstable_cache } from 'next/cache';
 const getPopularNames = unstable_cache(
   async () => {
     const nowIso = new Date().toISOString();
-    const { data } = await supabaseServer
+    const { data } = await primaryDB
       .from('memories')
       .select('recipient')
       .eq('status', 'approved')
@@ -41,7 +41,7 @@ const getPopularNames = unstable_cache(
       .map(([key, v]) => ({ slug: key, display: v.display }));
   },
   ['popular-names-api'],
-  { revalidate: 3600, tags: ['memories-feed'] }
+  { revalidate: 3600, tags: ['popular-names'] }
 );
 
 export async function GET(request: NextRequest) {

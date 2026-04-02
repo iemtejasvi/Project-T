@@ -311,46 +311,6 @@ export async function fetchMemoriesPaginated(
   };
 }
 
-// Legacy fetch function - now optimized to use limits when possible
-export async function fetchMemories(filters: Record<string, string> = {}, orderBy: Record<string, string> = {}) {
-  const limit = 1000; // Reasonable limit to prevent loading millions of records
-  
-  let query = dbA.client.from('memories').select('*');
-
-  // NOTE: No longer filtering out unrevealed time capsules at DB level.
-  // They are included but redacted server-side so cards show blurred.
-  
-  // Apply filters at database level
-  if (filters.status) query = query.eq('status', filters.status);
-  if (filters.id) query = query.eq('id', filters.id);
-  if (filters.ip) query = query.eq('ip', filters.ip);
-  if (filters.uuid) query = query.eq('uuid', filters.uuid);
-  if (filters.pinned !== undefined) {
-    query = query.eq('pinned', filters.pinned === 'true');
-  }
-  
-  // Order and limit
-  query = query.order('pinned', { ascending: false });
-  query = query.order('created_at', { ascending: orderBy.created_at === 'asc' });
-  query = query.limit(limit);
-  
-  const result = await query;
-  
-  let allMemories: Memory[] = [];
-  
-  if (!result.error) {
-    allMemories = (result.data || []).map(cleanMemory);
-  } else {
-    console.error('Error fetching from database:', result.error);
-  }
-  
-  // Apply night-only filter, then redact unrevealed time capsules and destructed messages
-  const nightFiltered = shouldFilterByRevealAt(filters) ? allMemories.filter(isNightOnlyVisibleNow) : allMemories;
-  let filteredMemories = nightFiltered.map(redactIfUnrevealed).map(redactIfDestructed);
-
-  return { data: filteredMemories, error: null };
-}
-
 // Count memories (efficient server-side count)
 export async function countMemories(filters: Record<string, string> = {}) {
   try {

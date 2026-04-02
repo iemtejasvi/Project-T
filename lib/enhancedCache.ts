@@ -1,5 +1,4 @@
 // Ultra-performant, future-proof caching system for millions of memories
-import { getPerformanceMonitor } from './performanceMonitor';
 import type { Memory } from '@/types/memory';
 
 interface CachedData {
@@ -47,19 +46,20 @@ class UltraCache {
   private prefetchQueue: Set<string>;
   private pendingFetches: Map<string, { promise: Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }>, startedAt: number }>;
   private lastFetchTime: Map<string, number>;
+  private lastInteractionTime: number = Date.now();
   private readonly maxAge: number = 60000; // 60s cache — matches ISR revalidation window
   private readonly staleWhileRevalidate: number = 120000; // 2 min stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
   private readonly prefetchDepth: number = 1; // Prefetch adjacent page only
   private readonly minRefreshInterval: number = 30000; // Minimum 30s between refreshes (ISR handles freshness)
   private prefetchScheduled: boolean = false;
-  
+
   constructor() {
     this.cache = new Map();
     this.prefetchQueue = new Set();
     this.pendingFetches = new Map();
     this.lastFetchTime = new Map();
-    
+
     // Initialize cache with localStorage if available
     if (typeof window !== 'undefined') {
       try {
@@ -81,32 +81,31 @@ class UltraCache {
       }
 
       this.restoreFromLocalStorage();
-      
+
       // Save to localStorage periodically
       setInterval(() => this.persistToLocalStorage(), 30000); // Save every 30s
 
       // Clean up old entries more frequently for fresher content
       setInterval(() => this.cleanupOldEntries(), 300000); // Clean every 5 minutes
 
-      // Prefetch queue is now demand-driven — triggered by prefetchAdjacentPages()
-
-      // Check for fresh content periodically
+      // Check for fresh content periodically (skips if idle > 5 min)
       setInterval(() => this.checkForFreshContent(), 60000); // Check every 60s (matches ISR window)
-      
+
       // Save on page unload
       window.addEventListener('beforeunload', () => this.persistToLocalStorage());
-      
-      // Listen for visibility change to refresh when page becomes visible
+
+      // Track user activity for idle detection
+      const updateActivity = () => { this.lastInteractionTime = Date.now(); };
+      document.addEventListener('click', updateActivity, { passive: true });
+      document.addEventListener('keydown', updateActivity, { passive: true });
+      document.addEventListener('scroll', updateActivity, { passive: true });
+
+      // Refresh when tab becomes visible (single handler — no duplicate focus listener)
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
-          // Immediate background refresh when tab becomes visible
+          this.lastInteractionTime = Date.now();
           setTimeout(() => this.checkForFreshContent(), 100);
         }
-      });
-      
-      // Listen for focus to ensure fresh content
-      window.addEventListener('focus', () => {
-        setTimeout(() => this.checkForFreshContent(), 100);
       });
     }
   }
@@ -210,7 +209,6 @@ class UltraCache {
     orderBy: Record<string, string> = {},
     options: CacheOptions = {}
   ): Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }> {
-    const monitor = getPerformanceMonitor();
     const cacheKey = this.getCacheKey(page, pageSize, filters, searchTerm, orderBy);
     
     // Use options or defaults
@@ -244,20 +242,15 @@ class UltraCache {
     
     // Return cached data if fresh and not forcing refresh
     if (cached && !shouldForceRefresh && (now - cached.timestamp) < maxAge) {
-      monitor.startTimer('cache-hit');
-      
       // Always revalidate in background to ensure fresh content
       if (now - cached.timestamp > this.minRefreshInterval) {
         cached.isStale = true;
         this.revalidateInBackground(page, pageSize, filters, searchTerm, orderBy);
       }
-      
+
       // Aggressively prefetch adjacent pages
       this.prefetchAdjacentPages(page, pageSize, filters, searchTerm, orderBy, cached.totalPages);
-      
-      monitor.endTimer('cache-hit');
-      // Silent cache hit - no console spam for seamless experience
-      
+
       return {
         data: cached.data,
         totalCount: cached.totalCount,
@@ -283,15 +276,11 @@ class UltraCache {
     }
     
     // Fetch fresh data
-    monitor.startTimer('cache-miss');
-    
     const fetchPromise = this.fetchFreshData(page, pageSize, filters, searchTerm, orderBy);
     this.pendingFetches.set(cacheKey, { promise: fetchPromise, startedAt: Date.now() });
-    
+
     try {
-      const result = await fetchPromise;
-      monitor.endTimer('cache-miss');
-      return result;
+      return await fetchPromise;
     } finally {
       this.pendingFetches.delete(cacheKey);
     }
@@ -554,6 +543,9 @@ class UltraCache {
   
   // Check for fresh content on critical pages
   private async checkForFreshContent(): Promise<void> {
+    // Skip background revalidation if user has been idle for over 5 minutes
+    if (Date.now() - this.lastInteractionTime > 5 * 60 * 1000) return;
+
     // Check home page and first archive page
     const criticalPages = [
       { page: 0, pageSize: 6 }, // Home

@@ -1,23 +1,10 @@
 import { Metadata } from 'next';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { primaryDB } from '@/lib/memoryDB';
 import { unstable_cache } from 'next/cache';
 
 interface MemoryLayoutProps {
   children: React.ReactNode;
   params: Promise<{ id: string }>;
-}
-
-// Module-level singleton — reused across requests in the same Lambda
-let _supabase: SupabaseClient | null | undefined;
-function getSupabase() {
-  if (_supabase !== undefined) return _supabase;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) { _supabase = null; return null; }
-  _supabase = createClient(url, key, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-  return _supabase;
 }
 
 const FALLBACK_TITLE = "Unsent Memory – If Only I Sent This";
@@ -26,10 +13,7 @@ const FALLBACK_DESC = "Read this anonymous unsent message on If Only I Sent This
 // ISR cache: one DB hit per memory ID per 60s across all visitors.
 const getCachedMemoryMeta = unstable_cache(
   async (id: string) => {
-    const supabase = getSupabase();
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
+    const { data, error } = await primaryDB
       .from('memories')
       .select('recipient, message, status, reveal_at')
       .eq('id', id)

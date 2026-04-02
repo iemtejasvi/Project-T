@@ -57,20 +57,24 @@ export async function POST(request: NextRequest) {
 // Check auth status
 export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check if authenticated via IP
-  const adminIP = process.env.ADMIN_IP_ADDRESS;
-  const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-                   request.headers.get('x-real-ip') ||
-                   null;
-  const autoAuth = adminIP && clientIP === adminIP;
-  
-  const isAuthenticated = isAdminAuthenticated(request);
-  
-  return createSecureResponse({ 
-    authenticated: isAuthenticated,
-    autoAuth: autoAuth 
-  }, 200, { origin });
+
+  try {
+    const isAuthenticated = isAdminAuthenticated(request);
+
+    // Only expose autoAuth status to authenticated users
+    const response: Record<string, unknown> = { authenticated: isAuthenticated };
+    if (isAuthenticated) {
+      const adminIP = process.env.ADMIN_IP_ADDRESS;
+      const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+                       request.headers.get('x-real-ip') ||
+                       null;
+      response.autoAuth = Boolean(adminIP && clientIP === adminIP);
+    }
+
+    return createSecureResponse(response, 200, { origin });
+  } catch {
+    return createSecureErrorResponse('Server error', 500, { origin });
+  }
 }
 
 // Logout
