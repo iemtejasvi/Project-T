@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { typewriterTags, typewriterSubTags } from "@/components/typewriterPrompts";
 import { hasSuspiciouslyLongWords } from "@/lib/inputSanitizer";
+import { getCookie } from '@/lib/cookies';
+import { WORD_LIMIT, SPECIAL_EFFECT_WORD_LIMIT } from '@/lib/constants';
 import InlineLoader from "@/components/InlineLoader";
 import Footer from "@/components/Footer";
 
@@ -219,20 +221,20 @@ export default function SubmitPage() {
   }, []);
 
   const wordCount = message.trim() ? message.trim().split(/[\s.]+/).filter(word => word.length > 0).length : 0;
-  const isSpecialAllowed = wordCount <= 30;
-  const percentNumber = isUnlimitedUser ? Math.min(wordCount, 100) : Math.min((wordCount / 50) * 100, 100);
+  const isSpecialAllowed = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
+  const percentNumber = isUnlimitedUser ? Math.min(wordCount, 100) : Math.min((wordCount / WORD_LIMIT) * 100, 100);
   const percent = percentNumber.toFixed(0);
-  const overLimit = wordCount > 50;
+  const overLimit = wordCount > WORD_LIMIT;
 
   // Trigger special-effect warning and disable existing effect when crossing 30-word threshold
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
-    if (wordCount > 30 && !hasCrossed) {
+    if (wordCount > SPECIAL_EFFECT_WORD_LIMIT && !hasCrossed) {
       setSpecialEffectVisible(true);
       setHasCrossed(true);
       setSpecialEffect("");
       timer = setTimeout(() => setSpecialEffectVisible(false), 5000);
-    } else if (wordCount <= 30 && hasCrossed) {
+    } else if (wordCount <= SPECIAL_EFFECT_WORD_LIMIT && hasCrossed) {
       setHasCrossed(false);
     }
     return () => clearTimeout(timer);
@@ -864,6 +866,7 @@ export default function SubmitPage() {
         fetch('/api/check-user-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uuid }),
         }).then(async (res) => {
           if (!res.ok) return { blocked: false, reason: '' };
           const data = await res.json();
@@ -997,14 +1000,7 @@ export default function SubmitPage() {
     });
   };
 
-  // Helper function to get cookie value
-  function getCookie(name: string): string | null {
-    if (typeof document === 'undefined') return null;
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-    return null;
-  }
+
 
   // Removed decorative leaf color logic
 
@@ -1129,14 +1125,14 @@ export default function SubmitPage() {
                       <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-300 ${
-                            isUnlimitedUser ? "bg-[var(--accent)]" : (wordCount <= 30 ? "bg-[var(--accent)]" : wordCount <= 50 ? "bg-[var(--secondary)]" : "bg-red-500")
+                            isUnlimitedUser ? "bg-[var(--accent)]" : (wordCount <= SPECIAL_EFFECT_WORD_LIMIT ? "bg-[var(--accent)]" : wordCount <= WORD_LIMIT ? "bg-[var(--secondary)]" : "bg-red-500")
                           }`}
                           style={{ width: `${percent}%` }}
                         />
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="font-mono text-[var(--text)]/70">{isUnlimitedUser ? `${wordCount} words` : `${wordCount} / 50`}</span>
-                        {wordCount > 30 && specialEffectVisible && (
+                        {wordCount > SPECIAL_EFFECT_WORD_LIMIT && specialEffectVisible && (
                           <span className="text-red-500 font-medium">
                             Special effects disabled beyond 30 words.
                           </span>
@@ -1418,9 +1414,9 @@ export default function SubmitPage() {
                     <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-300 ${
-                        wordCount <= 30
+                        wordCount <= SPECIAL_EFFECT_WORD_LIMIT
                           ? "bg-[var(--accent)]"
-                          : wordCount <= 50
+                          : wordCount <= WORD_LIMIT
                           ? "bg-[var(--secondary)]"
                           : "bg-red-500"
                         }`}
@@ -1429,7 +1425,7 @@ export default function SubmitPage() {
                   </div>
                     <div className="flex justify-between text-sm">
                       <span className="font-mono text-[var(--text)]/70">{isUnlimitedUser ? `${wordCount} words` : `${wordCount} / 50`}</span>
-                    {wordCount > 30 && specialEffectVisible && (
+                    {wordCount > SPECIAL_EFFECT_WORD_LIMIT && specialEffectVisible && (
                         <span className="text-red-500">Special effects disabled beyond 30 words.</span>
                     )}
                     {overLimit && !isUnlimitedUser && (

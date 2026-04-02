@@ -3,6 +3,7 @@ import { insertMemory, countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { validateMemoryInput, sanitizeString, sanitizeUUID, isValidIP } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
+import { MEMORY_LIMIT, WORD_LIMIT } from '@/lib/constants';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 interface SubmissionData {
@@ -483,8 +484,8 @@ export async function POST(request: NextRequest) {
       // Enforce 50-word limit unless unlimited or global override
       {
         const wordCount = message.trim().split(/[\s.]+/).filter((word) => word.length > 0).length;
-        if (wordCount > 50 && !isUnlimited && !globalOverrideActive) {
-          return createSecureErrorResponse('Message exceeds 50 word limit.', 400, { origin });
+        if (wordCount > WORD_LIMIT && !isUnlimited && !globalOverrideActive) {
+          return createSecureErrorResponse(`Message exceeds ${WORD_LIMIT} word limit.`, 400, { origin });
         }
       }
       // Ban check + memory count check in parallel
@@ -527,7 +528,7 @@ export async function POST(request: NextRequest) {
           if (countResults) {
             const [ipResult, uuidResult] = countResults;
             const totalCount = Math.max(ipResult.count, uuidResult.count);
-            if (totalCount >= 6) {
+            if (totalCount >= MEMORY_LIMIT) {
               const randomMessage = memoryLimitMessages[Math.floor(Math.random() * memoryLimitMessages.length)];
               return createSecureErrorResponse(randomMessage, 429, { origin });
             }
@@ -575,7 +576,7 @@ export async function POST(request: NextRequest) {
 
     try {
       // Insert memory into database
-      const { data, error, database } = await insertMemory(submissionData);
+      const { data, error } = await insertMemory(submissionData);
 
       if (error || !data) {
         return createSecureErrorResponse(

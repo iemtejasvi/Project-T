@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import { getCookie } from '@/lib/cookies';
 
 export default function UuidInitializer() {
   useEffect(() => {
@@ -66,13 +67,3 @@ export default function UuidInitializer() {
   }, []);
   return null;
 }
-
-// Helper function to get cookie value
-function getCookie(name: string): string | null {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) {
-    return parts.pop()?.split(';').shift() || null;
-  }
-  return null;
-} 

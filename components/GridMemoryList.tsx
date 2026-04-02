@@ -2,26 +2,7 @@
 import React, { useState, useEffect } from "react";
 import MemoryCard from "./MemoryCard";
 import DesktopMemoryCard from "./DesktopMemoryCard";
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  reveal_at?: string;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-  ip?: string;
-  country?: string;
-  uuid?: string;
-  tag?: string;
-  sub_tag?: string;
-}
+import type { Memory } from '@/types/memory';
 
 interface GridMemoryListProps {
   memories: Memory[];

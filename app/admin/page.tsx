@@ -8,31 +8,13 @@ import UnlimitedUsersPage from "./unlimited/page";
 import { primaryDBRead, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories } from "@/lib/memoryDB";
 import { forceRefreshAllCaches } from "@/lib/enhancedCache";
 import Loader from "@/components/Loader";
+import type { Memory } from '@/types/memory';
 
 // Utility: fetch with automatic timeout (prevents any admin action from hanging forever)
 function timedFetch(url: string, opts: RequestInit = {}, ms = 12000): Promise<Response> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
   return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(timer));
-}
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  reveal_at?: string;
-  status: string;
-  ip?: string;
-  country?: string;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-  uuid?: string;
-  tag?: string;
-  sub_tag?: string;
-  time_capsule_delay_minutes?: number;
 }
 
 type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "dbhealth" | "unlimited";
@@ -164,7 +146,7 @@ export default function AdminPanel() {
   }, [filteredMemories.length, displayCount]);
 
   const formatTimeUntilReveal = useCallback((memory: Memory): string | null => {
-    const rawDelay = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
+    const rawDelay = memory.time_capsule_delay_minutes;
     const delayMinutes = typeof rawDelay === 'number' ? rawDelay : (typeof rawDelay === 'string' ? Number(rawDelay) : 0);
     const hasExplicit = Number.isFinite(delayMinutes) && delayMinutes > 0;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 
 import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
@@ -10,29 +10,7 @@ import MemoryCard from "@/components/MemoryCard";
 import Loader from "@/components/Loader";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
 import TypingEffect from "@/components/TypingEffect";
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-  ip?: string;
-  country?: string;
-  uuid?: string;
-  tag?: string;
-  sub_tag?: string;
-  reveal_at?: string;
-  destruct_at?: string;
-  is_time_capsule_locked?: string;
-  typewriter_enabled?: boolean;
-}
+import type { Memory } from '@/types/memory';
 
 export default function HomeClient() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
@@ -297,6 +275,19 @@ export default function HomeClient() {
     }
   };
 
+  const trackAnnouncementClick = useCallback(async () => {
+    if (!announcement) return;
+    const r = await Promise.race([
+      fetch('/api/announcements/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ announcement_id: announcement.id, type: 'click' }),
+      }).then((res) => (res.ok ? { error: null } : { error: { message: `HTTP ${res.status}` } })),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+    ]);
+    if (r?.error) console.error('Error tracking click:', r.error);
+  }, [announcement]);
+
   // Check expired pins only when there are active items
   useEffect(() => {
     if (!hasActiveItems) return;
@@ -408,17 +399,7 @@ export default function HomeClient() {
                     target="_blank"
                     rel="noopener noreferrer nofollow"
                     className="underline hover:opacity-80 transition-opacity ml-2"
-                    onClick={async () => {
-                      const r = await Promise.race([
-                        fetch('/api/announcements/track', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ announcement_id: announcement.id, type: 'click' }),
-                        }).then((res) => (res.ok ? { error: null } : { error: { message: `HTTP ${res.status}` } })),
-                        new Promise<null>((r) => setTimeout(() => r(null), 5000)),
-                      ]);
-                      if (r?.error) console.error('Error tracking click:', r.error);
-                    }}
+                    onClick={trackAnnouncementClick}
                   >
                     {announcement.message}
                   </a>
@@ -464,17 +445,7 @@ export default function HomeClient() {
                   target="_blank"
                   rel="noopener noreferrer nofollow"
                   className="underline hover:opacity-80 transition-opacity"
-                  onClick={async () => {
-                    const r = await Promise.race([
-                      fetch('/api/announcements/track', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ announcement_id: announcement.id, type: 'click' }),
-                      }).then((res) => (res.ok ? { error: null } : { error: { message: `HTTP ${res.status}` } })),
-                      new Promise<null>((r) => setTimeout(() => r(null), 5000)),
-                    ]);
-                    if (r?.error) console.error('Error tracking click:', r.error);
-                  }}
+                  onClick={trackAnnouncementClick}
                 >
                   {announcement.message}
                 </a>

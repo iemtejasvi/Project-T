@@ -5,29 +5,7 @@ import MemoryCard from "@/components/MemoryCard";
 import Loader from "@/components/Loader";
 
 import Footer from "@/components/Footer";
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-  ip?: string;
-  country?: string;
-  uuid?: string;
-  tag?: string;
-  sub_tag?: string;
-  reveal_at?: string;
-  destruct_at?: string;
-  is_time_capsule_locked?: string;
-  typewriter_enabled?: boolean;
-}
+import type { Memory } from '@/types/memory';
 
 export default function MemoryDetailClient({ id }: { id: string }) {
   const [memory, setMemory] = useState<Memory | null | false>(null);

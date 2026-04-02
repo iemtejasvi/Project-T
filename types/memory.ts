@@ -1,0 +1,29 @@
+export interface Memory {
+  id: string;
+  recipient: string;
+  message: string;
+  sender?: string;
+  created_at: string;
+  status: string;
+  color: string;
+  full_bg: boolean;
+  animation?: string;
+  pinned?: boolean;
+  pinned_until?: string;
+  tag?: string;
+  sub_tag?: string;
+  reveal_at?: string;
+  destruct_at?: string;
+  ip?: string;
+  country?: string;
+  uuid?: string;
+  letter_style?: string;
+  typewriter_enabled?: boolean;
+  is_time_capsule_locked?: string;
+  time_capsule_delay_minutes?: number;
+  destruct_delay_minutes?: number;
+  night_only?: boolean;
+  night_tz?: string;
+  night_start_hour?: number;
+  night_end_hour?: number;
+}

@@ -1,40 +1,17 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { fetchWithUltraCache, invalidateCache, warmUpCache } from "@/lib/enhancedCache";
 import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
  
 import Loader from "@/components/Loader";
 import Footer from "@/components/Footer";
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-  ip?: string;
-  country?: string;
-  uuid?: string;
-  tag?: string;
-  sub_tag?: string;
-  reveal_at?: string;
-  destruct_at?: string;
-  is_time_capsule_locked?: string;
-  typewriter_enabled?: boolean;
-}
+import type { Memory } from '@/types/memory';
 
 function MemoriesContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const initialPage = useMemo(() => {
     const p = parseInt(searchParams?.get('page') || '0', 10);
     return Number.isFinite(p) && p >= 0 ? p : 0;

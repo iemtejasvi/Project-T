@@ -12,4 +12,3 @@ if (url && token) {
 }
 
 export { redis };
-export const redisAvailable = redis !== null;

@@ -6,33 +6,10 @@ import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
 import { laBelleAurore } from '@/lib/fonts';
 import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
+import { SPECIAL_EFFECT_WORD_LIMIT } from '@/lib/constants';
 import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  reveal_at?: string;
-  destruct_at?: string;
-  time_capsule_delay_minutes?: number;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  letter_style?: string;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-  ip?: string;
-  country?: string;
-  uuid?: string;
-  tag?: string;
-  sub_tag?: string;
-  typewriter_enabled?: boolean;
-  is_time_capsule_locked?: string;
-}
+import type { Memory } from '@/types/memory';
 
 interface DesktopMemoryCardProps {
   memory: Memory;
@@ -196,7 +173,7 @@ function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMe
   }
   const messageToRender = memory.message;
   const wordCount = messageToRender.split(/[\s.]+/).filter(word => word.length > 0).length;
-  const isShortOrExact = wordCount <= 30;
+  const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
   const textClass = isShortOrExact
     ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
     : "text-2xl tracking-wide leading-snug break-words hyphens-none";
@@ -336,7 +313,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   const dayStr = createdDate.toLocaleDateString(undefined, { weekday: "long" });
 
   const timeCapsuleDelayMinutes = useMemo(() => {
-    const rawDelayMinutes = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
+    const rawDelayMinutes = memory.time_capsule_delay_minutes;
     const delayMinutes =
       typeof rawDelayMinutes === 'number'
         ? rawDelayMinutes
@@ -568,7 +545,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 ref={backMessageRef}
                 className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 no_scrollbar ${dragScroll.getCursorClassName()}`}
                 style={{
-                  fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
+                  fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
@@ -580,7 +557,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 containerRefOverride={backMessageRef}
                 className={dragScroll.getCursorClassName()}
                 style={{
-                  fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= 30 ? '2rem' : '1.25rem',
+                  fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}

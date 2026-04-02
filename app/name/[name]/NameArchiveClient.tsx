@@ -6,26 +6,7 @@ import GridMemoryList from "@/components/GridMemoryList";
 import Loader from "@/components/Loader";
 import Footer from "@/components/Footer";
 import { useParams } from "next/navigation";
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  reveal_at?: string;
-  destruct_at?: string;
-  time_capsule_delay_minutes?: number;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  animation?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-  tag?: string;
-  sub_tag?: string;
-  typewriter_enabled?: boolean;
-}
+import type { Memory } from '@/types/memory';
 
 export default function NameArchiveClient() {
   const params = useParams();

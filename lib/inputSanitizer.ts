@@ -383,7 +383,7 @@ export function validateMemoryInput(
     'default', 'aqua', 'azure', 'berry', 'brass', 'bronze', 'clay', 'cloud',
     'copper', 'coral', 'cream', 'cyan', 'dune', 'garnet', 'gold', 'honey',
     'ice', 'ivory', 'jade', 'lilac', 'mint', 'moss', 'night', 'ocean',
-    'olive', 'peach', 'pearl', 'pine', 'plum', 'rose', 'rouge', 'ruby',
+    'olive', 'peach', 'pearl', 'pine', 'plain', 'plum', 'rose', 'rouge', 'ruby',
     'sage', 'sand', 'sepia', 'sky', 'slate', 'steel', 'sunny', 'teal', 'wine'
   ];
   

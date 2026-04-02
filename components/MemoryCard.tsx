@@ -7,33 +7,10 @@ import HandwrittenText from './HandwrittenText';
 import { laBelleAurore } from '@/lib/fonts';
 import "../app/globals.css";
 import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
+import { SPECIAL_EFFECT_WORD_LIMIT } from '@/lib/constants';
 import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
-
-interface Memory {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  created_at: string;
-  reveal_at?: string;
-  destruct_at?: string;
-  time_capsule_delay_minutes?: number;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  letter_style?: string;
-  animation?: string;
-  pinned?: boolean;
-  ip?: string;
-  country?: string;
-  uuid?: string;
-  tag?: string;
-  sub_tag?: string;
-  pinned_until?: string;
-  typewriter_enabled?: boolean;
-  is_time_capsule_locked?: string;
-}
+import type { Memory } from '@/types/memory';
 
 interface MemoryCardProps {
   memory: Memory;
@@ -114,7 +91,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   const dayStr = createdDate.toLocaleDateString(undefined, { weekday: "long" });
 
   const timeCapsuleDelayMinutes = useMemo(() => {
-    const rawDelayMinutes = (memory as unknown as Record<string, unknown>).time_capsule_delay_minutes;
+    const rawDelayMinutes = memory.time_capsule_delay_minutes;
     const delayMinutes =
       typeof rawDelayMinutes === 'number'
         ? rawDelayMinutes
@@ -252,7 +229,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     }
     const messageToRender = memory.message;
     const wordCount = messageToRender.split(/[\s.]+/).filter(word => word.length > 0).length;
-    const isShortOrExact = wordCount <= 30;
+    const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
     const textClass = forceLarge
       ? "text-[26px] tracking-wide leading-snug break-words hyphens-none"
       : isShortOrExact
@@ -307,8 +284,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           </div>
         );
       }
-      const wordCount = memory.message.split(/\s+/).length;
-      const isShortOrExact = wordCount <= 30;
+      const wordCount = memory.message.split(/[\s.]+/).filter(w => w.length > 0).length;
+      const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
       const textClass = isShortOrExact
         ? "text-5xl tracking-wide leading-snug break-words hyphens-none"
         : "text-4xl tracking-wide leading-snug break-words hyphens-none";

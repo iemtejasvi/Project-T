@@ -1,5 +1,6 @@
 // lib/memoryDB.ts
 import { createClient } from "@supabase/supabase-js";
+import type { Memory } from '@/types/memory';
 
 // Database A configuration with both anon (read) and service role (write) clients
 const dbA = {
@@ -37,7 +38,7 @@ export async function getStatusCounts() {
         .from('memories')
         .select('id', { count: 'exact', head: true })
         .eq('status', s)
-        .then(res => ({ status: s, count: (res as unknown as { count: number | null }).count ?? null }))
+        .then(res => ({ status: s, count: res.count ?? null }))
     )
   );
 
@@ -62,7 +63,7 @@ export async function measureDbLatency() {
 export async function getExpiredPinnedCount() {
   const now = new Date().toISOString();
   const res = await dbA.client.from('memories').select('id', { count: 'exact', head: true }).eq('pinned', true).lte('pinned_until', now);
-  const total = (res as unknown as { count: number | null }).count ?? 0;
+  const total = res.count ?? 0;
   return { total };
 }
 
@@ -93,31 +94,8 @@ export async function scrubDestructedMemories(): Promise<number> {
   return data?.length ?? 0;
 }
 
-// Interface for memory data
-interface MemoryData {
-  id: string;
-  recipient: string;
-  message: string;
-  sender?: string;
-  status: string;
-  color: string;
-  full_bg: boolean;
-  animation?: string;
-  ip?: string;
-  country?: string;
-  uuid?: string;
-  tag?: string;
-  sub_tag?: string;
-  created_at: string;
-  reveal_at?: string;
-  destruct_at?: string;
-  pinned?: boolean;
-  pinned_until?: string;
-  typewriter_enabled?: boolean;
-  [key: string]: string | boolean | undefined;
-}
 
-export function isRevealableNow(memory: MemoryData): boolean {
+export function isRevealableNow(memory: Memory): boolean {
   const revealAt = memory.reveal_at;
   if (typeof revealAt !== 'string' || revealAt.length === 0) return true;
   const revealTs = new Date(revealAt).getTime();
@@ -125,7 +103,7 @@ export function isRevealableNow(memory: MemoryData): boolean {
   return revealTs <= Date.now();
 }
 
-export function shouldDestructNow(memory: MemoryData): boolean {
+export function shouldDestructNow(memory: Memory): boolean {
   if (String(memory.status || '').toLowerCase() !== 'approved') return false;
   const destructAt = memory.destruct_at;
   if (typeof destructAt !== 'string' || destructAt.length === 0) return false;
@@ -134,7 +112,7 @@ export function shouldDestructNow(memory: MemoryData): boolean {
   return destructTs <= Date.now();
 }
 
-export function redactIfDestructed(memory: MemoryData): MemoryData {
+export function redactIfDestructed(memory: Memory): Memory {
   if (!shouldDestructNow(memory)) return memory;
   // Permanent deletion of message content: once destructed, never return the original message.
   // We keep the record so the UI can render a "destructed" placeholder card.
@@ -144,7 +122,7 @@ export function redactIfDestructed(memory: MemoryData): MemoryData {
 
 // Redact unrevealed time capsule memories: keep the card visible but hide the message.
 // reveal_at is preserved via spread so the client can compute the countdown timer.
-export function redactIfUnrevealed(memory: MemoryData): MemoryData {
+export function redactIfUnrevealed(memory: Memory): Memory {
   if (isRevealableNow(memory)) return memory;
   // Memory is not yet revealed — redact message, keep metadata (including reveal_at)
   return {
@@ -178,15 +156,15 @@ function getHourInTimeZone(timeZone: string): number | null {
   }
 }
 
-export function isNightOnlyVisibleNow(memory: MemoryData): boolean {
-  const nightOnly = Boolean((memory as unknown as Record<string, unknown>).night_only);
+export function isNightOnlyVisibleNow(memory: Memory): boolean {
+  const nightOnly = Boolean(memory.night_only);
   if (!nightOnly) return true;
 
-  const tz = String((memory as unknown as Record<string, unknown>).night_tz || '').trim();
+  const tz = String(memory.night_tz || '').trim();
   if (!tz) return false;
 
-  const startHourRaw = (memory as unknown as Record<string, unknown>).night_start_hour;
-  const endHourRaw = (memory as unknown as Record<string, unknown>).night_end_hour;
+  const startHourRaw = memory.night_start_hour;
+  const endHourRaw = memory.night_end_hour;
   const startHour = typeof startHourRaw === 'number' ? startHourRaw : Number(startHourRaw);
   const endHour = typeof endHourRaw === 'number' ? endHourRaw : Number(endHourRaw);
 
@@ -218,7 +196,7 @@ async function testDatabaseConnection(db: typeof dbA): Promise<boolean> {
 }
 
 // Helper function to clean memory data (convert null to undefined) without using Object.fromEntries
-function cleanMemoryData(data: Record<string, unknown>): MemoryData {
+function cleanMemory(data: Record<string, unknown>): Memory {
   const cleaned: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(data)) {
@@ -229,12 +207,12 @@ function cleanMemoryData(data: Record<string, unknown>): MemoryData {
   // Fallback to empty string so unstable_cache never loses the field.
   if (typeof cleaned.message !== 'string') cleaned.message = '';
 
-  return cleaned as MemoryData;
+  return cleaned as unknown as Memory;
 }
 
 // Insert memory into database
 export async function insertMemory(memoryData: Record<string, unknown>) {
-  const cleanedData = cleanMemoryData(memoryData);
+  const cleanedData = cleanMemory(memoryData);
   
   try {
     const { data, error } = await dbA.writeClient
@@ -314,7 +292,7 @@ export async function fetchMemoriesPaginated(
     return { data: [], totalCount: 0, totalPages: 0, currentPage: page, error: result.error };
   }
 
-  const memories = (result.data || []).map(cleanMemoryData);
+  const memories = (result.data || []).map(cleanMemory);
   const totalCount = result.count || 0;
 
   // NOTE: Night-only filtering and destruct redaction are applied AFTER caching
@@ -358,10 +336,10 @@ export async function fetchMemories(filters: Record<string, string> = {}, orderB
   
   const result = await query;
   
-  let allMemories: MemoryData[] = [];
+  let allMemories: Memory[] = [];
   
   if (!result.error) {
-    allMemories = (result.data || []).map(cleanMemoryData);
+    allMemories = (result.data || []).map(cleanMemory);
   } else {
     console.error('Error fetching from database:', result.error);
   }
@@ -387,7 +365,7 @@ export async function countMemories(filters: Record<string, string> = {}) {
     }
 
     const res = await query;
-    const count = (res as unknown as { count: number | null }).count ?? 0;
+    const count = res.count ?? 0;
     return { count, error: null };
   } catch (err) {
     console.error('Error counting memories:', err);
@@ -399,7 +377,7 @@ export async function countMemories(filters: Record<string, string> = {}) {
 export async function getDatabaseCounts() {
   try {
     const res = await dbA.client.from('memories').select('id', { count: 'exact', head: true });
-    const count = (res as unknown as { count: number | null }).count ?? null;
+    const count = res.count ?? null;
     return { count, error: null };
   } catch (err) {
     console.error('Error getting database count:', err);
@@ -426,7 +404,7 @@ export async function fetchRecentMemories(limit = 10): Promise<Array<{ id: strin
 }
 
 // Update memory
-export async function updateMemory(id: string, updates: Partial<Omit<MemoryData, 'id'>>) {
+export async function updateMemory(id: string, updates: Partial<Omit<Memory, 'id'>>) {
   try {
     const { data, error } = await dbA.writeClient
       .from('memories')
@@ -523,7 +501,7 @@ export async function fetchMemoryById(id: string) {
       return { data: null, error: { message: 'Memory not found' } };
     }
 
-    const raw = cleanMemoryData(data);
+    const raw = cleanMemory(data);
 
     // Public safety: only allow viewing approved memories.
     if (String(raw.status || '').toLowerCase() !== 'approved') {

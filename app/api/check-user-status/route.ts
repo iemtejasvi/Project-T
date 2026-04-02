@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse, validateRequest } from '@/lib/securityHeaders';
+import { MEMORY_LIMIT } from '@/lib/constants';
 import { sanitizeUUID, isValidIP } from '@/lib/inputSanitizer';
 
 function getClientIP(request: NextRequest): string | null {
@@ -152,13 +153,13 @@ export async function POST(request: NextRequest) {
 
         isUnlimited = !!(unlimitedResult.data && (unlimitedResult.data as unknown[]).length);
 
-        const canSubmit = !isBanned && (isUnlimited || globalOverrideActive || memoryCount < 6);
+        const canSubmit = !isBanned && (isUnlimited || globalOverrideActive || memoryCount < MEMORY_LIMIT);
 
         return createSecureResponse({
           canSubmit,
           isBanned,
           memoryCount,
-          hasReachedLimit: isUnlimited || globalOverrideActive ? false : memoryCount >= 6,
+          hasReachedLimit: isUnlimited || globalOverrideActive ? false : memoryCount >= MEMORY_LIMIT,
           isOwner: false,
           isUnlimited,
           globalOverrideActive
@@ -175,13 +176,13 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const globalOverrideActive = overrideUntil ? now < overrideUntil : false;
 
-    const canSubmit = !isBanned && (isUnlimited || globalOverrideActive || memoryCount < 6);
+    const canSubmit = !isBanned && (isUnlimited || globalOverrideActive || memoryCount < MEMORY_LIMIT);
 
     return createSecureResponse({
       canSubmit,
       isBanned,
       memoryCount,
-      hasReachedLimit: isUnlimited || globalOverrideActive ? false : memoryCount >= 6,
+      hasReachedLimit: isUnlimited || globalOverrideActive ? false : memoryCount >= MEMORY_LIMIT,
       isOwner: false,
       isUnlimited,
       globalOverrideActive
