@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="mt-16 sm:mt-12 bg-[var(--card-bg)] shadow-md">
+    <footer className="mt-10 sm:mt-12 bg-[var(--card-bg)] shadow-md">
       {/* Mobile: ultra-compact, muted footer */}
       <div className="sm:hidden max-w-5xl mx-auto px-4 py-4">
         <nav className="grid grid-cols-4 gap-x-2 gap-y-1.5 text-[10px] text-gray-400 leading-tight text-center mb-2.5">
