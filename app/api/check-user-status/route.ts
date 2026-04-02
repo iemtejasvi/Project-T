@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse, validateRequest } from '@/lib/securityHeaders';
-import { sanitizeUUID } from '@/lib/inputSanitizer';
+import { sanitizeUUID, isValidIP } from '@/lib/inputSanitizer';
 
 function getClientIP(request: NextRequest): string | null {
   // Try multiple headers for IP detection
@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
     }
     
     // 2. Get client IP and UUID
-    const clientIP = getClientIP(request);
+    let clientIP = getClientIP(request);
+    if (clientIP && !isValidIP(clientIP)) clientIP = null;
     const clientUUID = sanitizeUUID(getCookieValue(request, 'user_uuid') || '');
     
     // 3. SECURITY: Rate limiting

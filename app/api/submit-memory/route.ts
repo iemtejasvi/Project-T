@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { insertMemory, countMemories, primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
-import { validateMemoryInput, sanitizeString, sanitizeUUID } from '@/lib/inputSanitizer';
+import { validateMemoryInput, sanitizeString, sanitizeUUID, isValidIP } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
@@ -305,6 +305,7 @@ export async function POST(request: NextRequest) {
     
     // Get client IP and UUID early for rate limiting
     let clientIP: string | null = await getClientIP(request);
+    if (clientIP && !isValidIP(clientIP)) clientIP = null;
     const clientUUID: string | null = sanitizeUUID(getCookieValue(request, 'user_uuid') || '');
     
     // 3. SECURITY: Rate limiting - check BEFORE parsing body
@@ -412,7 +413,7 @@ export async function POST(request: NextRequest) {
     );
     
     if (!validation.valid) {
-      console.warn('❌ Input validation failed:', validation.errors);
+      console.warn('Input validation failed:', validation.errors.length, 'error(s)');
       return createSecureErrorResponse(
         validation.errors[0] || 'Invalid input data',
         400,
@@ -621,7 +622,7 @@ export async function POST(request: NextRequest) {
         { origin }
       );
     } catch (error) {
-      console.error('❌ Unexpected server error:', error);
+      console.error('Unexpected server error:', error instanceof Error ? error.message : 'Unknown error');
       return createSecureErrorResponse(
         'An unexpected server error occurred. Please try again.',
         500,
@@ -629,7 +630,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error('❌ Unexpected server error:', error);
+    console.error('Unexpected server error:', error instanceof Error ? error.message : 'Unknown error');
     return createSecureErrorResponse(
       'An unexpected server error occurred. Please try again.',
       500,

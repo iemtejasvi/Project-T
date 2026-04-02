@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { sanitizeUrl } from '@/lib/inputSanitizer';
 
 // Create announcement
 export async function POST(request: NextRequest) {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     const sanitized = {
       message: String(message || '').slice(0, 500),
       expires_at: String(expires_at || ''),
-      ...(link_url ? { link_url: String(link_url).slice(0, 2000) } : {}),
+      ...(link_url ? { link_url: sanitizeUrl(String(link_url)) || undefined } : {}),
       ...(background_color ? { background_color: String(background_color).slice(0, 20) } : {}),
       ...(text_color ? { text_color: String(text_color).slice(0, 20) } : {}),
       ...(icon ? { icon: String(icon).slice(0, 10) } : {}),

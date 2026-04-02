@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import { unpinExpiredMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
@@ -12,7 +13,12 @@ export async function POST(request: NextRequest) {
     // Require admin authentication or cron secret
     const cronSecret = process.env.CRON_SECRET;
     const authHeader = request.headers.get('authorization');
-    const isCron = cronSecret && authHeader === `Bearer ${cronSecret}`;
+    const isCron = (() => {
+      if (!cronSecret || !authHeader) return false;
+      const expected = `Bearer ${cronSecret}`;
+      if (authHeader.length !== expected.length) return false;
+      return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
+    })();
 
     if (!isAdminAuthenticated(request) && !isCron) {
       return createSecureErrorResponse('Unauthorized', 401, { origin });

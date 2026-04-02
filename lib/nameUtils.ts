@@ -1,6 +1,14 @@
 // Shared utilities for name validation and quality control
 
 /**
+ * Sanitize a value for safe interpolation into PostgREST .or() filter strings.
+ * Strips characters that are syntactically significant in PostgREST filters.
+ */
+export function sanitizeForPostgrestFilter(value: string): string {
+  return value.replace(/[',.()"\\:]/g, '');
+}
+
+/**
  * Normalize a name slug for consistent URLs and queries.
  * Used by name page, layout, and API to ensure canonical consistency.
  */

@@ -4,7 +4,7 @@ import { sanitizeString } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { unstable_cache } from 'next/cache';
-import { isLinkableName } from '@/lib/nameUtils';
+import { isLinkableName, sanitizeForPostgrestFilter } from '@/lib/nameUtils';
 
 // Normalize name: lowercase, trim, collapse whitespace, remove dangerous chars
 function normalizeName(raw: string): string {
@@ -28,6 +28,7 @@ function displayName(normalized: string): string {
 const getCachedNameMemories = unstable_cache(
   async (normalizedName: string, page: number, pageSize: number) => {
     const nowIso = new Date().toISOString();
+    const safeName = sanitizeForPostgrestFilter(normalizedName);
 
     // Query memories where recipient OR sender matches the name (case-insensitive)
     let query = supabaseServer
@@ -35,7 +36,7 @@ const getCachedNameMemories = unstable_cache(
       .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled', { count: 'estimated' })
       .eq('status', 'approved')
       .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
-      .or(`recipient.ilike.${normalizedName},sender.ilike.${normalizedName}`);
+      .or(`recipient.ilike.${safeName},sender.ilike.${safeName}`);
 
     query = query.order('created_at', { ascending: false });
 
@@ -62,13 +63,14 @@ const getCachedNameMemories = unstable_cache(
 const getCachedNameExists = unstable_cache(
   async (normalizedName: string) => {
     const nowIso = new Date().toISOString();
+    const safeName = sanitizeForPostgrestFilter(normalizedName);
 
     const { count, error } = await supabaseServer
       .from('memories')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'approved')
       .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
-      .or(`recipient.ilike.${normalizedName},sender.ilike.${normalizedName}`);
+      .or(`recipient.ilike.${safeName},sender.ilike.${safeName}`);
 
     if (error) return false;
     return (count || 0) > 0;
@@ -81,11 +83,12 @@ const getCachedNameExists = unstable_cache(
 const getCachedRelatedNames = unstable_cache(
   async (normalizedName: string) => {
     // Get memories where this name is recipient or sender
+    const safeName = sanitizeForPostgrestFilter(normalizedName);
     const { data, error } = await supabaseServer
       .from('memories')
       .select('recipient, sender')
       .eq('status', 'approved')
-      .or(`recipient.ilike.${normalizedName},sender.ilike.${normalizedName}`)
+      .or(`recipient.ilike.${safeName},sender.ilike.${safeName}`)
       .limit(200);
 
     if (error || !data) return [];

@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import { scrubDestructedMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
@@ -6,16 +7,15 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
-  if (secret && secret.length > 0) {
-    const auth = request.headers.get('authorization');
-    if (auth && auth === `Bearer ${secret}`) return true;
-
+  if (!secret || secret.length === 0) {
+    console.error('CRON_SECRET not configured -- rejecting cron request');
     return false;
   }
-
-  // Fallback for environments without a secret configured.
-  // Vercel Cron includes this header; still rate-limited.
-  return request.headers.get('x-vercel-cron') === '1';
+  const auth = request.headers.get('authorization');
+  if (!auth) return false;
+  const expected = `Bearer ${secret}`;
+  if (auth.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(auth), Buffer.from(expected));
 }
 
 export async function GET(request: NextRequest) {

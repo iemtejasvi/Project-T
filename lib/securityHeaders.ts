@@ -296,32 +296,3 @@ export function detectSuspiciousRequest(request: Request): {
     reasons
   };
 }
-
-/**
- * Generate security report for monitoring
- */
-export function generateSecurityReport(request: Request): {
-  timestamp: string;
-  method: string;
-  url: string;
-  origin: string | null;
-  userAgent: string | null;
-  ip: string | null;
-  suspicious: boolean;
-  suspiciousReasons: string[];
-} {
-  const suspiciousCheck = detectSuspiciousRequest(request);
-  
-  return {
-    timestamp: new Date().toISOString(),
-    method: request.method,
-    url: request.url,
-    origin: request.headers.get('origin'),
-    userAgent: request.headers.get('user-agent'),
-    ip: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-        request.headers.get('x-real-ip') || 
-        null,
-    suspicious: suspiciousCheck.suspicious,
-    suspiciousReasons: suspiciousCheck.reasons
-  };
-}

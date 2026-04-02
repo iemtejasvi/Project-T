@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { updateMemory, primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { sanitizeString } from '@/lib/inputSanitizer';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 type MemoryRow = {
@@ -48,17 +49,37 @@ export async function POST(request: NextRequest) {
       return createSecureErrorResponse('Missing id or updates', 400, { origin });
     }
 
-    // Whitelist allowed fields to prevent arbitrary column writes
-    const ALLOWED_FIELDS = new Set([
-      'status', 'recipient', 'message', 'sender', 'color', 'full_bg',
-      'animation', 'pinned', 'pinned_until', 'reveal_at', 'destruct_at',
-      'time_capsule_delay_minutes', 'destruct_delay_minutes',
-      'tag', 'sub_tag', 'typewriter_enabled', 'night_only', 'night_tz',
-      'night_start_hour', 'night_end_hour',
-    ]);
+    // Whitelist allowed fields with type validation
+    const FIELD_VALIDATORS: Record<string, (v: unknown) => unknown> = {
+      status: (v) => typeof v === 'string' && ['pending', 'approved', 'banned'].includes(v) ? v : undefined,
+      recipient: (v) => typeof v === 'string' ? sanitizeString(v).slice(0, 100) : undefined,
+      message: (v) => typeof v === 'string' ? sanitizeString(v).slice(0, 5000) : undefined,
+      sender: (v) => v === null ? null : (typeof v === 'string' ? sanitizeString(v).slice(0, 100) : undefined),
+      color: (v) => typeof v === 'string' ? v.slice(0, 50) : undefined,
+      full_bg: (v) => typeof v === 'boolean' ? v : undefined,
+      animation: (v) => v === null ? null : (typeof v === 'string' ? v.slice(0, 50) : undefined),
+      pinned: (v) => typeof v === 'boolean' ? v : undefined,
+      pinned_until: (v) => v === null ? null : (typeof v === 'string' ? v : undefined),
+      reveal_at: (v) => v === null ? null : (typeof v === 'string' ? v : undefined),
+      destruct_at: (v) => v === null ? null : (typeof v === 'string' ? v : undefined),
+      time_capsule_delay_minutes: (v) => typeof v === 'number' && Number.isFinite(v) ? v : undefined,
+      destruct_delay_minutes: (v) => typeof v === 'number' && Number.isFinite(v) ? v : undefined,
+      tag: (v) => v === null ? null : (typeof v === 'string' ? sanitizeString(v).slice(0, 50) : undefined),
+      sub_tag: (v) => v === null ? null : (typeof v === 'string' ? sanitizeString(v).slice(0, 50) : undefined),
+      typewriter_enabled: (v) => typeof v === 'boolean' ? v : undefined,
+      night_only: (v) => typeof v === 'boolean' ? v : undefined,
+      night_tz: (v) => v === null ? null : (typeof v === 'string' ? v.slice(0, 64) : undefined),
+      night_start_hour: (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 23 ? v : undefined,
+      night_end_hour: (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 23 ? v : undefined,
+    };
     const sanitizedUpdates: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(updates as Record<string, unknown>)) {
-      if (ALLOWED_FIELDS.has(key)) sanitizedUpdates[key] = value;
+      const validator = FIELD_VALIDATORS[key];
+      if (!validator) continue;
+      const validated = validator(value);
+      if (validated !== undefined) {
+        sanitizedUpdates[key] = validated;
+      }
     }
 
     // If transitioning to approved, start timers from approval time.

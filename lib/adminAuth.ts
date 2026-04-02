@@ -58,14 +58,18 @@ async function signHmacSha256Base64Url(secret: string, data: string): Promise<st
   return base64UrlEncodeBytes(sig);
 }
 
+let _sessionSecretWarned = false;
 function getAdminSessionSecret(): string {
-  // You SHOULD set ADMIN_SESSION_SECRET in env.
-  return (
-    process.env.ADMIN_SESSION_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    process.env.ADMIN_PASSWORD ||
-    ''
-  );
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.NEXTAUTH_SECRET;
+  if (secret) return secret;
+  if (process.env.ADMIN_PASSWORD) {
+    if (!_sessionSecretWarned) {
+      console.warn('SECURITY WARNING: ADMIN_SESSION_SECRET not set, falling back to ADMIN_PASSWORD for session signing. Set ADMIN_SESSION_SECRET in production.');
+      _sessionSecretWarned = true;
+    }
+    return process.env.ADMIN_PASSWORD;
+  }
+  return '';
 }
 
 /**
@@ -78,29 +82,21 @@ export function verifyAdminCredentials(username: string, password: string): bool
     return false;
   }
   
-  // In production, use bcrypt to compare hashed passwords
-  return username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
-}
-
-/**
- * Generate a session token
- */
-export function generateSessionToken(username: string): string {
-  // Backward-compatible signature: keep the sync API, but produce a token that can be verified
-  // without any in-memory state.
-  const exp = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60);
-  const payload: SessionPayload = { username, exp };
-  const payloadB64 = base64UrlEncodeString(JSON.stringify(payload));
-  // Signature is computed in verify step if needed; here we produce an empty signature placeholder.
-  // The auth route will generate the signed token using generateSignedSessionToken().
-  return `${payloadB64}.`;
+  // Timing-safe comparison to prevent timing attacks
+  const usernameA = Buffer.from(username);
+  const usernameB = Buffer.from(ADMIN_USERNAME);
+  const passwordA = Buffer.from(password);
+  const passwordB = Buffer.from(ADMIN_PASSWORD);
+  const usernameMatch = usernameA.length === usernameB.length && timingSafeEqual(usernameA, usernameB);
+  const passwordMatch = passwordA.length === passwordB.length && timingSafeEqual(passwordA, passwordB);
+  return usernameMatch && passwordMatch;
 }
 
 export async function generateSignedSessionToken(username: string): Promise<string> {
   const secret = getAdminSessionSecret();
   if (!secret) throw new Error('ADMIN_SESSION_SECRET not configured');
 
-  const exp = Math.floor(Date.now() / 1000) + (365 * 24 * 60 * 60);
+  const exp = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60);
   const payload: SessionPayload = { username, exp };
   const payloadB64 = base64UrlEncodeString(JSON.stringify(payload));
   const sig = await signHmacSha256Base64Url(secret, payloadB64);
@@ -167,26 +163,4 @@ export function isAdminAuthenticated(request: NextRequest): boolean {
   if (!sessionToken) return false;
   
   return verifySessionToken(sessionToken);
-}
-
-/**
- * Extract session token from request
- */
-export function getSessionToken(request: NextRequest): string | null {
-  const cookies = request.headers.get('cookie');
-  if (!cookies) return null;
-  
-  return cookies
-    .split(';')
-    .map(c => c.trim())
-    .find(c => c.startsWith('admin_session='))
-    ?.split('=')[1] || null;
-}
-
-/**
- * Delete session
- */
-export function deleteSession(token: string): void {
-  // Stateless tokens can't be deleted server-side. Cookie deletion is handled by the logout route.
-  void token;
 }

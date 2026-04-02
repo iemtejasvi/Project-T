@@ -287,7 +287,7 @@ export async function fetchMemoriesPaginated(
   // Search by recipient or sender name
   if (searchTerm) {
     // Escape PostgREST filter metacharacters to prevent filter injection
-    const safe = searchTerm.replace(/[,.()"\\]/g, '');
+    const safe = searchTerm.replace(/[,.()"\\':]/g, '');
     if (safe.length > 0) {
       query = query.or(`recipient.ilike.%${safe}%,sender.ilike.%${safe}%`);
     }

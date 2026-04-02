@@ -6,8 +6,8 @@ import UuidInitializer from "@/components/UuidInitializer";
 import Script from "next/script";
 import RoutePrefetcher from "@/components/RoutePrefetcher";
 
-const GA_MEASUREMENT_ID = 'G-LLWRNWWS0H';
-const ADSENSE_CLIENT_ID = 'ca-pub-8850424858354795';
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || '';
+const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_ID || '';
 const ENABLE_ANALYTICS = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true';
 const ENABLE_ADS = process.env.NEXT_PUBLIC_ENABLE_ADS === 'true';
 

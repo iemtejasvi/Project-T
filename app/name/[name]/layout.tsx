@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { unstable_cache } from 'next/cache';
-import { normalizeNameSlug } from '@/lib/nameUtils';
+import { normalizeNameSlug, sanitizeForPostgrestFilter } from '@/lib/nameUtils';
 
 interface NameLayoutProps {
   children: React.ReactNode;
@@ -27,12 +27,13 @@ const getCachedNameCount = unstable_cache(
     const supabase = getSupabase();
     if (!supabase) return 0;
     const nowIso = new Date().toISOString();
+    const safeSlug = sanitizeForPostgrestFilter(slug);
     const { count, error } = await supabase
       .from('memories')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'approved')
       .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
-      .or(`recipient.ilike.${slug},sender.ilike.${slug}`);
+      .or(`recipient.ilike.${safeSlug},sender.ilike.${safeSlug}`);
     if (error) return 0;
     return count || 0;
   },

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { verifyAdminCredentials, generateSignedSessionToken, isAdminAuthenticated, getSessionToken, deleteSession } from '@/lib/adminAuth';
+import { verifyAdminCredentials, generateSignedSessionToken, isAdminAuthenticated } from '@/lib/adminAuth';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, generateRateLimitKey } from '@/lib/rateLimiter';
 
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const response = createSecureResponse({ success: true }, 200, { origin });
     response.headers.set(
       'Set-Cookie',
-      `admin_session=${sessionToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${365 * 24 * 60 * 60}${
+      `admin_session=${sessionToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}${
         process.env.NODE_ENV === 'production' ? '; Secure' : ''
       }`
     );
@@ -76,11 +76,6 @@ export async function GET(request: NextRequest) {
 // Logout
 export async function DELETE(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  const token = getSessionToken(request);
-  if (token) {
-    deleteSession(token);
-  }
   
   const response = createSecureResponse({ success: true }, 200, { origin });
   response.headers.set(
