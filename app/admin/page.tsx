@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
 import UnlimitedUsersPage from "./unlimited/page";
-import { primaryDBRead, getDatabaseStatus, getDatabaseCounts, fetchRecentMemories, getStatusCounts, measureDbLatency, getExpiredPinnedCount, unpinExpiredMemories } from "@/lib/memoryDB";
 import { forceRefreshAllCaches } from "@/lib/enhancedCache";
 import Loader from "@/components/Loader";
 import type { Memory } from '@/types/memory';
@@ -82,21 +80,19 @@ export default function AdminPanel() {
   const loadDbHealth = useCallback(async () => {
     setDbHealthLoading(true);
     try {
-      const [status, counts, recents, statuses, lat, exp] = await Promise.all([
-        getDatabaseStatus(),
-        getDatabaseCounts(),
-        fetchRecentMemories(10),
-        getStatusCounts(),
-        measureDbLatency(),
-        getExpiredPinnedCount()
-      ]);
-
-      setDbStatus(status);
-      setDbCounts(counts);
-      setStatusCounts(statuses);
-      setLatency(lat);
-      setExpiredPinned(exp);
-      setRecentMemories(recents || []);
+      const res = await timedFetch('/api/admin/dbhealth', {
+        credentials: 'include',
+        cache: 'no-store',
+      }, 15000);
+      const json = await res.json();
+      if (json.success) {
+        setDbStatus(json.status);
+        setDbCounts(json.counts);
+        setStatusCounts(json.statusCounts);
+        setLatency(json.latency);
+        setExpiredPinned(json.expiredPinned);
+        setRecentMemories(json.recent || []);
+      }
     } catch (err) {
       console.error('Error fetching DB health:', err);
     } finally {
@@ -300,36 +296,12 @@ export default function AdminPanel() {
     checkAuth();
   }, [router]);
 
+  // Fetch memories when authorized and tab changes
   useEffect(() => {
     if (isAuthorized) {
-      async function fetchMemoriesData() {
-        try {
-          if (selectedTab !== 'pending' && selectedTab !== 'approved' && selectedTab !== 'banned') return;
-          const status = selectedTab;
-          setMemoriesLoading(true);
-          setMemories([]);
-          const memCtrl = new AbortController();
-          const memTimer = setTimeout(() => memCtrl.abort(), 15000);
-          const searchQ = searchTermRef.current ? `&search=${encodeURIComponent(searchTermRef.current)}` : '';
-          const res = await fetch(`/api/admin/memories?status=${encodeURIComponent(status)}&page=${adminPage}&pageSize=50${searchQ}`, {
-            credentials: 'include',
-            cache: 'no-store',
-            signal: memCtrl.signal,
-          });
-          clearTimeout(memTimer);
-          const json = await res.json();
-          setMemories((json?.data || []) as Memory[]);
-          setMemoriesTotalCount(Number(json?.totalCount || 0));
-          setAdminTotalPages(Number(json?.totalPages || 0));
-        } catch (error) {
-          console.error('Error fetching memories:', error);
-        } finally {
-          setMemoriesLoading(false);
-        }
-      }
-      fetchMemoriesData();
+      refreshMemories();
     }
-  }, [isAuthorized, selectedTab]);
+  }, [isAuthorized, selectedTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -386,69 +358,45 @@ export default function AdminPanel() {
 
   const fetchMaintenanceStatus = async () => {
     try {
-      const result = await Promise.race([
-        supabase.from("maintenance").select("is_active, message").eq("id", 1).single().then((r) => r),
-        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
-      ]);
-
-      if (!result) return; // timeout
-      const { data, error } = result;
-
-      if (error && error.code !== 'PGRST116') {
-        console.error("Error fetching maintenance status:", error);
-        return;
-      }
-
-      if (data) {
-        setMaintenanceMode(data.is_active);
-        setMaintenanceMessage(data.message || "");
+      const res = await timedFetch('/api/admin/maintenance', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setMaintenanceMode(json.data.is_active || false);
+        setMaintenanceMessage(json.data.message || "");
       }
     } catch (err) {
-      console.error("Unexpected error fetching maintenance status:", err);
+      console.error("Error fetching maintenance status:", err);
     }
   };
 
   const fetchCurrentAnnouncement = async () => {
     try {
-      const result = await Promise.race([
-        supabase
-          .from("announcements")
-          .select("id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible, view_count, click_count")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .then((r) => r),
-        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
-      ]);
-
-      if (!result) return; // timeout
-      const { data, error } = result;
-
-      if (error) {
-        console.error("Error fetching announcement:", error.message);
-        return;
-      }
-
-      if (data?.[0]) {
+      const res = await timedFetch('/api/admin/announcements', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      const json = await res.json();
+      if (json.data) {
         // Check if announcement has expired
-        if (new Date(data[0].expires_at) < new Date()) {
-          const delCtrl = new AbortController();
-          setTimeout(() => delCtrl.abort(), 8000);
-          await fetch('/api/admin/delete-announcement', {
+        if (new Date(json.data.expires_at) < new Date()) {
+          await timedFetch('/api/admin/delete-announcement', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: data[0].id }),
-            signal: delCtrl.signal,
+            body: JSON.stringify({ id: json.data.id }),
+            credentials: 'include',
           });
           setCurrentAnnouncement(null);
         } else {
-          setCurrentAnnouncement(data[0]);
+          setCurrentAnnouncement(json.data);
         }
       } else {
         setCurrentAnnouncement(null);
       }
     } catch (err) {
-      console.error("Unexpected error fetching announcement:", err);
+      console.error("Error fetching announcement:", err);
     }
   };
 
@@ -876,13 +824,11 @@ export default function AdminPanel() {
       if (currentAnnouncement) {
         const expiry = new Date(currentAnnouncement.expires_at);
         if (currentTime >= expiry) {
-          const annCtrl = new AbortController();
-          setTimeout(() => annCtrl.abort(), 8000);
-          await fetch('/api/admin/delete-announcement', {
+          await timedFetch('/api/admin/delete-announcement', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: currentAnnouncement.id }),
-            signal: annCtrl.signal,
+            credentials: 'include',
           });
           setCurrentAnnouncement(null);
           await fetchCurrentAnnouncement(); // Refresh announcement state
@@ -890,9 +836,7 @@ export default function AdminPanel() {
       }
 
       // Unpin expired pins via server-side bulk operation (lightweight, scales to millions)
-      const unpCtrl = new AbortController();
-      setTimeout(() => unpCtrl.abort(), 8000);
-      const unpinRes = await fetch('/api/unpin-expired', { method: 'POST', signal: unpCtrl.signal });
+      const unpinRes = await timedFetch('/api/unpin-expired', { method: 'POST', credentials: 'include' });
       const unpinData = await unpinRes.json().catch(() => ({ unpinned: 0 }));
       if (unpinData.unpinned > 0 && selectedTab === "approved") {
         refreshMemories();
@@ -903,18 +847,19 @@ export default function AdminPanel() {
     return () => clearInterval(interval);
   }, [currentTime, hasActiveItems, selectedTab, refreshMemories, currentAnnouncement]);
 
-  // Fetch banned users when banned tab is selected (10s timeout)
+  // Fetch banned users when banned tab is selected (via API with admin auth)
   useEffect(() => {
     if (selectedTab === "banned") {
-      Promise.race([
-        primaryDBRead.from("banned_users").select("ip, uuid, country").then((r) => r),
-        new Promise<null>((r) => setTimeout(() => r(null), 10000)),
-      ]).then((result) => {
-        if (result && 'data' in result) {
-          if (result.error) console.error((result.error as { message?: string }).message || result.error);
-          else setBannedUsers(result.data || []);
-        }
-      });
+      timedFetch('/api/admin/banned-users', {
+        credentials: 'include',
+        cache: 'no-store',
+      }).then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data) {
+            setBannedUsers(json.data);
+          }
+        })
+        .catch((err) => console.error('Error fetching banned users:', err));
     }
   }, [selectedTab]);
 
@@ -1335,7 +1280,7 @@ export default function AdminPanel() {
                     <h3 className="font-semibold">Expired Pins</h3>
                     <span className="text-sm text-gray-600">(total: {expiredPinned?.total ?? '—'})</span>
                     <button
-                      onClick={async () => { if (confirm('Unpin all expired memories now?')) { await unpinExpiredMemories(); await loadDbHealth(); } }}
+                      onClick={async () => { if (confirm('Unpin all expired memories now?')) { await timedFetch('/api/unpin-expired', { method: 'POST', credentials: 'include' }); await loadDbHealth(); } }}
                       className="ml-auto px-3 py-1.5 rounded bg-amber-500 text-white text-sm hover:bg-amber-600"
                     >
                       Unpin expired now

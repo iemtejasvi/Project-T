@@ -3,6 +3,40 @@ import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 
+// Get unlimited users and site settings
+export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
+  if (!isAdminAuthenticated(request)) {
+    return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  try {
+    const [usersResult, settingsResult] = await Promise.all([
+      primaryDB
+        .from('unlimited_users')
+        .select('id, ip, uuid, created_at')
+        .order('created_at', { ascending: false }),
+      primaryDB
+        .from('site_settings')
+        .select('word_limit_disabled_until')
+        .eq('id', 1)
+        .maybeSingle(),
+    ]);
+
+    return createSecureResponse({
+      success: true,
+      data: {
+        users: usersResult.data || [],
+        word_limit_disabled_until: settingsResult.data?.word_limit_disabled_until || null,
+      },
+    }, 200, { origin, cacheControl: 'no-store' });
+  } catch (error) {
+    console.error('Fetch unlimited users error:', error);
+    return createSecureErrorResponse('Server error', 500, { origin });
+  }
+}
+
 // Add unlimited user
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -83,9 +117,20 @@ export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
     const { id, word_limit_disabled_until } = body;
+
+    // Validate: must be null or a valid ISO date string
+    let validatedUntil: string | null = null;
+    if (word_limit_disabled_until !== undefined && word_limit_disabled_until !== null) {
+      const parsed = new Date(String(word_limit_disabled_until));
+      if (!Number.isFinite(parsed.getTime())) {
+        return createSecureErrorResponse('Invalid date for word_limit_disabled_until', 400, { origin });
+      }
+      validatedUntil = parsed.toISOString();
+    }
+
     const sanitized = {
       id: id ?? 1,
-      ...(word_limit_disabled_until !== undefined ? { word_limit_disabled_until } : {}),
+      word_limit_disabled_until: validatedUntil,
     };
 
     const { error } = await primaryDB

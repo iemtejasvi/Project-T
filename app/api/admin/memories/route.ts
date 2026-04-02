@@ -49,7 +49,8 @@ export async function GET(request: NextRequest) {
     if (status) query = query.eq('status', status);
     if (typeof pinned === 'boolean') query = query.eq('pinned', pinned);
     if (search) {
-      const safe = search.replace(/[,.()"\\':]/g, '');
+      // Escape PostgREST special chars AND ilike wildcards to prevent pattern injection
+      const safe = search.replace(/[,.()"\\':]/g, '').replace(/%/g, '\\%').replace(/_/g, '\\_');
       if (safe.length > 0) {
         query = query.or(`recipient.ilike.%${safe}%,sender.ilike.%${safe}%,message.ilike.%${safe}%`);
       }

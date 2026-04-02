@@ -4,6 +4,34 @@ import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityH
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { sanitizeUrl } from '@/lib/inputSanitizer';
 
+// Get current announcement (with analytics)
+export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
+  if (!isAdminAuthenticated(request)) {
+    return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  try {
+    const { data, error } = await primaryDB
+      .from('announcements')
+      .select('id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible, view_count, click_count')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      return createSecureErrorResponse(error.message || 'Failed to fetch announcement', 500, { origin });
+    }
+
+    return createSecureResponse({ data }, 200, { origin, cacheControl: 'no-store' });
+  } catch (error) {
+    console.error('Announcement fetch error:', error);
+    return createSecureErrorResponse('Server error', 500, { origin });
+  }
+}
+
 // Create announcement
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');

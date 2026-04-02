@@ -21,6 +21,10 @@ export async function POST(request: NextRequest) {
       ...(reason ? { reason: String(reason).slice(0, 500) } : {}),
     };
 
+    if (!sanitized.ip && !sanitized.uuid) {
+      return createSecureErrorResponse('Must provide ip or uuid to ban', 400, { origin });
+    }
+
     const { error } = await primaryDB
       .from('banned_users')
       .insert([sanitized]);
@@ -50,7 +54,11 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const ip = searchParams.get('ip');
     const uuid = searchParams.get('uuid');
-    
+
+    if (!ip && !uuid) {
+      return createSecureErrorResponse('Must provide ip or uuid to unban', 400, { origin });
+    }
+
     if (ip) {
       const { error } = await primaryDB.from('banned_users').delete().eq('ip', ip);
       if (error) {

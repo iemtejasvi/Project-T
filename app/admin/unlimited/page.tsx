@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
+
+// Utility: fetch with automatic timeout
+function timedFetch(url: string, opts: RequestInit = {}, ms = 12000): Promise<Response> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
 
 interface UnlimitedUser {
   id: string;
@@ -18,36 +24,20 @@ export default function UnlimitedUsersPage() {
   const [globalUntil, setGlobalUntil] = useState<string>("");
   const [savingGlobal, setSavingGlobal] = useState(false);
 
-  // Fetch existing data (10s timeout to prevent hang)
+  // Fetch existing data via API (authenticated)
   useEffect(() => {
     (async () => {
       try {
-        const usersPromise = supabase
-          .from("unlimited_users")
-          .select("id, ip, uuid, created_at")
-          .order("created_at", { ascending: false })
-          .then((r) => r);
-        const usersResult = await Promise.race([
-          usersPromise,
-          new Promise<null>((r) => setTimeout(() => r(null), 10000)),
-        ]);
-        if (usersResult && 'data' in usersResult && !usersResult.error) {
-          setUsers((usersResult.data as UnlimitedUser[]) || []);
-        }
-      } catch { /* timeout or network error */ }
-
-      try {
-        const settingsPromise = supabase
-          .from("site_settings")
-          .select("word_limit_disabled_until")
-          .single()
-          .then((r) => r);
-        const settingsResult = await Promise.race([
-          settingsPromise,
-          new Promise<null>((r) => setTimeout(() => r(null), 10000)),
-        ]);
-        if (settingsResult && 'data' in settingsResult && settingsResult.data?.word_limit_disabled_until) {
-          setGlobalUntil(settingsResult.data.word_limit_disabled_until.substring(0, 16));
+        const res = await timedFetch('/api/admin/unlimited', {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+        const json = await res.json();
+        if (json.success && json.data) {
+          setUsers(json.data.users || []);
+          if (json.data.word_limit_disabled_until) {
+            setGlobalUntil(json.data.word_limit_disabled_until.substring(0, 16));
+          }
         }
       } catch { /* timeout or network error */ }
     })();
@@ -57,15 +47,12 @@ export default function UnlimitedUsersPage() {
     if (!ip && !uuid) return;
     setLoading(true);
     try {
-      const addCtrl = new AbortController();
-      const addTimer = setTimeout(() => addCtrl.abort(), 12000);
-      const response = await fetch('/api/admin/unlimited', {
+      const response = await timedFetch('/api/admin/unlimited', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ip: ip || null, uuid: uuid || null }),
-        signal: addCtrl.signal,
+        credentials: 'include',
       });
-      clearTimeout(addTimer);
       const result = await response.json();
       if (!response.ok || result.error) {
         console.error('Insert error', result.error);
@@ -82,13 +69,10 @@ export default function UnlimitedUsersPage() {
 
   const handleRemove = async (id: string) => {
     try {
-      const rmCtrl = new AbortController();
-      const rmTimer = setTimeout(() => rmCtrl.abort(), 12000);
-      const response = await fetch(`/api/admin/unlimited?id=${id}`, {
+      const response = await timedFetch(`/api/admin/unlimited?id=${id}`, {
         method: 'DELETE',
-        signal: rmCtrl.signal,
+        credentials: 'include',
       });
-      clearTimeout(rmTimer);
       const result = await response.json();
       if (!response.ok || result.error) {
         console.error('Delete error', result.error);
@@ -104,15 +88,12 @@ export default function UnlimitedUsersPage() {
     setSavingGlobal(true);
     const until = globalUntil ? new Date(globalUntil).toISOString() : null;
     try {
-      const patchCtrl = new AbortController();
-      const patchTimer = setTimeout(() => patchCtrl.abort(), 12000);
-      await fetch('/api/admin/unlimited', {
+      await timedFetch('/api/admin/unlimited', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: 1, word_limit_disabled_until: until }),
-        signal: patchCtrl.signal,
+        credentials: 'include',
       });
-      clearTimeout(patchTimer);
     } catch (error) {
       console.error('Update settings error', error);
     }
