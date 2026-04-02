@@ -17,6 +17,26 @@ function timedFetch(url: string, opts: RequestInit = {}, ms = 12000): Promise<Re
 
 type Tab = "pending" | "approved" | "banned" | "announcements" | "maintenance" | "dbhealth" | "unlimited";
 
+// Lightweight toast notification system
+function ToastContainer({ toasts, onDismiss }: { toasts: { id: number; message: string; type: 'success' | 'error' }[]; onDismiss: (id: number) => void }) {
+  if (toasts.length === 0) return null;
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm">
+      {toasts.map(t => (
+        <div
+          key={t.id}
+          onClick={() => onDismiss(t.id)}
+          className={`px-4 py-3 rounded-lg shadow-lg text-sm font-medium cursor-pointer animate-[slideIn_0.2s_ease-out] ${
+            t.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+          }`}
+        >
+          {t.type === 'success' ? '\u2713' : '\u2717'} {t.message}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminPanel() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState<Tab>("pending");
@@ -76,6 +96,14 @@ export default function AdminPanel() {
   const [statusCounts, setStatusCounts] = useState<null | Record<'pending' | 'approved' | 'banned', number | null>>(null);
   const [latency, setLatency] = useState<null | number>(null);
   const [expiredPinned, setExpiredPinned] = useState<null | { total: number }>(null);
+  // Tab badge counts
+  const [tabCounts, setTabCounts] = useState<Record<string, number | null>>({});
+  // Toast notifications
+  const [toasts, setToasts] = useState<{ id: number; message: string; type: 'success' | 'error' }[]>([]);
+  const toastIdRef = useRef(0);
+  // Inline editing
+  const [editingMemory, setEditingMemory] = useState<string | null>(null);
+  const [editFields, setEditFields] = useState<{ recipient: string; message: string; sender: string }>({ recipient: '', message: '', sender: '' });
 
   const loadDbHealth = useCallback(async () => {
     setDbHealthLoading(true);
@@ -98,6 +126,31 @@ export default function AdminPanel() {
     } finally {
       setDbHealthLoading(false);
     }
+  }, []);
+
+  // Toast helper
+  const addToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
+    const id = ++toastIdRef.current;
+    setToasts(prev => [...prev.slice(-4), { id, message, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
+  }, []);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  // Fetch tab counts (lightweight — just counts, no data)
+  const loadTabCounts = useCallback(async () => {
+    try {
+      const res = await timedFetch('/api/admin/dbhealth', {
+        credentials: 'include',
+        cache: 'no-store',
+      }, 10000);
+      const json = await res.json();
+      if (json.success && json.statusCounts) {
+        setTabCounts(json.statusCounts);
+      }
+    } catch { /* silent */ }
   }, []);
 
   // Check if there are any active pinned memories or announcements that need monitoring
@@ -221,7 +274,10 @@ export default function AdminPanel() {
       }
     } catch {
     }
-  }, []);
+
+    // Refresh tab counts after mutation
+    loadTabCounts();
+  }, [loadTabCounts]);
 
   // Memoize refreshMemories to prevent infinite loops
   const refreshMemories = useCallback((page?: number) => {
@@ -355,6 +411,11 @@ export default function AdminPanel() {
     fetchCurrentAnnouncement();
     fetchMaintenanceStatus();
   }, []);
+
+  // Load tab counts when authorized, and refresh after mutations
+  useEffect(() => {
+    if (isAuthorized) loadTabCounts();
+  }, [isAuthorized, loadTabCounts]);
 
   const fetchMaintenanceStatus = async () => {
     try {
@@ -577,19 +638,54 @@ export default function AdminPanel() {
     }).then(response => response.json()).then(result => {
       if (result.error) {
         console.error('Update failed:', result.error);
+        addToast(`Failed to ${newStatus} memory`, 'error');
         if (prevSnapshot) setMemories(prevSnapshot);
         refreshMemories(); // Re-sync on error
         return;
       }
 
+      addToast(`Memory ${newStatus}`, 'success');
       broadcastContentUpdated();
       refreshMemories();
     }).catch(error => {
       console.error('Update error:', error);
+      addToast(`Failed to ${newStatus} memory`, 'error');
       if (prevSnapshot) setMemories(prevSnapshot);
       refreshMemories(); // Re-sync on error
     });
   }
+
+  // Inline edit: start editing
+  const startEditing = useCallback((memory: Memory) => {
+    setEditingMemory(memory.id);
+    setEditFields({ recipient: memory.recipient, message: memory.message, sender: memory.sender || '' });
+  }, []);
+
+  // Inline edit: save
+  const saveEdit = useCallback(async (id: string) => {
+    try {
+      const res = await timedFetch('/api/admin/update-memory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, updates: { recipient: editFields.recipient, message: editFields.message, sender: editFields.sender || null } }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        addToast('Edit failed', 'error');
+        return;
+      }
+      setMemories(prev => prev.map(m => m.id === id ? { ...m, recipient: editFields.recipient, message: editFields.message, sender: editFields.sender || undefined } : m));
+      setEditingMemory(null);
+      addToast('Memory updated', 'success');
+      broadcastContentUpdated();
+    } catch {
+      addToast('Edit failed', 'error');
+    }
+  }, [editFields, addToast, broadcastContentUpdated]);
+
+  const cancelEdit = useCallback(() => {
+    setEditingMemory(null);
+  }, []);
 
   const toggleSelectedMemory = useCallback((id: string, checked: boolean) => {
     setSelectedMemoryIds((prev) => {
@@ -646,16 +742,19 @@ export default function AdminPanel() {
 
       const json = await res.json().catch(() => null);
       if (!res.ok || json?.error) {
+        addToast(`Bulk ${action} failed`, 'error');
         refreshMemories();
         return;
       }
 
+      addToast(`${json?.ok || ids.length} memories ${action === 'approve' ? 'approved' : 'deleted'}`, 'success');
       broadcastContentUpdated();
       refreshMemories();
     } catch {
+      addToast(`Bulk ${action} failed`, 'error');
       refreshMemories();
     }
-  }, [selectedMemoryIds, refreshMemories, broadcastContentUpdated]);
+  }, [selectedMemoryIds, refreshMemories, broadcastContentUpdated, addToast]);
 
   async function deleteMemoryById(id: string) {
     if (!confirm('Are you sure you want to delete this memory? This cannot be undone.')) {
@@ -673,14 +772,17 @@ export default function AdminPanel() {
     }).then(response => response.json()).then(result => {
       if (result.error) {
         console.error('Delete failed:', result.error);
+        addToast('Delete failed', 'error');
         refreshMemories(); // Restore on error
         return;
       }
 
+      addToast('Memory deleted', 'success');
       broadcastContentUpdated();
       refreshMemories();
     }).catch(error => {
       console.error('Delete error:', error);
+      addToast('Delete failed', 'error');
       refreshMemories(); // Restore on error
     });
   }
@@ -934,13 +1036,22 @@ export default function AdminPanel() {
             <button
               key={tab}
               onClick={() => { setSelectedTab(tab); setAnnounceMenuOpen(false); }}
-              className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
+              className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap flex items-center gap-1 ${
                 selectedTab === tab
                   ? "border-b-2 border-blue-600 text-gray-900"
                   : "text-gray-600"
               }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tabCounts[tab] != null && (
+                <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  tab === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                  tab === 'approved' ? 'bg-green-100 text-green-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {tabCounts[tab]}
+                </span>
+              )}
             </button>
           ))}
           <div className="relative">
@@ -1280,10 +1391,29 @@ export default function AdminPanel() {
                     <h3 className="font-semibold">Expired Pins</h3>
                     <span className="text-sm text-gray-600">(total: {expiredPinned?.total ?? '—'})</span>
                     <button
-                      onClick={async () => { if (confirm('Unpin all expired memories now?')) { await timedFetch('/api/unpin-expired', { method: 'POST', credentials: 'include' }); await loadDbHealth(); } }}
+                      onClick={async () => { if (confirm('Unpin all expired memories now?')) { await timedFetch('/api/unpin-expired', { method: 'POST', credentials: 'include' }); addToast('Expired pins cleared', 'success'); await loadDbHealth(); } }}
                       className="ml-auto px-3 py-1.5 rounded bg-amber-500 text-white text-sm hover:bg-amber-600"
                     >
                       Unpin expired now
+                    </button>
+                  </div>
+                </div>
+                <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold">Self-Destructed Memories</h3>
+                    <button
+                      onClick={async () => {
+                        if (!confirm('Scrub all self-destructed memories now? This blanks their messages permanently.')) return;
+                        try {
+                          const res = await timedFetch('/api/admin/scrub-destructed', { method: 'POST', credentials: 'include' });
+                          const json = await res.json();
+                          addToast(`Scrubbed ${json.scrubbed || 0} memories`, 'success');
+                          await loadDbHealth();
+                        } catch { addToast('Scrub failed', 'error'); }
+                      }}
+                      className="ml-auto px-3 py-1.5 rounded bg-red-500 text-white text-sm hover:bg-red-600"
+                    >
+                      Scrub destructed now
                     </button>
                   </div>
                 </div>
@@ -1347,16 +1477,24 @@ export default function AdminPanel() {
               </div>
             )}
             {(selectedTab === "pending" || selectedTab === "approved" || selectedTab === "banned") && (
-              <div className="mb-6">
+              <div className="mb-6 flex gap-2">
                 <input
                   type="text"
                   placeholder="Search by recipient, message, or sender..."
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  className="w-full p-3 sm:p-3.5 text-base sm:text-lg border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] bg-white shadow-sm transition-all duration-200"
+                  className="flex-1 p-3 sm:p-3.5 text-base sm:text-lg border border-[var(--border)] rounded-xl focus:outline-none focus:border-[var(--accent)] bg-white shadow-sm transition-all duration-200"
                   autoComplete="off"
                   inputMode="search"
                 />
+                <button
+                  onClick={() => refreshMemories()}
+                  disabled={memoriesLoading}
+                  className="px-3 sm:px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors text-sm font-medium disabled:opacity-50 whitespace-nowrap"
+                  title="Refresh"
+                >
+                  Refresh
+                </button>
               </div>
             )}
             {memoriesLoading ? (
@@ -1393,32 +1531,106 @@ export default function AdminPanel() {
                             className="mt-1"
                           />
                         )}
-                        <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+                        {editingMemory === memory.id ? (
+                          <input
+                            value={editFields.recipient}
+                            onChange={e => setEditFields(p => ({ ...p, recipient: e.target.value }))}
+                            className="text-2xl font-semibold text-gray-800 border-b-2 border-blue-400 bg-transparent focus:outline-none w-full"
+                          />
+                        ) : (
+                          <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+                        )}
                       </div>
-                      {memory.pinned && (
-                        <span className="text-yellow-500 text-xl">📌</span>
+                      <div className="flex items-center gap-2">
+                        {memory.pinned && <span className="text-yellow-500 text-xl">📌</span>}
+                        {editingMemory !== memory.id && (
+                          <button onClick={() => startEditing(memory)} className="text-gray-400 hover:text-blue-500 text-xs" title="Edit">✏️</button>
+                        )}
+                      </div>
+                    </div>
+                    {editingMemory === memory.id ? (
+                      <textarea
+                        value={editFields.message}
+                        onChange={e => setEditFields(p => ({ ...p, message: e.target.value }))}
+                        className="mt-3 w-full text-gray-700 border border-blue-300 rounded p-2 bg-white focus:outline-none focus:border-blue-500 min-h-[80px]"
+                        rows={4}
+                      />
+                    ) : (
+                      <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">
+                        {memory.message && memory.message.length > 200 ? (
+                          <>
+                            {expandedMessages.has(memory.id) ? memory.message : memory.message.slice(0, 200) + '...'}
+                            <button
+                              onClick={() => setExpandedMessages(prev => {
+                                const next = new Set(prev);
+                                if (next.has(memory.id)) next.delete(memory.id); else next.add(memory.id);
+                                return next;
+                              })}
+                              className="ml-2 text-blue-600 hover:underline text-xs font-medium"
+                            >
+                              {expandedMessages.has(memory.id) ? 'Show less' : 'Show more'}
+                            </button>
+                          </>
+                        ) : memory.message}
+                      </p>
+                    )}
+                    {editingMemory === memory.id ? (
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-gray-500 italic">—</span>
+                        <input
+                          value={editFields.sender}
+                          onChange={e => setEditFields(p => ({ ...p, sender: e.target.value }))}
+                          className="italic text-lg text-gray-600 border-b border-blue-300 bg-transparent focus:outline-none flex-1"
+                          placeholder="Sender (optional)"
+                        />
+                      </div>
+                    ) : memory.sender ? (
+                      <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
+                    ) : null}
+                    {editingMemory === memory.id && (
+                      <div className="mt-3 flex gap-2">
+                        <button onClick={() => saveEdit(memory.id)} className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">Save</button>
+                        <button onClick={cancelEdit} className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300">Cancel</button>
+                      </div>
+                    )}
+                    {/* Metadata badges */}
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {memory.color && memory.color !== 'default' && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                          🎨 {memory.color}{memory.full_bg ? ' (full)' : ''}
+                        </span>
+                      )}
+                      {memory.animation && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-purple-700 border border-purple-200">
+                          ✨ {memory.animation}
+                        </span>
+                      )}
+                      {memory.typewriter_enabled && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-100 text-indigo-700 border border-indigo-200">
+                          ⌨️ typewriter
+                        </span>
+                      )}
+                      {memory.tag && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                          #{memory.tag}{memory.sub_tag ? `/${memory.sub_tag}` : ''}
+                        </span>
+                      )}
+                      {memory.night_only && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-200 border border-slate-600">
+                          🌙 night-only{memory.night_tz ? ` (${memory.night_tz})` : ''}
+                        </span>
+                      )}
+                      {memory.destruct_at && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-700 border border-red-200">
+                          💣 self-destruct {new Date(memory.destruct_at) > new Date() ? formatRemainingTime(memory.destruct_at) : 'expired'}
+                        </span>
+                      )}
+                      {memory.letter_style && memory.letter_style !== 'default' && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                          📝 {memory.letter_style}
+                        </span>
                       )}
                     </div>
-                    <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">
-                      {memory.message && memory.message.length > 200 ? (
-                        <>
-                          {expandedMessages.has(memory.id) ? memory.message : memory.message.slice(0, 200) + '...'}
-                          <button
-                            onClick={() => setExpandedMessages(prev => {
-                              const next = new Set(prev);
-                              if (next.has(memory.id)) next.delete(memory.id); else next.add(memory.id);
-                              return next;
-                            })}
-                            className="ml-2 text-blue-600 hover:underline text-xs font-medium"
-                          >
-                            {expandedMessages.has(memory.id) ? 'Show less' : 'Show more'}
-                          </button>
-                        </>
-                      ) : memory.message}
-                    </p>
-                    {memory.sender && (
-                      <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
-                    )}
                     <div className="mt-3 text-sm text-gray-500 break-words space-y-0.5">
                       <p className="flex items-center gap-1 cursor-pointer" onClick={() => memory.ip && navigator.clipboard.writeText(memory.ip)} title="Click to copy IP">
                         IP: <span className="underline decoration-dotted">{memory.ip || '-'}</span>
@@ -1657,6 +1869,7 @@ export default function AdminPanel() {
           © {new Date().getFullYear()} If Only I Sent This - Admin Panel
         </div>
       </footer>
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 }
