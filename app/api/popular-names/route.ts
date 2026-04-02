@@ -8,37 +8,15 @@ import { unstable_cache } from 'next/cache';
 // Cache for 1 hour — popular names don't change frequently
 const getPopularNames = unstable_cache(
   async () => {
-    const nowIso = new Date().toISOString();
-    const { data } = await primaryDB
-      .from('memories')
-      .select('recipient')
-      .eq('status', 'approved')
-      .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
-      .limit(2000);
+    const { data, error } = await primaryDB.rpc('get_popular_names');
+    if (error || !data) return [];
 
-    if (!data) return [];
-
-    // Count occurrences
-    const counts = new Map<string, { count: number; display: string }>();
-    for (const row of data) {
-      if (!row.recipient) continue;
-      const key = row.recipient.toLowerCase().trim();
-      if (!isLinkableName(key)) continue;
-      const existing = counts.get(key);
-      if (existing) {
-        existing.count++;
-      } else {
-        const display = key.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        counts.set(key, { count: 1, display });
-      }
-    }
-
-    // Sort by count descending, take top 20 with at least 2 messages
-    return Array.from(counts.entries())
-      .filter(([, v]) => v.count >= 2)
-      .sort((a, b) => b[1].count - a[1].count)
-      .slice(0, 20)
-      .map(([key, v]) => ({ slug: key, display: v.display }));
+    return (data as { slug: string; cnt: number }[])
+      .filter(row => isLinkableName(row.slug))
+      .map(row => ({
+        slug: row.slug,
+        display: row.slug.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+      }));
   },
   ['popular-names-api'],
   { revalidate: 3600, tags: ['popular-names'] }
