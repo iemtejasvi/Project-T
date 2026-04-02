@@ -8,8 +8,9 @@ import { storage } from "@/lib/persistentStorage";
 import { browserSession } from "@/lib/browserSession";
 import MemoryCard from "@/components/MemoryCard";
 import Loader from "@/components/Loader";
-import TypingEffect from "@/components/TypingEffect";
+import Footer from "@/components/Footer";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
+import TypingEffect from "@/components/TypingEffect";
 
 interface Memory {
   id: string;
@@ -33,44 +34,6 @@ interface Memory {
   is_time_capsule_locked?: string;
   typewriter_enabled?: boolean;
 }
-
-const faqItems = [
-  {
-    question: "What is If Only I Sent This?",
-    answer:
-      "If Only I Sent This is a modern archive for unsent memories, anonymous confessions, and heartfelt messages you were never quite ready to send.",
-  },
-  {
-    question: "Are the memories and messages really anonymous?",
-    answer:
-      "Yes. We do not show identifying details with public memories, and you should avoid including names, phone numbers, or personal contact information in what you submit.",
-  },
-  {
-    question: "How can I submit my own unsent memory?",
-    answer:
-      "Click Confess in the navigation to write a short, honest message. Choose a color, add optional effects, and submit. Your words go live after a quick, compassionate review.",
-  },
-  {
-    question: "Can I search for messages written to me?",
-    answer:
-      "Yes! Use the search feature on the archive page or visit ifonlyisentthis.com/name/yourname to see all anonymous messages addressed to that name.",
-  },
-  {
-    question: "What makes this different from The Unsent Project?",
-    answer:
-      "Faster moderation (hours, not months), reliable search by name, self-destructing messages, time capsule letters, and a beautiful reading experience — all completely free.",
-  },
-  {
-    question: "What are self-destructing and time capsule messages?",
-    answer:
-      "Self-destructing messages automatically erase their content after a time period you choose. Time capsule messages stay hidden until a future reveal date arrives.",
-  },
-  {
-    question: "Is If Only I Sent This really free?",
-    answer:
-      "Completely free. No account, no subscription, no hidden fees. You can donate to support the platform if you wish.",
-  },
-] as const;
 
 export default function Home() {
   const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
@@ -508,10 +471,10 @@ export default function Home() {
                 <span>{announcement.icon || '📢'}</span>
                 {
                   announcement.link_url ? (
-                    <a 
+                    <a
                       href={announcement.link_url}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel="noopener noreferrer nofollow"
                       className="underline hover:opacity-80 transition-opacity ml-2"
                       onClick={async () => {
                         const r = await Promise.race([
@@ -567,7 +530,7 @@ export default function Home() {
                   <a
                     href={announcement.link_url}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener noreferrer nofollow"
                     className="underline hover:opacity-80 transition-opacity"
                     onClick={async () => {
                       const r = await Promise.race([
@@ -655,197 +618,10 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* SEO playbook: hidden guidance for headings, links, and copywriting */}
-        <section aria-label="On-page SEO and accessibility playbook" className="sr-only">
-          <h2>On-page SEO and accessibility guidelines</h2>
-          <p>
-            Use one clear H1 for the main page title, then H2 for major sections and H3 for subsections.
-            Avoid skipping heading levels so assistive technology can follow the structure.
-          </p>
-          <p>
-            Keep most paragraphs under three sentences and aim for about fifteen words per sentence.
-            Prefer active voice and concrete verbs so memories stay readable on small screens.
-          </p>
-          <p>
-            Add descriptive alt text to branded artwork and key imagery, and use meta descriptions that
-            stay within search snippet length while inviting clicks.
-          </p>
-          <p>
-            For outbound links, use rel=&quot;noopener noreferrer nofollow&quot; where appropriate, and point to
-            non-competing resources that genuinely help the reader.
-            For internal links, re-use a consistent anchor phrase for the keyword you want to rank for.
-          </p>
-        </section>
-
-        {/* Additional SEO copy kept hidden from visual users per requirements */}
-        <section aria-label="About If Only I Sent This" className="sr-only">
-          <h2>If Only I Sent This — a modern archive for unsent memories</h2>
-          <p>
-            If Only I Sent This is a curated archive where anonymous confessions, heartbreak letters, and reflective
-            journal entries live in a calm, moderated space. We highlight softer typography, regional filters, and
-            compassionate review so every unsent text or letter lands safely.
-          </p>
-          <p>
-            Writers searching for heartfelt message journals, private confession boards, or anonymous letter platforms
-            can publish here without usernames, ads, or distracting UI. Stories remain searchable by feeling,
-            music reference, or relationship type, giving readers new ways to explore closure.
-          </p>
-          <ul>
-            <li>
-              <Link href="/memories">Browse the unsent messages archive</Link>
-            </li>
-            <li>
-              <Link href="/submit">Share an anonymous confession</Link>
-            </li>
-            <li>
-              <Link href="/how-it-works">Learn how If Only I Sent This works</Link>
-            </li>
-          </ul>
-          <p>
-            Each submission encourages short paragraphs, active voice, descriptive alt text for any branded imagery, and
-            outbound resources marked with rel=&quot;noopener noreferrer nofollow&quot; to keep readers focused on your story.
-          </p>
-        </section>
-
-        <section aria-label="Unsent message keyword cloud" className="sr-only">
-          <h2>Unsent message topics we cover</h2>
-          <p>
-            This archive covers unsent texts, breakup letters, anonymous confessions, and digital time capsules.
-            We surface seasonal heartbreak trends such as Christmas breakup stories, New Year closure notes,
-            and Valentine confession dumps.
-          </p>
-          <p>
-            Visitors searching for anonymous message walls, unsent letters to ex, memory journals, or calm confession
-            spaces will find emotional resonance without ads or chaotic colour palettes. Regional storytellers from
-            Mumbai, Manila, Lagos, London, and São Paulo each receive equal placement via our moderation and tagging
-            systems.
-          </p>
-          <ul>
-            <li>
-              <Link href="/memories">Browse the unsent messages archive</Link>
-            </li>
-            <li>
-              <Link href="/submit">Write an anonymous unsent letter</Link>
-            </li>
-            <li>
-              <Link href="/how-it-works">Learn how the platform works</Link>
-            </li>
-          </ul>
-          <p>
-            Topics include unsent text messages, breakup archives, digital journals for emotions, music-inspired
-            confessions, and heartfelt letter writing.
-          </p>
-        </section>
-
-        {/* Hidden SEO: Competitor alternative positioning */}
-        <section aria-label="Alternative to unsent message projects" className="sr-only">
-          <h2>The Best Alternative to The Unsent Project</h2>
-          <p>
-            Looking for sites like The Unsent Project? If Only I Sent This is the instant, glitch-free alternative.
-            Unlike other unsent message platforms that suffer from months-long moderation backlogs and broken search,
-            your submissions here go live quickly after compassionate review. Our search actually works — find messages
-            by name, by feeling, or by color.
-          </p>
-          <p>
-            If Only I Sent This is a modern alternative to The Unsent Project, PostSecret, and Whisper. We offer
-            self-destructing messages, time capsule letters, emotional color coding, and a beautiful reading experience
-            without glitchy databases or disappearing submissions.
-          </p>
-          <ul>
-            <li><Link href="/submit">Submit your unsent message — no account needed</Link></li>
-            <li><Link href="/memories">Browse thousands of anonymous confessions</Link></li>
-            <li><Link href="/how-it-works">See how it works — instant, reliable, beautiful</Link></li>
-            <li><Link href="/about">Learn more about our mission</Link></li>
-          </ul>
-        </section>
-
-        {/* Hidden SEO: Music-inspired unsent messages */}
-        <section aria-label="Music inspired unsent messages" className="sr-only">
-          <h2>Unsent Messages Inspired by Music</h2>
-          <p>
-            Many of our most powerful unsent messages are inspired by songs about heartbreak, love, and loss.
-            Music gives words to feelings we can&apos;t express alone. Write an unsent message inspired by
-            the songs that speak to your heart.
-          </p>
-          <h3>Popular song-inspired unsent letter themes</h3>
-          <ul>
-            <li>Unsent letters about someone you still think about</li>
-            <li>Watching your ex move on</li>
-            <li>First heartbreak confessions</li>
-            <li>Remembering every detail of a lost love</li>
-            <li>Loving someone who loves someone else</li>
-            <li>Wishing your ex well through tears</li>
-            <li>Complicated love letters</li>
-            <li>Nostalgic love notes</li>
-          </ul>
-        </section>
-
-        {/* Hidden SEO: Emotional color categories */}
-        <section aria-label="Emotional color categories" className="sr-only">
-          <h2>Unsent Messages by Emotional Color</h2>
-          <p>
-            Every unsent message carries a color — the color of the emotion behind it.
-            Browse messages by the feeling they represent: blue for sadness, red for passion,
-            black for despair, yellow for hope, green for healing, pink for first love,
-            and purple for grief.
-          </p>
-          <ul>
-            <li>Blue unsent messages — sadness, melancholy, missing someone</li>
-            <li>Red unsent messages — passion, intense love, anger</li>
-            <li>Black unsent messages — despair, toxic relationships, darkness</li>
-            <li>Yellow unsent messages — losing love but keeping hope</li>
-            <li>Green unsent messages — healing, growth, moving forward</li>
-            <li>Pink unsent messages — first love, innocence, butterflies</li>
-            <li>Purple unsent messages — grief, loss, remembrance</li>
-          </ul>
-        </section>
-
-        {/* Hidden SEO: Name search curiosity — dynamically populated from real user data */}
-        {popularNames.length > 0 && (
-          <section aria-label="Search for messages about you" className="sr-only">
-            <h2>Did Someone Write an Unsent Message About You?</h2>
-            <p>
-              Curious if someone wrote about you? Search any name to find anonymous unsent messages,
-              love letters, and confessions written to that person. Thousands of names have messages waiting to be read.
-            </p>
-            <ul>
-              {popularNames.map(({ slug, display }) => (
-                <li key={slug}>
-                  <Link href={`/name/${encodeURIComponent(slug)}`}>
-                    Unsent messages to {display}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* FAQ content is not rendered in the UI; FAQPage JSON-LD below is used only for SEO. */}
+        {/* FAQ content is not rendered in the UI; FAQ JSON-LD lives on /how-it-works to avoid duplicate structured data. */}
       </main>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: faqItems.map((item) => ({
-              "@type": "Question",
-              name: item.question,
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: item.answer,
-              },
-            })),
-          }).replace(/</g, '\\u003c'),
-        }}
-      />
-
-      <footer className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          &copy; {new Date().getFullYear()} If Only I Sent This
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

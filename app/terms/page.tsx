@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Footer from "@/components/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
     url: 'https://www.ifonlyisentthis.com/terms',
     siteName: 'If Only I Sent This',
     type: 'website',
-    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'If Only I Sent This' }],
+    images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -93,11 +94,7 @@ export default function TermsPage() {
         </section>
       </main>
 
-      <footer className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-6xl mx-auto px-4 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          © {new Date().getFullYear()} If Only I Sent This
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

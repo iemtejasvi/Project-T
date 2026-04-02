@@ -9,12 +9,6 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    nocache: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      noimageindex: false,
-    },
   },
   openGraph: {
     title: 'Unsent Messages Archive – Browse Anonymous Letters',
@@ -22,7 +16,7 @@ export const metadata: Metadata = {
     url: 'https://www.ifonlyisentthis.com/memories',
     siteName: 'If Only I Sent This',
     type: 'website',
-    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'If Only I Sent This' }],
+    images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
   twitter: {
     card: 'summary_large_image',

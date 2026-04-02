@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import Footer from "@/components/Footer";
+
 export default function Donate() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
@@ -40,7 +42,7 @@ export default function Donate() {
             <Link
               href="https://buymeacoffee.com/ifonlyisentthis"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
               className="px-4 py-2 bg-[var(--accent)] text-[var(--text)] rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto text-center underline"
             >
               Support Us on Buy Me a Coffee
@@ -61,11 +63,7 @@ export default function Donate() {
         </section>
       </main>
 
-      <footer className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          &copy; {new Date().getFullYear()} If Only I Sent This
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

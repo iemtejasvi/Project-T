@@ -1,5 +1,17 @@
 // Shared utilities for name validation and quality control
 
+/**
+ * Normalize a name slug for consistent URLs and queries.
+ * Used by name page, layout, and API to ensure canonical consistency.
+ */
+export function normalizeNameSlug(raw: string): string {
+  return decodeURIComponent(raw)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s'-]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
 // Reserved/blocked names that should never become archive pages or clickable links
 const BLOCKED_NAMES = new Set([
   'anonymous', 'anon', 'someone', 'nobody', 'unknown', 'me', 'myself',

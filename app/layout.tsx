@@ -16,12 +16,12 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: '#000000',
+  themeColor: '#ffffff',
 };
 
 export const metadata = {
   metadataBase: new URL('https://www.ifonlyisentthis.com'),
-  title: "If Only I Sent This – Unsent Letters & Anonymous Confessions",
+  title: "If Only I Sent This – Unsent Letters & Confessions",
   description:
     "Write and share unsent letters, anonymous confessions, and heartfelt messages you never had the courage to send. Free, no account needed.",
   other: {
@@ -30,117 +30,6 @@ export const metadata = {
     'mobile-web-app-capable': 'yes',
     'format-detection': 'telephone=no',
   },
-  keywords: [
-    // Core brand
-    "unsent messages",
-    "unsent letters",
-    "if only i sent this",
-    "ifonlyisentthis",
-    "unsent message archive",
-    "anonymous confession site",
-    "anonymous letter platform",
-    // Anonymous letters & confessions
-    "anonymous confession website",
-    "anonymous love letter online",
-    "write anonymous letter",
-    "confession platform",
-    "unsent letter archive",
-    // Unsent texts & messaging
-    "unsent text messages",
-    "love texts never sent",
-    "unsent message project",
-    "unsent apology note",
-    "message i wish i had sent",
-    "unsent confession to ex",
-    "unsent crush message",
-    // Love & heartbreak
-    "unsent love letter",
-    "unrequited love message",
-    "breakup letter unsent",
-    "first love confession",
-    "goodbye letter to love",
-    "love regret message",
-    // Mental health & therapeutic writing
-    "journaling for mental health",
-    "writing therapy benefits",
-    "cathartic writing ideas",
-    "healing through letters",
-    "therapeutic letter writing",
-    // Competitor alternatives
-    "sites like the unsent project",
-    "the unsent project alternative",
-    "unsent project alternative",
-    "unsent message project alternative",
-    "unsent project not working",
-    "write unsent letter online free",
-    "anonymous love letter website",
-    "sites like postsecret",
-    "postsecret alternative",
-    "anonymous venting website",
-    // High-intent curiosity searches
-    "find anonymous messages about me",
-    "search unsent messages by name",
-    "did someone write about me",
-    "has anyone written about me",
-    "search my name unsent messages",
-    // Emotional outlet & cathartic writing
-    "where to write unsent letters online",
-    "free anonymous confession platform",
-    "write letter you'll never send",
-    "anonymous emotional outlet",
-    "safe space to confess online",
-    "write feelings anonymously",
-    "release emotions through writing",
-    // Core unsent message variations
-    "unsent love letters",
-    "unsent confessions",
-    "unsent goodbyes",
-    "unsent apologies",
-    "unsent closure",
-    "unsent forgiveness",
-    // Unsent messages by relationship
-    "unsent message to ex",
-    "unsent message to crush",
-    "unsent message to first love",
-    "unsent message to parents",
-    "unsent message to best friend",
-    "unsent message to soulmate",
-    "unsent letter to him",
-    "unsent letter to her",
-    "letter to my ex i'll never send",
-    "things i wish i told you",
-    // Breakup & grief
-    "breakup messages",
-    "breakup letters",
-    "breakup closure",
-    "goodbye letter to ex",
-    "closure letter template",
-    "grief support",
-    "coping with grief",
-    "loss of parent",
-    "unsent goodbye letter",
-    "goodbye letter to deceased",
-    // Time capsule & self-destruct features
-    "time capsule letter",
-    "message to future self",
-    "self destructing message",
-    "digital time capsule",
-    "disappearing message website",
-    // Healing & moving on
-    "healing after breakup",
-    "writing for closure",
-    "unsent therapy exercise",
-    "writing letters never sent",
-    // High-value trending keywords
-    "unsent letters anonymous",
-    "write anonymous unsent letter",
-    "confession website free",
-    "anonymous emotional writing",
-    "unsent message to someone",
-    "anonymous letters project",
-    "unsent messages alternative",
-    "online confession anonymous free"
-  ].join(", "),
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -161,21 +50,24 @@ export const metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: "If Only I Sent This – Unsent Letters & Anonymous Confessions",
+    title: "If Only I Sent This – Unsent Letters & Confessions",
     description:
       "Write and share unsent letters, anonymous confessions, and heartfelt messages you never had the courage to send. Free, no account needed.",
+    url: 'https://www.ifonlyisentthis.com',
+    siteName: 'If Only I Sent This',
+    type: 'website',
     images: [
       {
         url: '/opengraph-image.png',
-        width: 1200,
-        height: 630,
+        width: 800,
+        height: 533,
         alt: 'If Only I Sent This',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "If Only I Sent This – Unsent Letters & Anonymous Confessions",
+    title: "If Only I Sent This – Unsent Letters & Confessions",
     description:
       "Write and share unsent letters, anonymous confessions, and heartfelt messages you never had the courage to send. Free, no account needed.",
     images: ['/opengraph-image.png'],
@@ -230,7 +122,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 "logo": "https://www.ifonlyisentthis.com/android-chrome-512x512.png",
                 "name": "If Only I Sent This",
                 "description": "A modern archive for unsent memories, anonymous confessions, and heartfelt messages you were never ready to send. The instant, glitch-free alternative to unsent message projects.",
-                "sameAs": ["https://buymeacoffee.com/ifonlyisentthis"]
+                "sameAs": ["https://buymeacoffee.com/ifonlyisentthis", "https://www.instagram.com/ifonlyisentthis"]
               },
               {
                 "@context": "https://schema.org",

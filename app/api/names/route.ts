@@ -90,17 +90,23 @@ const getCachedRelatedNames = unstable_cache(
 
     if (error || !data) return [];
 
-    const nameSet = new Set<string>();
+    const nameMap = new Map<string, string>();
     for (const m of data) {
-      if (m.recipient) nameSet.add(m.recipient.trim());
-      if (m.sender) nameSet.add(m.sender.trim());
+      if (m.recipient) {
+        const key = m.recipient.trim().toLowerCase();
+        if (!nameMap.has(key)) nameMap.set(key, m.recipient.trim());
+      }
+      if (m.sender) {
+        const key = m.sender.trim().toLowerCase();
+        if (!nameMap.has(key)) nameMap.set(key, m.sender.trim());
+      }
     }
     // Remove the current name and filter for linkable names only
     const related: string[] = [];
-    for (const n of nameSet) {
-      if (n.toLowerCase() === normalizedName) continue;
-      if (!isLinkableName(n)) continue;
-      related.push(n);
+    for (const [key, display] of nameMap) {
+      if (key === normalizedName) continue;
+      if (!isLinkableName(display)) continue;
+      related.push(display);
       if (related.length >= 8) break;
     }
     return related;

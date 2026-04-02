@@ -7,6 +7,7 @@ import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
  
 import Loader from "@/components/Loader";
+import Footer from "@/components/Footer";
 
 interface Memory {
   id: string;
@@ -448,39 +449,9 @@ function MemoriesContent() {
             </p>
           </div>
         )}
-        {/* Hidden SEO: Archive page browsing content */}
-        <section aria-label="Browse unsent messages archive" className="sr-only">
-          <h2>Browse Thousands of Unsent Messages and Anonymous Confessions</h2>
-          <p>
-            The If Only I Sent This archive contains thousands of unsent love letters, heartbreak confessions,
-            goodbye messages, and words left unspoken. Browse by name, search for specific people, or explore
-            the full collection of anonymous memories.
-          </p>
-          <h3>What You&apos;ll Find in the Archive</h3>
-          <ul>
-            <li>Unsent letters to exes — breakup confessions and closure messages</li>
-            <li>Love letters never sent — first love, unrequited love, lost love</li>
-            <li>Apologies that were never delivered — regret and forgiveness</li>
-            <li>Goodbye messages — to people, pets, moments in time</li>
-            <li>Music-inspired confessions</li>
-            <li>Time capsule messages — locked until their reveal date</li>
-            <li>Self-destructing memories — messages that will vanish in the future</li>
-            <li>Emotional color-coded messages — blue for sadness, red for passion, yellow for hope</li>
-          </ul>
-          <h3>Better Than The Unsent Project</h3>
-          <p>
-            Unlike The Unsent Project where search is broken and messages disappear, our archive is reliable,
-            searchable, and beautifully presented. Find messages by name, browse by feeling, and never worry
-            about glitchy databases or months-long moderation backlogs.
-          </p>
-        </section>
       </main>
 
-      <footer className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          © {new Date().getFullYear()} If Only I Sent This
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

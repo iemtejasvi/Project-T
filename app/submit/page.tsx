@@ -6,6 +6,7 @@ import Link from "next/link";
 import { typewriterTags, typewriterSubTags } from "@/components/typewriterPrompts";
 import { hasSuspiciouslyLongWords } from "@/lib/inputSanitizer";
 import InlineLoader from "@/components/InlineLoader";
+import Footer from "@/components/Footer";
 
 interface IPData {
   ip?: string;
@@ -1628,40 +1629,9 @@ export default function SubmitPage() {
             )}
           </div>
         </div>
-        {/* Hidden SEO: Submit page conversion content */}
-        <section aria-label="Why submit your unsent message here" className="sr-only">
-          <h2>Share Your Unsent Message — Free, Anonymous, Instant</h2>
-          <p>
-            If Only I Sent This is the easiest place to share your unsent letter, anonymous confession, or heartfelt message.
-            No account needed. No email required. Just write, submit, and your words find a home after quick moderation.
-          </p>
-          <h3>Why Submit Here Instead of Other Sites?</h3>
-          <ul>
-            <li>Fast approval — hours, not months like The Unsent Project</li>
-            <li>Your message won&apos;t disappear — reliable database, no glitches</li>
-            <li>Self-destruct option — set your message to vanish after 1 week to 1 year</li>
-            <li>Time capsule feature — lock your message until a future date</li>
-            <li>Beautiful presentation — flip cards, colors, elegant typography</li>
-            <li>Searchable by name — people can find messages written to them</li>
-            <li>Completely free — no premium tiers, no paywalls</li>
-          </ul>
-          <h3>What to Write</h3>
-          <p>
-            Write an unsent love letter. A goodbye to someone you lost. An apology you&apos;ll never deliver.
-            A confession inspired by your favorite heartbreak song.
-            Words you wish you said to your ex, your first love, your best friend, or someone who got away.
-          </p>
-          <p>
-            This is your space for closure, catharsis, and honesty. Write what you couldn&apos;t say out loud.
-          </p>
-        </section>
       </main>
 
-      <footer className="bg-[var(--card-bg)] shadow-inner">
-        <div className="max-w-4xl mx-auto px-6 py-4 text-center text-sm text-[var(--text)] footer-copyright">
-          © {new Date().getFullYear()} If Only I Sent This
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
