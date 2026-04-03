@@ -436,7 +436,7 @@ export default function HomeClient() {
           }
         >
           {announcement && !isAnnouncementDismissed && announcementCheckComplete ? (
-            <div className="w-full flex flex-col items-center justify-center gap-1 font-bold leading-tight">
+            <div className="relative w-full flex flex-col items-center justify-center gap-1 font-bold leading-tight">
               <div className="flex items-center gap-1.5">
                 <span>{announcement.icon || '📢'}</span>
                 <span>{announcement.message}</span>
