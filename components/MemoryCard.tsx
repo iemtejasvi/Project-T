@@ -427,6 +427,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       </div>
       <motion.div
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
+        initial={false}
         animate={{
           boxShadow: flipped
             ? "0 25px 50px rgba(0,0,0,0.12), 0 10px 20px rgba(0,0,0,0.06)"
@@ -467,6 +468,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         )}
         <motion.div
           className="flip-card-inner relative z-10 w-full h-full"
+          initial={false}
           animate={{
             rotateY: flipped ? 180 : 0,
             scale: flipped ? [1, 0.95, 1] : [1, 0.95, 1],
