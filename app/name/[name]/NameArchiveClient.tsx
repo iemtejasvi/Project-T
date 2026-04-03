@@ -85,15 +85,27 @@ export default function NameArchiveClient() {
     return Math.min(totalCount, page * pageSize + memories.length);
   }, [page, pageSize, memories.length, totalCount]);
 
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+      <div className="flex items-center gap-1.5">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="w-1.5 h-1.5 rounded-full bg-[var(--text)] animate-pulse"
+            style={{ animationDelay: `${i * 0.15}s` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
 
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">
-            {loading
-              ? "\u00A0"
-              : nameExists
+            {nameExists
               ? `Messages to ${displayNameStr}`
               : `No Messages for "${displayNameStr}"`}
           </h1>
@@ -142,11 +154,7 @@ export default function NameArchiveClient() {
       </header>
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader />
-          </div>
-        ) : !nameExists ? (
+        {!nameExists ? (
           <div className="text-center py-16">
             <p className="text-[var(--text)] text-lg mb-6">
               No messages found for &ldquo;{displayNameStr}&rdquo;.
