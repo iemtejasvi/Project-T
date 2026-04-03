@@ -378,29 +378,25 @@ export default function HomeClient() {
       )}
 
       {announcement && !isAnnouncementDismissed && announcementCheckComplete && (
-        <section className={`hidden lg:block my-8 px-4 sm:px-6 max-w-5xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+        <section className={`hidden lg:block my-6 px-4 sm:px-6 max-w-2xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
           <div
-            className="relative p-4 rounded-lg shadow-md md:flex md:items-center md:justify-between md:gap-4 animate-pulse-glow"
+            className="relative px-5 py-3 rounded-full md:flex md:items-center md:justify-center md:gap-3"
             style={{
               backgroundColor: announcement.background_color || '#ef4444',
-              color: announcement.text_color || '#ffffff'
+              color: announcement.text_color || '#ffffff',
+              opacity: 0.9,
             }}
           >
-            {/* Spacer for desktop to balance the dismiss button */}
-            {announcement.is_dismissible && <div className="hidden md:block w-8 h-8 flex-shrink-0"></div>}
-
             {/* Announcement Content */}
-            <div className="text-center flex-grow">
-              <h2 className="text-xl sm:text-2xl font-bold leading-tight">
-                <span>{announcement.icon || '📢'}</span>
-                <span className="ml-2">{announcement.message}</span>
-              </h2>
+            <div className="text-center flex items-center justify-center gap-2">
+              <span className="text-sm">{announcement.icon || '📢'}</span>
+              <span className="text-sm font-medium">{announcement.message}</span>
               {announcement.link_url && (
                 <a
                   href={announcement.link_url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="inline-block mt-1.5 text-sm underline opacity-80 hover:opacity-100 transition-opacity"
+                  className="text-xs underline opacity-70 hover:opacity-100 transition-opacity ml-1"
                   onClick={trackAnnouncementClick}
                 >
                   Read more &rarr;
@@ -412,7 +408,7 @@ export default function HomeClient() {
             {announcement.is_dismissible && (
               <button
                 onClick={handleDismissAnnouncement}
-                className="absolute top-1 right-1 w-8 h-8 flex items-center justify-center text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10 md:relative md:top-auto md:right-auto"
+                className="absolute top-1/2 -translate-y-1/2 right-2 w-6 h-6 flex items-center justify-center text-lg leading-none opacity-50 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
                 aria-label="Dismiss announcement"
               >
                 &times;

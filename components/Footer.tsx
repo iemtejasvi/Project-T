@@ -24,22 +24,23 @@ export default function Footer() {
         </p>
       </div>
 
-      {/* Desktop: original styling */}
-      <div className="hidden sm:block max-w-5xl mx-auto px-6 py-6">
-        <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-[var(--text)] mb-4">
-          <Link href="/" className="hover:text-[var(--accent)] transition-colors">Home</Link>
-          <Link href="/memories" className="hover:text-[var(--accent)] transition-colors">Archive</Link>
-          <Link href="/submit" className="hover:text-[var(--accent)] transition-colors">Confess</Link>
-          <Link href="/how-it-works" className="hover:text-[var(--accent)] transition-colors whitespace-nowrap">How It Works</Link>
-          <Link href="/about" className="hover:text-[var(--accent)] transition-colors">About</Link>
-          <Link href="/contact" className="hover:text-[var(--accent)] transition-colors">Contact</Link>
-          <Link href="/donate" className="hover:text-[var(--accent)] transition-colors">Donate</Link>
+      {/* Desktop: refined, minimal footer */}
+      <div className="hidden sm:block max-w-5xl mx-auto px-6 py-4">
+        <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1.5 text-xs tracking-wide text-[var(--text)] opacity-50 mb-2.5">
+          <Link href="/" className="hover:opacity-100 transition-opacity">Home</Link>
+          <Link href="/memories" className="hover:opacity-100 transition-opacity">Archive</Link>
+          <Link href="/submit" className="hover:opacity-100 transition-opacity">Confess</Link>
+          <Link href="/how-it-works" className="hover:opacity-100 transition-opacity whitespace-nowrap">How It Works</Link>
+          <Link href="/about" className="hover:opacity-100 transition-opacity">About</Link>
+          <Link href="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
+          <Link href="/donate" className="hover:opacity-100 transition-opacity">Donate</Link>
         </nav>
-        <div className="flex justify-center gap-x-4 text-xs text-[var(--text)] opacity-60 mb-3">
-          <Link href="/privacy-policy" className="hover:opacity-100 transition-opacity">Privacy Policy</Link>
-          <Link href="/terms" className="hover:opacity-100 transition-opacity">Terms</Link>
+        <div className="flex justify-center gap-x-3 text-[10px] text-[var(--text)] opacity-35 mb-1.5">
+          <Link href="/privacy-policy" className="hover:opacity-70 transition-opacity">Privacy Policy</Link>
+          <span className="select-none">&middot;</span>
+          <Link href="/terms" className="hover:opacity-70 transition-opacity">Terms</Link>
         </div>
-        <p className="text-center text-sm text-[var(--text)] footer-copyright">
+        <p className="text-center text-[10px] text-[var(--text)] opacity-30 leading-tight footer-copyright">
           &copy; {new Date().getFullYear()} If Only I Sent This
         </p>
       </div>
