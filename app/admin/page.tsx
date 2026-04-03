@@ -1031,7 +1031,7 @@ export default function AdminPanel() {
 
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center gap-1 sm:gap-2 border-b border-[var(--border)] overflow-x-auto">
+        <div className="flex items-center gap-1 sm:gap-2 border-b border-[var(--border)]">
           {(["pending", "approved", "banned"] as Tab[]).map((tab) => (
             <button
               key={tab}
