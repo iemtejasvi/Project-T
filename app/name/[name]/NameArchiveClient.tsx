@@ -92,7 +92,7 @@ export default function NameArchiveClient() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">
             {loading
-              ? "Loading..."
+              ? "\u00A0"
               : nameExists
               ? `Messages to ${displayNameStr}`
               : `No Messages for "${displayNameStr}"`}
