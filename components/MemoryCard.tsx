@@ -427,10 +427,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       </div>
       <motion.div
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
-        initial={{ opacity: 0, y: 20 }}
         animate={{
-          opacity: 1,
-          y: 0,
           boxShadow: flipped
             ? "0 25px 50px rgba(0,0,0,0.12), 0 10px 20px rgba(0,0,0,0.06)"
             : "0 4px 12px rgba(0,0,0,0.04)",
