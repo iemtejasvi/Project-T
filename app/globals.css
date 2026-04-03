@@ -124,10 +124,11 @@ body {
 
 /* Card flip styles */
 .perspective-1000 {
-  perspective: 1000px;
+  perspective: 1200px;
 }
 .flip-card-inner {
   transform-style: preserve-3d;
+  will-change: transform;
 }
 .backface-hidden {
   backface-visibility: hidden;
