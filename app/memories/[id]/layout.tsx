@@ -7,7 +7,7 @@ interface MemoryLayoutProps {
   params: Promise<{ id: string }>;
 }
 
-const FALLBACK_TITLE = "Unsent Memory – If Only I Sent This";
+const FALLBACK_TITLE = "Unsent Memory";
 const FALLBACK_DESC = "Read this anonymous unsent message on If Only I Sent This — a sanctuary for words that were never sent.";
 
 // ISR cache: one DB hit per memory ID per 60s across all visitors.
@@ -54,9 +54,11 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
       ? rawMessage.substring(0, 120).trim() + '…'
       : rawMessage;
 
-    const longTitle = `Unsent Message to ${displayRecipient} – If Only I Sent This`;
-    const shortTitle = `To ${displayRecipient} – If Only I Sent This`;
+    const longTitle = `Unsent Message to ${displayRecipient}`;
+    const shortTitle = `To ${displayRecipient}`;
     const title = longTitle.length > 60 ? shortTitle : longTitle;
+
+    const ogTitle = `Unsent Message to ${displayRecipient} – If Only I Sent This`;
 
     const description = preview
       ? `"${preview}" — An anonymous unsent letter on If Only I Sent This.`
@@ -69,7 +71,7 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
         canonical: `/memories/${id}`,
       },
       openGraph: {
-        title: longTitle,
+        title: ogTitle,
         description,
         url: `https://www.ifonlyisentthis.com/memories/${id}`,
         siteName: 'If Only I Sent This',
@@ -78,7 +80,7 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
       },
       twitter: {
         card: 'summary_large_image',
-        title: longTitle,
+        title: ogTitle,
         description,
         images: ['/opengraph-image.png'],
       },

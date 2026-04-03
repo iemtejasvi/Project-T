@@ -36,7 +36,10 @@ export const viewport = {
 
 export const metadata = {
   metadataBase: new URL('https://www.ifonlyisentthis.com'),
-  title: "If Only I Sent This – Unsent Letters & Confessions",
+  title: {
+    default: "If Only I Sent This – Unsent Letters & Confessions",
+    template: "%s – If Only I Sent This",
+  },
   description:
     "Write and share unsent letters, anonymous confessions, and heartfelt messages you never had the courage to send. Free, no account needed.",
   other: {
@@ -54,12 +57,14 @@ export const metadata = {
     apple: '/apple-touch-icon.png',
     other: [
       {
-        rel: 'android-chrome-192x192',
+        rel: 'icon',
         url: '/android-chrome-192x192.png',
+        sizes: '192x192',
       },
       {
-        rel: 'android-chrome-512x512',
+        rel: 'icon',
         url: '/android-chrome-512x512.png',
+        sizes: '512x512',
       },
     ],
   },

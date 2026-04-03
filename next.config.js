@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  generateEtags: false, // Disable ETags to prevent caching issues
+  generateEtags: true,
   async headers() {
     return [
       // Security headers on all routes

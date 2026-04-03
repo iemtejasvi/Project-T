@@ -86,41 +86,8 @@ export default function NameArchiveClient() {
     return Math.min(totalCount, page * pageSize + memories.length);
   }, [page, pageSize, memories.length, totalCount]);
 
-  // SEO structured data with ItemList
-  const structuredData = useMemo(() => {
-    if (!displayNameStr || !nameExists) return null;
-    return {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      name: `Messages to ${displayNameStr} – If Only I Sent This`,
-      description: `Read ${totalCount} unsent messages and letters to ${displayNameStr}. Anonymous confessions, love letters, and words never spoken.`,
-      url: `https://www.ifonlyisentthis.com/name/${encodeURIComponent(slug)}`,
-      isPartOf: {
-        "@type": "WebSite",
-        name: "If Only I Sent This",
-        url: "https://www.ifonlyisentthis.com",
-      },
-      numberOfItems: totalCount,
-      mainEntity: {
-        "@type": "ItemList",
-        numberOfItems: totalCount,
-        itemListElement: memories.slice(0, 10).map((m, i) => ({
-          "@type": "ListItem",
-          position: i + 1,
-          url: `https://www.ifonlyisentthis.com/memories/${m.id}`,
-        })),
-      },
-    };
-  }, [displayNameStr, nameExists, totalCount, slug, memories]);
-
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-      {structuredData && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }}
-        />
-      )}
 
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
@@ -207,9 +174,9 @@ export default function NameArchiveClient() {
               <div className="text-center mb-6">
                 <button
                   onClick={handlePrev}
-                  className="pagination-btn inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 shadow-sm hover:shadow-md font-medium tracking-wide"
+                  className="pagination-btn inline-flex items-center gap-1.5 text-xs px-4 py-1.5 text-[var(--text)] opacity-60 hover:opacity-100 transition-opacity duration-200"
                 >
-                  <span className="text-lg">&larr;</span> Previous
+                  <span className="text-sm">&larr;</span> Previous
                 </button>
               </div>
             )}
@@ -237,9 +204,9 @@ export default function NameArchiveClient() {
               <div className="text-center mt-6">
                 <button
                   onClick={handleNext}
-                  className="pagination-btn inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 shadow-sm hover:shadow-md font-medium tracking-wide"
+                  className="pagination-btn inline-flex items-center gap-1.5 text-xs px-4 py-1.5 text-[var(--text)] opacity-60 hover:opacity-100 transition-opacity duration-200"
                 >
-                  Load More <span className="text-lg">&rarr;</span>
+                  Load More <span className="text-sm">&rarr;</span>
                 </button>
               </div>
             )}

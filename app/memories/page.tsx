@@ -376,9 +376,9 @@ function MemoriesContent() {
                 <button
                   onClick={handleLoadPrevious}
                   disabled={isLoadingPage || isLoadingMore}
-                  className="pagination-btn inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
+                  className="pagination-btn inline-flex items-center gap-1.5 text-xs px-4 py-1.5 text-[var(--text)] opacity-60 hover:opacity-100 transition-opacity duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  <span className="text-lg">←</span> Previous
+                  <span className="text-sm">&larr;</span> Previous
                 </button>
               </div>
             )}
@@ -411,9 +411,9 @@ function MemoriesContent() {
                   <button
                     onClick={handleLoadMore}
                     disabled={!hasNext || isLoadingMore}
-                    className="pagination-btn inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 bg-[#f8f6f1] text-[#6b5b47] border border-[#d4c4a8] rounded-full hover:bg-[#f0ede4] hover:border-[#c4b498] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md font-medium tracking-wide"
+                    className="pagination-btn inline-flex items-center gap-1.5 text-xs px-4 py-1.5 text-[var(--text)] opacity-60 hover:opacity-100 transition-opacity duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    Load More <span className="text-lg">→</span>
+                    Load More <span className="text-sm">&rarr;</span>
                   </button>
                 )}
               </div>

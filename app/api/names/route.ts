@@ -34,7 +34,7 @@ const getCachedNameMemories = unstable_cache(
     // Query memories where recipient OR sender matches the name (case-insensitive)
     let query = primaryDB
       .from('memories')
-      .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, destruct_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled, night_only, night_tz, night_start_hour, night_end_hour, letter_style', { count: 'estimated' })
+      .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled, night_only, night_tz, night_start_hour, night_end_hour', { count: 'estimated' })
       .eq('status', 'approved')
       .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
       .or(`recipient.ilike.${safeName},sender.ilike.${safeName}`);

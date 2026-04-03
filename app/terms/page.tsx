@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions – If Only I Sent This",
+  title: "Terms & Conditions",
   description: "Terms for using If Only I Sent This. Submit content you own, keep it respectful, and your anonymous voice stays protected.",
   alternates: {
     canonical: '/terms',

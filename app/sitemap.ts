@@ -17,61 +17,60 @@ function getSupabase() {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.ifonlyisentthis.com'
-  const currentDate = new Date()
 
-  // Static routes
+  // Static routes with stable lastModified dates
   const routes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: currentDate,
+      lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 1,
     },
     {
       url: `${baseUrl}/submit`,
-      lastModified: currentDate,
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     },
     {
       url: `${baseUrl}/memories`,
-      lastModified: currentDate,
+      lastModified: new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/how-it-works`,
-      lastModified: currentDate,
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: currentDate,
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     },
     {
       url: `${baseUrl}/donate`,
-      lastModified: currentDate,
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: currentDate,
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
     },
     {
       url: `${baseUrl}/privacy-policy`,
-      lastModified: currentDate,
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.4,
     },
     {
       url: `${baseUrl}/terms`,
-      lastModified: currentDate,
+      lastModified: new Date('2026-01-01'),
       changeFrequency: 'monthly' as const,
       priority: 0.4,
     }
@@ -122,7 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!isLinkableName(name)) continue;
         routes.push({
           url: `${baseUrl}/name/${encodeURIComponent(name)}`,
-          lastModified: currentDate,
+          lastModified: new Date(),
           changeFrequency: 'weekly' as const,
           priority: 0.6,
         });
@@ -147,6 +146,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .eq('status', 'approved')
           .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
           .is('destruct_at', null)
+          .or('night_only.is.null,night_only.eq.false')
           .order('created_at', { ascending: false })
           .range(memPage * MEM_PAGE_SIZE, (memPage + 1) * MEM_PAGE_SIZE - 1);
         if (!data || data.length === 0) { hasMoreMems = false; break; }

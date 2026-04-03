@@ -34,7 +34,8 @@ export async function generateMetadata({ params }: NameLayoutProps): Promise<Met
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 
-  const title = `Messages to ${displayName} – If Only I Sent This`;
+  const title = `Messages to ${displayName}`;
+  const ogTitle = `Messages to ${displayName} – If Only I Sent This`;
   const description = `Read unsent messages, anonymous letters, and confessions written to ${displayName}. Discover the words people never had the courage to send.`;
 
   // Server-side noindex for thin content pages (fewer than 3 messages)
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: NameLayoutProps): Promise<Met
     description,
     ...(robotsDirective ? { robots: robotsDirective } : {}),
     openGraph: {
-      title,
+      title: ogTitle,
       description,
       url: `https://www.ifonlyisentthis.com/name/${encodeURIComponent(slug)}`,
       siteName: 'If Only I Sent This',
@@ -57,16 +58,48 @@ export async function generateMetadata({ params }: NameLayoutProps): Promise<Met
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: ogTitle,
       description,
       images: ['/opengraph-image.png'],
     },
     alternates: {
-      canonical: `https://www.ifonlyisentthis.com/name/${encodeURIComponent(slug)}`,
+      canonical: `/name/${encodeURIComponent(slug)}`,
     },
   };
 }
 
-export default function NameLayout({ children }: NameLayoutProps) {
-  return <>{children}</>;
+export default async function NameLayout({ children, params }: NameLayoutProps) {
+  const { name: rawSlug } = await params;
+  const slug = normalizeNameSlug(rawSlug);
+  const displayName = slug
+    .split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+  const count = await getCachedNameCount(slug);
+
+  const structuredData = count > 0 ? JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `Messages to ${displayName} – If Only I Sent This`,
+    description: `Read ${count} unsent messages and letters to ${displayName}. Anonymous confessions, love letters, and words never spoken.`,
+    url: `https://www.ifonlyisentthis.com/name/${encodeURIComponent(slug)}`,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "If Only I Sent This",
+      url: "https://www.ifonlyisentthis.com",
+    },
+    numberOfItems: count,
+  }).replace(/</g, '\\u003c') : null;
+
+  return (
+    <>
+      {structuredData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: structuredData }}
+        />
+      )}
+      {children}
+    </>
+  );
 }

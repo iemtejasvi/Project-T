@@ -944,21 +944,18 @@ input::placeholder, textarea::placeholder {
     opacity: 0.55 !important; /* More subtle */
   }
   
-  /* Pagination buttons - smaller and minimal */
+  /* Pagination buttons - minimal and theme-aware */
   .pagination-btn {
-    font-size: 0.875rem !important; /* 14px - smaller */
-    padding: 0.5rem 1.25rem !important; /* Smaller padding */
-    font-weight: 400 !important;
-    box-shadow: none !important; /* Remove shadow */
+    font-weight: 400;
+    letter-spacing: 0.02em;
   }
   
   .pagination-btn:hover:not(:disabled) {
-    box-shadow: none !important; /* Remove hover shadow */
-    opacity: 0.8;
+    opacity: 1;
   }
-  
+
   .pagination-btn span {
-    font-size: 1rem !important; /* Smaller arrows */
+    font-size: 0.875rem;
   }
   
   /* Card back (flipped) - "if only i sent this" text - lighter */

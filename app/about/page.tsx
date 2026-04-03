@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About – If Only I Sent This",
+  title: "About",
   description: "Learn about our mission to give your unspoken thoughts a safe, anonymous home. If Only I Sent This is a modern archive for unsent letters.",
   alternates: {
     canonical: '/about',

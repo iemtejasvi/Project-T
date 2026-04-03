@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Support Us – Donate to If Only I Sent This',
+  title: 'Support Us – Donate',
   description: 'Help keep If Only I Sent This free. Your donation supports hosting, moderation, and development of this anonymous unsent message platform.',
   alternates: {
     canonical: '/donate',

@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact Us – If Only I Sent This",
+  title: "Contact Us",
   description: "Questions, feedback, or content removal requests — reach the If Only I Sent This team. We typically respond within 24 hours.",
   alternates: {
     canonical: '/contact',
