@@ -21,7 +21,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
         ))}
       </div>
       {/* Mobile cards — shown below lg, hidden on lg+ */}
-      <div className="flex flex-col gap-8 lg:hidden">
+      <div className="flex flex-col lg:hidden">
         {memories.map((memory) => (
           <MemoryCard key={memory.id} memory={memory} />
         ))}

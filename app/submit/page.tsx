@@ -1005,10 +1005,10 @@ export default function SubmitPage() {
   // Removed decorative leaf color logic
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] lg:bg-gradient-to-br lg:from-[var(--background)] lg:to-[var(--card-bg)] lg:via-[var(--secondary)]/30 relative overflow-x-hidden">
-      <header className="bg-[var(--card-bg)] shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-          <h1 className="text-4xl font-serif desktop-heading">Submit a Memory</h1>
+    <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] relative overflow-x-hidden">
+      <header className="bg-[var(--card-bg)] shadow-lg lg:shadow-md">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-5 text-center">
+          <h1 className="text-4xl font-serif desktop-heading submit-desktop-heading">Confess</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex justify-center gap-6 desktop-nav-list">
@@ -1032,38 +1032,37 @@ export default function SubmitPage() {
         </div>
       </header>
 
-      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 lg:py-20 relative z-10">
+      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 lg:py-14 relative z-10">
         <div className="w-full max-w-6xl mx-auto">
           {/* Desktop Layout */}
-          <div className="hidden lg:grid lg:grid-cols-12 lg:gap-12 lg:items-start">
+          <div className="hidden lg:grid lg:grid-cols-12 lg:gap-14 lg:items-start">
             {/* Left Panel - Quote & Info */}
             <div className="lg:col-span-5 lg:sticky lg:top-8">
-              <div className="bg-[var(--card-bg)]/60 backdrop-blur-xl rounded-3xl p-10 border border-[var(--accent)]/20 shadow-2xl">
-                <blockquote className="text-3xl font-serif italic text-[var(--accent)] mb-8 leading-relaxed">
+              <div className="bg-[var(--card-bg)] rounded-2xl p-8 shadow-md border border-[var(--border)]/20">
+                <blockquote className="text-lg font-serif italic text-[var(--text)] opacity-80 mb-6 leading-relaxed">
                   &ldquo;Some words are too heavy to send, but too important to keep.&rdquo;
                 </blockquote>
-                <div className="space-y-6">
-                  <div>
-                    <h2 className="text-2xl font-serif font-semibold mb-3 text-[var(--text)]">Guidelines</h2>
-                    <ul className="space-y-2 text-[var(--text)]/80">
-                      <li className="flex items-center gap-3">
-                        <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full"></span>
-                        Max 50 words. Short, sharp, honest.
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full"></span>
-                        English only. No hate, spam, or off-topic.
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full"></span>
-                        Special effects for ≤30 words.
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full"></span>
-                        6 memories per person. Make them count.
-                      </li>
-                    </ul>
-                            </div>
+                <hr className="border-[var(--border)]/30 mb-6" />
+                <div>
+                  <h2 className="submit-section-label">Guidelines</h2>
+                  <ul className="space-y-2.5 text-[var(--text)] opacity-75 text-sm">
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-1 h-1 mt-1.5 bg-[var(--accent)] rounded-full flex-shrink-0 opacity-80"></span>
+                      Max 50 words. Short, sharp, honest.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-1 h-1 mt-1.5 bg-[var(--accent)] rounded-full flex-shrink-0 opacity-80"></span>
+                      English only. No hate, spam, or off-topic.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-1 h-1 mt-1.5 bg-[var(--accent)] rounded-full flex-shrink-0 opacity-80"></span>
+                      Special effects for ≤30 words.
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <span className="w-1 h-1 mt-1.5 bg-[var(--accent)] rounded-full flex-shrink-0 opacity-80"></span>
+                      6 memories per person. Make them count.
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -1071,12 +1070,12 @@ export default function SubmitPage() {
             {/* Right Panel - Form */}
             <div className="lg:col-span-7">
               {submitted ? (
-                <div className="bg-[var(--secondary)] p-12 rounded-3xl shadow-2xl text-center animate-fade-in">
-                  <div className="text-4xl font-bold mb-6 animate-bounce">Sent!</div>
-                  <p className="text-lg mb-8 text-[var(--text)]/80">Your memory is pending approval. Please wait while we review it.</p>
-                  <Link 
+                <div className="bg-[var(--card-bg)] p-10 rounded-2xl shadow-md border border-[var(--border)]/20 text-center">
+                  <div className="text-3xl font-serif mb-4 text-[var(--text)]">Sent.</div>
+                  <p className="text-sm mb-8 text-[var(--text)] opacity-70">Your memory is pending approval.</p>
+                  <Link
                     href="/"
-                    className="inline-block px-8 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
+                    className="inline-block px-6 py-2.5 bg-[var(--accent)] text-[var(--text)] font-medium rounded-xl hover:opacity-80 transition-opacity text-sm"
                   >
                     Return Home
                   </Link>
@@ -1084,45 +1083,45 @@ export default function SubmitPage() {
               ) : (
                 <form
                   onSubmit={handleSubmit}
-                  className="bg-[var(--card-bg)]/80 backdrop-blur-2xl p-10 rounded-3xl shadow-2xl border border-[var(--accent)]/10 space-y-8"
+                  className="bg-[var(--card-bg)] p-8 rounded-2xl shadow-md border border-[var(--border)]/20 space-y-5"
                 >
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-600 text-center">
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-600 text-center text-sm">
                       {error}
                     </div>
                   )}
 
-                  <div className={`space-y-2`}>
-                    <label className="block text-lg font-medium text-[var(--text)]">Recipient&apos;s Name*</label>
+                  <div className="space-y-1.5">
+                    <label className="submit-field-label">Recipient&apos;s Name*</label>
                     <input
                       type="text"
                       value={recipient}
                       onChange={(e) => setRecipient(e.target.value)}
                       required
                       disabled={isFormDisabled}
-                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                      className={`submit-input ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                       }`}
                       placeholder="Who is this for?"
                     />
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="block text-lg font-medium text-[var(--text)]">Message* {!isUnlimitedUser && "(max 50 words)"} {isUnlimitedUser && <span className="text-pink-500">🌸 You’re special! No word limit.</span>}</label>
+                  <div className="space-y-1.5">
+                    <label className="submit-field-label">Message* {!isUnlimitedUser && "(max 50 words)"} {isUnlimitedUser && <span className="text-pink-500 normal-case tracking-normal">🌸 No word limit</span>}</label>
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       maxLength={MAX_MESSAGE_LENGTH}
                       required
-                      rows={6}
+                      rows={5}
                       disabled={isFormDisabled}
-                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 resize-none ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                      className={`submit-input resize-none ${
+                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                       }`}
                       placeholder="What did you never say?"
                     />
-                    <div className={`space-y-2`}>
-                      <div className="relative h-2 w-full bg-[var(--border)] rounded-full overflow-hidden">
+                    <div className="space-y-1.5">
+                      <div className="relative h-1 w-full bg-[var(--border)]/30 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-300 ${
                             isUnlimitedUser ? "bg-[var(--accent)]" : (wordCount <= SPECIAL_EFFECT_WORD_LIMIT ? "bg-[var(--accent)]" : wordCount <= WORD_LIMIT ? "bg-[var(--secondary)]" : "bg-red-500")
@@ -1130,43 +1129,43 @@ export default function SubmitPage() {
                           style={{ width: `${percent}%` }}
                         />
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="font-mono text-[var(--text)]/70">{isUnlimitedUser ? `${wordCount} words` : `${wordCount} / 50`}</span>
+                      <div className="flex justify-between text-xs">
+                        <span className="font-mono text-[var(--text)] opacity-40">{isUnlimitedUser ? `${wordCount} words` : `${wordCount} / 50`}</span>
                         {wordCount > SPECIAL_EFFECT_WORD_LIMIT && specialEffectVisible && (
-                          <span className="text-red-500 font-medium">
+                          <span className="text-red-500">
                             Special effects disabled beyond 30 words.
                           </span>
                         )}
                         {overLimit && !isUnlimitedUser && (
-                          <span className="text-red-500 font-medium">{limitMsg}</span>
+                          <span className="text-red-500">{limitMsg}</span>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className={`space-y-2`}>
-                      <label className="block text-lg font-medium text-[var(--text)]">Your Name (optional)</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="submit-field-label">Your Name (optional)</label>
                       <input
                         type="text"
                         value={sender}
                         onChange={(e) => setSender(e.target.value)}
                         disabled={isFormDisabled}
-                        className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                        className={`submit-input ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                         }`}
                         placeholder="Anonymous"
                       />
                     </div>
 
-                    <div className={`space-y-2`}>
-                      <label className="block text-lg font-medium text-[var(--text)]">Color Theme</label>
+                    <div className="space-y-1.5">
+                      <label className="submit-field-label">Color Theme</label>
                       <select
                         value={color}
                         onChange={(e) => setColor(e.target.value)}
                         disabled={isFormDisabled}
-                        className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                        className={`submit-input ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                         }`}
                       >
                         {colorOptions.map((o) => (
@@ -1178,63 +1177,65 @@ export default function SubmitPage() {
                     </div>
                   </div>
 
-                  <div className={`space-y-2`}>
-                    <label className="block text-lg font-medium text-[var(--text)]">Special Effect (optional)</label>
-                    <select
-                      value={specialEffect}
-                      onChange={(e) => setSpecialEffect(e.target.value)}
-                      disabled={!isSpecialAllowed || isFormDisabled}
-                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 disabled:opacity-50 ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
-                      }`}
-                    >
-                      {specialEffects.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="submit-field-label">Special Effect</label>
+                      <select
+                        value={specialEffect}
+                        onChange={(e) => setSpecialEffect(e.target.value)}
+                        disabled={!isSpecialAllowed || isFormDisabled}
+                        className={`submit-input ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                        }`}
+                      >
+                        {specialEffects.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="submit-field-label">Time Capsule</label>
+                      {(destructDelayMinutes > 0 || nightOnly) && <span className="text-[10px] italic opacity-40">Disabled</span>}
+                      <select
+                        value={timeCapsuleDelayMinutes}
+                        onChange={(e) => setTimeCapsuleDelayMinutes(Number(e.target.value) || 0)}
+                        disabled={isFormDisabled || destructDelayMinutes > 0 || nightOnly}
+                        className={`submit-input ${
+                          (isFormDisabled || destructDelayMinutes > 0 || nightOnly) ? 'opacity-30 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        {timeCapsuleOptions.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="submit-field-label">Self-Destruct</label>
+                      {(timeCapsuleDelayMinutes > 0 || nightOnly) && <span className="text-[10px] italic opacity-40">Disabled</span>}
+                      <select
+                        value={destructDelayMinutes}
+                        onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
+                        disabled={isFormDisabled || timeCapsuleDelayMinutes > 0 || nightOnly}
+                        className={`submit-input ${
+                          (isFormDisabled || timeCapsuleDelayMinutes > 0 || nightOnly) ? 'opacity-30 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        {destructOptions.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
-                  <div className={`space-y-2`}>
-                    <label className="block text-lg font-medium text-[var(--text)]">Time Capsule (optional)</label>
-                    {(destructDelayMinutes > 0 || nightOnly) && <span className="text-xs italic" style={{ color: '#6b7280' }}>Disabled when destruct or night-only is active</span>}
-                    <select
-                      value={timeCapsuleDelayMinutes}
-                      onChange={(e) => setTimeCapsuleDelayMinutes(Number(e.target.value) || 0)}
-                      disabled={isFormDisabled || destructDelayMinutes > 0 || nightOnly}
-                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                        (isFormDisabled || destructDelayMinutes > 0 || nightOnly) ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
-                      }`}
-                    >
-                      {timeCapsuleOptions.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className={`space-y-2`}>
-                    <label className="block text-lg font-medium text-[var(--text)]">Destructing Message (optional)</label>
-                    {(timeCapsuleDelayMinutes > 0 || nightOnly) && <span className="text-xs italic" style={{ color: '#6b7280' }}>Disabled when time capsule or night-only is active</span>}
-                    <select
-                      value={destructDelayMinutes}
-                      onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
-                      disabled={isFormDisabled || timeCapsuleDelayMinutes > 0 || nightOnly}
-                      className={`w-full p-4 border border-[var(--border)] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                        (isFormDisabled || timeCapsuleDelayMinutes > 0 || nightOnly) ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
-                      }`}
-                    >
-                      {destructOptions.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="p-5 bg-[var(--secondary)]/20 rounded-2xl border border-[var(--accent)]/20">
+                  <div className="p-4 rounded-xl border border-[var(--border)]/25">
                     <div className="flex items-center gap-3">
                       <input
                         id="enableTypewriter"
@@ -1242,28 +1243,28 @@ export default function SubmitPage() {
                         checked={enableTypewriter}
                         onChange={(e) => setEnableTypewriter(e.target.checked)}
                         disabled={isFormDisabled || destructDelayMinutes > 0}
-                        className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
+                        className={`h-4 w-4 accent-[var(--accent)] rounded ${
                           (isFormDisabled || destructDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                       />
-                      <label htmlFor="enableTypewriter" className="text-[var(--text)] font-semibold text-lg">
-                        Enable typewriter text on memory card (optional)
+                      <label htmlFor="enableTypewriter" className="text-[var(--text)] text-sm opacity-70">
+                        Enable typewriter text on memory card
                       </label>
                       {destructDelayMinutes > 0 && (
-                        <span className="text-xs text-[var(--text)]/60 italic">Disabled when destruct is active</span>
+                        <span className="text-[10px] text-[var(--text)] opacity-40 italic">Disabled when destruct is active</span>
                       )}
                     </div>
 
                     {enableTypewriter && (
-                      <div className="space-y-4 pt-2">
-                       	<div className={`space-y-2`}>
-                        <label className="block text-sm font-medium text-[var(--text)]">Emotion Tag (optional)</label>
+                      <div className="grid grid-cols-2 gap-4 pt-3 mt-3 border-t border-[var(--border)]/10">
+                       	<div className="space-y-1.5">
+                        <label className="submit-field-label">Emotion Tag</label>
                         <select
                           value={tag}
                           onChange={(e) => setTag(e.target.value)}
                           disabled={isFormDisabled}
-                          className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                            isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                          className={`submit-input ${
+                            isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                           }`}
                         >
                           <option value="">Mixed emotions</option>
@@ -1271,22 +1272,17 @@ export default function SubmitPage() {
                             <option key={t} value={t}>{t}</option>
                           ))}
                         </select>
-                        {!tag && (
-                          <p className="text-xs text-[var(--text)]/60 mt-1">
-                            Leave blank for a diverse mix of emotional prompts
-                          </p>
-                        )}
             </div>
 
                       {tag && (
-                        <div className={`space-y-2`}>
-                          <label className="block text-sm font-medium text-[var(--text)]">Specific Emotion (optional)</label>
+                        <div className="space-y-1.5">
+                          <label className="submit-field-label">Specific Emotion</label>
                           <select
                             value={subTag}
                             onChange={(e) => setSubTag(e.target.value)}
                             disabled={isFormDisabled}
-                            className={`w-full p-3 border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all duration-200 ${
-                              isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:border-[var(--accent)]/50'
+                            className={`submit-input ${
+                              isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                             }`}
                           >
                             <option value="">All {tag} emotions</option>
@@ -1294,17 +1290,12 @@ export default function SubmitPage() {
                               <option key={st} value={st}>{st}</option>
                             ))}
                           </select>
-                          {!subTag && (
-                            <p className="text-xs text-[var(--text)]/60 mt-1">
-                              Leave blank to see all prompts from the {tag} category
-                            </p>
-                          )}
                         </div>
                       )}
                       </div>
                     )}
 
-                    <div className="mt-3 pt-3 border-t border-[var(--accent)]/10">
+                    <div className="mt-3 pt-3 border-t border-[var(--border)]/10">
                       <div className="flex items-center gap-3">
                         <input
                           id="nightOnly"
@@ -1312,35 +1303,35 @@ export default function SubmitPage() {
                           checked={nightOnly}
                           onChange={(e) => setNightOnly(e.target.checked)}
                           disabled={isFormDisabled || timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0}
-                          className={`h-5 w-5 accent-[var(--accent)] rounded focus:ring-2 focus:ring-[var(--accent)]/40 ${
+                          className={`h-4 w-4 accent-[var(--accent)] rounded ${
                             (isFormDisabled || timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
                           }`}
                         />
-                        <label htmlFor="nightOnly" className="text-[var(--text)] font-semibold text-lg">
-                          Night-only (optional, visible 9PM-6AM)
+                        <label htmlFor="nightOnly" className="text-[var(--text)] text-sm opacity-70">
+                          Night-only (visible 9PM–6AM)
                         </label>
-                        {(timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0) && <span className="text-xs italic" style={{ color: '#6b7280' }}>Disabled when time capsule or destruct is active</span>}
+                        {(timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0) && <span className="text-[10px] italic opacity-40">Disabled</span>}
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-4">
+                  <div className="pt-2">
                     <button
                       type="submit"
                       disabled={isSubmitting || hasReachedLimit || isFormDisabled}
-                      className={`w-full px-8 py-4 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg transition-all duration-200 text-lg ${
+                      className={`w-full px-6 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
                         isSubmitting || hasReachedLimit || isFormDisabled
-                          ? 'opacity-50 cursor-not-allowed' 
-                          : 'hover:scale-[1.02] hover:shadow-xl focus:ring-4 focus:ring-[var(--accent)]/30'
+                          ? 'opacity-40 cursor-not-allowed bg-[var(--border)] text-[var(--text)]'
+                          : 'bg-[var(--accent)] text-[var(--text)] hover:opacity-85 shadow-md'
                       }`}
                     >
                       {isSubmitting ? (
-                        <div className="flex items-center justify-center gap-3">
+                        <div className="flex items-center justify-center gap-2">
                           <InlineLoader />
                           Submitting...
           </div>
                       ) : isBanned ? 'Banned from Submitting' :
-                       hasReachedLimit ? 'Memory Limit Reached' : 
+                       hasReachedLimit ? 'Memory Limit Reached' :
                        'Submit Memory'}
                     </button>
                   </div>
@@ -1397,7 +1388,7 @@ export default function SubmitPage() {
                 </div>
 
                 <div>
-                  <label className="block font-medium text-[var(--text)] mb-2">Message* {!isUnlimitedUser && "(max 50 words)"} {isUnlimitedUser && <span className="text-pink-500">🌸 You’re special! No word limit.</span>}</label>
+                  <label className="block font-medium text-[var(--text)] mb-2">Message* {!isUnlimitedUser && "(max 50 words)"} {isUnlimitedUser && <span className="text-pink-500">🌸 You're special! No word limit.</span>}</label>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}

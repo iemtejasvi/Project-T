@@ -1050,5 +1050,47 @@ input::placeholder, textarea::placeholder {
   .flip-card-back.cursor-grab ::selection {
     background: rgba(0, 0, 0, 0.12);
   }
+
+  /* --- Submit/Confess page desktop refinements --- */
+  .submit-desktop-heading {
+    font-size: 2.5rem !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.02em;
+  }
+
+  .submit-section-label {
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6 !important;
+    margin-bottom: 0.75rem;
+  }
+
+  .submit-field-label {
+    display: block;
+    font-size: 0.7rem !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    opacity: 0.7;
+  }
+
+  .submit-input {
+    width: 100%;
+    padding: 0.625rem 0.75rem !important;
+    border: 1px solid rgba(0, 0, 0, 0.13) !important;
+    border-radius: 0.625rem !important;
+    font-size: 0.875rem !important;
+    background: rgba(255, 255, 255, 0.55) !important;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .submit-input:focus {
+    border-color: var(--accent) !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+    outline: none;
+  }
 }
 
