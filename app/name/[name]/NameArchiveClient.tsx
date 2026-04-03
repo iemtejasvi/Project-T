@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
 import Loader from "@/components/Loader";
 import Footer from "@/components/Footer";
@@ -189,15 +188,7 @@ export default function NameArchiveClient() {
             </div>
 
             {/* Cards */}
-            {isDesktop ? (
-              <GridMemoryList memories={memories} />
-            ) : (
-              <div className="name-archive-cards">
-                {memories.map((memory) => (
-                  <MemoryCard key={memory.id} memory={memory} />
-                ))}
-              </div>
-            )}
+            <GridMemoryList memories={memories} />
 
             {/* Next page */}
             {hasNext && (

@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "rea
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { fetchWithUltraCache, invalidateCache, warmUpCache } from "@/lib/enhancedCache";
-import MemoryCard from "@/components/MemoryCard";
 import GridMemoryList from "@/components/GridMemoryList";
  
 import Loader from "@/components/Loader";
@@ -39,7 +38,7 @@ function MemoriesContent() {
     }
     return false;
   });
-  
+
   useEffect(() => {
     let resizeTimeout: NodeJS.Timeout;
     const checkDesktop = () => {
@@ -48,10 +47,10 @@ function MemoriesContent() {
         setIsDesktop(window.innerWidth >= 1024);
       }, 150); // Debounce resize events
     };
-    
+
     // Check immediately
     setIsDesktop(window.innerWidth >= 1024);
-    
+
     window.addEventListener("resize", checkDesktop);
     return () => {
       clearTimeout(resizeTimeout);
@@ -315,7 +314,7 @@ function MemoriesContent() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-      
+
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">Archive</h1>
@@ -393,12 +392,8 @@ function MemoriesContent() {
               <div className="flex items-center justify-center py-16">
                 <Loader text="Loading..." />
               </div>
-            ) : isDesktop ? (
-              <GridMemoryList memories={displayedMemories} />
             ) : (
-              displayedMemories.map((memory) => (
-                <MemoryCard key={memory.id} memory={memory} />
-              ))
+              <GridMemoryList memories={displayedMemories} />
             )}
             {/* Load More Button */}
             {hasNext && (
