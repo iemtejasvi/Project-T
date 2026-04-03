@@ -1110,7 +1110,7 @@ export default function AdminPanel() {
                   </p>
                   {currentAnnouncement.link_url && (
                     <a href={currentAnnouncement.link_url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs sm:text-sm underline opacity-80 hover:opacity-100 break-all">
-                      {currentAnnouncement.link_url}
+                      {currentAnnouncement.link_url.length > 50 ? currentAnnouncement.link_url.slice(0, 50) + '...' : currentAnnouncement.link_url} &rarr;
                     </a>
                   )}
                 </div>
@@ -1171,7 +1171,7 @@ export default function AdminPanel() {
                     <span className="ml-1.5">{announcement || "Your announcement message..."}</span>
                   </p>
                   {announcementLink && (
-                    <p className="mt-1 text-xs sm:text-sm underline opacity-70 break-all">{announcementLink}</p>
+                    <p className="mt-1 text-xs underline opacity-70">Read more &rarr;</p>
                   )}
                   {announcementIsDismissible && (
                     <button type="button" className="absolute top-2 right-2 text-sm opacity-70">&times;</button>
@@ -1186,19 +1186,15 @@ export default function AdminPanel() {
 
                 {/* Link */}
                 <div>
-                  <label className="block text-xs font-medium text-[var(--text)] mb-1">Link URL <span className="text-gray-400">(optional, like reddit post links)</span></label>
+                  <label className="block text-xs font-medium text-[var(--text)] mb-1">Link URL <span className="text-gray-400">(optional — shows as &quot;Read more&quot; below the message)</span></label>
                   <input type="url" value={announcementLink} onChange={(e) => setAnnouncementLink(e.target.value)} className="w-full p-2.5 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="https://reddit.com/r/..." />
                 </div>
 
-                {/* Row: Icon + Title + Colors */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Row: Icon + Colors */}
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-[var(--text)] mb-1">Icon</label>
                     <input type="text" value={announcementIcon} onChange={(e) => setAnnouncementIcon(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] text-sm" placeholder="📢" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--text)] mb-1">Title</label>
-                    <input type="text" value={announcementTitle} onChange={(e) => setAnnouncementTitle(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] text-sm" placeholder="Announcement" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[var(--text)] mb-1">BG Color</label>

@@ -390,24 +390,23 @@ export default function HomeClient() {
             {announcement.is_dismissible && <div className="hidden md:block w-8 h-8 flex-shrink-0"></div>}
 
             {/* Announcement Content */}
-            <h2 className="text-xl sm:text-2xl font-bold leading-tight text-center flex-grow">
-              <span>{announcement.icon || '📢'}</span>
-              {
-                announcement.link_url ? (
-                  <a
-                    href={announcement.link_url}
-                    target="_blank"
-                    rel="noopener noreferrer nofollow"
-                    className="underline hover:opacity-80 transition-opacity ml-2"
-                    onClick={trackAnnouncementClick}
-                  >
-                    {announcement.message}
-                  </a>
-                ) : (
-                  <span className="ml-2">{announcement.message}</span>
-                )
-              }
-            </h2>
+            <div className="text-center flex-grow">
+              <h2 className="text-xl sm:text-2xl font-bold leading-tight">
+                <span>{announcement.icon || '📢'}</span>
+                <span className="ml-2">{announcement.message}</span>
+              </h2>
+              {announcement.link_url && (
+                <a
+                  href={announcement.link_url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="inline-block mt-1.5 text-sm underline opacity-80 hover:opacity-100 transition-opacity"
+                  onClick={trackAnnouncementClick}
+                >
+                  Read more &rarr;
+                </a>
+              )}
+            </div>
 
             {/* Dismiss Button */}
             {announcement.is_dismissible && (
@@ -437,26 +436,26 @@ export default function HomeClient() {
           }
         >
           {announcement && !isAnnouncementDismissed && announcementCheckComplete ? (
-            <div className="w-full flex items-center justify-center gap-2 font-bold leading-tight">
-              <span>{announcement.icon || '📢'}</span>
-              {announcement.link_url ? (
+            <div className="w-full flex flex-col items-center justify-center gap-1 font-bold leading-tight">
+              <div className="flex items-center gap-1.5">
+                <span>{announcement.icon || '📢'}</span>
+                <span>{announcement.message}</span>
+              </div>
+              {announcement.link_url && (
                 <a
                   href={announcement.link_url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="underline hover:opacity-80 transition-opacity"
+                  className="text-xs underline opacity-80 hover:opacity-100 transition-opacity font-medium"
                   onClick={trackAnnouncementClick}
                 >
-                  {announcement.message}
+                  Read more &rarr;
                 </a>
-              ) : (
-                <span>{announcement.message}</span>
               )}
-
               {announcement.is_dismissible && (
                 <button
                   onClick={handleDismissAnnouncement}
-                  className="ml-2 w-8 h-8 flex items-center justify-center text-2xl leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
+                  className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center text-xl leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
                   aria-label="Dismiss announcement"
                 >
                   &times;
