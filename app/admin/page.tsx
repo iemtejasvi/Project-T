@@ -1031,12 +1031,12 @@ export default function AdminPanel() {
 
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center gap-2 border-b border-[var(--border)]">
+        <div className="flex items-center gap-1 sm:gap-2 border-b border-[var(--border)] overflow-x-auto">
           {(["pending", "approved", "banned"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => { setSelectedTab(tab); setAnnounceMenuOpen(false); }}
-              className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap flex items-center gap-1 ${
+              className={`py-2 px-1 sm:px-2 md:px-3 text-[10px] sm:text-xs font-semibold whitespace-nowrap flex items-center gap-0.5 sm:gap-1 shrink-0 ${
                 selectedTab === tab
                   ? "border-b-2 border-blue-600 text-gray-900"
                   : "text-gray-600"
@@ -1044,7 +1044,7 @@ export default function AdminPanel() {
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
               {tabCounts[tab] != null && (
-                <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                <span className={`px-1 sm:px-1.5 py-0.5 rounded-full text-[8px] sm:text-[10px] font-bold ${
                   tab === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                   tab === 'approved' ? 'bg-green-100 text-green-800' :
                   'bg-red-100 text-red-800'
@@ -1054,43 +1054,33 @@ export default function AdminPanel() {
               )}
             </button>
           ))}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setAnnounceMenuOpen((v) => !v)}
-              className={`py-2 px-1 sm:px-2 md:px-3 text-xs font-semibold whitespace-nowrap ${
+              className={`py-2 px-1 sm:px-2 md:px-3 text-[10px] sm:text-xs font-semibold whitespace-nowrap ${
                 ["announcements", "maintenance", "unlimited", "dbhealth"].includes(selectedTab)
                   ? "border-b-2 border-blue-600 text-gray-900"
                   : "text-gray-600"
               }`}
             >
-              {({announcements:"Announcements",maintenance:"Maintenance",unlimited:"Unlimited Users",dbhealth:"DB Health"} as Record<string,string>)[selectedTab] ?? "Menu"} ▾
+              {({announcements:"Announce",maintenance:"Maint.",unlimited:"Unlimited",dbhealth:"DB"} as Record<string,string>)[selectedTab] ?? "More"} ▾
             </button>
             {announceMenuOpen && (
-              <div className="absolute z-20 mt-2 w-56 max-w-[calc(100vw-1rem)] right-0 bg-white border border-gray-200 rounded shadow-md overflow-x-auto">
-                <button
-                  onClick={() => { setSelectedTab("announcements"); setAnnounceMenuOpen(false); }}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'announcements' ? 'font-semibold' : ''}`}
-                >
-                  Announcements
-                </button>
-                <button
-                  onClick={() => { setSelectedTab("maintenance"); setAnnounceMenuOpen(false); }}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'maintenance' ? 'font-semibold' : ''}`}
-                >
-                  Maintenance
-                </button>
-                <button
-                  onClick={() => { setSelectedTab("unlimited"); setAnnounceMenuOpen(false); }}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'unlimited' ? 'font-semibold' : ''}`}
-                >
-                  Unlimited Users
-                </button>
-                <button
-                  onClick={() => { setSelectedTab("dbhealth"); setAnnounceMenuOpen(false); }}
-                  className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${selectedTab === 'dbhealth' ? 'font-semibold' : ''}`}
-                >
-                  DB Health
-                </button>
+              <div className="absolute z-20 mt-2 w-44 sm:w-56 right-0 bg-white border border-gray-200 rounded shadow-md">
+                {([
+                  ["announcements", "Announcements"],
+                  ["maintenance", "Maintenance"],
+                  ["unlimited", "Unlimited Users"],
+                  ["dbhealth", "DB Health"],
+                ] as [Tab, string][]).map(([tab, label]) => (
+                  <button
+                    key={tab}
+                    onClick={() => { setSelectedTab(tab); setAnnounceMenuOpen(false); }}
+                    className={`block w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm hover:bg-gray-50 ${selectedTab === tab ? 'font-semibold bg-gray-50' : ''}`}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -1103,195 +1093,151 @@ export default function AdminPanel() {
           <UnlimitedUsersPage />
         ) : selectedTab === "announcements" ? (
           <div className="bg-[var(--card-bg)] p-3 sm:p-4 md:p-6 rounded-lg shadow-md">
-            <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-6">
-              <span className="text-lg sm:text-xl md:text-2xl">{currentAnnouncement?.icon || '📢'}</span>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-[var(--text)]">{currentAnnouncement?.title || 'Announcements'}</h2>
-            </div>
+            <h2 className="text-lg sm:text-xl font-semibold text-[var(--text)] mb-4">Announcements</h2>
             {currentAnnouncement ? (
-              <div className="space-y-3 sm:space-y-4">
-                <div className="bg-[var(--bg)] p-3 sm:p-4 md:p-6 rounded-lg border border-[var(--border)]">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <div 
-                        className="p-4 rounded-lg shadow-inner"
-                        style={{
-                          backgroundColor: currentAnnouncement.background_color || '#ef4444',
-                          color: currentAnnouncement.text_color || '#ffffff'
-                        }}
-                      >
-                        <p className="font-bold text-lg">
-                          <span>{currentAnnouncement.icon || '📢'}</span>
-                          <span className="ml-2">{currentAnnouncement.message}</span>
-                        </p>
-                      </div>
-                      {currentAnnouncement.link_url && (
-                        <p className="text-xs sm:text-sm text-gray-500 break-all">
-                          <strong>Link:</strong> <a href={currentAnnouncement.link_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{currentAnnouncement.link_url}</a>
-                        </p>
-                      )}
-                      <p className="text-xs sm:text-sm text-gray-500">
-                        <strong>Expires in:</strong> {formatRemainingTime(currentAnnouncement.expires_at)}
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-500">
-                        <strong>Dismissible:</strong> <span className={`font-semibold ${currentAnnouncement.is_dismissible ? 'text-green-600' : 'text-red-600'}`}>{currentAnnouncement.is_dismissible ? 'Yes' : 'No'}</span>
-                      </p>
+              <div className="space-y-4">
+                {/* Live banner preview */}
+                <div
+                  className="p-3 sm:p-4 rounded-lg shadow-inner relative"
+                  style={{
+                    backgroundColor: currentAnnouncement.background_color || '#ef4444',
+                    color: currentAnnouncement.text_color || '#ffffff'
+                  }}
+                >
+                  <p className="font-bold text-sm sm:text-base">
+                    <span>{currentAnnouncement.icon || '📢'}</span>
+                    <span className="ml-1.5">{currentAnnouncement.message}</span>
+                  </p>
+                  {currentAnnouncement.link_url && (
+                    <a href={currentAnnouncement.link_url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs sm:text-sm underline opacity-80 hover:opacity-100 break-all">
+                      {currentAnnouncement.link_url}
+                    </a>
+                  )}
+                </div>
 
-                      {/* Analytics Section */}
-                      <div className="mt-4 pt-4 border-t border-[var(--border)]">
-                        <h4 className="text-sm font-semibold text-[var(--text)] mb-2">Analytics</h4>
-                        <div className="grid grid-cols-3 gap-2 text-center">
-                          <div>
-                            <p className="text-lg font-bold text-gray-800">{currentAnnouncement.view_count ?? 0}</p>
-                            <p className="text-xs text-gray-500">Views</p>
-                          </div>
-                          <div>
-                            <p className="text-lg font-bold text-gray-800">{currentAnnouncement.click_count ?? 0}</p>
-                            <p className="text-xs text-gray-500">Clicks</p>
-                          </div>
-                          <div>
-                            <p className="text-lg font-bold text-gray-800">
-                              {currentAnnouncement.view_count && currentAnnouncement.view_count > 0 
-                                ? `${((currentAnnouncement.click_count ?? 0) / currentAnnouncement.view_count * 100).toFixed(1)}%`
-                                : '0%'}
-                            </p>
-                            <p className="text-xs text-gray-500">CTR</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-row items-center gap-2 self-start">
-                      <button
-                        onClick={handleRemoveAnnouncement}
-                        className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap"
-                      >
-                        <span>🗑️</span>
-                        <span>Remove</span>
-                      </button>
-                    </div>
+                {/* Details grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  <div className="bg-[var(--bg)] p-3 rounded-lg border border-[var(--border)]">
+                    <p className="text-lg font-bold text-gray-800">{currentAnnouncement.view_count ?? 0}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Views</p>
+                  </div>
+                  <div className="bg-[var(--bg)] p-3 rounded-lg border border-[var(--border)]">
+                    <p className="text-lg font-bold text-gray-800">{currentAnnouncement.click_count ?? 0}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Clicks</p>
+                  </div>
+                  <div className="bg-[var(--bg)] p-3 rounded-lg border border-[var(--border)]">
+                    <p className="text-lg font-bold text-gray-800">
+                      {currentAnnouncement.view_count && currentAnnouncement.view_count > 0
+                        ? `${((currentAnnouncement.click_count ?? 0) / currentAnnouncement.view_count * 100).toFixed(1)}%`
+                        : '0%'}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">CTR</p>
+                  </div>
+                  <div className="bg-[var(--bg)] p-3 rounded-lg border border-[var(--border)]">
+                    <p className="text-lg font-bold text-gray-800">{formatRemainingTime(currentAnnouncement.expires_at)}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">Expires in</p>
                   </div>
                 </div>
+
+                {/* Meta info */}
+                <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                  <span className={`px-2 py-1 rounded-full border ${currentAnnouncement.is_dismissible ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+                    {currentAnnouncement.is_dismissible ? 'Dismissible' : 'Not dismissible'}
+                  </span>
+                  {currentAnnouncement.link_url && (
+                    <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Has link</span>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleRemoveAnnouncement}
+                  className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                >
+                  Remove Announcement
+                </button>
               </div>
             ) : (
-              <form onSubmit={handleAnnouncementSubmit} className="space-y-6">
+              <form onSubmit={handleAnnouncementSubmit} className="space-y-4">
                 {/* Live Preview */}
+                <div
+                  className="p-3 sm:p-4 rounded-lg shadow-md relative"
+                  style={{
+                    backgroundColor: announcementBgColor || '#ef4444',
+                    color: announcementTextColor || '#ffffff'
+                  }}
+                >
+                  <p className="font-bold text-sm sm:text-base">
+                    <span>{announcementIcon || '📢'}</span>
+                    <span className="ml-1.5">{announcement || "Your announcement message..."}</span>
+                  </p>
+                  {announcementLink && (
+                    <p className="mt-1 text-xs sm:text-sm underline opacity-70 break-all">{announcementLink}</p>
+                  )}
+                  {announcementIsDismissible && (
+                    <button type="button" className="absolute top-2 right-2 text-sm opacity-70">&times;</button>
+                  )}
+                </div>
+
+                {/* Message */}
                 <div>
-                  <h3 className="text-lg font-medium text-[var(--text)] mb-2">Live Preview</h3>
-                  <div 
-                    className="p-4 rounded-lg shadow-md text-center relative"
-                    style={{
-                      backgroundColor: announcementBgColor || '#ef4444',
-                      color: announcementTextColor || '#ffffff'
-                    }}
-                  >
-                    <h2 className="text-xl sm:text-2xl font-bold leading-tight">
-                      <span>{announcementIcon || '📢'}</span>
-                      <span className="ml-2">{announcement || "Your announcement message..."}</span>
-                    </h2>
-                    {announcementIsDismissible && (
-                      <button type="button" className="absolute top-2 right-2 text-lg opacity-70 hover:opacity-100 transition-opacity">&times;</button>
-                    )}
+                  <label className="block text-xs font-medium text-[var(--text)] mb-1">Message *</label>
+                  <textarea value={announcement} onChange={(e) => setAnnouncement(e.target.value)} className="w-full p-2.5 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows={2} placeholder="Type your announcement..." required />
+                </div>
+
+                {/* Link */}
+                <div>
+                  <label className="block text-xs font-medium text-[var(--text)] mb-1">Link URL <span className="text-gray-400">(optional, like reddit post links)</span></label>
+                  <input type="url" value={announcementLink} onChange={(e) => setAnnouncementLink(e.target.value)} className="w-full p-2.5 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="https://reddit.com/r/..." />
+                </div>
+
+                {/* Row: Icon + Title + Colors */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--text)] mb-1">Icon</label>
+                    <input type="text" value={announcementIcon} onChange={(e) => setAnnouncementIcon(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] text-sm" placeholder="📢" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--text)] mb-1">Title</label>
+                    <input type="text" value={announcementTitle} onChange={(e) => setAnnouncementTitle(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] text-sm" placeholder="Announcement" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--text)] mb-1">BG Color</label>
+                    <input type="color" value={announcementBgColor} onChange={(e) => setAnnouncementBgColor(e.target.value)} className="w-full h-9 p-0.5 border border-[var(--border)] rounded-lg bg-transparent cursor-pointer" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--text)] mb-1">Text Color</label>
+                    <input type="color" value={announcementTextColor} onChange={(e) => setAnnouncementTextColor(e.target.value)} className="w-full h-9 p-0.5 border border-[var(--border)] rounded-lg bg-transparent cursor-pointer" />
                   </div>
                 </div>
 
-                {/* Form Sections */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left Column: Content & Styling */}
-                  <div className="space-y-4">
-                    {/* Content Section */}
-                    <fieldset className="border border-[var(--border)] p-4 rounded-lg">
-                      <legend className="text-md font-semibold text-[var(--text)] px-2">Content</legend>
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label htmlFor="announcementIcon" className="block text-[var(--text)] mb-2 font-medium text-sm">Icon</label>
-                            <input id="announcementIcon" type="text" value={announcementIcon} onChange={(e) => setAnnouncementIcon(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="📢" />
-                          </div>
-                          <div>
-                            <label htmlFor="announcementTitle" className="block text-[var(--text)] mb-2 font-medium text-sm">Admin Title</label>
-                            <input id="announcementTitle" type="text" value={announcementTitle} onChange={(e) => setAnnouncementTitle(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="Announcement" />
-                          </div>
-                        </div>
-                        <div>
-                          <label htmlFor="announcement" className="block text-[var(--text)] mb-2 font-medium text-sm">Message</label>
-                          <textarea id="announcement" value={announcement} onChange={(e) => setAnnouncement(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" rows={3} placeholder="Type your announcement here..." required />
-                        </div>
-                        <div>
-                          <label htmlFor="announcementLink" className="block text-[var(--text)] mb-2 font-medium text-sm">Link URL (Optional)</label>
-                          <input id="announcementLink" type="url" value={announcementLink} onChange={(e) => setAnnouncementLink(e.target.value)} className="w-full p-2 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="https://example.com" />
-                        </div>
-                      </div>
-                    </fieldset>
-
-                    {/* Styling Section */}
-                    <fieldset className="border border-[var(--border)] p-4 rounded-lg">
-                      <legend className="text-md font-semibold text-[var(--text)] px-2">Styling</legend>
-                      <div className="flex items-center gap-6">
-                        <div>
-                          <label htmlFor="announcementBgColor" className="block text-[var(--text)] mb-2 font-medium text-sm">Background</label>
-                          <input id="announcementBgColor" type="color" value={announcementBgColor} onChange={(e) => setAnnouncementBgColor(e.target.value)} className="w-16 h-10 p-1 border border-[var(--border)] rounded-lg bg-transparent cursor-pointer" />
-                        </div>
-                        <div>
-                          <label htmlFor="announcementTextColor" className="block text-[var(--text)] mb-2 font-medium text-sm">Text</label>
-                          <input id="announcementTextColor" type="color" value={announcementTextColor} onChange={(e) => setAnnouncementTextColor(e.target.value)} className="w-16 h-10 p-1 border border-[var(--border)] rounded-lg bg-transparent cursor-pointer" />
-                        </div>
-                      </div>
-                    </fieldset>
+                {/* Row: Duration + Dismissible */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+                  <div className="flex-1">
+                    <label className="block text-xs font-medium text-[var(--text)] mb-1">Duration *</label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      <input type="number" value={announcementTimer.days} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, days: e.target.value }))} min="0" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] text-sm" placeholder="D" />
+                      <input type="number" value={announcementTimer.hours} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, hours: e.target.value }))} min="0" max="23" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] text-sm" placeholder="H" />
+                      <input type="number" value={announcementTimer.minutes} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, minutes: e.target.value }))} min="0" max="59" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] text-sm" placeholder="M" />
+                      <input type="number" value={announcementTimer.seconds} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, seconds: e.target.value }))} min="0" max="59" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] text-sm" placeholder="S" />
+                    </div>
                   </div>
-
-                  {/* Right Column: Settings */}
-                  <div className="space-y-4">
-                    <fieldset className="border border-[var(--border)] p-4 rounded-lg">
-                      <legend className="text-md font-semibold text-[var(--text)] px-2">Settings</legend>
-                      <div className="space-y-4">
-                        {/* Dismissible Toggle */}
-                        <div>
-                          <label htmlFor="isDismissible" className="flex items-center justify-between cursor-pointer">
-                            <span className="font-medium text-sm text-[var(--text)]">Allow users to dismiss</span>
-                            <div className="relative">
-                              <input id="isDismissible" type="checkbox" checked={announcementIsDismissible} onChange={(e) => setAnnouncementIsDismissible(e.target.checked)} className="sr-only" />
-                              <div className={`block w-12 h-6 rounded-full transition-colors ${announcementIsDismissible ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-                              <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${announcementIsDismissible ? 'transform translate-x-6' : ''}`}></div>
-                            </div>
-                          </label>
-                        </div>
-                        <hr className="border-[var(--border)]" />
-                        {/* Timer */}
-                        <div>
-                          <label className="block text-sm font-medium text-[var(--text)] mb-2">Duration</label>
-                          <div className="grid grid-cols-4 gap-2">
-                            <div>
-                              <label className="block text-xs text-gray-500 mb-1">Days</label>
-                              <input type="number" value={announcementTimer.days} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, days: e.target.value }))} min="0" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="0" />
-                            </div>
-                            <div>
-                              <label className="block text-xs text-gray-500 mb-1">Hours</label>
-                              <input type="number" value={announcementTimer.hours} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, hours: e.target.value }))} min="0" max="23" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="0" />
-                            </div>
-                            <div>
-                              <label className="block text-xs text-gray-500 mb-1">Mins</label>
-                              <input type="number" value={announcementTimer.minutes} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, minutes: e.target.value }))} min="0" max="59" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="0" />
-                            </div>
-                            <div>
-                              <label className="block text-xs text-gray-500 mb-1">Secs</label>
-                              <input type="number" value={announcementTimer.seconds} onChange={(e) => setAnnouncementTimer(prev => ({ ...prev, seconds: e.target.value }))} min="0" max="59" className="w-full p-2 border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-blue-500" placeholder="0" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </fieldset>
-                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer pb-0.5">
+                    <div className="relative">
+                      <input type="checkbox" checked={announcementIsDismissible} onChange={(e) => setAnnouncementIsDismissible(e.target.checked)} className="sr-only" />
+                      <div className={`block w-10 h-5 rounded-full transition-colors ${announcementIsDismissible ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                      <div className={`dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform ${announcementIsDismissible ? 'transform translate-x-5' : ''}`}></div>
+                    </div>
+                    <span className="text-xs text-[var(--text)]">Dismissible</span>
+                  </label>
                 </div>
 
-                {/* Submit Button */}
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-semibold text-base whitespace-nowrap disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    disabled={!announcement.trim() || calculateTotalSeconds(announcementTimer) <= 0}
-                  >
-                    <span>{currentAnnouncement ? 'Update Announcement' : 'Post Announcement'}</span>
-                  </button>
-                </div>
+                <button
+                  type="submit"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  disabled={!announcement.trim() || calculateTotalSeconds(announcementTimer) <= 0}
+                >
+                  Post Announcement
+                </button>
               </form>
             )}
           </div>
