@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { fetchMemoriesPaginated, redactIfDestructed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
+import { fetchMemoriesPaginated, redactIfDestructed, redactIfUnrevealed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { sanitizeNumber } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
     const liveData = (result.data as Parameters<typeof isNightOnlyVisibleNow>[0][])
       .filter(isNightOnlyVisibleNow)
       .map(redactIfDestructed)
+      .map(redactIfUnrevealed)
       .slice(0, pageSize);
     
     // Short CDN cache since redaction is time-sensitive

@@ -1,10 +1,11 @@
 import { NextRequest } from 'next/server';
-import { primaryDB } from '@/lib/memoryDB';
+import { primaryDB, redactIfDestructed, redactIfUnrevealed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
 import { sanitizeString } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { unstable_cache } from 'next/cache';
 import { isLinkableName, sanitizeForPostgrestFilter } from '@/lib/nameUtils';
+import type { Memory } from '@/types/memory';
 
 // Normalize name: lowercase, trim, collapse whitespace, remove dangerous chars
 function normalizeName(raw: string): string {
@@ -33,7 +34,7 @@ const getCachedNameMemories = unstable_cache(
     // Query memories where recipient OR sender matches the name (case-insensitive)
     let query = primaryDB
       .from('memories')
-      .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled', { count: 'estimated' })
+      .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, destruct_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled, night_only, night_tz, night_start_hour, night_end_hour, letter_style', { count: 'estimated' })
       .eq('status', 'approved')
       .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
       .or(`recipient.ilike.${safeName},sender.ilike.${safeName}`);
@@ -162,9 +163,16 @@ export async function GET(request: NextRequest) {
       page === 0 ? getCachedRelatedNames(name) : Promise.resolve([]),
     ]);
 
+    // Apply night-only filter + destruct/unrevealed redaction AFTER cache (time-sensitive checks)
+    const liveData = (result.data as Memory[])
+      .filter(isNightOnlyVisibleNow)
+      .map(redactIfDestructed)
+      .map(redactIfUnrevealed);
+
     return createSecureResponse(
       {
         ...result,
+        data: liveData,
         exists: true,
         name,
         displayName: displayName(name),
@@ -172,7 +180,7 @@ export async function GET(request: NextRequest) {
         relatedNames: page === 0 ? relatedNames : undefined,
       },
       200,
-      { origin, cacheControl: 'public, s-maxage=60, stale-while-revalidate=120' }
+      { origin, cacheControl: 'public, s-maxage=10, stale-while-revalidate=30' }
     );
   } catch (error) {
     console.error('Error in names API:', error);

@@ -467,15 +467,23 @@ export async function POST(request: NextRequest) {
     }
 
     const createdAtIso = new Date().toISOString();
-    const revealAtIso =
-      typeof timeCapsuleDelayMinutes === 'number' && timeCapsuleDelayMinutes > 0
-        ? new Date(Date.now() + timeCapsuleDelayMinutes * 60 * 1000).toISOString()
-        : createdAtIso;
 
-    const destructAtIso =
-      typeof destructDelayMinutes === 'number' && destructDelayMinutes > 0
-        ? new Date(Date.now() + destructDelayMinutes * 60 * 1000).toISOString()
-        : null;
+    // Server-side mutual exclusivity: only one special mode allowed
+    const hasTimeCapsule = typeof timeCapsuleDelayMinutes === 'number' && timeCapsuleDelayMinutes > 0;
+    const hasDestruct = typeof destructDelayMinutes === 'number' && destructDelayMinutes > 0;
+    const hasNightOnly = typeof night_only === 'boolean' && night_only;
+    const specialModeCount = [hasTimeCapsule, hasDestruct, hasNightOnly].filter(Boolean).length;
+    if (specialModeCount > 1) {
+      return createSecureErrorResponse('Only one special mode allowed (time capsule, self-destruct, or night-only)', 400, { origin });
+    }
+
+    const revealAtIso = hasTimeCapsule
+      ? new Date(Date.now() + timeCapsuleDelayMinutes! * 60 * 1000).toISOString()
+      : createdAtIso;
+
+    const destructAtIso = hasDestruct
+      ? new Date(Date.now() + destructDelayMinutes! * 60 * 1000).toISOString()
+      : null;
 
     if (isOwner || isLocalhost) {
       // Owner/localhost — skip all limits

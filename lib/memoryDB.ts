@@ -85,7 +85,7 @@ export async function scrubDestructedMemories(): Promise<number> {
   const now = new Date().toISOString();
   const { data, error } = await dbA.writeClient
     .from('memories')
-    .update({ message: '' })
+    .update({ message: '', sender: null })
     .eq('status', 'approved')
     .lte('destruct_at', now)
     .neq('message', '')
@@ -114,10 +114,8 @@ export function shouldDestructNow(memory: Memory): boolean {
 
 export function redactIfDestructed(memory: Memory): Memory {
   if (!shouldDestructNow(memory)) return memory;
-  // Permanent deletion of message content: once destructed, never return the original message.
-  // We keep the record so the UI can render a "destructed" placeholder card.
   if (typeof memory.message === 'string' && memory.message.length === 0) return memory;
-  return { ...memory, message: '' };
+  return { ...memory, message: '', sender: undefined };
 }
 
 // Redact unrevealed time capsule memories: keep the card visible but hide the message.
