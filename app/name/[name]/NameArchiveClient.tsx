@@ -144,7 +144,7 @@ export default function NameArchiveClient() {
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader text="Loading messages..." />
+            <Loader />
           </div>
         ) : !nameExists ? (
           <div className="text-center py-16">

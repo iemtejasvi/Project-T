@@ -365,7 +365,7 @@ function MemoriesContent() {
         </div>
         {initialLoading && displayedMemories.length === 0 ? (
           <div className="flex items-center justify-center py-16">
-            <Loader text="Loading memories..." />
+            <Loader />
           </div>
         ) : displayedMemories.length > 0 ? (
           <>
@@ -390,7 +390,7 @@ function MemoriesContent() {
             </div>
             {isLoadingPage ? (
               <div className="flex items-center justify-center py-16">
-                <Loader text="Loading..." />
+                <Loader />
               </div>
             ) : (
               <GridMemoryList memories={displayedMemories} />
@@ -400,7 +400,7 @@ function MemoriesContent() {
               <div className="text-center mt-6">
                 {isLoadingMore ? (
                   <div className="inline-flex items-center gap-2 text-sm sm:text-base px-5 py-2 opacity-50">
-                    <Loader text="Loading more..." />
+                    <Loader />
                   </div>
                 ) : (
                   <button
@@ -432,7 +432,7 @@ export default function Memories() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <Loader text="Loading..." />
+        <Loader />
       </div>
     }>
       <MemoriesContent />

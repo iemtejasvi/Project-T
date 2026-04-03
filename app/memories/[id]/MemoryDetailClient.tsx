@@ -44,7 +44,7 @@ export default function MemoryDetailClient({ id }: { id: string }) {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <Loader text="Loading memory..." />
+      <Loader />
     </div>
   );
   if (memory === false) return <p className="p-6 text-center text-[var(--text)] text-xl font-semibold">Memory not found.</p>;

@@ -5,38 +5,23 @@ interface LoaderProps {
   text?: string;
 }
 
-const Loader: React.FC<LoaderProps> = ({ text = "Loading..." }) => {
+const Loader: React.FC<LoaderProps> = ({ text }) => {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60"
-            style={{
-              animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`
-            }}
+            className="w-1.5 h-1.5 rounded-full bg-[var(--text)] animate-pulse"
+            style={{ animationDelay: `${i * 0.15}s` }}
           />
         ))}
       </div>
       {text && (
-        <p className="text-sm text-[var(--text)] opacity-60">
+        <p className="text-sm text-[var(--text)] opacity-50">
           {text}
         </p>
       )}
-      
-      <style jsx>{`
-        @keyframes pulse {
-          0%, 80%, 100% {
-            opacity: 0.3;
-            transform: scale(1);
-          }
-          40% {
-            opacity: 1;
-            transform: scale(1.2);
-          }
-        }
-      `}</style>
     </div>
   );
 };
