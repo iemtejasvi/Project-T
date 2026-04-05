@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import MemoryCard from "./MemoryCard";
 import DesktopMemoryCard from "./DesktopMemoryCard";
 import type { Memory } from '@/types/memory';
@@ -8,11 +8,24 @@ interface GridMemoryListProps {
   memories: Memory[];
 }
 
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+  return isDesktop;
+}
+
 const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
-  return (
-    <>
-      {/* Desktop grid — hidden below lg, shown on lg+ */}
-      <div className="hidden lg:grid grid-cols-3 gap-x-12 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+  const isDesktop = useIsDesktop();
+
+  if (isDesktop) {
+    return (
+      <div className="grid grid-cols-3 gap-x-12 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
            style={{ gridTemplateColumns: 'repeat(3, 350px)' }}>
         {memories.map((memory) => (
           <div key={memory.id}>
@@ -20,13 +33,15 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
           </div>
         ))}
       </div>
-      {/* Mobile cards — shown below lg, hidden on lg+ */}
-      <div className="flex flex-col lg:hidden">
-        {memories.map((memory) => (
-          <MemoryCard key={memory.id} memory={memory} />
-        ))}
-      </div>
-    </>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-8">
+      {memories.map((memory) => (
+        <MemoryCard key={memory.id} memory={memory} />
+      ))}
+    </div>
   );
 };
 
