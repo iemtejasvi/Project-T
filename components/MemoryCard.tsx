@@ -439,9 +439,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
               <defs>
                 <filter id={`roughpaper-${memory.id}`}>
-                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-                  <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
-                    <feDistantLight azimuth="45" elevation="35" />
+                  <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="4" result="noise" />
+                  <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="1.5" result="diffLight">
+                    <feDistantLight azimuth="45" elevation="55" />
                   </feDiffuseLighting>
                 </filter>
               </defs>
@@ -455,7 +455,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   effectiveColor && effectiveColor !== "default"
                     ? `var(--color-${effectiveColor}-bg)`
                     : "#e8e6df",
-                opacity: 0.55,
+                opacity: 0.35,
                 zIndex: 0,
               }}
             />
@@ -483,7 +483,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
                         : "#e8e6df",
-                    opacity: 0.55,
+                    opacity: 0.35,
                     zIndex: 0,
                     pointerEvents: "none",
                   }}
@@ -605,7 +605,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
                         : "#e8e6df",
-                    opacity: 0.55,
+                    opacity: 0.35,
                     zIndex: 0,
                   }}
                 />
