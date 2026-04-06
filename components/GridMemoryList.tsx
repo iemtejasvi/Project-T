@@ -25,7 +25,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
 
   if (isDesktop) {
     return (
-      <div className="grid grid-cols-3 gap-x-12 gap-y-12 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+      <div className="grid grid-cols-3 gap-x-12 gap-y-6 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
            style={{ gridTemplateColumns: 'repeat(3, 350px)' }}>
         {memories.map((memory) => (
           <div key={memory.id}>
@@ -39,7 +39,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
   return (
     <div className="flex flex-col">
       {memories.map((memory) => (
-        <MemoryCard key={memory.id} memory={memory} />
+        <MemoryCard key={memory.id} memory={memory} compact />
       ))}
     </div>
   );
