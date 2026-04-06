@@ -37,7 +37,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories }) => {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-8">
       {memories.map((memory) => (
         <MemoryCard key={memory.id} memory={memory} />
       ))}
