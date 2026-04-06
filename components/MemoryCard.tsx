@@ -419,7 +419,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   }
 
   return (
-    <div className="relative group my-4 sm:my-6">
+    <div className="relative group my-2 sm:my-3">
       <div className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 sm:right-[-50px]">
         <Link href={`/memories/${memory.id}`}>
           <span className="arrow-icon" style={arrowStyle}>➜</span>
