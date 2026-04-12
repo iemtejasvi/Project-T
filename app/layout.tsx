@@ -1,11 +1,11 @@
 import React from 'react';
 import "./globals.css";
-// Removed bleeding effect stylesheet
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 import Script from "next/script";
 import RoutePrefetcher from "@/components/RoutePrefetcher";
 import { La_Belle_Aurore, Pacifico } from 'next/font/google';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const laBelleAurore = La_Belle_Aurore({
   weight: '400',
@@ -103,25 +103,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="google-site-verification" content="-3cysNzrb6ZgU44DFdsfeiwU61zydgZWRMyXebgmsUM" />
         <meta name="color-scheme" content="light dark" />
-        <meta name="referrer" content="no-referrer-when-downgrade" />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL || ''} crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-        {ENABLE_ANALYTICS && <link rel="dns-prefetch" href="https://www.googletagmanager.com" />}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {ENABLE_ANALYTICS && <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />}
         {ENABLE_ADS && <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />}
-        {ENABLE_ANALYTICS && (
-          <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
-            <Script id="gtag-init" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_MEASUREMENT_ID}');
-              `}
-            </Script>
-          </>
-        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -180,6 +166,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <UuidInitializer />
         <RoutePrefetcher />
         {children}
+        {ENABLE_ANALYTICS && GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
         <Script id="ioist-startup-cleanup" strategy="afterInteractive">
           {`
             (function() {

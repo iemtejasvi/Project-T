@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.3",
     "@supabase/supabase-js": "^2.101.1",
     "@upstash/redis": "^1.37.0",
     "framer-motion": "^12.38.0",
