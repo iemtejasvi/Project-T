@@ -91,14 +91,18 @@ const nextConfig = {
       {
         source: '/api/names',
         headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
           { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=60, stale-while-revalidate=120' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
       },
       {
         source: '/api/popular-names',
         headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
           { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=7200' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
       },

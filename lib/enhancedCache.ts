@@ -47,11 +47,11 @@ class UltraCache {
   private pendingFetches: Map<string, { promise: Promise<{ data: Memory[], totalCount: number, totalPages: number, currentPage: number, fromCache: boolean }>, startedAt: number }>;
   private lastFetchTime: Map<string, number>;
   private lastInteractionTime: number = Date.now();
+  private lastCheckTime: number = 0;
   private readonly maxAge: number = 60000; // 60s cache — matches ISR revalidation window
   private readonly staleWhileRevalidate: number = 120000; // 2 min stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
   private readonly prefetchDepth: number = 1; // Prefetch adjacent page only
-  private readonly minRefreshInterval: number = 30000; // Minimum 30s between refreshes (ISR handles freshness)
   private prefetchScheduled: boolean = false;
 
   constructor() {
@@ -89,7 +89,7 @@ class UltraCache {
       setInterval(() => this.cleanupOldEntries(), 300000); // Clean every 5 minutes
 
       // Check for fresh content periodically (skips if idle > 5 min)
-      setInterval(() => this.checkForFreshContent(), 60000); // Check every 60s (matches ISR window)
+      setInterval(() => this.checkForFreshContent(), 300000); // Check every 5 min — ISR edge cache handles freshness
 
       // Save on page unload
       window.addEventListener('beforeunload', () => this.persistToLocalStorage());
@@ -100,11 +100,13 @@ class UltraCache {
       document.addEventListener('keydown', updateActivity, { passive: true });
       document.addEventListener('scroll', updateActivity, { passive: true });
 
-      // Refresh when tab becomes visible (single handler — no duplicate focus listener)
+      // Refresh when tab becomes visible (debounced — skip if checked within 120s)
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
           this.lastInteractionTime = Date.now();
-          setTimeout(() => this.checkForFreshContent(), 100);
+          if (Date.now() - this.lastCheckTime > 120000) {
+            setTimeout(() => this.checkForFreshContent(), 100);
+          }
         }
       });
     }
@@ -242,15 +244,6 @@ class UltraCache {
     
     // Return cached data if fresh and not forcing refresh
     if (cached && !shouldForceRefresh && (now - cached.timestamp) < maxAge) {
-      // Always revalidate in background to ensure fresh content
-      if (now - cached.timestamp > this.minRefreshInterval) {
-        cached.isStale = true;
-        this.revalidateInBackground(page, pageSize, filters, searchTerm, orderBy);
-      }
-
-      // Aggressively prefetch adjacent pages
-      this.prefetchAdjacentPages(page, pageSize, filters, searchTerm, orderBy, cached.totalPages);
-
       return {
         data: cached.data,
         totalCount: cached.totalCount,
@@ -326,10 +319,7 @@ class UltraCache {
         }
         
         this.enforceMaxSize();
-        
-        // Aggressively prefetch adjacent pages
-        this.prefetchAdjacentPages(page, pageSize, filters, searchTerm, orderBy, result.totalPages);
-        
+
         // Persist to localStorage
         if (this.cache.size % 10 === 0) {
           this.persistToLocalStorage();
@@ -546,21 +536,26 @@ class UltraCache {
     // Skip background revalidation if user has been idle for over 5 minutes
     if (Date.now() - this.lastInteractionTime > 5 * 60 * 1000) return;
 
-    // Check home page and first archive page
-    const criticalPages = [
-      { page: 0, pageSize: 6 }, // Home
-      { page: 0, pageSize: 18 }, // Archives desktop
-      { page: 0, pageSize: 10 }, // Archives mobile
-    ];
-    
-    for (const { page, pageSize } of criticalPages) {
-      const cacheKey = this.getCacheKey(page, pageSize, { status: 'approved' }, '', { created_at: 'desc' });
-      const cached = this.cache.get(cacheKey);
-      
-      if (cached) {
-        // Force revalidation of critical pages
-        this.revalidateInBackground(page, pageSize, { status: 'approved' }, '', { created_at: 'desc' });
-      }
+    this.lastCheckTime = Date.now();
+
+    // Only refresh the page matching the current route — not all 3
+    const path = typeof window !== 'undefined' ? window.location.pathname : '/';
+    let criticalPage: { page: number; pageSize: number } | null = null;
+
+    if (path === '/') {
+      criticalPage = { page: 0, pageSize: 6 }; // Home
+    } else if (path === '/memories') {
+      const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+      criticalPage = { page: 0, pageSize: isDesktop ? 18 : 10 }; // Archives
+    }
+
+    if (!criticalPage) return; // No relevant page to refresh
+
+    const cacheKey = this.getCacheKey(criticalPage.page, criticalPage.pageSize, { status: 'approved' }, '', { created_at: 'desc' });
+    const cached = this.cache.get(cacheKey);
+
+    if (cached) {
+      this.revalidateInBackground(criticalPage.page, criticalPage.pageSize, { status: 'approved' }, '', { created_at: 'desc' });
     }
   }
   
@@ -664,14 +659,16 @@ export function setupRealtimeUpdates() {
       forceRefreshAllCaches();
     });
     
-    // Listen for storage events (changes from other tabs)
+    // Listen for storage events (changes from other tabs) — mark stale lazily instead of mass re-fetch
     window.addEventListener('storage', (e) => {
       if (
         (e.key && e.key.includes('memory')) ||
         (e.key && e.key.includes('feature')) ||
         e.key === 'last_content_update'
       ) {
-        forceRefreshAllCaches();
+        // Mark all entries stale — they'll refresh on next user read, not immediately
+        const cache = getUltraCache();
+        cache.forceRefreshAll();
 
         window.dispatchEvent(new CustomEvent('content-updated'));
         if (window.location.pathname === '/') {

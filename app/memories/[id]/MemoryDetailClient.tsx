@@ -20,7 +20,7 @@ export default function MemoryDetailClient({ id }: { id: string }) {
         const res = await fetch(`/api/memories/${encodeURIComponent(id)}`, {
           method: 'GET',
           headers: { 'Accept': 'application/json' },
-          cache: 'no-store',
+          cache: 'default',
           signal: controller.signal,
         });
         clearTimeout(timer);

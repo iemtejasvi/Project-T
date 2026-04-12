@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { fetchWithUltraCache, invalidateCache, warmUpCache } from "@/lib/enhancedCache";
+import { fetchWithUltraCache, invalidateCache } from "@/lib/enhancedCache";
 import GridMemoryList from "@/components/GridMemoryList";
  
 import Loader from "@/components/Loader";
@@ -170,19 +170,6 @@ function MemoriesContent() {
     
     window.addEventListener('refresh-archives', handleRefreshArchives);
     window.addEventListener('content-updated', handleRefreshArchives);
-    
-    // Warm up cache for both Home and adjacent pages
-    setTimeout(async () => {
-      const pagesToWarm = [
-        // Home page
-        { page: 0, pageSize: 6 },
-        // Adjacent pages for current view
-        { page: 1, pageSize },
-        { page: 2, pageSize },
-      ];
-      await warmUpCache(pagesToWarm);
-      // Silent cache warmup
-    }, 100); // Start immediately after initial load
     
     return () => {
       window.removeEventListener('refresh-archives', handleRefreshArchives);

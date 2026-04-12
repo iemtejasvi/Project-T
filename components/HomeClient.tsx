@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 
-import { fetchWithUltraCache, warmUpCache } from "@/lib/enhancedCache";
+import { fetchWithUltraCache } from "@/lib/enhancedCache";
 import { storage } from "@/lib/persistentStorage";
 import { browserSession } from "@/lib/browserSession";
 import MemoryCard from "@/components/MemoryCard";
@@ -77,21 +77,7 @@ export default function HomeClient() {
     }
 
     // Warm up cache for instant navigation without over-fetching
-    async function warmUpCacheForAllPages() {
-      try {
-        // Only warm the page size matching the current device
-        const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-        const pagesToWarm = [
-          { page: 0, pageSize: isDesktop ? 18 : 10 },
-        ];
-
-        await warmUpCache(pagesToWarm);
-        // Silent cache warmup
-        window.dispatchEvent(new CustomEvent('cache-warmed'));
-      } catch {
-        // Silent error
-      }
-    }
+    // (removed — ISR edge cache serves archive pages fast, no pre-warm needed)
 
     async function fetchData() {
       try {
@@ -201,11 +187,6 @@ export default function HomeClient() {
     };
 
     window.addEventListener('browser-session-started', handleNewBrowserSession);
-
-    // Start warming up cache slightly after initial load to keep Supabase traffic lighter
-    setTimeout(() => {
-      warmUpCacheForAllPages();
-    }, 3000);
 
     // Show welcome if not dismissed in this browser session
     if (!browserSession.isWelcomeDismissed()) {

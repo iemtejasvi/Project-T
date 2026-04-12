@@ -2,6 +2,8 @@ import { MetadataRoute } from 'next'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { isLinkableName } from '@/lib/nameUtils'
 
+export const revalidate = 3600 // ISR: regenerate sitemap at most once per hour
+
 // Module-level singleton — reused across requests in the same Lambda
 let _supabase: SupabaseClient | null | undefined;
 function getSupabase() {
