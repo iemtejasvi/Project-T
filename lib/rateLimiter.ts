@@ -54,6 +54,13 @@ export const RATE_LIMITS = {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 100,    // 100 requests per minute
     blockDuration: 2 * 60 * 1000
+  },
+
+  // Admin mutation operations (ban, delete, update, bulk, etc.)
+  ADMIN_MUTATION: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 30,     // 30 mutations per minute
+    blockDuration: 60 * 1000
   }
 } as const;
 

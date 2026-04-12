@@ -4,28 +4,7 @@ import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLim
 import { createSecureResponse, createSecureErrorResponse, validateRequest } from '@/lib/securityHeaders';
 import { MEMORY_LIMIT } from '@/lib/constants';
 import { sanitizeUUID, isValidIP } from '@/lib/inputSanitizer';
-
-function getClientIP(request: NextRequest): string | null {
-  // Try multiple headers for IP detection — prefer cf-connecting-ip (Cloudflare)
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const realIP = request.headers.get('x-real-ip');
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-
-  if (cfConnectingIP) {
-    return cfConnectingIP;
-  }
-
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
-  }
-
-  if (realIP) {
-    return realIP;
-  }
-
-  // Fallback for when no IP headers are available
-  return null;
-}
+import { getClientIP } from '@/lib/getClientIP';
 
 function getCookieValue(request: NextRequest, name: string): string | null {
   const cookieHeader = request.headers.get('cookie');
@@ -77,12 +56,14 @@ export async function POST(request: NextRequest) {
     }
     
     // Owner exemption and localhost
+    // SECURITY: Only allow localhost bypass in development
     const host = request.headers.get('host') || '';
-    const isLocalhost = host.includes('localhost') || 
+    const isLocalhost = process.env.NODE_ENV === 'development' && (
+                       host.includes('localhost') ||
                        host.includes('127.0.0.1') ||
                        host.startsWith('localhost:') ||
-                       clientIP === '127.0.0.1' || 
-                       clientIP === '::1';
+                       clientIP === '127.0.0.1' ||
+                       clientIP === '::1');
     
     // Check if IP matches owner (from environment variable)
     const ownerIP = process.env.OWNER_IP_ADDRESS;

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { primaryDB, redactIfDestructed, redactIfUnrevealed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
+import { primaryDBRead, redactIfDestructed, redactIfUnrevealed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
 import { sanitizeString } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
@@ -33,7 +33,7 @@ const getCachedNameMemories = unstable_cache(
     const safeName = sanitizeForPostgrestFilter(normalizedName);
 
     // Query memories where recipient OR sender matches the name (case-insensitive)
-    let query = primaryDB
+    let query = primaryDBRead
       .from('memories')
       .select('id, recipient, message, sender, created_at, reveal_at, destruct_at, time_capsule_delay_minutes, status, color, full_bg, animation, pinned, pinned_until, tag, sub_tag, typewriter_enabled, night_only, night_tz, night_start_hour, night_end_hour', { count: 'estimated' })
       .eq('status', 'approved')
@@ -67,7 +67,7 @@ const getCachedNameExists = unstable_cache(
     const nowIso = new Date().toISOString();
     const safeName = sanitizeForPostgrestFilter(normalizedName);
 
-    const { count, error } = await primaryDB
+    const { count, error } = await primaryDBRead
       .from('memories')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'approved')
@@ -86,7 +86,7 @@ const getCachedRelatedNames = unstable_cache(
   async (normalizedName: string) => {
     // Get memories where this name is recipient or sender
     const safeName = sanitizeForPostgrestFilter(normalizedName);
-    const { data, error } = await primaryDB
+    const { data, error } = await primaryDBRead
       .from('memories')
       .select('recipient, sender')
       .eq('status', 'approved')

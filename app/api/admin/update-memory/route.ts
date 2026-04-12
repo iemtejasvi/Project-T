@@ -4,6 +4,8 @@ import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityH
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { sanitizeString } from '@/lib/inputSanitizer';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { getClientIP } from '@/lib/getClientIP';
 
 type MemoryRow = {
   id: string;
@@ -41,7 +43,13 @@ export async function POST(request: NextRequest) {
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
   }
-  
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-update'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
+  }
+
   try {
     const { id, updates } = await request.json();
     
@@ -117,7 +125,8 @@ export async function POST(request: NextRequest) {
     const { data, error } = await updateMemory(id, sanitizedUpdates as Record<string, string | boolean | undefined>);
     
     if (error) {
-      return createSecureErrorResponse(error.message || 'Update failed', 500, { origin });
+      console.error('Memory update error:', error.message);
+      return createSecureErrorResponse('Update failed', 500, { origin });
     }
     
     // Purge ISR data cache + route cache so updated content appears instantly

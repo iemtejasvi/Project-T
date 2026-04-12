@@ -2,13 +2,20 @@ import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { getClientIP } from '@/lib/getClientIP';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-del-ann'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {
@@ -24,7 +31,8 @@ export async function POST(request: NextRequest) {
       .eq('id', id);
     
     if (error) {
-      return createSecureErrorResponse(error.message || 'Delete failed', 500, { origin });
+      console.error('Delete announcement error:', error.message);
+      return createSecureErrorResponse('Delete failed', 500, { origin });
     }
     
     return createSecureResponse({ success: true }, 200, { origin });

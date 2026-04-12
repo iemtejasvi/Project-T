@@ -4,7 +4,6 @@
 
 import { NextRequest } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
-import { getClientIP } from '@/lib/getClientIP';
 
 // Admin credentials - MUST be set in environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
@@ -59,17 +58,11 @@ async function signHmacSha256Base64Url(secret: string, data: string): Promise<st
   return base64UrlEncodeBytes(sig);
 }
 
-let _sessionSecretWarned = false;
 function getAdminSessionSecret(): string {
   const secret = process.env.ADMIN_SESSION_SECRET || process.env.NEXTAUTH_SECRET;
   if (secret) return secret;
-  if (process.env.ADMIN_PASSWORD) {
-    if (!_sessionSecretWarned) {
-      console.warn('SECURITY WARNING: ADMIN_SESSION_SECRET not set, falling back to ADMIN_PASSWORD for session signing. Set ADMIN_SESSION_SECRET in production.');
-      _sessionSecretWarned = true;
-    }
-    return process.env.ADMIN_PASSWORD;
-  }
+  // SECURITY: Never fall back to ADMIN_PASSWORD — if the password leaks, all sessions are compromised.
+  console.error('🚨 CRITICAL: ADMIN_SESSION_SECRET (or NEXTAUTH_SECRET) is not set. Admin sessions will not work.');
   return '';
 }
 
@@ -133,11 +126,13 @@ export function verifySessionToken(token: string): boolean {
  * Middleware to check if request is from authenticated admin
  */
 export function isAdminAuthenticated(request: NextRequest): boolean {
-  // Check if IP matches admin IP (auto-login for owner)
+  // Check if IP matches admin IP (auto-login for owner).
+  // SECURITY: Only trust cf-connecting-ip (set by Cloudflare, cannot be client-spoofed).
+  // Spoofable headers like x-forwarded-for are NOT used for admin IP auth.
   const adminIP = process.env.ADMIN_IP_ADDRESS;
   if (adminIP) {
-    const clientIP = getClientIP(request);
-    if (clientIP === adminIP) {
+    const cfIP = request.headers.get('cf-connecting-ip');
+    if (cfIP && cfIP.trim() === adminIP) {
       return true;
     }
   }

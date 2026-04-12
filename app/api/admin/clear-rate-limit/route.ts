@@ -1,14 +1,20 @@
 import { NextRequest } from 'next/server';
-import { unblockIdentifier } from '@/lib/rateLimiter';
+import { unblockIdentifier, checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { getClientIP } from '@/lib/getClientIP';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-clear-rl'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {

@@ -3,12 +3,20 @@ import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityH
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { scrubDestructedMemories } from '@/lib/memoryDB';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { getClientIP } from '@/lib/getClientIP';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
 
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-scrub'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
 
   try {

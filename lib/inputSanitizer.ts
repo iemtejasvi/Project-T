@@ -318,7 +318,9 @@ export function validateMemoryInput(
   if (!data.recipient || typeof data.recipient !== 'string') {
     errors.push('Recipient is required and must be a string');
   } else {
-    const recipient = sanitizeString(data.recipient);
+    let recipient = sanitizeString(data.recipient);
+    recipient = stripDangerousHtml(recipient);
+    recipient = escapeHtml(recipient);
     if (recipient.length === 0) {
       errors.push('Recipient cannot be empty');
     } else if (recipient.length > 100) {
@@ -342,7 +344,9 @@ export function validateMemoryInput(
   if (!data.message || typeof data.message !== 'string') {
     errors.push('Message is required and must be a string');
   } else {
-    const message = sanitizeString(data.message);
+    let message = sanitizeString(data.message);
+    message = stripDangerousHtml(message);
+    message = escapeHtml(message);
     if (message.length === 0) {
       errors.push('Message cannot be empty');
     } else if (message.length > 5000) {
@@ -367,7 +371,9 @@ export function validateMemoryInput(
     if (typeof data.sender !== 'string') {
       errors.push('Sender must be a string');
     } else {
-      const sender = sanitizeString(data.sender);
+      let sender = sanitizeString(data.sender);
+      sender = stripDangerousHtml(sender);
+      sender = escapeHtml(sender);
       if (sender.length > 100) {
         errors.push('Sender must be 100 characters or less');
       } else if (containsSqlInjection(sender) || containsNoSqlInjection(sender)) {

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { primaryDB } from '@/lib/memoryDB';
+import { primaryDBRead } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { unstable_cache } from 'next/cache';
@@ -8,7 +8,7 @@ import { getClientIP } from '@/lib/getClientIP';
 // ISR: cache active announcement for 30s so thousands of visitors share one DB call.
 const getCachedAnnouncement = unstable_cache(
   async () => {
-    const { data, error } = await primaryDB
+    const { data, error } = await primaryDBRead
       .from('announcements')
       .select('id, message, expires_at, link_url, background_color, text_color, icon, title, is_dismissible')
       .eq('is_active', true)

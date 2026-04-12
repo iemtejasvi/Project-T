@@ -28,7 +28,7 @@ export const SECURITY_HEADERS = {
   // Content Security Policy (CSP)
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://*.adtrafficquality.google https://challenges.cloudflare.com",
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://*.adtrafficquality.google https://challenges.cloudflare.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://challenges.cloudflare.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
@@ -62,9 +62,9 @@ export const CORS_HEADERS = {
  * Note: Same-origin requests may not include Origin header, so we allow null for GET requests
  */
 export function isOriginAllowed(origin: string | null, allowedOrigins?: string[]): boolean {
-  // Allow null origin for same-origin requests (browser doesn't always send Origin for same-origin)
-  // This is safe because same-origin requests are checked by the browser's same-origin policy
-  if (!origin) return true; // Changed from false to true
+  // SECURITY: Reject null/missing origin on explicit checks.
+  // Same-origin GET requests may lack Origin — callers should handle that case separately.
+  if (!origin) return false;
   
   // Default allowed origins in production
   const defaultAllowedOrigins = [
@@ -162,13 +162,18 @@ export function createSecureResponse(
  * Handle OPTIONS preflight requests
  */
 export function handleCorsPreFlight(origin: string | null): NextResponse {
-  if (!isOriginAllowed(origin)) {
+  // For preflight, allow null origin (same-origin preflight is rare but valid)
+  if (origin && !isOriginAllowed(origin)) {
     return new NextResponse(null, { status: 403 });
   }
-  
+
   const response = new NextResponse(null, { status: 204 });
-  
-  response.headers.set('Access-Control-Allow-Origin', origin || '*');
+
+  // SECURITY: Never send Access-Control-Allow-Origin: * with credentials.
+  // Only reflect the actual origin if it passed validation.
+  if (origin) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+  }
   Object.entries(CORS_HEADERS).forEach(([key, value]) => {
     response.headers.set(key, value);
   });
@@ -236,10 +241,14 @@ export function validateRequest(request: Request): {
         }
       }
       
-      // No origin and no valid referer - could be legitimate same-origin or attack
-      // Allow it but log for monitoring (Next.js same-origin requests often have no Origin)
-      console.warn('⚠️ Request without Origin or valid Referer header:', method, request.url);
-      return { valid: true, origin: undefined };
+      // No origin and no valid same-origin referer.
+      // In production, reject this — it is likely a cross-origin attack or non-browser client.
+      // In development, allow it for convenience (e.g., Postman, curl testing).
+      if (process.env.NODE_ENV === 'development') {
+        return { valid: true, origin: undefined };
+      }
+      console.warn('⚠️ Blocked mutation without Origin or valid Referer:', method, request.url);
+      return { valid: false, error: 'Origin verification failed' };
     }
     
     // If origin is present, validate it

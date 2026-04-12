@@ -3,6 +3,8 @@ import { updateMemory, deleteMemoriesBatch, fetchMemoriesByIds, primaryDB } from
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { getClientIP } from '@/lib/getClientIP';
 
 type MemoryRow = {
   id: string;
@@ -54,6 +56,12 @@ export async function POST(request: NextRequest) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
   }
 
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-bulk'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
+  }
+
   try {
     const body = (await request.json()) as Record<string, unknown>;
     const action = String(body.action || '');
@@ -73,7 +81,7 @@ export async function POST(request: NextRequest) {
       // 1 query: fetch all rows that need approval
       const { data: rows, error: fetchErr } = await fetchMemoriesByIds(uniqueIds);
       if (fetchErr || !rows) {
-        return createSecureErrorResponse(fetchErr?.message || 'Failed to fetch memories', 500, { origin });
+        return createSecureErrorResponse('Failed to fetch memories', 500, { origin });
       }
 
       const rowMap = new Map(rows.map((r: MemoryRow) => [r.id, r]));

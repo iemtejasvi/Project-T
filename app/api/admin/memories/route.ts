@@ -67,7 +67,8 @@ export async function GET(request: NextRequest) {
     const result = await query;
 
     if (result.error) {
-      return createSecureErrorResponse(result.error.message || 'Failed to fetch memories', 500, { origin });
+      console.error('Admin memories query error:', result.error.message);
+      return createSecureErrorResponse('Failed to fetch memories', 500, { origin });
     }
 
     const totalCount = result.count || 0;

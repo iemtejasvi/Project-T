@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
       .limit(1000);
 
     if (error) {
-      return createSecureErrorResponse(error.message || 'Failed to fetch banned users', 500, { origin });
+      console.error('Banned users fetch error:', error.message);
+      return createSecureErrorResponse('Failed to fetch banned users', 500, { origin });
     }
 
     return createSecureResponse({ success: true, data: data || [] }, 200, { origin, cacheControl: 'no-store' });

@@ -3,6 +3,8 @@ import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 import { sanitizeUrl } from '@/lib/inputSanitizer';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { getClientIP } from '@/lib/getClientIP';
 
 // Get current announcement (with analytics)
 export async function GET(request: NextRequest) {
@@ -22,7 +24,8 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (error) {
-      return createSecureErrorResponse(error.message || 'Failed to fetch announcement', 500, { origin });
+      console.error('Announcement fetch error:', error.message);
+      return createSecureErrorResponse('Failed to fetch announcement', 500, { origin });
     }
 
     return createSecureResponse({ data }, 200, { origin, cacheControl: 'no-store' });
@@ -35,10 +38,15 @@ export async function GET(request: NextRequest) {
 // Create announcement
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-ann'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {
@@ -63,7 +71,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return createSecureErrorResponse(error.message || 'Failed to create announcement', 500, { origin });
+      console.error('Announcement create error:', error.message);
+      return createSecureErrorResponse('Failed to create announcement', 500, { origin });
     }
 
     // Only delete old announcements AFTER successful insert
@@ -80,10 +89,15 @@ export async function POST(request: NextRequest) {
 // Delete announcement
 export async function DELETE(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-ann'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {
@@ -100,7 +114,8 @@ export async function DELETE(request: NextRequest) {
       .eq('id', id);
     
     if (error) {
-      return createSecureErrorResponse(error.message || 'Failed to delete announcement', 500, { origin });
+      console.error('Announcement delete error:', error.message);
+      return createSecureErrorResponse('Failed to delete announcement', 500, { origin });
     }
     
     return createSecureResponse({ success: true }, 200, { origin });

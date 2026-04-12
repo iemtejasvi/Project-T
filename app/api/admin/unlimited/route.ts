@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { getClientIP } from '@/lib/getClientIP';
 
 // Get unlimited users and site settings
 export async function GET(request: NextRequest) {
@@ -40,10 +42,15 @@ export async function GET(request: NextRequest) {
 // Add unlimited user
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-unlimited'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {
@@ -60,7 +67,8 @@ export async function POST(request: NextRequest) {
       .insert([sanitized]);
     
     if (error) {
-      return createSecureErrorResponse(error.message || 'Failed to add user', 500, { origin });
+      console.error('Add unlimited user error:', error.message);
+      return createSecureErrorResponse('Failed to add user', 500, { origin });
     }
     
     return createSecureResponse({ success: true }, 201, { origin });
@@ -74,10 +82,15 @@ export async function POST(request: NextRequest) {
 // Remove unlimited user
 export async function DELETE(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-unlimited'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {
@@ -94,7 +107,8 @@ export async function DELETE(request: NextRequest) {
       .eq('id', id);
     
     if (error) {
-      return createSecureErrorResponse(error.message || 'Failed to remove user', 500, { origin });
+      console.error('Remove unlimited user error:', error.message);
+      return createSecureErrorResponse('Failed to remove user', 500, { origin });
     }
     
     return createSecureResponse({ success: true }, 200, { origin });
@@ -108,10 +122,15 @@ export async function DELETE(request: NextRequest) {
 // Update site settings (global word limit)
 export async function PATCH(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-settings'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {
@@ -138,7 +157,8 @@ export async function PATCH(request: NextRequest) {
       .upsert(sanitized);
     
     if (error) {
-      return createSecureErrorResponse(error.message || 'Failed to update settings', 500, { origin });
+      console.error('Update settings error:', error.message);
+      return createSecureErrorResponse('Failed to update settings', 500, { origin });
     }
     
     return createSecureResponse({ success: true }, 200, { origin });

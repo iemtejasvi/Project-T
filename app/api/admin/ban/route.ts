@@ -2,14 +2,21 @@ import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
+import { getClientIP } from '@/lib/getClientIP';
 
 // Ban user
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-ban'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {
@@ -30,7 +37,8 @@ export async function POST(request: NextRequest) {
       .insert([sanitized]);
     
     if (error) {
-      return createSecureErrorResponse(error.message || 'Failed to ban user', 500, { origin });
+      console.error('Ban insert error:', error.message);
+      return createSecureErrorResponse('Failed to ban user', 500, { origin });
     }
     
     return createSecureResponse({ success: true }, 201, { origin });
@@ -44,10 +52,15 @@ export async function POST(request: NextRequest) {
 // Unban user
 export async function DELETE(request: NextRequest) {
   const origin = request.headers.get('origin');
-  
-  // Check authentication
+
   if (!isAdminAuthenticated(request)) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
+  }
+
+  const ip = getClientIP(request) || 'anonymous';
+  const rl = await checkRateLimit(generateRateLimitKey(ip, null, 'admin-unban'), RATE_LIMITS.ADMIN_MUTATION);
+  if (!rl.allowed) {
+    return createSecureErrorResponse('Too many requests.', 429, { origin, details: { retryAfter: rl.retryAfter } });
   }
   
   try {
@@ -62,13 +75,15 @@ export async function DELETE(request: NextRequest) {
     if (ip) {
       const { error } = await primaryDB.from('banned_users').delete().eq('ip', ip);
       if (error) {
-        return createSecureErrorResponse(error.message || 'Failed to unban by IP', 500, { origin });
+        console.error('Unban by IP error:', error.message);
+        return createSecureErrorResponse('Failed to unban by IP', 500, { origin });
       }
     }
     if (uuid) {
       const { error } = await primaryDB.from('banned_users').delete().eq('uuid', uuid);
       if (error) {
-        return createSecureErrorResponse(error.message || 'Failed to unban by UUID', 500, { origin });
+        console.error('Unban by UUID error:', error.message);
+        return createSecureErrorResponse('Failed to unban by UUID', 500, { origin });
       }
     }
     

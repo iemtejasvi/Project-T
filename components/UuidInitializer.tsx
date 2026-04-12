@@ -18,7 +18,7 @@ export default function UuidInitializer() {
         // Store in cookie with 1 year expiration
         const expirationDate = new Date();
         expirationDate.setFullYear(expirationDate.getFullYear() + 1);
-        document.cookie = `user_uuid=${newUuid}; expires=${expirationDate.toUTCString()}; path=/`;
+        document.cookie = `user_uuid=${newUuid}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Strict${location.protocol === 'https:' ? '; Secure' : ''}`;
       } else if (!localStorage.getItem("user_uuid")) {
         // If UUID exists in cookie but not in localStorage, sync it
         localStorage.setItem("user_uuid", storedUuid);
@@ -26,7 +26,7 @@ export default function UuidInitializer() {
         // If UUID exists in localStorage but not in cookie, sync it
         const expirationDate = new Date();
         expirationDate.setFullYear(expirationDate.getFullYear() + 1);
-        document.cookie = `user_uuid=${storedUuid}; expires=${expirationDate.toUTCString()}; path=/`;
+        document.cookie = `user_uuid=${storedUuid}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Strict${location.protocol === 'https:' ? '; Secure' : ''}`;
       }
 
       // Cache management for development

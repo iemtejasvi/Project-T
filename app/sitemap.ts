@@ -4,6 +4,12 @@ import { isLinkableName } from '@/lib/nameUtils'
 
 export const revalidate = 3600 // ISR: regenerate sitemap at most once per hour
 
+// In-memory guard: prevent concurrent regeneration from hammering the DB.
+// Once the sitemap is built, the ISR cache serves it for `revalidate` seconds.
+let _lastGeneratedAt = 0;
+let _cachedRoutes: MetadataRoute.Sitemap | null = null;
+const MIN_REGEN_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
 // Module-level singleton — reused across requests in the same Lambda
 let _supabase: SupabaseClient | null | undefined;
 function getSupabase() {
@@ -18,6 +24,13 @@ function getSupabase() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // SECURITY: In-memory dedup — if we generated within the last 5 min, return cached result.
+  // This prevents DoS via repeated cold-cache sitemap requests.
+  const now = Date.now();
+  if (_cachedRoutes && (now - _lastGeneratedAt) < MIN_REGEN_INTERVAL_MS) {
+    return _cachedRoutes;
+  }
+
   const baseUrl = 'https://www.ifonlyisentthis.com'
 
   // Static routes with stable lastModified dates
@@ -167,6 +180,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (err) {
     console.error('Error generating memory sitemap entries:', err);
   }
+
+  // Cache the result in-memory for the dedup guard
+  _cachedRoutes = routes;
+  _lastGeneratedAt = Date.now();
 
   return routes
 }

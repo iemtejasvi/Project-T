@@ -5,6 +5,7 @@ import { validateMemoryInput, sanitizeString, sanitizeUUID, isValidIP } from '@/
 import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
 import { MEMORY_LIMIT, WORD_LIMIT, countWords } from '@/lib/constants';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { getClientIP } from '@/lib/getClientIP';
 
 interface SubmissionData {
   recipient: string;
@@ -73,34 +74,7 @@ interface CountryServiceResponse {
   query?: string;
 }
 
-async function getClientIP(request: NextRequest): Promise<string | null> {
-  // On Vercel, x-forwarded-for is always present. Check headers only — no external calls.
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const realIP = request.headers.get('x-real-ip');
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  const xClientIP = request.headers.get('x-client-ip');
-  const xClusterClientIP = request.headers.get('x-cluster-client-ip');
-  const xOriginalForwardedFor = request.headers.get('x-original-forwarded-for');
-  const forwarded = request.headers.get('forwarded');
-
-  const possibleIPs = [
-    cfConnectingIP,
-    forwardedFor?.split(',')[0]?.trim(),
-    realIP,
-    xClientIP,
-    xClusterClientIP,
-    xOriginalForwardedFor?.split(',')[0]?.trim(),
-    forwarded?.match(/for=([^;,\s]+)/)?.[1]?.replace(/"/g, '')
-  ].filter(Boolean);
-
-  for (const ip of possibleIPs) {
-    if (ip && isValidPublicIP(ip)) {
-      return ip;
-    }
-  }
-
-  return null;
-}
+// getClientIP is imported from @/lib/getClientIP (canonical, cf-connecting-ip preferred)
 
 function isValidPublicIP(ip: string): boolean {
   if (!ip) return false;
@@ -305,7 +279,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get client IP and UUID early for rate limiting
-    let clientIP: string | null = await getClientIP(request);
+    let clientIP: string | null = getClientIP(request);
     if (clientIP && !isValidIP(clientIP)) clientIP = null;
     const clientUUID: string | null = sanitizeUUID(getCookieValue(request, 'user_uuid') || '');
     
@@ -353,12 +327,14 @@ export async function POST(request: NextRequest) {
     let country = null;
 
     // Owner exemption and localhost - skip all checks
+    // SECURITY: Only allow localhost bypass in development to prevent Host header spoofing
     const host = request.headers.get('host') || '';
-    const isLocalhost = host.includes('localhost') ||
+    const isLocalhost = process.env.NODE_ENV === 'development' && (
+                       host.includes('localhost') ||
                        host.includes('127.0.0.1') ||
                        host.startsWith('localhost:') ||
                        clientIP === '127.0.0.1' ||
-                       clientIP === '::1';
+                       clientIP === '::1');
 
     // Check if IP matches owner (from environment variable)
     const ownerIP = process.env.OWNER_IP_ADDRESS;
@@ -587,8 +563,9 @@ export async function POST(request: NextRequest) {
       const { data, error } = await insertMemory(submissionData);
 
       if (error || !data) {
+        console.error('Memory insert error:', error?.message);
         return createSecureErrorResponse(
-          error?.message || 'Failed to submit memory. Please try again.',
+          'Failed to submit memory. Please try again.',
           500,
           { origin }
         );
