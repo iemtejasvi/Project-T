@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import Link from "next/link";
 import { typewriterTags, typewriterSubTags } from "@/components/typewriterPrompts";
+import { colorBgMap } from "@/components/cardConstants";
 import { hasSuspiciouslyLongWords } from "@/lib/inputSanitizer";
 import { getCookie } from '@/lib/cookies';
 import { WORD_LIMIT, SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
@@ -1004,6 +1006,12 @@ export default function SubmitPage() {
 
   // Removed decorative leaf color logic
 
+  // Desktop entrance animation variant
+  const fadeUp = {
+    hidden: { opacity: 0, y: 18 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as const } },
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--text)] relative overflow-x-hidden">
       <header className="bg-[var(--card-bg)] shadow-lg lg:shadow-md">
@@ -1035,115 +1043,160 @@ export default function SubmitPage() {
       <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 lg:py-14 relative z-10">
         <div className="w-full max-w-6xl mx-auto">
           {/* Desktop Layout */}
-          <div className="hidden lg:grid lg:grid-cols-12 lg:gap-14 lg:items-start">
-            {/* Left Panel - Quote & Info */}
-            <div className="lg:col-span-5 lg:sticky lg:top-8">
-              <div className="bg-[var(--card-bg)] rounded-2xl p-8 shadow-md border border-[var(--border)]/20">
-                <blockquote className="text-lg font-serif italic text-[var(--text)] opacity-80 mb-6 leading-relaxed">
+          <motion.div
+            className="hidden lg:grid lg:grid-cols-12 lg:gap-16 lg:items-start"
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
+          >
+            {/* Left Panel - Editorial Quote & Guidelines */}
+            <motion.div variants={fadeUp} className="lg:col-span-4 lg:sticky lg:top-20">
+              <div className="pl-6 border-l-2 border-[var(--accent)]/25">
+                <blockquote className="text-2xl font-[var(--font-la-belle-aurore)] italic text-[var(--text)] opacity-80 mb-0 leading-relaxed">
                   &ldquo;Some words are too heavy to send, but too important to keep.&rdquo;
                 </blockquote>
-                <hr className="border-[var(--border)]/30 mb-6" />
+                <div className="flex items-center gap-3 my-8">
+                  <div className="flex-1 h-px bg-[var(--border)]/20"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]/30"></div>
+                  <div className="flex-1 h-px bg-[var(--border)]/20"></div>
+                </div>
                 <div>
                   <h2 className="submit-section-label">Guidelines</h2>
-                  <ul className="space-y-2.5 text-[var(--text)] opacity-75 text-sm">
+                  <ul className="space-y-3 text-[var(--text)] opacity-75 text-sm">
                     <li className="flex items-start gap-2.5">
-                      <span className="w-1 h-1 mt-1.5 bg-[var(--accent)] rounded-full flex-shrink-0 opacity-80"></span>
+                      <span className="w-0.5 h-3 mt-0.5 bg-[var(--accent)]/40 rounded-full flex-shrink-0"></span>
                       Max 50 words. Short, sharp, honest.
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <span className="w-1 h-1 mt-1.5 bg-[var(--accent)] rounded-full flex-shrink-0 opacity-80"></span>
+                      <span className="w-0.5 h-3 mt-0.5 bg-[var(--accent)]/40 rounded-full flex-shrink-0"></span>
                       English only. No hate, spam, or off-topic.
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <span className="w-1 h-1 mt-1.5 bg-[var(--accent)] rounded-full flex-shrink-0 opacity-80"></span>
+                      <span className="w-0.5 h-3 mt-0.5 bg-[var(--accent)]/40 rounded-full flex-shrink-0"></span>
                       Special effects for ≤30 words.
                     </li>
                     <li className="flex items-start gap-2.5">
-                      <span className="w-1 h-1 mt-1.5 bg-[var(--accent)] rounded-full flex-shrink-0 opacity-80"></span>
+                      <span className="w-0.5 h-3 mt-0.5 bg-[var(--accent)]/40 rounded-full flex-shrink-0"></span>
                       6 memories per person. Make them count.
                     </li>
                   </ul>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Right Panel - Form */}
-            <div className="lg:col-span-7">
+            <motion.div variants={fadeUp} className="lg:col-span-8">
               {submitted ? (
-                <div className="bg-[var(--card-bg)] p-10 rounded-2xl shadow-md border border-[var(--border)]/20 text-center">
-                  <div className="text-3xl font-serif mb-4 text-[var(--text)]">Sent.</div>
-                  <p className="text-sm mb-8 text-[var(--text)] opacity-70">Your memory is pending approval.</p>
-                  <Link
-                    href="/"
-                    className="inline-block px-6 py-2.5 bg-[var(--accent)] text-[var(--text)] font-medium rounded-xl hover:opacity-80 transition-opacity text-sm"
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="bg-[var(--card-bg)] p-16 rounded-2xl shadow-sm border border-[var(--border)]/15 text-center"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                    className="text-4xl font-[var(--font-la-belle-aurore)] mb-3 text-[var(--text)]"
                   >
-                    Return Home
-                  </Link>
-                </div>
+                    Sent.
+                  </motion.div>
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.7 }}
+                    transition={{ delay: 0.6, duration: 0.5 }}
+                    className="text-sm mb-10 text-[var(--text)]"
+                  >
+                    Your memory is pending approval.
+                  </motion.p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9, duration: 0.4 }}
+                  >
+                    <Link
+                      href="/"
+                      className="inline-block px-8 py-3 bg-[var(--accent)] text-white font-medium rounded-xl hover:opacity-80 transition-opacity text-sm tracking-wide"
+                    >
+                      Return Home
+                    </Link>
+                  </motion.div>
+                </motion.div>
               ) : (
                 <form
                   onSubmit={handleSubmit}
-                  className="bg-[var(--card-bg)] p-8 rounded-2xl shadow-md border border-[var(--border)]/20 space-y-5"
+                  className="bg-[var(--card-bg)] p-10 rounded-2xl shadow-sm border border-[var(--border)]/15"
                 >
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-600 text-center text-sm">
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-red-50/80 border border-red-200/50 rounded-xl p-4 text-red-600/80 text-center text-sm mb-8"
+                    >
                       {error}
-                    </div>
+                    </motion.div>
                   )}
 
-                  <div className="space-y-1.5">
-                    <label className="submit-field-label">Recipient&apos;s Name*</label>
-                    <input
-                      type="text"
-                      value={recipient}
-                      onChange={(e) => setRecipient(e.target.value)}
-                      required
-                      disabled={isFormDisabled}
-                      className={`submit-input ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                      }`}
-                      placeholder="Who is this for?"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="submit-field-label">Message* {!isUnlimitedUser && "(max 50 words)"} {isUnlimitedUser && <span className="text-pink-500 normal-case tracking-normal">🌸 No word limit</span>}</label>
-                    <textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      maxLength={MAX_MESSAGE_LENGTH}
-                      required
-                      rows={5}
-                      disabled={isFormDisabled}
-                      className={`submit-input resize-none ${
-                        isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                      }`}
-                      placeholder="What did you never say?"
-                    />
+                  {/* Section A: Core Message */}
+                  <motion.div variants={fadeUp} className="space-y-4">
                     <div className="space-y-1.5">
-                      <div className="relative h-1 w-full bg-[var(--border)]/30 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-300 ${
-                            isUnlimitedUser ? "bg-[var(--accent)]" : (wordCount <= SPECIAL_EFFECT_WORD_LIMIT ? "bg-[var(--accent)]" : wordCount <= WORD_LIMIT ? "bg-[var(--secondary)]" : "bg-red-500")
-                          }`}
-                          style={{ width: `${percent}%` }}
-                        />
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="font-mono text-[var(--text)] opacity-40">{isUnlimitedUser ? `${wordCount} words` : `${wordCount} / 50`}</span>
-                        {wordCount > SPECIAL_EFFECT_WORD_LIMIT && specialEffectVisible && (
-                          <span className="text-red-500">
-                            Special effects disabled beyond 30 words.
-                          </span>
-                        )}
-                        {overLimit && !isUnlimitedUser && (
-                          <span className="text-red-500">{limitMsg}</span>
-                        )}
+                      <label className="submit-field-label">Recipient&apos;s Name*</label>
+                      <input
+                        type="text"
+                        value={recipient}
+                        onChange={(e) => setRecipient(e.target.value)}
+                        required
+                        disabled={isFormDisabled}
+                        className={`submit-input ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                        }`}
+                        placeholder="Who is this for?"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="submit-field-label">Message* {!isUnlimitedUser && "(max 50 words)"} {isUnlimitedUser && <span className="text-pink-500 normal-case tracking-normal">🌸 No word limit</span>}</label>
+                      <textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        maxLength={MAX_MESSAGE_LENGTH}
+                        required
+                        rows={6}
+                        disabled={isFormDisabled}
+                        className={`submit-input resize-none ${
+                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                        }`}
+                        placeholder="What did you never say?"
+                      />
+                      <div className="space-y-1.5">
+                        <div className="relative h-1 w-full bg-[var(--border)]/15 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              isUnlimitedUser ? "bg-[var(--accent)]" : (wordCount <= SPECIAL_EFFECT_WORD_LIMIT ? "bg-[var(--accent)]" : wordCount <= WORD_LIMIT ? "bg-[var(--secondary)]" : "bg-red-500")
+                            }`}
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-[var(--text)] opacity-40">{isUnlimitedUser ? `${wordCount} words` : `${wordCount} / 50`}</span>
+                          {wordCount > SPECIAL_EFFECT_WORD_LIMIT && specialEffectVisible && (
+                            <span className="text-red-500">
+                              Special effects disabled beyond 30 words.
+                            </span>
+                          )}
+                          {overLimit && !isUnlimitedUser && (
+                            <span className="text-red-500">{limitMsg}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Divider */}
+                  <div className="h-px bg-[var(--border)]/15 my-8"></div>
+
+                  {/* Section B: Identity & Appearance */}
+                  <motion.div variants={fadeUp} className="space-y-5">
                     <div className="space-y-1.5">
                       <label className="submit-field-label">Your Name (optional)</label>
                       <input
@@ -1158,187 +1211,229 @@ export default function SubmitPage() {
                       />
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       <label className="submit-field-label">Color Theme</label>
-                      <select
-                        value={color}
-                        onChange={(e) => setColor(e.target.value)}
-                        disabled={isFormDisabled}
-                        className={`submit-input ${
-                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                        }`}
-                      >
+                      <div className="grid grid-cols-7 gap-2">
                         {colorOptions.map((o) => (
-                          <option key={o.value} value={o.value}>
-                            {o.label}
-                          </option>
+                          <button
+                            key={o.value}
+                            type="button"
+                            onClick={() => setColor(o.value)}
+                            disabled={isFormDisabled}
+                            title={o.label}
+                            className={`relative aspect-square rounded-lg border transition-all duration-200 ${
+                              color === o.value
+                                ? 'ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--card-bg)] scale-110 border-transparent'
+                                : 'border-black/[0.06] hover:scale-105 hover:ring-1 hover:ring-[var(--border)]'
+                            } ${isFormDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                            style={{ backgroundColor: colorBgMap[o.value] || '#E8E0D0' }}
+                          >
+                            {color === o.value && (
+                              <motion.div
+                                layoutId="colorCheck"
+                                className="absolute inset-0 flex items-center justify-center"
+                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                              >
+                                <div className="w-2 h-2 rounded-full bg-[var(--text)]/60"></div>
+                              </motion.div>
+                            )}
+                          </button>
                         ))}
-                      </select>
+                      </div>
+                      <p className="text-xs text-[var(--text)] opacity-40 mt-1">
+                        {colorOptions.find(o => o.value === color)?.label || 'Default'}
+                      </p>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="submit-field-label">Special Effect</label>
-                      <select
-                        value={specialEffect}
-                        onChange={(e) => setSpecialEffect(e.target.value)}
-                        disabled={!isSpecialAllowed || isFormDisabled}
-                        className={`submit-input ${
-                          isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                        }`}
-                      >
-                        {specialEffects.map((o) => (
-                          <option key={o.value} value={o.value}>
-                            {o.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  {/* Divider */}
+                  <div className="h-px bg-[var(--border)]/15 my-8"></div>
 
-                    <div className="space-y-1.5">
-                      <label className="submit-field-label">Time Capsule</label>
-                      {(destructDelayMinutes > 0 || nightOnly) && <span className="text-[10px] italic opacity-40">Disabled</span>}
-                      <select
-                        value={timeCapsuleDelayMinutes}
-                        onChange={(e) => setTimeCapsuleDelayMinutes(Number(e.target.value) || 0)}
-                        disabled={isFormDisabled || destructDelayMinutes > 0 || nightOnly}
-                        className={`submit-input ${
-                          (isFormDisabled || destructDelayMinutes > 0 || nightOnly) ? 'opacity-30 cursor-not-allowed' : ''
-                        }`}
-                      >
-                        {timeCapsuleOptions.map((o) => (
-                          <option key={o.value} value={o.value}>
-                            {o.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="submit-field-label">Self-Destruct</label>
-                      {(timeCapsuleDelayMinutes > 0 || nightOnly) && <span className="text-[10px] italic opacity-40">Disabled</span>}
-                      <select
-                        value={destructDelayMinutes}
-                        onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
-                        disabled={isFormDisabled || timeCapsuleDelayMinutes > 0 || nightOnly}
-                        className={`submit-input ${
-                          (isFormDisabled || timeCapsuleDelayMinutes > 0 || nightOnly) ? 'opacity-30 cursor-not-allowed' : ''
-                        }`}
-                      >
-                        {destructOptions.map((o) => (
-                          <option key={o.value} value={o.value}>
-                            {o.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-xl border border-[var(--border)]/25">
-                    <div className="flex items-center gap-3">
-                      <input
-                        id="enableTypewriter"
-                        type="checkbox"
-                        checked={enableTypewriter}
-                        onChange={(e) => setEnableTypewriter(e.target.checked)}
-                        disabled={isFormDisabled || destructDelayMinutes > 0}
-                        className={`h-4 w-4 accent-[var(--accent)] rounded ${
-                          (isFormDisabled || destructDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                      />
-                      <label htmlFor="enableTypewriter" className="text-[var(--text)] text-sm opacity-70">
-                        Enable typewriter text on memory card
-                      </label>
-                      {destructDelayMinutes > 0 && (
-                        <span className="text-[10px] text-[var(--text)] opacity-40 italic">Disabled when destruct is active</span>
-                      )}
-                    </div>
-
-                    {enableTypewriter && (
-                      <div className="grid grid-cols-2 gap-4 pt-3 mt-3 border-t border-[var(--border)]/10">
-                       	<div className="space-y-1.5">
-                        <label className="submit-field-label">Emotion Tag</label>
+                  {/* Section C: Effects */}
+                  <motion.div variants={fadeUp}>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="submit-field-label">Special Effect</label>
                         <select
-                          value={tag}
-                          onChange={(e) => setTag(e.target.value)}
-                          disabled={isFormDisabled}
+                          value={specialEffect}
+                          onChange={(e) => setSpecialEffect(e.target.value)}
+                          disabled={!isSpecialAllowed || isFormDisabled}
                           className={`submit-input ${
                             isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
                           }`}
                         >
-                          <option value="">Mixed emotions</option>
-                          {typewriterTags.map((t) => (
-                            <option key={t} value={t}>{t}</option>
+                          {specialEffects.map((o) => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
                           ))}
                         </select>
-            </div>
-
-                      {tag && (
-                        <div className="space-y-1.5">
-                          <label className="submit-field-label">Specific Emotion</label>
-                          <select
-                            value={subTag}
-                            onChange={(e) => setSubTag(e.target.value)}
-                            disabled={isFormDisabled}
-                            className={`submit-input ${
-                              isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                            }`}
-                          >
-                            <option value="">All {tag} emotions</option>
-                            {getSubTags(tag).map((st) => (
-                              <option key={st} value={st}>{st}</option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
                       </div>
-                    )}
 
-                    <div className="mt-3 pt-3 border-t border-[var(--border)]/10">
-                      <div className="flex items-center gap-3">
-                        <input
-                          id="nightOnly"
-                          type="checkbox"
-                          checked={nightOnly}
-                          onChange={(e) => setNightOnly(e.target.checked)}
-                          disabled={isFormDisabled || timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0}
-                          className={`h-4 w-4 accent-[var(--accent)] rounded ${
-                            (isFormDisabled || timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
+                      <div className="space-y-1.5">
+                        <label className="submit-field-label">Time Capsule</label>
+                        {(destructDelayMinutes > 0 || nightOnly) && <span className="text-[10px] italic opacity-40">Disabled</span>}
+                        <select
+                          value={timeCapsuleDelayMinutes}
+                          onChange={(e) => setTimeCapsuleDelayMinutes(Number(e.target.value) || 0)}
+                          disabled={isFormDisabled || destructDelayMinutes > 0 || nightOnly}
+                          className={`submit-input ${
+                            (isFormDisabled || destructDelayMinutes > 0 || nightOnly) ? 'opacity-30 cursor-not-allowed' : ''
                           }`}
-                        />
-                        <label htmlFor="nightOnly" className="text-[var(--text)] text-sm opacity-70">
-                          Night-only (visible 9PM–6AM)
-                        </label>
-                        {(timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0) && <span className="text-[10px] italic opacity-40">Disabled</span>}
+                        >
+                          {timeCapsuleOptions.map((o) => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="submit-field-label">Self-Destruct</label>
+                        {(timeCapsuleDelayMinutes > 0 || nightOnly) && <span className="text-[10px] italic opacity-40">Disabled</span>}
+                        <select
+                          value={destructDelayMinutes}
+                          onChange={(e) => setDestructDelayMinutes(Number(e.target.value) || 0)}
+                          disabled={isFormDisabled || timeCapsuleDelayMinutes > 0 || nightOnly}
+                          className={`submit-input ${
+                            (isFormDisabled || timeCapsuleDelayMinutes > 0 || nightOnly) ? 'opacity-30 cursor-not-allowed' : ''
+                          }`}
+                        >
+                          {destructOptions.map((o) => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="pt-2">
-                    <button
+                  {/* Divider */}
+                  <div className="h-px bg-[var(--border)]/15 my-8"></div>
+
+                  {/* Section D: Additional Options */}
+                  <motion.div variants={fadeUp}>
+                    <p className="submit-section-label mb-3">Additional Options</p>
+                    <div className="p-6 rounded-xl bg-[var(--background)]/50 border border-[var(--border)]/10">
+                      <div className="flex items-center gap-3">
+                        <input
+                          id="enableTypewriter"
+                          type="checkbox"
+                          checked={enableTypewriter}
+                          onChange={(e) => setEnableTypewriter(e.target.checked)}
+                          disabled={isFormDisabled || destructDelayMinutes > 0}
+                          className={`h-4 w-4 accent-[var(--accent)] rounded-sm ${
+                            (isFormDisabled || destructDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                        />
+                        <label htmlFor="enableTypewriter" className="text-[var(--text)] text-sm opacity-70">
+                          Enable typewriter text on memory card
+                        </label>
+                        {destructDelayMinutes > 0 && (
+                          <span className="text-[10px] text-[var(--text)] opacity-40 italic">Disabled when destruct is active</span>
+                        )}
+                      </div>
+
+                      <AnimatePresence>
+                        {enableTypewriter && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="grid grid-cols-2 gap-4 pt-3 mt-3 border-t border-[var(--border)]/10">
+                              <div className="space-y-1.5">
+                                <label className="submit-field-label">Emotion Tag</label>
+                                <select
+                                  value={tag}
+                                  onChange={(e) => setTag(e.target.value)}
+                                  disabled={isFormDisabled}
+                                  className={`submit-input ${
+                                    isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                                  }`}
+                                >
+                                  <option value="">Mixed emotions</option>
+                                  {typewriterTags.map((t) => (
+                                    <option key={t} value={t}>{t}</option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              {tag && (
+                                <div className="space-y-1.5">
+                                  <label className="submit-field-label">Specific Emotion</label>
+                                  <select
+                                    value={subTag}
+                                    onChange={(e) => setSubTag(e.target.value)}
+                                    disabled={isFormDisabled}
+                                    className={`submit-input ${
+                                      isFormDisabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                                    }`}
+                                  >
+                                    <option value="">All {tag} emotions</option>
+                                    {getSubTags(tag).map((st) => (
+                                      <option key={st} value={st}>{st}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <div className="mt-3 pt-3 border-t border-[var(--border)]/10">
+                        <div className="flex items-center gap-3">
+                          <input
+                            id="nightOnly"
+                            type="checkbox"
+                            checked={nightOnly}
+                            onChange={(e) => setNightOnly(e.target.checked)}
+                            disabled={isFormDisabled || timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0}
+                            className={`h-4 w-4 accent-[var(--accent)] rounded-sm ${
+                              (isFormDisabled || timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0) ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                          />
+                          <label htmlFor="nightOnly" className="text-[var(--text)] text-sm opacity-70">
+                            Night-only (visible 9PM–6AM)
+                          </label>
+                          {(timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0) && <span className="text-[10px] italic opacity-40">Disabled</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Submit Button */}
+                  <div className="pt-8">
+                    <motion.button
                       type="submit"
                       disabled={isSubmitting || hasReachedLimit || isFormDisabled}
-                      className={`w-full px-6 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                      whileHover={!(isSubmitting || hasReachedLimit || isFormDisabled) ? { scale: 1.015 } : {}}
+                      whileTap={!(isSubmitting || hasReachedLimit || isFormDisabled) ? { scale: 0.985 } : {}}
+                      className={`w-full px-6 py-3.5 text-sm font-medium tracking-wide rounded-xl transition-all duration-300 ${
                         isSubmitting || hasReachedLimit || isFormDisabled
                           ? 'opacity-40 cursor-not-allowed bg-[var(--border)] text-[var(--text)]'
-                          : 'bg-[var(--accent)] text-[var(--text)] hover:opacity-85 shadow-md'
+                          : 'bg-[var(--accent)] text-white hover:shadow-[0_0_20px_rgba(74,106,138,0.25)] shadow-sm'
                       }`}
                     >
                       {isSubmitting ? (
                         <div className="flex items-center justify-center gap-2">
                           <InlineLoader />
                           Submitting...
-          </div>
+                        </div>
                       ) : isBanned ? 'Banned from Submitting' :
                        hasReachedLimit ? 'Memory Limit Reached' :
                        'Submit Memory'}
-                    </button>
+                    </motion.button>
                   </div>
                 </form>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Mobile Layout */}
           <div className="lg:hidden">
