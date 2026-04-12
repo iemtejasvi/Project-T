@@ -4,6 +4,7 @@ import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 import Script from "next/script";
 import RoutePrefetcher from "@/components/RoutePrefetcher";
+import NavigationLoader from "@/components/NavigationLoader";
 import { La_Belle_Aurore, Pacifico } from 'next/font/google';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
@@ -165,6 +166,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeSwitcher />
         <UuidInitializer />
         <RoutePrefetcher />
+        <NavigationLoader />
         {children}
         {ENABLE_ANALYTICS && GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
         <Script id="ioist-startup-cleanup" strategy="afterInteractive">
