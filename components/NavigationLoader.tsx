@@ -4,21 +4,18 @@ import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 /**
- * Shows a dot-wave loader during client-side page transitions, but only if the
- * navigation takes longer than a short threshold. Instant navigations (prefetched
- * routes) never flash the loader — it only appears when there's a real delay.
+ * Shows a brief dot-wave loader during client-side page transitions.
+ * On desktop, prefetched routes resolve instantly so the Suspense loading.tsx
+ * never triggers — this component fills that gap with a consistent transition.
  */
-const SHOW_DELAY_MS = 120; // Only show loader if navigation takes longer than this
-
 export default function NavigationLoader() {
   const pathname = usePathname();
-  const [visible, setVisible] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const prevPathname = useRef(pathname);
-  const showTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const safetyTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const pendingNav = useRef(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
+    // Intercept <a> clicks on internal links to show loader immediately
     const handleClick = (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest("a");
       if (
@@ -32,22 +29,12 @@ export default function NavigationLoader() {
 
       try {
         const url = new URL(anchor.href, window.location.origin);
+        // Only trigger for internal same-origin navigations to a different path
         if (url.origin === window.location.origin && url.pathname !== pathname) {
-          // Mark navigation as pending but don't show loader yet
-          pendingNav.current = true;
-          clearTimeout(showTimer.current);
-          clearTimeout(safetyTimer.current);
-
-          // Only show loader if navigation hasn't completed after the delay
-          showTimer.current = setTimeout(() => {
-            if (pendingNav.current) setVisible(true);
-          }, SHOW_DELAY_MS);
-
-          // Safety: hide after 4s no matter what
-          safetyTimer.current = setTimeout(() => {
-            pendingNav.current = false;
-            setVisible(false);
-          }, 4000);
+          setIsNavigating(true);
+          // Safety timeout — hide after 4s even if pathname change is missed
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = setTimeout(() => setIsNavigating(false), 4000);
         }
       } catch { /* ignore invalid URLs */ }
     };
@@ -57,17 +44,15 @@ export default function NavigationLoader() {
   }, [pathname]);
 
   useEffect(() => {
+    // When pathname actually changes, hide the loader
     if (prevPathname.current !== pathname) {
       prevPathname.current = pathname;
-      // Navigation complete — cancel everything
-      pendingNav.current = false;
-      clearTimeout(showTimer.current);
-      clearTimeout(safetyTimer.current);
-      setVisible(false);
+      setIsNavigating(false);
+      clearTimeout(timeoutRef.current);
     }
   }, [pathname]);
 
-  if (!visible) return null;
+  if (!isNavigating) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--background)]/80 backdrop-blur-[2px] pointer-events-none">
