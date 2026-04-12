@@ -2,14 +2,13 @@ import { NextRequest } from 'next/server';
 import { primaryDB } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
+import { getClientIP } from '@/lib/getClientIP';
 
 export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
 
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') ||
-      'anonymous';
+    const ip = getClientIP(request) || 'anonymous';
 
     const rateLimitKey = generateRateLimitKey(ip, null, 'announcement-track');
     const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);

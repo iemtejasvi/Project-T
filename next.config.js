@@ -7,122 +7,145 @@ const nextConfig = {
       {
         source: '/(.*)',
         headers: [
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
-          },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
         ],
       },
-      // Mutation API routes (submit, track, admin) — no caching
+
+      // Immutable static assets (_next/static) — cache everywhere forever
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'CDN-Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+
+      // Mutation API routes — no caching anywhere
       {
         source: '/api/submit-memory',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store',
-          },
+          { key: 'Cache-Control', value: 'private, no-store' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'no-store' },
         ],
       },
       {
         source: '/api/admin/:path*',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store',
-          },
+          { key: 'Cache-Control', value: 'private, no-store' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'no-store' },
         ],
       },
-      // Read-only API routes — CDN cache hint (route handlers override with their own headers)
+      {
+        source: '/api/check-user-status',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+        ],
+      },
+      {
+        source: '/api/announcements/track',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+        ],
+      },
+      {
+        source: '/api/cron/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+        ],
+      },
+      {
+        source: '/api/unpin-expired',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+        ],
+      },
+
+      // Read-only API routes — Vercel CDN caches (ISR), Cloudflare bypasses
       {
         source: '/api/memories/:path*',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, s-maxage=10, stale-while-revalidate=30',
-          },
-          {
-            key: 'Vary',
-            value: 'Accept-Encoding',
-          },
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=10, stale-while-revalidate=30' },
+          { key: 'Vary', value: 'Accept-Encoding' },
         ],
       },
       {
         source: '/api/announcements',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, s-maxage=30, stale-while-revalidate=60',
-          },
-          {
-            key: 'Vary',
-            value: 'Accept-Encoding',
-          },
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=60' },
+          { key: 'Vary', value: 'Accept-Encoding' },
         ],
       },
-      // Favicon and icons - moderate caching
+      {
+        source: '/api/names',
+        headers: [
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vary', value: 'Accept-Encoding' },
+        ],
+      },
+      {
+        source: '/api/popular-names',
+        headers: [
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vary', value: 'Accept-Encoding' },
+        ],
+      },
+
+      // Static images/icons — browser 1 day, CDN 7 days
       {
         source: '/favicon.ico',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400', // 1 day
-          },
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
+          { key: 'CDN-Cache-Control', value: 'public, max-age=604800' },
         ],
       },
       {
         source: '/favicon-:size.png',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400', // 1 day
-          },
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
+          { key: 'CDN-Cache-Control', value: 'public, max-age=604800' },
         ],
       },
       {
         source: '/apple-touch-icon.png',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400', // 1 day
-          },
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
+          { key: 'CDN-Cache-Control', value: 'public, max-age=604800' },
         ],
       },
       {
         source: '/android-chrome-:size.png',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400', // 1 day
-          },
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
+          { key: 'CDN-Cache-Control', value: 'public, max-age=604800' },
         ],
       },
       {
         source: '/mstile-:size.png',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400', // 1 day
-          },
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
+          { key: 'CDN-Cache-Control', value: 'public, max-age=604800' },
         ],
       },
-      // Images and static files - moderate caching
       {
         source: '/:all*(svg|jpg|png|ico|webp)',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400', // 1 day instead of 1 year
-          },
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
+          { key: 'CDN-Cache-Control', value: 'public, max-age=604800' },
         ],
-      }
+      },
     ];
   },
   async redirects() {

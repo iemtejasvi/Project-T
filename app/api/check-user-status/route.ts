@@ -6,23 +6,23 @@ import { MEMORY_LIMIT } from '@/lib/constants';
 import { sanitizeUUID, isValidIP } from '@/lib/inputSanitizer';
 
 function getClientIP(request: NextRequest): string | null {
-  // Try multiple headers for IP detection
+  // Try multiple headers for IP detection — prefer cf-connecting-ip (Cloudflare)
   const forwardedFor = request.headers.get('x-forwarded-for');
   const realIP = request.headers.get('x-real-ip');
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
-  }
-  
-  if (realIP) {
-    return realIP;
-  }
-  
+
   if (cfConnectingIP) {
     return cfConnectingIP;
   }
-  
+
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim();
+  }
+
+  if (realIP) {
+    return realIP;
+  }
+
   // Fallback for when no IP headers are available
   return null;
 }

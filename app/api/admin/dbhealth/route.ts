@@ -10,6 +10,7 @@ import {
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
+import { getClientIP } from '@/lib/getClientIP';
 
 export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
@@ -18,9 +19,7 @@ export async function GET(request: NextRequest) {
     return createSecureErrorResponse('Unauthorized', 401, { origin });
   }
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'anonymous';
+  const ip = getClientIP(request) || 'anonymous';
 
   const rateLimitKey = generateRateLimitKey(ip, null, 'admin-dbhealth');
   const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);

@@ -4,6 +4,7 @@ import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityH
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { isLinkableName } from '@/lib/nameUtils';
 import { unstable_cache } from 'next/cache';
+import { getClientIP } from '@/lib/getClientIP';
 
 // Cache for 1 hour — popular names don't change frequently
 const getPopularNames = unstable_cache(
@@ -26,9 +27,7 @@ export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
 
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-               request.headers.get('x-real-ip') ||
-               'anonymous';
+    const ip = getClientIP(request) || 'anonymous';
     const rateLimitKey = generateRateLimitKey(ip, null, 'read');
     const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.READ_MEMORIES);
 

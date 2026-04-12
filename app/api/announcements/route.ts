@@ -3,6 +3,7 @@ import { primaryDB } from '@/lib/memoryDB';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { unstable_cache } from 'next/cache';
+import { getClientIP } from '@/lib/getClientIP';
 
 // ISR: cache active announcement for 30s so thousands of visitors share one DB call.
 const getCachedAnnouncement = unstable_cache(
@@ -27,8 +28,7 @@ export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
 
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') || 'anonymous';
+    const ip = getClientIP(request) || 'anonymous';
     const rateLimitKey = generateRateLimitKey(ip, null, 'announcements');
     const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);
     if (!rateLimit.allowed) {

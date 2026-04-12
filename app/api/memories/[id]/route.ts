@@ -4,6 +4,7 @@ import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLim
 import { sanitizeUUID } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { unstable_cache } from 'next/cache';
+import { getClientIP } from '@/lib/getClientIP';
 
 // ISR: Cache individual memory lookups for 60s, purged on content changes
 const getCachedMemoryById = unstable_cache(
@@ -16,9 +17,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
   const origin = request.headers.get('origin');
 
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') ||
-      'anonymous';
+    const ip = getClientIP(request) || 'anonymous';
 
     const rateLimitKey = generateRateLimitKey(ip, null, 'read');
     const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.READ_MEMORIES);

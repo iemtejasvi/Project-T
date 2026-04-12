@@ -4,6 +4,7 @@ import { scrubDestructedMemories } from '@/lib/memoryDB';
 import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLimiter';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { getClientIP } from '@/lib/getClientIP';
 
 function isAuthorizedCronRequest(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -26,9 +27,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') ||
-      'anonymous';
+    const ip = getClientIP(request) || 'anonymous';
 
     const rateLimitKey = generateRateLimitKey(ip, null, 'cron-scrub-destructed');
     const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.GENERAL);

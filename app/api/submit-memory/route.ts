@@ -84,9 +84,9 @@ async function getClientIP(request: NextRequest): Promise<string | null> {
   const forwarded = request.headers.get('forwarded');
 
   const possibleIPs = [
+    cfConnectingIP,
     forwardedFor?.split(',')[0]?.trim(),
     realIP,
-    cfConnectingIP,
     xClientIP,
     xClusterClientIP,
     xOriginalForwardedFor?.split(',')[0]?.trim(),

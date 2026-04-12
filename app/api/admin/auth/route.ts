@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { verifyAdminCredentials, generateSignedSessionToken, isAdminAuthenticated } from '@/lib/adminAuth';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { checkRateLimit, generateRateLimitKey } from '@/lib/rateLimiter';
+import { getClientIP } from '@/lib/getClientIP';
 
 // Login
 export async function POST(request: NextRequest) {
@@ -9,8 +10,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Rate limit login attempts: 5 per minute per IP
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') || 'anonymous';
+    const ip = getClientIP(request) || 'anonymous';
     const rateLimitKey = generateRateLimitKey(ip, null, 'admin-login');
     const rateLimit = await checkRateLimit(rateLimitKey, {
       windowMs: 60 * 1000,
@@ -65,9 +65,7 @@ export async function GET(request: NextRequest) {
     const response: Record<string, unknown> = { authenticated: isAuthenticated };
     if (isAuthenticated) {
       const adminIP = process.env.ADMIN_IP_ADDRESS;
-      const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-                       request.headers.get('x-real-ip') ||
-                       null;
+      const clientIP = getClientIP(request);
       response.autoAuth = Boolean(adminIP && clientIP === adminIP);
     }
 

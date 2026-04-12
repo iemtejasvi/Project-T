@@ -4,6 +4,7 @@
 
 import { NextRequest } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
+import { getClientIP } from '@/lib/getClientIP';
 
 // Admin credentials - MUST be set in environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
@@ -126,15 +127,6 @@ export function verifySessionToken(token: string): boolean {
   } catch {
     return false;
   }
-}
-
-/**
- * Get client IP from request
- */
-function getClientIP(request: NextRequest): string | null {
-  return request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-         request.headers.get('x-real-ip') ||
-         null;
 }
 
 /**

@@ -4,6 +4,7 @@ import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLim
 import { sanitizeNumber } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityHeaders';
 import { unstable_cache } from 'next/cache';
+import { getClientIP } from '@/lib/getClientIP';
 
 // ISR data cache: DB hit once per 60s per unique (page, pageSize, search) combo.
 // Returns RAW data — redaction is applied after caching so reveal_at checks are always fresh.
@@ -21,9 +22,7 @@ export async function GET(request: NextRequest) {
   
   try {
     // Rate limiting
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-               request.headers.get('x-real-ip') || 
-               'anonymous';
+    const ip = getClientIP(request) || 'anonymous';
     const rateLimitKey = generateRateLimitKey(ip, null, 'read');
     const rateLimit = await checkRateLimit(rateLimitKey, RATE_LIMITS.READ_MEMORIES);
     
