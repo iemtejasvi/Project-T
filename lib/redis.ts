@@ -11,4 +11,16 @@ if (url && token) {
   console.warn('Upstash Redis not configured — rate limiting will use in-memory fallback');
 }
 
+/** Wrap any Redis call with a hard timeout so slow Upstash never hangs a Vercel function. */
+const REDIS_TIMEOUT_MS = 3000; // 3s max — fail fast, fall back to in-memory
+
+export function withRedisTimeout<T>(promise: Promise<T>): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Redis timeout')), REDIS_TIMEOUT_MS)
+    ),
+  ]);
+}
+
 export { redis };

@@ -1,7 +1,7 @@
 // lib/rateLimiter.ts
 // Redis-backed rate limiting with in-memory fallback
 
-import { redis } from './redis';
+import { redis, withRedisTimeout } from './redis';
 
 interface RateLimitConfig {
   windowMs: number;      // Time window in milliseconds
@@ -173,11 +173,11 @@ export async function checkRateLimit(
     const countKey = `rl:count:${identifier}`;
     const blockKey = `rl:block:${identifier}`;
 
-    const result = await redis.eval(
+    const result = await withRedisTimeout(redis.eval(
       RATE_LIMIT_SCRIPT,
       [countKey, blockKey],
       [String(now), String(config.windowMs), String(config.maxRequests), String(config.blockDuration || 0)]
-    ) as number[];
+    )) as number[];
 
     const [allowed, remaining, resetIn, retryAfter] = result;
     return {
@@ -221,18 +221,18 @@ export async function blockIdentifier(identifier: string, durationMs: number = 2
       pipeline.set(blockKey, String(now + durationMs), { px: durationMs });
       pipeline.hset(countKey, { count: 999999, resetTime: now + durationMs });
       pipeline.pexpire(countKey, durationMs);
-      await pipeline.exec();
+      await withRedisTimeout(pipeline.exec());
       return;
     } catch (err) {
       console.warn('Redis block failed, using in-memory fallback:', err);
     }
   }
 
-  const now = Date.now();
+  const now2 = Date.now();
   rateLimitStore.set(identifier, {
     count: 999999,
-    resetTime: now + durationMs,
-    blockedUntil: now + durationMs
+    resetTime: now2 + durationMs,
+    blockedUntil: now2 + durationMs
   });
 }
 
@@ -245,7 +245,7 @@ export async function unblockIdentifier(identifier: string) {
       const pipeline = redis.pipeline();
       pipeline.del(`rl:block:${identifier}`);
       pipeline.del(`rl:count:${identifier}`);
-      await pipeline.exec();
+      await withRedisTimeout(pipeline.exec());
       return;
     } catch (err) {
       console.warn('Redis unblock failed, using in-memory fallback:', err);

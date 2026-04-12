@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { primaryDB } from '@/lib/memoryDB';
 import { unstable_cache } from 'next/cache';
+import { sanitizeUUID } from '@/lib/inputSanitizer';
 
 interface MemoryLayoutProps {
   children: React.ReactNode;
@@ -29,6 +31,9 @@ const getCachedMemoryMeta = unstable_cache(
 
 export async function generateMetadata({ params }: MemoryLayoutProps): Promise<Metadata> {
   const { id } = await params;
+
+  // Reject non-UUID IDs without querying DB
+  if (!sanitizeUUID(id)) notFound();
 
   try {
     const data = await getCachedMemoryMeta(id);
