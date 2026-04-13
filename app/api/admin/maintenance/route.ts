@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   try {
     const { data, error } = await primaryDB
       .from('maintenance')
-      .select('is_active, message, started_at, expected_end')
+      .select('is_active, message, expected_end')
       .eq('id', 1)
       .maybeSingle();
 
@@ -54,19 +54,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { id, is_active, message, started_at, expected_end } = body;
+    const { id, is_active, message, expected_end } = body;
     const sanitized: Record<string, unknown> = {
       id: id ?? 1,
       is_active: typeof is_active === 'boolean' ? is_active : false,
     };
 
     if (message) sanitized.message = String(message).slice(0, 500);
-    if (started_at) {
-      if (!isValidISODate(started_at)) {
-        return createSecureErrorResponse('Invalid started_at date', 400, { origin });
-      }
-      sanitized.started_at = new Date(String(started_at)).toISOString();
-    }
     if (expected_end) {
       if (!isValidISODate(expected_end)) {
         return createSecureErrorResponse('Invalid expected_end date', 400, { origin });

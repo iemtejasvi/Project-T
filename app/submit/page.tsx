@@ -982,17 +982,21 @@ export default function SubmitPage() {
           setIsFormDisabled(true);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-          // Other errors (400, 500, etc) - log but keep success shown
-          // Client-side validation should have caught most issues
-          console.error('Background submission failed:', result.error);
+          // Other errors (400, 500, etc) - show failure to user
+          setSubmitted(false);
+          setError(result.error || 'Something went wrong. Please try again.');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          console.error('Submission failed:', response.status, result.error);
         }
       } else {
         // Successfully submitted - user already sees success
       }
     }).catch(err => {
-      // Network or parsing error - log but don't disturb user experience
-      console.error('Background submission error:', err);
-      // Keep success message shown since validation passed
+      // Network or parsing error - show failure to user
+      console.error('Submission error:', err);
+      setSubmitted(false);
+      setError('Network error. Please check your connection and try again.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   };
 

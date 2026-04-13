@@ -215,12 +215,24 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
 
-  const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * messages.length));
+  const [currentIndex, setCurrentIndex] = useState(0);
   // Render a full message in server HTML so crawlers see content, then start deleting on client
-  const [displayText, setDisplayText] = useState(() => messages[Math.floor(Math.random() * messages.length)]);
+  const [displayText, setDisplayText] = useState(() => messages[0]);
   const [isDeleting, setIsDeleting] = useState(true);
   const [isMistyped, setIsMistyped] = useState(false);
-  const [charIndex, setCharIndex] = useState(() => displayText.length);
+  const [charIndex, setCharIndex] = useState(() => messages[0].length);
+
+  // Randomize on mount (client only) to avoid hydration mismatch
+  const hasRandomized = useRef(false);
+  useEffect(() => {
+    if (!hasRandomized.current) {
+      hasRandomized.current = true;
+      const idx = Math.floor(Math.random() * messages.length);
+      setCurrentIndex(idx);
+      setDisplayText(messages[idx]);
+      setCharIndex(messages[idx].length);
+    }
+  }, [messages]);
 
   useEffect(() => {
     const currentMessage = messagesRef.current[currentIndex];
@@ -267,6 +279,7 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
 
   return (
     <div
+      suppressHydrationWarning
       className={
         "min-h-[2.5rem] overflow-hidden text-center text-2xl sm:text-3xl md:text-4xl font-serif font-normal text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto" +
         (className ? " " + className : "")
