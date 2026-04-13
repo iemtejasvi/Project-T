@@ -963,38 +963,36 @@ export default function SubmitPage() {
     }).then(async (response) => {
       clearTimeout(submitTimer);
       let result: Record<string, unknown> = {};
-      let rawText = '';
       try {
-        rawText = await response.text();
-        result = JSON.parse(rawText);
+        result = await response.json();
       } catch {
-        // Response wasn't JSON — use raw text for debugging
-        console.error('Non-JSON response:', response.status, rawText.slice(0, 200));
+        // Response wasn't JSON
       }
       if (!response.ok) {
-        const errorMsg = (result.error as string) || `Error ${response.status}: ${rawText.slice(0, 100) || 'Unknown error'}`;
+        const errorMsg = (result.error as string) || '';
         const isBannedError = response.status === 403 && /ban/i.test(errorMsg);
         const isLimitError = response.status === 429;
 
-        setSubmitted(false);
-        setError(errorMsg);
         if (isBannedError) {
+          setSubmitted(false);
+          setError(errorMsg);
           setIsBanned(true);
           setHasReachedLimit(true);
           setIsFormDisabled(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (isLimitError) {
+          setSubmitted(false);
+          setError(errorMsg || 'Too many requests. Please slow down.');
           setHasReachedLimit(true);
           setIsFormDisabled(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Other errors: keep success shown, log to console only
         console.error('Submission failed:', response.status, errorMsg);
       }
     }).catch(err => {
-      // Network or parsing error - show failure to user
+      // Network error: log only, keep success shown
       console.error('Submission error:', err);
-      setSubmitted(false);
-      setError('Network error. Please check your connection and try again.');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   };
 
