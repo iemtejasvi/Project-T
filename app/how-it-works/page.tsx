@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export default function HowItWorks() {
   return (
@@ -9,11 +10,11 @@ export default function HowItWorks() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] desktop-heading">How It Works</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
+            <ul className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
               <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
-              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
+              <MoreOptionsDropdown />
             </ul>
           </nav>
         </div>
@@ -21,7 +22,7 @@ export default function HowItWorks() {
 
       <main className="flex-grow">
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-          <article className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] lg:bg-transparent lg:shadow-none lg:border-0 lg:rounded-none lg:p-0 editorial-prose text-[var(--text)]">
+          <article className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] lg:shadow-sm lg:border-transparent editorial-prose text-[var(--text)]">
 
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Write Your Unsent Letter</h2>
             <p className="text-base sm:text-lg">

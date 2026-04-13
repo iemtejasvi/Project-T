@@ -44,7 +44,7 @@ export default function About() {
 
       <main className="flex-grow">
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-          <div className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] lg:bg-transparent lg:shadow-none lg:border-0 lg:rounded-none lg:p-0 editorial-prose text-[var(--text)]">
+          <div className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] lg:shadow-sm lg:border-transparent editorial-prose text-[var(--text)]">
 
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">A Place for the Words You Kept</h2>
             <p className="text-base sm:text-lg">
