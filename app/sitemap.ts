@@ -61,9 +61,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: new Date('2026-01-01'),
+      lastModified: new Date('2026-04-14'),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/unsent-letters`,
+      lastModified: new Date('2026-04-14'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/love-letters-never-sent`,
+      lastModified: new Date('2026-04-14'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/donate`,

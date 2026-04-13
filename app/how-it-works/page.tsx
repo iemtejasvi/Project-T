@@ -1,146 +1,117 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-
 import Footer from "@/components/Footer";
+import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export default function HowItWorks() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-8 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text)] desktop-heading">How It Works</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
-              <li>
-                <Link
-                  href="/"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/memories"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
-                >
-                  Archive
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/submit"
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
-                >
-                  Confess
-                </Link>
-              </li>
-              <li className="relative">
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="inline-flex items-center py-2 text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
-                >
-                  More Options ▼
-                </button>
-                {dropdownOpen && (
-                  <div className="absolute top-full mt-2 w-56 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
-                    <Link href="/about">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
-                        About
-                      </div>
-                    </Link>
-                    <Link href="/contact">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
-                        Contact
-                      </div>
-                    </Link>
-                    <Link href="/donate">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
-                        Donate
-                      </div>
-                    </Link>
-                    <Link href="/privacy-policy">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
-                        Privacy Policy
-                      </div>
-                    </Link>
-                    <Link href="/terms">
-                      <div className="px-4 py-2 hover:bg-[var(--accent)] hover:text-[var(--text)] cursor-pointer">
-                        Terms & Conditions
-                      </div>
-                    </Link>
-                  </div>
-                )}
-              </li>
+              <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
+              <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
+              <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
+              <MoreOptionsDropdown />
             </ul>
           </nav>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        <article className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] mt-2">
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-[var(--text)]">
-            Using If Only I Sent This
-          </h2>
-          <p className="text-base sm:text-lg text-[var(--text)] mb-4">
-            This is a sanctuary for unsent words—a place to lay down memories you couldn&apos;t share.
-            Whether it&apos;s for a person, a pet, or a moment, your thoughts find peace here.
-          </p>
-          <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-[var(--text)]">
-            What You Can Do
-          </h3>
-          <ul className="list-disc list-inside text-base sm:text-lg text-[var(--text)] mb-4">
-            <li>
-              <strong>Create Memories:</strong> Write messages, pick colors, and optionally add subtle effects.
-            </li>
-            <li>
-              <strong>Explore:</strong> Flip cards on the home page to read messages or click the arrow to dive deeper.
-            </li>
-            <li>
-              <strong>Quotes:</strong> Rotating quotes on the home page set the tone.
-            </li>
-          </ul>
-          <p className="text-base sm:text-lg text-[var(--text)]">
-            Start by heading to the{" "}
-            <Link href="/submit" className="text-[var(--accent)] hover:underline whitespace-nowrap">
-              Confess
-            </Link>{" "}
-            page, or browse the{" "}
-            <Link href="/memories" className="text-[var(--accent)] hover:underline whitespace-nowrap">
-              Archive
-            </Link>{" "}
-            page to see what others have shared.
-          </p>
-          <div className="mb-8">
-            <h3 className="text-xl font-bold mb-2">Home Page</h3>
-            <p className="mb-2">The home page showcases:</p>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>Up to 3 most recent approved memories</li>
-              <li>Pinned memories appear first, followed by newest memories</li>
-              <li>Each memory card can be flipped to reveal the full message</li>
-              <li>Click the arrow to view the memory in detail</li>
-            </ul>
-          </div>
+      <main className="flex-grow">
+        <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+          <article className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] editorial-prose text-[var(--text)]">
 
-          <div className="mb-8">
-            <h3 className="text-xl font-bold mb-2">Memories Page</h3>
-            <p className="mb-2">Browse the archive and open memories individually:</p>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>Click a card or its arrow to open the memory page</li>
-              <li>On desktop: hover a card and click the arrow to open the full page</li>
-              <li>Share a memory by copying its page URL</li>
-              <li>Pinned memories appear first, then newest</li>
-            </ul>
-          </div>
-        </article>
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Write Your Unsent Letter</h2>
+            <p className="text-base sm:text-lg">
+              You arrive. You write. You choose a color, an effect, a mood. Then you send it &mdash; not
+              to the person, but into the archive. No account required, no email, no identity. Just the
+              words you never said, given a place to exist. Your anonymous confession or unsent letter
+              joins thousands of others in a quiet, curated collection.
+            </p>
+            <p className="text-base sm:text-lg">
+              <Link href="/submit" className="text-[var(--accent)] hover:underline">Start writing</Link> &mdash;
+              it takes less than a minute.
+            </p>
 
+            <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">What Happens Next</h2>
+            <p className="text-base sm:text-lg">
+              Every message is reviewed with care &mdash; not by an algorithm, but by a person. We read
+              each submission to keep the archive safe, meaningful, and respectful. Approved messages
+              enter the{" "}
+              <Link href="/memories" className="text-[var(--accent)] hover:underline">archive</Link>,
+              where they can be discovered by name, browsed like pages in a book of confessions,
+              or found by someone who needed to read exactly those words.
+            </p>
+
+            <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Features</h2>
+            <ul className="list-disc list-inside space-y-2.5 text-base sm:text-lg">
+              <li>
+                <strong>Self-destructing messages</strong> &mdash; set your words to disappear
+                after a week, three months, six months, or a year.
+              </li>
+              <li>
+                <strong>Time capsules</strong> &mdash; schedule your letter to appear in the future.
+                Write to your future self, or to someone on a date that matters.
+              </li>
+              <li>
+                <strong>40+ color themes</strong> &mdash; choose the emotional tone of your card,
+                from quiet neutrals to deep blues to warm ambers.
+              </li>
+              <li>
+                <strong>Text effects</strong> &mdash; handwritten, rough paper, or cursive styling
+                to give your words a physical texture.
+              </li>
+              <li>
+                <strong>Name search</strong> &mdash; every name has its own page of unsent messages.
+                Search for yours, or for someone else&apos;s.
+              </li>
+            </ul>
+
+            <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Frequently Asked Questions</h2>
+            <div className="space-y-4 text-base sm:text-lg">
+              <div>
+                <p className="font-semibold">Is If Only I Sent This really free?</p>
+                <p className="opacity-80">Yes, completely free. No account, no subscription, no hidden fees.</p>
+              </div>
+              <div>
+                <p className="font-semibold">How long does moderation take?</p>
+                <p className="opacity-80">Most messages are reviewed and approved within hours.</p>
+              </div>
+              <div>
+                <p className="font-semibold">Is my letter really anonymous?</p>
+                <p className="opacity-80">We don&apos;t require an account, email, or any identifying information. Your words are yours alone.</p>
+              </div>
+              <div>
+                <p className="font-semibold">Can I search for messages about me?</p>
+                <p className="opacity-80">
+                  Yes &mdash; visit{" "}
+                  <Link href="/memories" className="text-[var(--accent)] hover:underline">/memories</Link>{" "}
+                  and search by name, or go directly to /name/yourname.
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold">What are self-destructing messages?</p>
+                <p className="opacity-80">You can set your message to automatically disappear after 1 week, 3 months, 6 months, or 1 year.</p>
+              </div>
+              <div>
+                <p className="font-semibold">Is this site like The Unsent Project?</p>
+                <p className="opacity-80">Similar concept, better execution. Faster moderation, reliable search, self-destructing messages, time capsules, and a more beautiful reading experience.</p>
+              </div>
+            </div>
+
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
+                Write Your Letter
+              </Link>
+              <Link href="/memories" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+                Browse the Archive
+              </Link>
+            </div>
+          </article>
+        </section>
       </main>
 
       <Footer />
