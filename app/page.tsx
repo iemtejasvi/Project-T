@@ -2,8 +2,34 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import TypingEffect from "@/components/TypingEffect";
 import HomeClient from "@/components/HomeClient";
+import { fetchMemoriesPaginated, redactIfDestructed, redactIfUnrevealed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
+import { unstable_cache } from 'next/cache';
+import type { Memory } from '@/types/memory';
 
-export default function Home() {
+export const revalidate = 60; // ISR: regenerate at most once per 60s
+
+const getRecentMemories = unstable_cache(
+  async () => {
+    const result = await fetchMemoriesPaginated(0, 6, { status: 'approved' }, '', { created_at: 'desc' });
+    if (!result.data) return [];
+    // Apply server-side redaction
+    return result.data
+      .map((m: Memory) => redactIfDestructed(m))
+      .map((m: Memory) => redactIfUnrevealed(m))
+      .filter((m: Memory) => isNightOnlyVisibleNow(m));
+  },
+  ['home-recent-memories'],
+  { revalidate: 60, tags: ['memories-feed'] }
+);
+
+export default async function Home() {
+  let initialMemories: Memory[] = [];
+  try {
+    initialMemories = await getRecentMemories();
+  } catch {
+    // Fallback to empty — HomeClient will fetch client-side
+  }
+
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       <header className="bg-[var(--card-bg)] shadow-md">
@@ -47,7 +73,16 @@ export default function Home() {
         </div>
       </header>
 
-      <HomeClient />
+      {/* Editorial intro — server-rendered for crawlers */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-2 hidden lg:block">
+        <p className="text-center text-[var(--text)] opacity-60 text-base leading-relaxed max-w-2xl mx-auto">
+          A quiet archive of unsent letters — messages to people, pets, and moments that still live with you.
+          Browse anonymous confessions and heartfelt words others couldn&apos;t send, or{" "}
+          <Link href="/submit" className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors">write your own</Link>.
+        </p>
+      </section>
+
+      <HomeClient initialMemories={initialMemories} />
 
       <Footer />
     </div>

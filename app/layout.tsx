@@ -201,7 +201,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                 try {
                   // 3) Selective localStorage clear — preserve identity and cache
-                  var keysToKeep = ['user_uuid', 'app_version', 'ultraCache', 'browser_session_heartbeat'];
+                  var keysToKeep = ['user_uuid', 'app_version', 'ultraCache', 'browser_session_heartbeat', 'cookie_consent'];
                   var preserved = {};
                   keysToKeep.forEach(function(k) {
                     var v = localStorage.getItem(k);

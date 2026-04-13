@@ -9,6 +9,7 @@ import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './
 import { SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
 import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
+import { filterProfanity } from '@/lib/profanityFilter';
 import type { Memory } from '@/types/memory';
 
 interface DesktopMemoryCardProps {
@@ -171,7 +172,7 @@ function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMe
       </div>
     );
   }
-  const messageToRender = memory.message;
+  const messageToRender = filterProfanity(memory.message);
   const wordCount = countWords(messageToRender);
   const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
   const textClass = isShortOrExact
@@ -545,7 +546,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 ref={backMessageRef}
                 className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 no_scrollbar ${dragScroll.getCursorClassName()}`}
                 style={{
-                  fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2rem' : '1.25rem',
+                  fontSize: (isDestructedNow ? '' : filterProfanity(memory.message)).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
@@ -557,7 +558,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 containerRefOverride={backMessageRef}
                 className={dragScroll.getCursorClassName()}
                 style={{
-                  fontSize: (isDestructedNow ? '' : memory.message).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2rem' : '1.25rem',
+                  fontSize: (isDestructedNow ? '' : filterProfanity(memory.message)).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2rem' : '1.25rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}

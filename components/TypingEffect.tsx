@@ -216,10 +216,11 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
   messagesRef.current = messages;
 
   const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * messages.length));
-  const [displayText, setDisplayText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
+  // Render a full message in server HTML so crawlers see content, then start deleting on client
+  const [displayText, setDisplayText] = useState(() => messages[Math.floor(Math.random() * messages.length)]);
+  const [isDeleting, setIsDeleting] = useState(true);
   const [isMistyped, setIsMistyped] = useState(false);
-  const [charIndex, setCharIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(() => displayText.length);
 
   useEffect(() => {
     const currentMessage = messagesRef.current[currentIndex];

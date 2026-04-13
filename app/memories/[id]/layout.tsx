@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { primaryDB } from '@/lib/memoryDB';
 import { unstable_cache } from 'next/cache';
 import { sanitizeUUID } from '@/lib/inputSanitizer';
+import { filterProfanity } from '@/lib/profanityFilter';
 
 interface MemoryLayoutProps {
   children: React.ReactNode;
@@ -54,10 +55,14 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
       .join(' ');
 
     // Truncate message for description preview
-    const rawMessage = (data.message || '').replace(/\s+/g, ' ').trim();
+    const rawMessage = filterProfanity((data.message || '').replace(/\s+/g, ' ').trim());
     const preview = rawMessage.length > 120
       ? rawMessage.substring(0, 120).trim() + '…'
       : rawMessage;
+
+    // Noindex short memories (under 15 words) — thin content for AdSense
+    const wordCount = rawMessage.split(/\s+/).filter(Boolean).length;
+    const shouldIndex = wordCount >= 15;
 
     const longTitle = `Unsent Message to ${displayRecipient}`;
     const shortTitle = `To ${displayRecipient}`;
@@ -72,6 +77,7 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
     return {
       title,
       description,
+      ...(!shouldIndex && { robots: { index: false, follow: true } }),
       alternates: {
         canonical: `/memories/${id}`,
       },

@@ -13,9 +13,13 @@ import { SidebarAdUnit } from "@/components/AdUnit";
 import TypingEffect from "@/components/TypingEffect";
 import type { Memory } from '@/types/memory';
 
-export default function HomeClient() {
-  const [recentMemories, setRecentMemories] = useState<Memory[]>([]);
-  const [memoriesLoading, setMemoriesLoading] = useState(true);
+interface HomeClientProps {
+  initialMemories?: Memory[];
+}
+
+export default function HomeClient({ initialMemories }: HomeClientProps) {
+  const [recentMemories, setRecentMemories] = useState<Memory[]>(initialMemories || []);
+  const [memoriesLoading, setMemoriesLoading] = useState(!initialMemories || initialMemories.length === 0);
   const [showWelcome, setShowWelcome] = useState(false);
   const [announcementTransitioning, setAnnouncementTransitioning] = useState(false);
   const [announcement, setAnnouncement] = useState<{

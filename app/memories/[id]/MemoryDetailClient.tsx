@@ -111,7 +111,23 @@ export default function MemoryDetailClient({ id }: { id: string }) {
                   href="/memories"
                   className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
                 >
-                  Back to Archive
+                  Archive
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/submit"
+                  className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link"
+                >
+                  Confess
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/how-it-works"
+                  className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
+                >
+                  How It Works
                 </Link>
               </li>
             </ul>
@@ -121,6 +137,24 @@ export default function MemoryDetailClient({ id }: { id: string }) {
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {memory && <MemoryCard memory={memory} detail />}
+
+        {/* Static context for crawlers — adds substance to every memory page */}
+        {memory && (
+          <section className="mt-8 max-w-2xl mx-auto text-center text-[var(--text)] opacity-60 text-sm leading-relaxed">
+            <p>
+              This is an anonymous unsent message shared on If Only I Sent This — a quiet archive of letters
+              that were never delivered.{" "}
+              <Link href="/memories" className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors">
+                Browse more unsent letters
+              </Link>{" "}
+              or{" "}
+              <Link href="/submit" className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors">
+                write your own
+              </Link>.
+            </p>
+          </section>
+        )}
+
         <BelowContentAdUnit slot="9990462319" />
       </main>
 

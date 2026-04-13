@@ -1020,19 +1020,19 @@ export default function SubmitPage() {
           <h1 className="text-4xl font-serif desktop-heading submit-desktop-heading">Confess</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex justify-center gap-6 desktop-nav-list">
+            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>
-                <Link href="/" className="hover:text-[var(--accent)] transition desktop-nav-link">
+                <Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/memories" className="hover:text-[var(--accent)] transition desktop-nav-link">
+                <Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Archive
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" className="hover:text-[var(--accent)] transition desktop-nav-link">
+                <Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">
                   How It Works
                 </Link>
               </li>
@@ -1437,6 +1437,11 @@ export default function SubmitPage() {
                        hasReachedLimit ? 'Memory Limit Reached' :
                        'Submit Memory'}
                     </motion.button>
+                    <p className="text-center text-xs text-[var(--text)] opacity-50 mt-3">
+                      By submitting, you agree to our{" "}
+                      <Link href="/terms" className="underline hover:opacity-80">Terms</Link> and{" "}
+                      <Link href="/privacy-policy" className="underline hover:opacity-80">Privacy Policy</Link>.
+                    </p>
                   </div>
                 </form>
               )}
@@ -1718,6 +1723,11 @@ export default function SubmitPage() {
                      hasReachedLimit ? 'Memory Limit Reached' : 
                      'Submit Memory'}
                   </button>
+                  <p className="text-center text-xs text-[var(--text)] opacity-50 mt-3">
+                    By submitting, you agree to our{" "}
+                    <Link href="/terms" className="underline hover:opacity-80">Terms</Link> and{" "}
+                    <Link href="/privacy-policy" className="underline hover:opacity-80">Privacy Policy</Link>.
+                  </p>
               </form>
             )}
           </div>

@@ -33,14 +33,24 @@ export default function TermsPage() {
           <p className="text-sm text-[var(--text)] opacity-50 mt-1">Last updated: April 14, 2026</p>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex justify-center gap-4 desktop-nav-list">
+            <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li>
                 <Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
+                <Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
+                  Archive
+                </Link>
+              </li>
+              <li>
+                <Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">
+                  Confess
+                </Link>
+              </li>
+              <li>
+                <Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">
                   How It Works
                 </Link>
               </li>

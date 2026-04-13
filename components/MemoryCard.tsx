@@ -10,6 +10,7 @@ import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './
 import { SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
 import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
+import { filterProfanity } from '@/lib/profanityFilter';
 import type { Memory } from '@/types/memory';
 
 interface MemoryCardProps {
@@ -222,13 +223,13 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       return (
         <div className={`${forceLarge ? 'text-[16px]' : 'text-[14px]'} leading-snug break-words hyphens-none opacity-90 font-mono`}>
           <p className="tracking-tight">
-            This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You’re late to read it.
+            This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You're late to read it.
           </p>
           <p className="mt-3 opacity-80">{destructedMessage}</p>
         </div>
       );
     }
-    const messageToRender = memory.message;
+    const messageToRender = filterProfanity(memory.message);
     const wordCount = countWords(messageToRender);
     const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
     const textClass = forceLarge
@@ -279,13 +280,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         return (
           <div className="text-xl sm:text-2xl leading-snug break-words hyphens-none opacity-90 font-mono">
             <p className="tracking-tight">
-              This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You’re late to read it.
+              This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You&apos;re late to read it.
             </p>
             <p className="mt-4 opacity-80">{destructedMessage}</p>
           </div>
         );
       }
-      const wordCount = countWords(memory.message);
+      const filteredMessage = filterProfanity(memory.message);
+      const wordCount = countWords(filteredMessage);
       const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
       const textClass = isShortOrExact
         ? "text-5xl tracking-wide leading-snug break-words hyphens-none"
@@ -294,20 +296,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         case "cursive":
           return (
             <CursiveText
-              message={memory.message}
+              message={filteredMessage}
               textClass={textClass}
               effectiveColor={effectiveColor}
             />
           );
         case "handwritten":
-          return <HandwrittenText message={memory.message} textClass={textClass} />;
+          return <HandwrittenText message={filteredMessage} textClass={textClass} />;
         case "rough":
           // Use handwritten text sizing/feel; card-level background handles rough paper
-          return <p className={`${textClass} ${laBelleAuroreClass} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{memory.message}</p>;
+          return <p className={`${textClass} ${laBelleAuroreClass} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{filteredMessage}</p>;
         default:
           return (
             <div className="space-y-2">
-              <p className={`${textClass} whitespace-pre-wrap`}>{memory.message}</p>
+              <p className={`${textClass} whitespace-pre-wrap`}>{filteredMessage}</p>
             </div>
           );
       }
