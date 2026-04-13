@@ -140,17 +140,17 @@ export default function MemoryDetailClient({ id }: { id: string }) {
 
         {/* Static context for crawlers — adds substance to every memory page */}
         {memory && (
-          <section className="mt-8 max-w-2xl mx-auto text-center text-[var(--text)] opacity-60 text-sm leading-relaxed">
+          <section className="mt-6 lg:mt-8 max-w-2xl mx-auto text-center text-[var(--text)] opacity-40 lg:opacity-60 text-[11px] lg:text-sm leading-relaxed px-6">
             <p>
-              This is an anonymous unsent message shared on If Only I Sent This — a quiet archive of letters
-              that were never delivered.{" "}
-              <Link href="/memories" className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors">
-                Browse more unsent letters
-              </Link>{" "}
-              or{" "}
-              <Link href="/submit" className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors">
-                write your own
-              </Link>.
+              An unsent message on{" "}
+              <span className="hidden lg:inline">If Only I Sent This — a quiet archive of letters that were never delivered. </span>
+              <Link href="/memories" className="underline decoration-[var(--accent)]/30 hover:decoration-[var(--accent)] transition-colors">
+                Browse more
+              </Link>
+              <span className="hidden lg:inline"> unsent letters</span>{" · "}
+              <Link href="/submit" className="underline decoration-[var(--accent)]/30 hover:decoration-[var(--accent)] transition-colors">
+                Write your own
+              </Link>
             </p>
           </section>
         )}
