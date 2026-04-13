@@ -960,16 +960,20 @@ export default function SubmitPage() {
       },
       body: JSON.stringify(submission),
       signal: submitCtrl.signal,
-    }).then(response => {
+    }).then(async (response) => {
       clearTimeout(submitTimer);
-      return response.json().then(result => ({ response, result }));
-    }).then(({ response, result }) => {
+      let result: Record<string, unknown> = {};
+      try {
+        result = await response.json();
+      } catch {
+        // Response wasn't JSON (e.g. HTML error page)
+      }
       if (!response.ok) {
         // Handle critical errors that should override success
         if (response.status === 403) {
           // Banned user - critical error
           setSubmitted(false);
-          setError(result.error || "You are banned from submitting memories.");
+          setError((result.error as string) || "You are banned from submitting memories.");
           setIsBanned(true);
           setHasReachedLimit(true);
           setIsFormDisabled(true);
@@ -977,19 +981,17 @@ export default function SubmitPage() {
         } else if (response.status === 429) {
           // Rate limit or memory limit reached - critical error
           setSubmitted(false);
-          setError(result.error || "Too many requests. Please slow down.");
+          setError((result.error as string) || "Too many requests. Please slow down.");
           setHasReachedLimit(true);
           setIsFormDisabled(true);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           // Other errors (400, 500, etc) - show failure to user
           setSubmitted(false);
-          setError(result.error || 'Something went wrong. Please try again.');
+          setError((result.error as string) || 'Something went wrong. Please try again.');
           window.scrollTo({ top: 0, behavior: 'smooth' });
           console.error('Submission failed:', response.status, result.error);
         }
-      } else {
-        // Successfully submitted - user already sees success
       }
     }).catch(err => {
       // Network or parsing error - show failure to user
