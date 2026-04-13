@@ -320,7 +320,6 @@ export function validateMemoryInput(
   } else {
     let recipient = sanitizeString(data.recipient);
     recipient = stripDangerousHtml(recipient);
-    recipient = escapeHtml(recipient);
     if (recipient.length === 0) {
       errors.push('Recipient cannot be empty');
     } else if (recipient.length > 100) {
@@ -346,7 +345,6 @@ export function validateMemoryInput(
   } else {
     let message = sanitizeString(data.message);
     message = stripDangerousHtml(message);
-    message = escapeHtml(message);
     if (message.length === 0) {
       errors.push('Message cannot be empty');
     } else if (message.length > 5000) {
@@ -373,7 +371,6 @@ export function validateMemoryInput(
     } else {
       let sender = sanitizeString(data.sender);
       sender = stripDangerousHtml(sender);
-      sender = escapeHtml(sender);
       if (sender.length > 100) {
         errors.push('Sender must be 100 characters or less');
       } else if (containsSqlInjection(sender) || containsNoSqlInjection(sender)) {
