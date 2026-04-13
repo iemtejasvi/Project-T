@@ -73,45 +73,31 @@ const specialEffects = [
 const MAX_MESSAGE_LENGTH = 5000;
 
 const limitMessages = [
-  "You're typing like they still care. Shorten it.",
-  "50 words max. If they didn't read your texts, they won't read your novel.",
-  "Unsent message, not an autobiography. Edit that trauma.",
-  "This ain't your therapist. Keep it under 50, Shakespeare.",
-  "They ghosted you, not gave you a book deal. Trim it.",
-  "Nobody's ex read this much. Why should we?",
-  "50 words or less. You're not auditioning for heartbreak Netflix.",
-  "Less is more. Oversharing is out.",
-  "Unsent doesn't mean unpublished, Hemingway.",
-  "Writing a saga? Nah. This ain't 'Lord of the Goodbyes'.",
-  "Send a message, not a memoir.",
-  "Keep it short. Mystery is sexier than essays.",
-  "Your feelings are valid. But also... too damn long.",
-  "Brevity is hot. Trauma dumps are not.",
-  "This isn't your diary. It's a message they'll never read.",
-  "It's 'Unsent,' not 'Unhinged.' Chill.",
-  "Typing like you're pitching to a publisher. Relax.",
-  "You lost them, not the plot. Tighten it up.",
-  "This ain't a TED Talk. Drop the mic in 50.",
-  "Keep the mystery. Oversharing is a red flag.",
-  "We said unsent, not unlimited.",
-  "Heartbreak's poetic, not academic.",
-  "If it takes more than 50 words to hurt, you've healed.",
-  "Save it for your therapist. They get paid to read that much.",
-  "Ever heard of a 'read more' button? No? Exactly.",
-  "This ain't Medium. Don't medium dump.",
-  "If they didn't reply to a text, why drop a chapter?",
-  "50 max. Anything else is just emotional spam.",
-  "Word vomit isn't romantic. Edit that heartbreak.",
-  "Oversharing? In this economy?",
-  "Tell us how you *feel*, not your life story.",
-  "You're not the main character of this paragraph.",
-  "You miss them, not your English teacher. Cut it down.",
-  "Pain should punch. Not drone.",
-  "Keep it sharp. This ain't 'War & Peace'.",
-  "They left you on read. You giving them a sequel?",
-  "50 max, heal artistically, not endlessly.",
-  "Emotional dumping isn't aesthetic. It's exhausting.",
-  "We came for heartbreak, not homework.",
+  "Keep it to 50 words — the best letters say more with less.",
+  "50 words max. Distill what matters most.",
+  "Try to capture it in 50 words or fewer.",
+  "The most powerful things are often the shortest. 50 words max.",
+  "50 words — just enough to say what you never could.",
+  "A few words can carry a lifetime of feeling. Keep it under 50.",
+  "Say it simply. 50 words is all you need.",
+  "Brevity makes it hit harder. Trim it to 50.",
+  "The shortest letters are often the ones we remember. 50 words max.",
+  "Less is more — pare it down to 50 words.",
+  "50 words. Choose the ones that matter most.",
+  "Your feelings deserve to be distilled, not diluted. 50 words max.",
+  "Some of the greatest love letters were only a sentence. Try 50 words.",
+  "Pick the words you'd whisper, not the ones you'd shout. 50 max.",
+  "If you could only say one thing — what would it be? 50 words.",
+  "Let it breathe. 50 words is plenty.",
+  "Every word should earn its place. Keep it under 50.",
+  "Write the version they'd carry in their pocket. 50 words.",
+  "50 words — like a postcard from the heart.",
+  "Strip it down to what really matters. 50 words max.",
+  "The weight is in what you choose to keep. 50 words.",
+  "Make every word count. You have 50.",
+  "What would you say if you only had a moment? 50 words.",
+  "Short and true hits deeper than long and perfect. 50 max.",
+  "50 words — enough to break a silence.",
 ];
 
 const twoMemoryLimitMessages = [
@@ -243,13 +229,20 @@ export default function SubmitPage() {
     return () => clearTimeout(timer);
   }, [wordCount, hasCrossed]);
 
-  // Random message when exceeding 50 words
+  // Random message when exceeding 50 words — auto-dismiss after 5 seconds
+  const [limitMsgVisible, setLimitMsgVisible] = useState(false);
   useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
     if (overLimit) {
       setLimitMsg(
         limitMessages[Math.floor(Math.random() * limitMessages.length)]
       );
+      setLimitMsgVisible(true);
+      timer = setTimeout(() => setLimitMsgVisible(false), 5000);
+    } else {
+      setLimitMsgVisible(false);
     }
+    return () => clearTimeout(timer);
   }, [overLimit]);
 
   // Check memory limit and ban status on component mount and when IP/UUID changes
@@ -1530,7 +1523,7 @@ export default function SubmitPage() {
                     {wordCount > SPECIAL_EFFECT_WORD_LIMIT && specialEffectVisible && (
                         <span className="text-red-500">Special effects disabled beyond 30 words.</span>
                     )}
-                    {overLimit && !isUnlimitedUser && (
+                    {overLimit && !isUnlimitedUser && limitMsgVisible && (
                         <span className="text-red-500">{limitMsg}</span>
                     )}
                     </div>

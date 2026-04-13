@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export default function HowItWorks() {
   return (
@@ -14,7 +13,7 @@ export default function HowItWorks() {
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
               <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
-              <MoreOptionsDropdown />
+              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
             </ul>
           </nav>
         </div>
@@ -22,7 +21,7 @@ export default function HowItWorks() {
 
       <main className="flex-grow">
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-          <article className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] editorial-prose text-[var(--text)]">
+          <article className="bg-[var(--card-bg)] p-6 sm:p-10 rounded-xl shadow-lg border border-[var(--border)] lg:bg-transparent lg:shadow-none lg:border-0 lg:rounded-none lg:p-0 editorial-prose text-[var(--text)]">
 
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Write Your Unsent Letter</h2>
             <p className="text-base sm:text-lg">
