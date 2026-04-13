@@ -969,30 +969,28 @@ export default function SubmitPage() {
         // Response wasn't JSON
       }
       if (!response.ok) {
-        const errorMsg = (result.error as string) || '';
+        const errorMsg = (result.error as string) || 'Something went wrong. Please try again.';
         const isBannedError = response.status === 403 && /ban/i.test(errorMsg);
         const isLimitError = response.status === 429;
 
+        setSubmitted(false);
+        setError(errorMsg);
         if (isBannedError) {
-          setSubmitted(false);
-          setError(errorMsg);
           setIsBanned(true);
           setHasReachedLimit(true);
           setIsFormDisabled(true);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (isLimitError) {
-          setSubmitted(false);
-          setError(errorMsg || 'Too many requests. Please slow down.');
           setHasReachedLimit(true);
           setIsFormDisabled(true);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        // Other errors: keep success shown, log to console only
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         console.error('Submission failed:', response.status, errorMsg);
       }
     }).catch(err => {
-      // Network error: log only, keep success shown
       console.error('Submission error:', err);
+      setSubmitted(false);
+      setError('Network error. Please check your connection and try again.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   };
 

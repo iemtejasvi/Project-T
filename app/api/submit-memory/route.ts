@@ -264,11 +264,11 @@ export async function POST(request: NextRequest) {
   const origin = request.headers.get('origin');
   
   try {
-    // 1. SECURITY: Validate request origin and method (log only, don't block)
-    // Cloudflare handles bot protection; rate limiting + input validation provide app-level security
+    // 1. SECURITY: Validate request origin and method
     const requestValidation = validateRequest(request);
     if (!requestValidation.valid) {
-      console.warn('⚠️ Origin validation failed (non-blocking):', requestValidation.error, '| Origin:', origin);
+      console.warn('🚨 Invalid request:', requestValidation.error, '| Origin:', origin);
+      return createSecureErrorResponse(requestValidation.error || 'Invalid request', 403, { origin });
     }
     
     // 2. SECURITY: Detect suspicious patterns
