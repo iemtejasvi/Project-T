@@ -73,15 +73,6 @@ export default async function Home() {
         </div>
       </header>
 
-      {/* Editorial intro — server-rendered for crawlers */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-2 hidden lg:block">
-        <p className="text-center text-[var(--text)] opacity-60 text-base leading-relaxed max-w-2xl mx-auto">
-          A quiet archive of unsent letters — messages to people, pets, and moments that still live with you.
-          Browse anonymous confessions and heartfelt words others couldn&apos;t send, or{" "}
-          <Link href="/submit" className="underline decoration-[var(--accent)]/40 hover:decoration-[var(--accent)] transition-colors">write your own</Link>.
-        </p>
-      </section>
-
       <HomeClient initialMemories={initialMemories} />
 
       <Footer />
