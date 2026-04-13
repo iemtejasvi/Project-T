@@ -963,13 +963,16 @@ export default function SubmitPage() {
     }).then(async (response) => {
       clearTimeout(submitTimer);
       let result: Record<string, unknown> = {};
+      let rawText = '';
       try {
-        result = await response.json();
+        rawText = await response.text();
+        result = JSON.parse(rawText);
       } catch {
-        // Response wasn't JSON (e.g. HTML error page)
+        // Response wasn't JSON — use raw text for debugging
+        console.error('Non-JSON response:', response.status, rawText.slice(0, 200));
       }
       if (!response.ok) {
-        const errorMsg = (result.error as string) || 'Something went wrong. Please try again.';
+        const errorMsg = (result.error as string) || `Error ${response.status}: ${rawText.slice(0, 100) || 'Unknown error'}`;
         const isBannedError = response.status === 403 && /ban/i.test(errorMsg);
         const isLimitError = response.status === 429;
 
@@ -983,10 +986,8 @@ export default function SubmitPage() {
           setHasReachedLimit(true);
           setIsFormDisabled(true);
         }
-        if (isBannedError || isLimitError || response.status >= 400) {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          console.error('Submission failed:', response.status, errorMsg);
-        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        console.error('Submission failed:', response.status, errorMsg);
       }
     }).catch(err => {
       // Network or parsing error - show failure to user

@@ -244,12 +244,7 @@ export function validateRequest(request: Request): {
         }
       }
       
-      // No origin and no valid same-origin referer.
-      // In production, reject this — it is likely a cross-origin attack or non-browser client.
-      // In development, allow it for convenience (e.g., Postman, curl testing).
-      if (process.env.NODE_ENV === 'development') {
-        return { valid: true, origin: undefined };
-      }
+      // No origin and no valid same-origin referer — reject.
       console.warn('⚠️ Blocked mutation without Origin or valid Referer:', method, request.url);
       return { valid: false, error: 'Origin verification failed' };
     }
