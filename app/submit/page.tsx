@@ -969,28 +969,23 @@ export default function SubmitPage() {
         // Response wasn't JSON (e.g. HTML error page)
       }
       if (!response.ok) {
-        // Handle critical errors that should override success
-        if (response.status === 403) {
-          // Banned user - critical error
-          setSubmitted(false);
-          setError((result.error as string) || "You are banned from submitting memories.");
+        const errorMsg = (result.error as string) || 'Something went wrong. Please try again.';
+        const isBannedError = response.status === 403 && /ban/i.test(errorMsg);
+        const isLimitError = response.status === 429;
+
+        setSubmitted(false);
+        setError(errorMsg);
+        if (isBannedError) {
           setIsBanned(true);
           setHasReachedLimit(true);
           setIsFormDisabled(true);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (response.status === 429) {
-          // Rate limit or memory limit reached - critical error
-          setSubmitted(false);
-          setError((result.error as string) || "Too many requests. Please slow down.");
+        } else if (isLimitError) {
           setHasReachedLimit(true);
           setIsFormDisabled(true);
+        }
+        if (isBannedError || isLimitError || response.status >= 400) {
           window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-          // Other errors (400, 500, etc) - show failure to user
-          setSubmitted(false);
-          setError((result.error as string) || 'Something went wrong. Please try again.');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          console.error('Submission failed:', response.status, result.error);
+          console.error('Submission failed:', response.status, errorMsg);
         }
       }
     }).catch(err => {
