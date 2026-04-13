@@ -14,7 +14,7 @@ interface GridMemoryListProps {
 }
 
 function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
   useEffect(() => {
     const mql = window.matchMedia("(min-width: 1024px)");
     setIsDesktop(mql.matches);
@@ -29,6 +29,9 @@ const AD_INTERVAL = 6;
 
 const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = AD_INTERVAL, adSlot }) => {
   const isDesktop = useIsDesktop();
+
+  // Don't render until client-side desktop check completes to avoid mobile flash
+  if (isDesktop === null) return null;
 
   if (isDesktop) {
     // Build elements with ad rows inserted after every `adInterval` cards
