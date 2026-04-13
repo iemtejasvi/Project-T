@@ -102,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="google-site-verification" content="-3cysNzrb6ZgU44DFdsfeiwU61zydgZWRMyXebgmsUM" />
+        <meta name="google-adsense-account" content="ca-pub-8850424858354795" />
         <meta name="color-scheme" content="light dark" />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL || ''} crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

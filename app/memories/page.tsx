@@ -6,6 +6,7 @@ import { fetchWithUltraCache, invalidateCache } from "@/lib/enhancedCache";
 import GridMemoryList from "@/components/GridMemoryList";
  
 import Loader from "@/components/Loader";
+import { SidebarAdUnit } from "@/components/AdUnit";
 import Footer from "@/components/Footer";
 import type { Memory } from '@/types/memory';
 
@@ -340,7 +341,8 @@ function MemoriesContent() {
         </div>
       </header>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8 relative">
+        <SidebarAdUnit slot="4305235800" />
         <div className="mb-6">
           <input
             type="text"
@@ -380,7 +382,7 @@ function MemoriesContent() {
                 <Loader />
               </div>
             ) : (
-              <GridMemoryList memories={displayedMemories} />
+              <GridMemoryList memories={displayedMemories} adSlot="8954927254" />
             )}
             {/* Load More Button */}
             {hasNext && (

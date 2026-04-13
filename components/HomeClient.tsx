@@ -9,6 +9,7 @@ import { browserSession } from "@/lib/browserSession";
 import MemoryCard from "@/components/MemoryCard";
 import Loader from "@/components/Loader";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
+import { SidebarAdUnit } from "@/components/AdUnit";
 import TypingEffect from "@/components/TypingEffect";
 import type { Memory } from '@/types/memory';
 
@@ -447,7 +448,8 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8 relative">
+        <SidebarAdUnit slot="4305235800" />
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
           Recent Memories
         </h2>

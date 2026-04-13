@@ -9,6 +9,7 @@ import { colorBgMap } from "@/components/cardConstants";
 import { hasSuspiciouslyLongWords } from "@/lib/inputSanitizer";
 import { getCookie } from '@/lib/cookies';
 import { WORD_LIMIT, SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
+import { BelowContentAdUnit } from "@/components/AdUnit";
 import InlineLoader from "@/components/InlineLoader";
 import Footer from "@/components/Footer";
 
@@ -1121,6 +1122,13 @@ export default function SubmitPage() {
                       Return Home
                     </Link>
                   </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.5, duration: 0.6 }}
+                  >
+                    <BelowContentAdUnit slot="4174420046" className="mt-10 mb-0 opacity-100" />
+                  </motion.div>
                 </motion.div>
               ) : (
                 <form
@@ -1449,12 +1457,15 @@ export default function SubmitPage() {
               <div className="bg-[var(--secondary)] p-8 rounded-2xl shadow-xl text-center animate-fade-in">
                 <div className="text-3xl font-bold mb-4 animate-bounce">Sent!</div>
                 <p className="mb-6">Your memory is pending approval. Please wait while we review it.</p>
-                <Link 
+                <Link
                   href="/"
                   className="inline-block px-6 py-3 bg-[var(--accent)] text-[var(--text)] font-semibold rounded-2xl shadow-lg hover:scale-105 transition-transform"
                 >
                   Return Home
                 </Link>
+                <div className="mt-8">
+                  <BelowContentAdUnit slot="4174420046" className="mt-0 mb-0 opacity-100" />
+                </div>
               </div>
             ) : (
               <form

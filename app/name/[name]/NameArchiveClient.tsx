@@ -205,7 +205,7 @@ export default function NameArchiveClient() {
             </div>
 
             {/* Cards */}
-            <GridMemoryList memories={memories} />
+            <GridMemoryList memories={memories} adSlot="8954927254" />
 
             {/* Next page */}
             {hasNext && (

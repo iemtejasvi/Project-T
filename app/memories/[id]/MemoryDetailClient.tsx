@@ -4,6 +4,7 @@ import Link from "next/link";
 import MemoryCard from "@/components/MemoryCard";
 import Loader from "@/components/Loader";
 
+import { BelowContentAdUnit } from "@/components/AdUnit";
 import Footer from "@/components/Footer";
 import type { Memory } from '@/types/memory';
 
@@ -120,6 +121,7 @@ export default function MemoryDetailClient({ id }: { id: string }) {
 
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {memory && <MemoryCard memory={memory} detail />}
+        <BelowContentAdUnit slot="9990462319" />
       </main>
 
       <Footer />
