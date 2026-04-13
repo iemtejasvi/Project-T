@@ -182,6 +182,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               if (sessionStorage.getItem('ioist_cleanup_done') === '1') { return; }
               sessionStorage.setItem('ioist_cleanup_done', '1');
 
+              try {
+                // Selective localStorage clear FIRST (synchronous) — before any async work
+                var keysToKeep = ['user_uuid', 'app_version', 'ultraCache', 'browser_session_heartbeat', 'cookie_consent', 'iois_welcome_closed'];
+                var preserved = {};
+                keysToKeep.forEach(function(k) {
+                  var v = localStorage.getItem(k);
+                  if (v !== null) preserved[k] = v;
+                });
+                localStorage.clear();
+                Object.keys(preserved).forEach(function(k) {
+                  localStorage.setItem(k, preserved[k]);
+                });
+              } catch(e) {}
+
               var cleanup = async function() {
                 try {
                   // 1) Clear CacheStorage
@@ -197,20 +211,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     var regs = await navigator.serviceWorker.getRegistrations();
                     await Promise.all(regs.map(function(r){ return r.unregister(); }));
                   }
-                } catch(e) {}
-
-                try {
-                  // 3) Selective localStorage clear — preserve identity and cache
-                  var keysToKeep = ['user_uuid', 'app_version', 'ultraCache', 'browser_session_heartbeat', 'cookie_consent', 'iois_welcome_closed'];
-                  var preserved = {};
-                  keysToKeep.forEach(function(k) {
-                    var v = localStorage.getItem(k);
-                    if (v !== null) preserved[k] = v;
-                  });
-                  localStorage.clear();
-                  Object.keys(preserved).forEach(function(k) {
-                    localStorage.setItem(k, preserved[k]);
-                  });
                 } catch(e) {}
 
                 try {
