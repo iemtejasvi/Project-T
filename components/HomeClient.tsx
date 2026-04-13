@@ -76,7 +76,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
       storage.migrate(); // Re-migrate any persistent data
 
       // Show welcome on new browser session
-      if (isMounted && !browserSession.isWelcomeDismissed()) {
+      if (isMounted && !browserSession.isWelcomeDismissed() && !storage.isWelcomeClosed()) {
         setShowWelcome(true);
       }
     }
@@ -186,15 +186,15 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
 
     // Listen for new browser sessions (shouldn't happen on this page load, but for completeness)
     const handleNewBrowserSession = () => {
-      if (isMounted && !browserSession.isWelcomeDismissed()) {
+      if (isMounted && !browserSession.isWelcomeDismissed() && !storage.isWelcomeClosed()) {
         setShowWelcome(true);
       }
     };
 
     window.addEventListener('browser-session-started', handleNewBrowserSession);
 
-    // Show welcome if not dismissed in this browser session
-    if (!browserSession.isWelcomeDismissed()) {
+    // Show welcome if not dismissed
+    if (!browserSession.isWelcomeDismissed() && !storage.isWelcomeClosed()) {
       setShowWelcome(true);
     }
 
@@ -326,8 +326,8 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
 
   const handleWelcomeClose = () => {
     setShowWelcome(false);
-    // Dismiss welcome for this browser session only
     browserSession.setWelcomeDismissed();
+    storage.setWelcomeClosed();
   };
 
   return (

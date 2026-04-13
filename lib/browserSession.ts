@@ -54,17 +54,13 @@ class BrowserSessionManager {
     const localStorageKeysToClear = [
       'temp_data',
       'session_only',
-      'iois_welcome_closed', // Clear welcome dismissal on browser restart
       // Add any localStorage keys that should clear on browser restart
     ];
-    
+
     localStorageKeysToClear.forEach(key => {
       localStorage.removeItem(key);
     });
-    
-    // Also clear from cookies as fallback
-    this.deleteCookie('iois_welcome_closed');
-    
+
     // Dispatch event for other components
     window.dispatchEvent(new CustomEvent('browser-session-started'));
   }
