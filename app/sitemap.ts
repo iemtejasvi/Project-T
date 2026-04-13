@@ -79,13 +79,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/privacy-policy`,
-      lastModified: new Date('2026-01-01'),
+      lastModified: new Date('2026-04-14'),
       changeFrequency: 'monthly' as const,
       priority: 0.4,
     },
     {
       url: `${baseUrl}/terms`,
-      lastModified: new Date('2026-01-01'),
+      lastModified: new Date('2026-04-14'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/cookie-policy`,
+      lastModified: new Date('2026-04-14'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/disclaimer`,
+      lastModified: new Date('2026-04-14'),
       changeFrequency: 'monthly' as const,
       priority: 0.4,
     }

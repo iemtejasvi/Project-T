@@ -4,6 +4,7 @@ import ThemeSwitcher from "@/components/ThemeSwitcher";
 import UuidInitializer from "@/components/UuidInitializer";
 import Script from "next/script";
 import RoutePrefetcher from "@/components/RoutePrefetcher";
+import CookieConsent from "@/components/CookieConsent";
 import { La_Belle_Aurore, Pacifico } from 'next/font/google';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
@@ -120,7 +121,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 "logo": "https://www.ifonlyisentthis.com/android-chrome-512x512.png",
                 "name": "If Only I Sent This",
                 "description": "A modern archive for unsent memories, anonymous confessions, and heartfelt messages you were never ready to send. The instant, glitch-free alternative to unsent message projects.",
-                "sameAs": ["https://buymeacoffee.com/ifonlyisentthis", "https://www.instagram.com/ifonlyisentthis"]
+                "sameAs": ["https://buymeacoffee.com/ifonlyisentthis", "https://www.instagram.com/ifonlyisentthiss"]
               },
               {
                 "@context": "https://schema.org",
@@ -167,6 +168,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <UuidInitializer />
         <RoutePrefetcher />
         {children}
+        <CookieConsent />
         {ENABLE_ANALYTICS && GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
         <Script id="ioist-startup-cleanup" strategy="afterInteractive">
           {`

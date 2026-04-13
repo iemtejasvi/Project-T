@@ -67,7 +67,7 @@ export default function Contact() {
             <p className="text-[var(--text)] font-medium">Follow Us:</p>
             <div className="mt-2">
               <a 
-                href="https://instagram.com/ifonlyisentthis" 
+                href="https://instagram.com/ifonlyisentthiss" 
                 target="_blank" 
                 rel="noopener noreferrer nofollow"
                 className="text-[var(--accent)] hover:underline"

@@ -18,6 +18,10 @@ export default function Footer() {
           <Link href="/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy</Link>
           <span className="select-none">&middot;</span>
           <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
+          <span className="select-none">&middot;</span>
+          <Link href="/cookie-policy" className="hover:text-gray-400 transition-colors">Cookies</Link>
+          <span className="select-none">&middot;</span>
+          <Link href="/disclaimer" className="hover:text-gray-400 transition-colors">Disclaimer</Link>
         </div>
         <p className="text-center text-[10px] text-gray-400/50 leading-tight footer-copyright">
           &copy; {new Date().getFullYear()} If Only I Sent This
@@ -39,6 +43,10 @@ export default function Footer() {
           <Link href="/privacy-policy" className="hover:opacity-70 transition-opacity">Privacy Policy</Link>
           <span className="select-none">&middot;</span>
           <Link href="/terms" className="hover:opacity-70 transition-opacity">Terms</Link>
+          <span className="select-none">&middot;</span>
+          <Link href="/cookie-policy" className="hover:opacity-70 transition-opacity">Cookie Policy</Link>
+          <span className="select-none">&middot;</span>
+          <Link href="/disclaimer" className="hover:opacity-70 transition-opacity">Disclaimer</Link>
         </div>
         <p className="text-center text-[10px] text-[var(--text)] opacity-30 leading-tight footer-copyright">
           &copy; {new Date().getFullYear()} If Only I Sent This
