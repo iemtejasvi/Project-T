@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 export default function MoreOptionsDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLLIElement>(null);
+  const pathname = usePathname();
+  const isHowItWorks = pathname === "/how-it-works";
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -23,7 +26,7 @@ export default function MoreOptionsDropdown() {
         onClick={() => setOpen(!open)}
         className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link"
       >
-        How It Works &#9662;
+        {isHowItWorks ? "How It Works" : "More"} &#9662;
       </button>
       {open && (
         <div className="absolute top-full mt-2 w-56 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
