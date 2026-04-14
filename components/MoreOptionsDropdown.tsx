@@ -27,6 +27,9 @@ export default function MoreOptionsDropdown() {
       </button>
       {open && (
         <div className="absolute top-full mt-2 w-56 right-0 bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-10">
+          <Link href="/articles" onClick={() => setOpen(false)}>
+            <div className="px-4 py-2 text-[var(--text)] hover:bg-[var(--accent)] hover:text-white cursor-pointer text-sm">Articles</div>
+          </Link>
           <Link href="/about" onClick={() => setOpen(false)}>
             <div className="px-4 py-2 text-[var(--text)] hover:bg-[var(--accent)] hover:text-white cursor-pointer text-sm">About</div>
           </Link>

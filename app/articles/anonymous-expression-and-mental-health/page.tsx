@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import { Metadata } from "next";
+import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "Anonymous Expression and Mental Health – Why Anonymity Unlocks Honesty",
+  title: "Anonymous Expression and the Quiet Art of Healing – Why Anonymity Unlocks Honesty",
   description: "Why anonymity can unlock emotional honesty, reduce shame, and create a safer space for vulnerable self-expression. Research on anonymous disclosure and wellbeing.",
   alternates: { canonical: '/articles/anonymous-expression-and-mental-health' },
   openGraph: {
-    title: "Anonymous Expression and Mental Health",
+    title: "Anonymous Expression and the Quiet Art of Healing",
     description: "Why anonymity can unlock emotional honesty, reduce shame, and create a safer space for vulnerable self-expression.",
     url: 'https://www.ifonlyisentthis.com/articles/anonymous-expression-and-mental-health',
     siteName: 'If Only I Sent This', type: 'article',
@@ -19,14 +20,16 @@ export default function AnonymousExpression() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Anonymous Expression and Mental Health</h1>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Anonymous Expression and the Quiet Art of Healing</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
+            <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
-              <li><Link href="/articles" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Articles</Link></li>
+              <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
+              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
+              <MoreOptionsDropdown />
             </ul>
           </nav>
         </div>

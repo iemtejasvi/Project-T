@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import { Metadata } from "next";
+import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "Famous Unsent Letters in History – Beethoven, Kafka, Dickinson & More",
+  title: "Famous Unsent Letters That Shaped History – Beethoven, Kafka, Dickinson & More",
   description: "From Beethoven's Immortal Beloved to Kafka's agonized letters to Felice — explore the unsent letters that shaped literary, musical, and cultural history.",
   alternates: { canonical: '/articles/famous-unsent-letters-in-history' },
   openGraph: {
-    title: "Famous Unsent Letters in History",
+    title: "Famous Unsent Letters That Shaped History",
     description: "From Beethoven's Immortal Beloved to Kafka's letters to Felice — the unsent letters that shaped history.",
     url: 'https://www.ifonlyisentthis.com/articles/famous-unsent-letters-in-history',
     siteName: 'If Only I Sent This', type: 'article',
@@ -19,14 +20,16 @@ export default function FamousUnsentLetters() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Famous Unsent Letters in History</h1>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Famous Unsent Letters That Shaped History</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
+            <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
-              <li><Link href="/articles" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Articles</Link></li>
+              <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
+              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
+              <MoreOptionsDropdown />
             </ul>
           </nav>
         </div>

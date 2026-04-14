@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -27,32 +28,32 @@ export const metadata: Metadata = {
 const articles = [
   {
     href: "/articles/psychology-of-unsent-letters",
-    title: "The Psychology of Unsent Letters",
+    title: "The Psychology Behind Unsent Letters",
     description: "Why do we write letters we never send? Explore the cognitive and emotional mechanisms behind unsent letters and what psychology tells us about withholding words.",
   },
   {
     href: "/articles/how-to-write-a-letter-you-will-never-send",
-    title: "How to Write a Letter You Will Never Send",
+    title: "How to Write a Letter You'll Never Send",
     description: "A practical, reflective guide to writing unsent letters — from choosing your recipient to releasing what you have been carrying.",
   },
   {
     href: "/articles/emotional-release-through-writing",
-    title: "Emotional Release Through Writing",
+    title: "The Emotional Power of Writing It Down",
     description: "How putting feelings into words activates different parts of the brain and creates measurable emotional relief.",
   },
   {
     href: "/articles/famous-unsent-letters-in-history",
-    title: "Famous Unsent Letters in History",
+    title: "Famous Unsent Letters That Shaped History",
     description: "From Beethoven's Immortal Beloved to Kafka's letters to Felice — the unsent letters that shaped literary and cultural history.",
   },
   {
     href: "/articles/why-we-hold-back-words",
-    title: "Why We Hold Back Words",
+    title: "Why We Hold Back the Words That Matter",
     description: "The social, psychological, and evolutionary reasons humans suppress emotional language — and the cost of silence.",
   },
   {
     href: "/articles/grief-letters-writing-to-someone-you-lost",
-    title: "Grief Letters: Writing to Someone You Lost",
+    title: "Letters to the Lost — Writing Through Grief",
     description: "How writing to the deceased or to a lost relationship can process grief, honour memory, and bring a measure of peace.",
   },
   {
@@ -62,28 +63,38 @@ const articles = [
   },
   {
     href: "/articles/therapeutic-benefits-of-expressive-writing",
-    title: "The Therapeutic Benefits of Expressive Writing",
+    title: "The Science of Expressive Writing",
     description: "Decades of research show that expressive writing improves mental and physical health. Here is what the science says.",
   },
   {
     href: "/articles/anonymous-expression-and-mental-health",
-    title: "Anonymous Expression and Mental Health",
+    title: "Anonymous Expression and the Quiet Art of Healing",
     description: "Why anonymity can unlock emotional honesty, reduce shame, and create a safer space for vulnerable self-expression.",
   },
   {
     href: "/articles/art-of-letting-go-through-words",
-    title: "The Art of Letting Go Through Words",
+    title: "Letting Go, One Word at a Time",
     description: "Writing as a release valve — how naming emotions on paper helps the brain process and eventually release them.",
   },
   {
     href: "/articles/writing-closure-letters",
-    title: "Writing Closure Letters",
+    title: "The Closure Letter — Writing the Ending You Deserve",
     description: "When you cannot get closure from another person, you can write it for yourself. A guide to closure letters and how they help.",
   },
   {
     href: "/articles/love-you-never-expressed",
-    title: "The Love You Never Expressed",
+    title: "The Love You Never Said Out Loud",
     description: "On the particular ache of unexpressed love — why it stays with us, what it means, and how writing about it can bring relief.",
+  },
+  {
+    href: "/unsent-letters",
+    title: "The Art of Unsent Letters",
+    description: "From Kafka's letters to Felice to the text you deleted at 2am — unsent letters are humanity's most honest form of expression.",
+  },
+  {
+    href: "/love-letters-never-sent",
+    title: "Love Letters Never Sent",
+    description: "From Neruda's unnamed beloved to the words you never said — love letters never sent are the most honest kind.",
   },
 ];
 
@@ -91,16 +102,17 @@ export default function Articles() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Articles</h1>
           <p className="mt-2 text-[var(--text)] opacity-70 text-base sm:text-lg">Reflections on unsent letters, emotional expression, and the words we never say.</p>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
+            <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
               <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
               <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
+              <MoreOptionsDropdown />
             </ul>
           </nav>
         </div>
@@ -113,7 +125,7 @@ export default function Articles() {
               <Link
                 key={article.href}
                 href={article.href}
-                className="group bg-[var(--card-bg)] p-6 rounded-xl shadow-md border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
+                className="article-card group bg-[var(--card-bg)] p-6 rounded-xl shadow-md border border-[var(--border)] hover:border-[var(--accent)] transition-colors"
               >
                 <h2 className="text-lg font-semibold text-[var(--text)] group-hover:text-[var(--accent)] transition-colors mb-2">
                   {article.title}

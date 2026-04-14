@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import { Metadata } from "next";
+import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "Emotional Release Through Writing – How Words Set Feelings Free",
+  title: "The Emotional Power of Writing It Down – How Words Set Feelings Free",
   description: "Learn how putting feelings into words activates different parts of the brain and creates measurable emotional relief. The neuroscience of expressive writing.",
   alternates: { canonical: '/articles/emotional-release-through-writing' },
   openGraph: {
-    title: "Emotional Release Through Writing",
+    title: "The Emotional Power of Writing It Down",
     description: "How putting feelings into words activates different parts of the brain and creates measurable emotional relief.",
     url: 'https://www.ifonlyisentthis.com/articles/emotional-release-through-writing',
     siteName: 'If Only I Sent This', type: 'article',
@@ -19,14 +20,16 @@ export default function EmotionalRelease() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Emotional Release Through Writing</h1>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">The Emotional Power of Writing It Down</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
+            <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
-              <li><Link href="/articles" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Articles</Link></li>
+              <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
+              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
+              <MoreOptionsDropdown />
             </ul>
           </nav>
         </div>

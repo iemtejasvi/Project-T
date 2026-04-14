@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Grief Letters: Writing to Someone You Lost",
+  title: "Letters to the Lost — Writing Through Grief",
   description: "How writing to someone who has died or a relationship that has ended can process grief, honour memory, and bring a measure of peace through unsent letters.",
   alternates: { canonical: '/articles/grief-letters-writing-to-someone-you-lost' },
   openGraph: {
-    title: "Grief Letters: Writing to Someone You Lost",
+    title: "Letters to the Lost — Writing Through Grief",
     description: "How writing to the deceased or to a lost relationship can process grief, honour memory, and bring peace.",
     url: 'https://www.ifonlyisentthis.com/articles/grief-letters-writing-to-someone-you-lost',
     siteName: 'If Only I Sent This', type: 'article',
@@ -19,14 +20,16 @@ export default function GriefLetters() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Grief Letters: Writing to Someone You Lost</h1>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Letters to the Lost — Writing Through Grief</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
+            <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
-              <li><Link href="/articles" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Articles</Link></li>
+              <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
+              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
+              <MoreOptionsDropdown />
             </ul>
           </nav>
         </div>

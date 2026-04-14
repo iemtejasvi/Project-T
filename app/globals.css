@@ -696,6 +696,28 @@ input::placeholder, textarea::placeholder {
     font-weight: 500;
     opacity: 0.85;
   }
+
+  /* Article hub cards — keep h2 compact inside cards */
+  .article-card h2 {
+    font-size: 1.125rem !important; /* 18px — matches text-lg */
+    letter-spacing: normal;
+    line-height: 1.4;
+    font-weight: 600;
+    opacity: 1;
+  }
+
+  /* Editorial article body — readable section headings */
+  .editorial-prose h2 {
+    font-size: 1.75rem !important; /* 28px */
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+
+  .editorial-prose h2.text-xl {
+    font-size: 1.5rem !important; /* 24px — subheadings */
+  }
   
   /* Subsection headings (h3) - Large */
   h3.text-xl, h3.text-2xl, h3.text-4xl {

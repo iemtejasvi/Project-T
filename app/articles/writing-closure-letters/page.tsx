@@ -1,13 +1,14 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import { Metadata } from "next";
+import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "Writing Closure Letters – How to Find Closure When You Cannot Get It From Someone Else",
+  title: "The Closure Letter — Writing the Ending You Deserve – How to Find Closure When You Cannot Get It From Someone Else",
   description: "When you cannot get closure from another person, you can write it for yourself. A guide to closure letters, how they work, and why they bring peace.",
   alternates: { canonical: '/articles/writing-closure-letters' },
   openGraph: {
-    title: "Writing Closure Letters",
+    title: "The Closure Letter — Writing the Ending You Deserve",
     description: "When you cannot get closure from another person, you can write it for yourself. A guide to closure letters.",
     url: 'https://www.ifonlyisentthis.com/articles/writing-closure-letters',
     siteName: 'If Only I Sent This', type: 'article',
@@ -19,14 +20,16 @@ export default function WritingClosureLetters() {
   return (
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Writing Closure Letters</h1>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-center">
+          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">The Closure Letter — Writing the Ending You Deserve</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
-            <ul className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
+            <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
-              <li><Link href="/articles" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Articles</Link></li>
+              <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
+              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
+              <MoreOptionsDropdown />
             </ul>
           </nav>
         </div>
