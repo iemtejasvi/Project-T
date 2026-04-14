@@ -14,6 +14,7 @@ export default function Footer() {
           <Link href="/contact" className="hover:text-[var(--accent)] transition-colors">Contact</Link>
           <Link href="/unsent-letters" className="hover:text-[var(--accent)] transition-colors whitespace-nowrap">Unsent Letters</Link>
           <Link href="/love-letters-never-sent" className="hover:text-[var(--accent)] transition-colors whitespace-nowrap">Love Letters</Link>
+          <Link href="/articles" className="hover:text-[var(--accent)] transition-colors">Articles</Link>
           <Link href="/donate" className="hover:text-[var(--accent)] transition-colors">Donate</Link>
         </nav>
         <div className="flex justify-center gap-x-3 text-[10px] text-gray-400/60 mb-1.5">
@@ -41,6 +42,7 @@ export default function Footer() {
           <Link href="/unsent-letters" className="hover:opacity-100 transition-opacity whitespace-nowrap">Unsent Letters</Link>
           <Link href="/love-letters-never-sent" className="hover:opacity-100 transition-opacity whitespace-nowrap">Love Letters</Link>
           <Link href="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
+          <Link href="/articles" className="hover:opacity-100 transition-opacity">Articles</Link>
           <Link href="/donate" className="hover:opacity-100 transition-opacity">Donate</Link>
         </nav>
         <div className="flex justify-center gap-x-3 text-[10px] text-[var(--text)] opacity-35 mb-1.5">

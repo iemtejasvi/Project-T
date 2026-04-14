@@ -158,7 +158,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {ENABLE_ADS && (
           <Script
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
-            strategy="lazyOnload"
+            strategy="afterInteractive"
             crossOrigin="anonymous"
           />
         )}

@@ -112,7 +112,86 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date('2026-04-14'),
       changeFrequency: 'monthly' as const,
       priority: 0.4,
-    }
+    },
+    // Articles hub + individual articles
+    {
+      url: `${baseUrl}/articles`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/articles/psychology-of-unsent-letters`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/how-to-write-a-letter-you-will-never-send`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/emotional-release-through-writing`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/famous-unsent-letters-in-history`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/why-we-hold-back-words`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/grief-letters-writing-to-someone-you-lost`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/digital-age-confessions`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/therapeutic-benefits-of-expressive-writing`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/anonymous-expression-and-mental-health`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/art-of-letting-go-through-words`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/writing-closure-letters`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/articles/love-you-never-expressed`,
+      lastModified: new Date('2026-04-15'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
   ]
 
   // Dynamic name pages from DB

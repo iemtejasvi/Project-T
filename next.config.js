@@ -12,7 +12,7 @@ const CSP_POLICY = [
   "img-src 'self' data: https: blob:",
   "connect-src 'self' https://*.supabase.co https://api.ipify.org https://ipapi.co https://ip-api.com https://httpbin.org https://ipinfo.io https://icanhazip.com https://api.ip2location.io https://ipwhois.app https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.adtrafficquality.google https://static.cloudflareinsights.com",
   "frame-src 'self' https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://challenges.cloudflare.com https://*.adtrafficquality.google https://www.google.com",
-  "frame-ancestors 'none'",
+  "frame-ancestors 'self' https://admin.google.com https://ogs.google.com https://*.google.com",
   "base-uri 'self'",
   "form-action 'self'",
   "upgrade-insecure-requests",
@@ -27,7 +27,7 @@ const nextConfig = {
         source: '/(.*)',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
