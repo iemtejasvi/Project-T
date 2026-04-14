@@ -21,6 +21,19 @@ export default function CookieConsent() {
     } catch {
       // ignore
     }
+    // Update Google Consent Mode v2 — grant all consent signals
+    try {
+      if (typeof window.gtag === 'function') {
+        window.gtag('consent', 'update', {
+          ad_storage: 'granted',
+          ad_user_data: 'granted',
+          ad_personalization: 'granted',
+          analytics_storage: 'granted',
+        });
+      }
+    } catch {
+      // gtag not loaded yet — consent default will pick it up on next page load
+    }
     setVisible(false);
   };
 

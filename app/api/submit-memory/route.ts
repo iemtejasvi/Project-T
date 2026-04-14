@@ -4,6 +4,7 @@ import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLim
 import { validateMemoryInput, sanitizeString, sanitizeUUID, isValidIP } from '@/lib/inputSanitizer';
 import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
 import { MEMORY_LIMIT, WORD_LIMIT, countWords } from '@/lib/constants';
+import { getProfanityDensity } from '@/lib/profanityFilter';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { getClientIP } from '@/lib/getClientIP';
 
@@ -423,6 +424,39 @@ export async function POST(request: NextRequest) {
         /^(.)\1{3,}$/.test(senderLower)
       ) {
         sanitizedSender = undefined; // Will be stored as null (anonymous)
+      }
+    }
+
+    // 6. CONTENT QUALITY: Profanity density gate (AdSense compliance)
+    // Lightly profane messages pass; heavily profane messages are rejected.
+    if (!isOwner && !isLocalhost) {
+      const msgDensity = getProfanityDensity(sanitizedMessage);
+      if (msgDensity.density > 0.3) {
+        return createSecureErrorResponse(
+          'Your message contains too much strong language. Please rewrite with a gentler tone.',
+          400,
+          { origin }
+        );
+      }
+
+      // Reject fully profane recipient names
+      if (sanitizedRecipient) {
+        const recipientDensity = getProfanityDensity(sanitizedRecipient);
+        if (recipientDensity.totalWords > 0 && recipientDensity.density >= 1.0) {
+          return createSecureErrorResponse(
+            'Please use a real name for the recipient.',
+            400,
+            { origin }
+          );
+        }
+      }
+
+      // Silently anonymize profane sender names
+      if (sanitizedSender) {
+        const senderDensity = getProfanityDensity(sanitizedSender);
+        if (senderDensity.profaneCount > 0) {
+          sanitizedSender = undefined;
+        }
       }
     }
 

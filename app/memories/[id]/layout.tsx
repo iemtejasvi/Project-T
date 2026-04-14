@@ -60,10 +60,6 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
       ? rawMessage.substring(0, 120).trim() + '…'
       : rawMessage;
 
-    // Noindex short memories (under 15 words) — thin content for AdSense
-    const wordCount = rawMessage.split(/\s+/).filter(Boolean).length;
-    const shouldIndex = wordCount >= 15;
-
     const longTitle = `Unsent Message to ${displayRecipient}`;
     const shortTitle = `To ${displayRecipient}`;
     const title = longTitle.length > 60 ? shortTitle : longTitle;
@@ -77,7 +73,7 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
     return {
       title,
       description,
-      ...(!shouldIndex && { robots: { index: false, follow: true } }),
+      robots: { index: false, follow: true },
       alternates: {
         canonical: `/memories/${id}`,
       },

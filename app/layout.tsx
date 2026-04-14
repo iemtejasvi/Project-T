@@ -110,6 +110,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {ENABLE_ANALYTICS && <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />}
         {ENABLE_ADS && <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />}
+        {/* Google Consent Mode v2 — must execute synchronously BEFORE any GA/AdSense scripts */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('consent', 'default', {
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                analytics_storage: 'denied',
+                wait_for_update: 500
+              });
+              try {
+                if (localStorage.getItem('cookie_consent') === 'accepted') {
+                  gtag('consent', 'update', {
+                    ad_storage: 'granted',
+                    ad_user_data: 'granted',
+                    ad_personalization: 'granted',
+                    analytics_storage: 'granted'
+                  });
+                }
+              } catch(e) {}
+            `.replace(/\s+/g, ' ')
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

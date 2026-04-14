@@ -52,3 +52,34 @@ function maskWord(word: string): string {
 export function filterProfanity(text: string): string {
   return text.replace(PROFANITY_REGEX, (match) => maskWord(match));
 }
+
+// Non-global regex for single-word testing (avoids lastIndex issues with global flag)
+const PROFANITY_TEST_REGEX = new RegExp(`^(${pattern})$`, 'i');
+
+/**
+ * Compute profanity density of a text string.
+ * Returns the ratio of profane words to total words, plus counts.
+ */
+export function getProfanityDensity(text: string): {
+  density: number;
+  profaneCount: number;
+  totalWords: number;
+} {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return { density: 0, profaneCount: 0, totalWords: 0 };
+
+  let profaneCount = 0;
+  for (const word of words) {
+    // Strip edge punctuation for matching (e.g. "fuck!" → "fuck")
+    const cleaned = word.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, '');
+    if (cleaned && PROFANITY_TEST_REGEX.test(cleaned)) {
+      profaneCount++;
+    }
+  }
+
+  return {
+    density: profaneCount / words.length,
+    profaneCount,
+    totalWords: words.length,
+  };
+}

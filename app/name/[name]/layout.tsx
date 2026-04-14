@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: NameLayoutProps): Promise<Met
 
   // Server-side noindex for thin content pages (fewer than 3 messages)
   const count = await getCachedNameCount(slug);
-  const robotsDirective = count < 3
+  const robotsDirective = count < 5
     ? { index: false, follow: true }
     : undefined;
 
