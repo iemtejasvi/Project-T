@@ -28,7 +28,6 @@ export default function HowToWriteALetter() {
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
               <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
-              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
               <MoreOptionsDropdown />
             </ul>
           </nav>
@@ -145,7 +144,7 @@ export default function HowToWriteALetter() {
                 Write Your Letter
               </Link>
               <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
-                More Articles
+                Browse the Journal
               </Link>
             </div>
           </article>

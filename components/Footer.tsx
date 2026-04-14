@@ -10,11 +10,9 @@ export default function Footer() {
           <Link href="/memories" className="hover:text-[var(--accent)] transition-colors">Archive</Link>
           <Link href="/submit" className="hover:text-[var(--accent)] transition-colors">Confess</Link>
           <Link href="/how-it-works" className="hover:text-[var(--accent)] transition-colors whitespace-nowrap">How It Works</Link>
+          <Link href="/articles" className="hover:text-[var(--accent)] transition-colors">Journal</Link>
           <Link href="/about" className="hover:text-[var(--accent)] transition-colors">About</Link>
           <Link href="/contact" className="hover:text-[var(--accent)] transition-colors">Contact</Link>
-          <Link href="/unsent-letters" className="hover:text-[var(--accent)] transition-colors whitespace-nowrap">Unsent Letters</Link>
-          <Link href="/love-letters-never-sent" className="hover:text-[var(--accent)] transition-colors whitespace-nowrap">Love Letters</Link>
-          <Link href="/articles" className="hover:text-[var(--accent)] transition-colors">Articles</Link>
           <Link href="/donate" className="hover:text-[var(--accent)] transition-colors">Donate</Link>
         </nav>
         <div className="flex justify-center gap-x-3 text-[10px] text-gray-400/60 mb-1.5">
@@ -38,11 +36,9 @@ export default function Footer() {
           <Link href="/memories" className="hover:opacity-100 transition-opacity">Archive</Link>
           <Link href="/submit" className="hover:opacity-100 transition-opacity">Confess</Link>
           <Link href="/how-it-works" className="hover:opacity-100 transition-opacity whitespace-nowrap">How It Works</Link>
+          <Link href="/articles" className="hover:opacity-100 transition-opacity">Journal</Link>
           <Link href="/about" className="hover:opacity-100 transition-opacity">About</Link>
-          <Link href="/unsent-letters" className="hover:opacity-100 transition-opacity whitespace-nowrap">Unsent Letters</Link>
-          <Link href="/love-letters-never-sent" className="hover:opacity-100 transition-opacity whitespace-nowrap">Love Letters</Link>
           <Link href="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
-          <Link href="/articles" className="hover:opacity-100 transition-opacity">Articles</Link>
           <Link href="/donate" className="hover:opacity-100 transition-opacity">Donate</Link>
         </nav>
         <div className="flex justify-center gap-x-3 text-[10px] text-[var(--text)] opacity-35 mb-1.5">

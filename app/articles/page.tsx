@@ -4,13 +4,13 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Articles – Reflections on Unsent Letters, Emotions & Expression",
+  title: "Journal – Reflections on Unsent Letters, Emotions & Expression",
   description: "Explore thoughtful articles about unsent letters, emotional expression, expressive writing therapy, and the psychology behind the words we never say.",
   alternates: {
     canonical: '/articles',
   },
   openGraph: {
-    title: "Articles – If Only I Sent This",
+    title: "Journal – If Only I Sent This",
     description: "Explore thoughtful articles about unsent letters, emotional expression, expressive writing therapy, and the psychology behind the words we never say.",
     url: 'https://www.ifonlyisentthis.com/articles',
     siteName: 'If Only I Sent This',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Articles – If Only I Sent This",
+    title: "Journal – If Only I Sent This",
     description: "Explore thoughtful articles about unsent letters, emotional expression, and the psychology behind the words we never say.",
     images: ['/opengraph-image.png'],
   },
@@ -103,7 +103,7 @@ export default function Articles() {
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Articles</h1>
+          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Journal</h1>
           <p className="mt-2 text-[var(--text)] opacity-70 text-base sm:text-lg">Reflections on unsent letters, emotional expression, and the words we never say.</p>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
@@ -111,7 +111,6 @@ export default function Articles() {
               <li><Link href="/" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Home</Link></li>
               <li><Link href="/memories" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Archive</Link></li>
               <li><Link href="/submit" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] desktop-nav-link">Confess</Link></li>
-              <li><Link href="/how-it-works" prefetch={false} className="text-[var(--text)] hover:text-[var(--accent)] whitespace-nowrap desktop-nav-link">How It Works</Link></li>
               <MoreOptionsDropdown />
             </ul>
           </nav>
