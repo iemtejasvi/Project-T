@@ -458,12 +458,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
   return (
     <div className={`relative group ${compact ? 'my-2 sm:my-3' : 'my-4 sm:my-6'}`}>
-      <div className="absolute right-[-16px] top-1/2 transform -translate-y-1/2">
+      <div className="absolute right-[-18px] top-1/2 transform -translate-y-1/2">
         <Link href={`/memories/${memory.id}`}>
           <span
-            className="block w-[10px] h-[10px] rounded-full opacity-40 transition-opacity duration-200 active:opacity-70"
-            style={{ backgroundColor: arrowStyle.color }}
-          />
+            className="block text-2xl font-light opacity-35 transition-opacity duration-200 active:opacity-60 select-none"
+            style={{ color: arrowStyle.color }}
+          >›</span>
         </Link>
       </div>
       <motion.div
