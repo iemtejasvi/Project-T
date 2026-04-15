@@ -54,7 +54,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
 
     return (
       <div className="grid grid-cols-3 gap-x-10 gap-y-10 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
-           style={{ gridTemplateColumns: 'repeat(3, 370px)' }}>
+           style={{ gridTemplateColumns: 'repeat(3, 350px)' }}>
         {elements}
       </div>
     );
