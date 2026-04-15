@@ -21,7 +21,7 @@ interface MemoryCardProps {
 }
 
 
-const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => {
+const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties; active?: boolean }> = ({ children, style, active = true }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsScroll, setNeedsScroll] = useState(false);
 
@@ -31,12 +31,12 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
         containerRef.current.scrollHeight > containerRef.current.clientHeight
       );
     }
-  }, [children]);
+  }, [children, active]);
 
   // Lock body scroll while touching a scrollable message container
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || !needsScroll) return;
+    if (!el || !needsScroll || !active) return;
 
     const lock = () => { document.body.style.overflow = 'hidden'; };
     const unlock = () => { document.body.style.overflow = ''; };
@@ -50,13 +50,17 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
       el.removeEventListener('touchcancel', unlock);
       unlock();
     };
-  }, [needsScroll]);
+  }, [needsScroll, active]);
+
+  // When not active (card not flipped), force overflow hidden to prevent
+  // iOS Safari from breaking backface-visibility in preserve-3d context
+  const canScroll = needsScroll && active;
 
   return (
     <div
       ref={containerRef}
-      className={`flex-1 ${needsScroll ? 'overflow-y-auto overscroll-contain cute_scroll' : 'overflow-y-hidden'} text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2`}
-      style={needsScroll ? { ...style, WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' } : style}
+      className={`flex-1 ${canScroll ? 'overflow-y-auto overscroll-contain cute_scroll' : 'overflow-y-hidden'} text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2`}
+      style={canScroll ? { ...style, WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' } : style}
     >
       {children}
     </div>
@@ -624,8 +628,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             {memory.animation === "rough" ? (
               <div
                 ref={roughScrollRef}
-                className={`flex-1 ${roughNeedsScroll ? 'overflow-y-auto overscroll-contain cute_scroll' : 'overflow-y-hidden'} text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10`}
-                style={roughNeedsScroll ? {
+                className={`flex-1 ${roughNeedsScroll && flipped ? 'overflow-y-auto overscroll-contain cute_scroll' : 'overflow-y-hidden'} text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10`}
+                style={roughNeedsScroll && flipped ? {
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
                   WebkitOverflowScrolling: 'touch',
@@ -636,6 +640,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               </div>
             ) : (
               <ScrollableMessage
+                active={flipped}
                 style={
                   {
                     "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
