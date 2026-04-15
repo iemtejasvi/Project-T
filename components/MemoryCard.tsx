@@ -330,7 +330,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               className="absolute inset-0 rounded-[inherit]"
               style={{
                 backgroundImage: 'url(/rough-paper.webp)',
-                backgroundSize: '185%',
+                backgroundSize: '250%',
                 backgroundPosition: 'center',
                 opacity: 0.5,
                 mixBlendMode: 'multiply',
