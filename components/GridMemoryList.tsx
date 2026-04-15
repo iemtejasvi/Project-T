@@ -45,7 +45,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
       // Insert ad row after every `adInterval` cards (fills full 3-col row)
       if (adSlot && adInterval > 0 && (i + 1) % adInterval === 0 && i < memories.length - 1) {
         elements.push(
-          <div key={`ad-${i}`} className="col-span-3">
+          <div key={`ad-${i}`} className="col-span-3 empty:hidden">
             <InFeedAdUnit slot={adSlot} isDesktop={true} />
           </div>
         );
@@ -53,7 +53,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
     });
 
     return (
-      <div className="grid grid-cols-3 gap-x-10 gap-y-5 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+      <div className="grid grid-cols-3 gap-x-10 gap-y-10 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
            style={{ gridTemplateColumns: 'repeat(3, 350px)' }}>
         {elements}
       </div>
@@ -84,7 +84,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
 export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
   return (
     <div
-      className="grid grid-cols-3 gap-x-10 gap-y-10 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+      className="grid grid-cols-3 gap-x-10 gap-y-8 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
       style={{ gridTemplateColumns: 'repeat(3, 350px)' }}
     >
       {memories.slice(0, 6).map((memory) => (

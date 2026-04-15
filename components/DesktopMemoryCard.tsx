@@ -357,7 +357,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   };
 
   return (
-    <div className={`relative group ${large ? 'my-2' : 'my-6'}`}>
+    <div className={`relative group ${large ? 'my-2' : 'my-0'}`}>
       <motion.div
         whileHover={{ y: -6, boxShadow: "0 32px 56px rgba(0,0,0,0.18), 0 12px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)", transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } }}
         initial={{ opacity: 0, y: 20 }}
