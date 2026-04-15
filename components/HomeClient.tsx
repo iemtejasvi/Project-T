@@ -406,23 +406,23 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
 
       {/* Mobile announcement - only shown when there's an active announcement */}
       {announcement && !isAnnouncementDismissed && announcementCheckComplete && (
-        <section className={`mt-1 mb-2 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+        <section className={`mt-2 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
           <div
-            className="px-4 py-2 rounded-full shadow-sm text-center flex items-center justify-center"
+            className="h-[2.5rem] px-4 rounded-full shadow-sm flex items-center justify-center"
             style={{
               backgroundColor: announcement.background_color || '#ef4444',
               color: announcement.text_color || '#ffffff',
             }}
           >
-            <div className="relative w-full flex items-center justify-center gap-1.5 text-sm font-medium leading-tight">
-              <span>{announcement.icon || '📢'}</span>
+            <div className="relative w-full flex items-center justify-center gap-1.5 text-xs font-medium leading-none">
+              <span className="shrink-0">{announcement.icon || '📢'}</span>
               <span className="truncate">{announcement.message}</span>
               {announcement.link_url && (
                 <a
                   href={announcement.link_url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="text-xs underline opacity-80 hover:opacity-100 transition-opacity shrink-0"
+                  className="underline opacity-80 hover:opacity-100 transition-opacity shrink-0"
                   onClick={trackAnnouncementClick}
                 >
                   more
@@ -431,7 +431,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
               {announcement.is_dismissible && (
                 <button
                   onClick={handleDismissAnnouncement}
-                  className="shrink-0 w-5 h-5 flex items-center justify-center text-base leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
+                  className="shrink-0 w-5 h-5 flex items-center justify-center text-sm leading-none opacity-70 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
                   aria-label="Dismiss announcement"
                 >
                   &times;
