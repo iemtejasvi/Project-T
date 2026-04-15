@@ -135,7 +135,7 @@ const TypewriterPrompt: React.FC<TypewriterPromptProps> = ({ tag, subTag, typewr
     return <></>;
   }
 
-  const textClass = size === "xl" ? "text-xl" : "text-sm";
+  const textClass = size === "xl" ? "text-xl" : "text-base";
 
   return (
     <div

@@ -454,7 +454,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
 
       <main className="flex-grow max-w-5xl mx-auto px-2 sm:px-6 py-8 relative">
         <SidebarAdUnit slot="4305235800" />
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
+        <h2 className="text-3xl sm:text-3xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
           Recent Memories
         </h2>
         <section className="min-h-[520px]">

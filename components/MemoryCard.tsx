@@ -233,10 +233,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     const wordCount = countWords(messageToRender);
     const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
     const textClass = forceLarge
-      ? "text-[26px] tracking-wide leading-snug break-words hyphens-none"
+      ? "text-[28px] tracking-wide leading-snug break-words hyphens-none"
       : isShortOrExact
-        ? "text-[22px] tracking-wide leading-snug break-words hyphens-none"
-        : "text-[19px] tracking-wide leading-snug break-words hyphens-none";
+        ? "text-[24px] tracking-wide leading-snug break-words hyphens-none"
+        : "text-[21px] tracking-wide leading-snug break-words hyphens-none";
     
     switch (memory.animation) {
       case "cursive":
@@ -507,7 +507,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   </span>
                 </span>
               )}
-              <h3 className="text-lg font-bold text-[var(--text)] text-left leading-tight">
+              <h3 className="text-xl font-bold text-[var(--text)] text-left leading-tight">
                 <span className="break-words overflow-hidden leading-tight">
                   <span className="font-bold">To:</span>{" "}
                   {isLinkableName(memory.recipient) ? (
@@ -524,7 +524,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 </span>
               </h3>
               {memory.sender && (
-                <p className="mt-1 text-md italic text-[var(--text)] break-words overflow-hidden text-left">
+                <p className="mt-1 text-lg italic text-[var(--text)] break-words overflow-hidden text-left">
                   From:{" "}
                   {isLinkableName(memory.sender) ? (
                     <Link
@@ -543,11 +543,11 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             </div>
 
             <div className="relative z-10">
-              <div className="text-xs text-[var(--text)] text-center font-normal">
+              <div className="text-sm text-[var(--text)] text-center font-normal">
                 {dateStr} | {dayStr}
               </div>
               {createdAgoLabel && !isDestructedNow && (
-                <div className="text-[11px] text-[var(--text)]/60 text-center font-normal mt-1">
+                <div className="text-[12px] text-[var(--text)]/60 text-center font-normal mt-1">
                   {createdAgoLabel}
                 </div>
               )}
@@ -555,7 +555,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
             <div className="min-h-[2.5em] w-full relative z-10">
               {destructCountdown && !isDestructedNow ? (
-                <div className="text-[11px] text-center font-mono opacity-90 text-[var(--text)]">
+                <div className="text-[12px] text-center font-mono opacity-90 text-[var(--text)]">
                   <span className="opacity-80">self-destructs in</span>{" "}
                   <span className="font-bold">{destructCountdown}</span>
                 </div>
@@ -585,7 +585,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 }}
               />
             )}
-            <h3 className="text-lg italic text-[var(--text)] text-center relative z-10">if only i sent this</h3>
+            <h3 className="text-xl italic text-[var(--text)] text-center relative z-10">if only i sent this</h3>
             <hr className="my-2 border-[#999999] relative z-10" />
             {memory.animation === "rough" ? (
               <div 
