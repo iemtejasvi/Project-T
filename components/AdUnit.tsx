@@ -76,7 +76,7 @@ export default function AdUnit({
         data-ad-slot={slot}
         data-ad-format={format}
         {...(layoutKey ? { "data-ad-layout-key": layoutKey } : {})}
-        {...(responsive && !layoutKey ? { "data-full-width-responsive": "true" } : {})}
+        {...(responsive && !layoutKey ? { "data-full-width-responsive": "false" } : {})}
       />
     </aside>
   );
@@ -145,7 +145,7 @@ export function BelowContentAdUnit({
 
   return (
     <div
-      className={`max-w-3xl mx-auto mt-12 mb-8 opacity-70 ${className}`}
+      className={`max-w-3xl w-full mx-auto mt-12 mb-8 opacity-70 overflow-hidden ${className}`}
     >
       <div className="bg-[var(--card-bg)] rounded-xl border border-[var(--border)]/10 overflow-hidden">
         <AdUnit
