@@ -387,7 +387,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   effectiveColor && effectiveColor !== "default"
                     ? `var(--color-${effectiveColor}-bg)`
                     : "#e8e6df",
-                opacity: 0.55,
+                opacity: 0.75,
                 zIndex: 0,
                 pointerEvents: "none",
               }}
@@ -415,7 +415,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
                         : "#e8e6df",
-                    opacity: 0.55,
+                    opacity: 0.75,
                     zIndex: 0,
                     pointerEvents: "none",
                   }}
@@ -531,7 +531,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                       effectiveColor && effectiveColor !== "default"
                         ? `var(--color-${effectiveColor}-bg)`
                         : "#e8e6df",
-                    opacity: 0.55,
+                    opacity: 0.75,
                     zIndex: 0,
                     pointerEvents: "none",
                   }}
