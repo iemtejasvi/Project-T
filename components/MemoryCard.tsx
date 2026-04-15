@@ -36,7 +36,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 ${
+      className={`flex-1 overflow-y-auto overscroll-contain text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
       style={style}
@@ -567,7 +567,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           {/* BACK */}
           <div
             className={`flip-card-back absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : ""} p-5 flex flex-col justify-start rotate-y-180`}
-            style={{ ...bgStyle, ...borderStyle }}
+            style={{ ...bgStyle, ...borderStyle, overscrollBehavior: 'contain', touchAction: 'pan-y' }}
           >
             {/* Rough paper overlay for back */}
             {memory.animation === "rough" && (
@@ -589,7 +589,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             <hr className="my-2 border-[#999999] relative z-10" />
             {memory.animation === "rough" ? (
               <div 
-                className="flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
+                className="flex-1 overflow-y-auto overscroll-contain text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
                 style={{
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
