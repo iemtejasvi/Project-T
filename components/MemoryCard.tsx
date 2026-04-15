@@ -23,7 +23,6 @@ interface MemoryCardProps {
 
 const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const touchStartY = useRef(0);
   const [needsScroll, setNeedsScroll] = useState(false);
 
   useEffect(() => {
@@ -34,42 +33,13 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
     }
   }, [children]);
 
-  // Native touchmove listener with passive: false to allow preventDefault
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const onTouchStart = (e: TouchEvent) => {
-      touchStartY.current = e.touches[0].clientY;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!needsScroll) return;
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      const atTop = scrollTop <= 0;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-      const dy = e.touches[0].clientY - touchStartY.current;
-      // Within scrollable range → prevent page scroll
-      if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) {
-        e.preventDefault();
-      }
-    };
-
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => {
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchmove', onTouchMove);
-    };
-  }, [needsScroll]);
-
   return (
     <div
       ref={containerRef}
       className={`flex-1 overflow-y-auto overscroll-contain text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
-      style={{ ...style, touchAction: needsScroll ? 'pan-y' : 'auto' }}
+      style={{ ...style, WebkitOverflowScrolling: 'touch', touchAction: needsScroll ? 'pan-y' : 'auto' }}
     >
       {children}
     </div>
@@ -79,7 +49,6 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "default", compact = false }) => {
   const [flipped, setFlipped] = useState(false);
   const roughScrollRef = useRef<HTMLDivElement>(null);
-  const roughTouchStartY = useRef(0);
   const [roughNeedsScroll, setRoughNeedsScroll] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [isClient, setIsClient] = useState(false);  useEffect(() => {
@@ -128,34 +97,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       );
     }
   }, [flipped, memory.message]);
-
-  // Native touch listeners for rough paper scroll (passive: false for preventDefault)
-  useEffect(() => {
-    const el = roughScrollRef.current;
-    if (!el) return;
-
-    const onTouchStart = (e: TouchEvent) => {
-      roughTouchStartY.current = e.touches[0].clientY;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!roughNeedsScroll) return;
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      const atTop = scrollTop <= 0;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-      const dy = e.touches[0].clientY - roughTouchStartY.current;
-      if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) {
-        e.preventDefault();
-      }
-    };
-
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => {
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchmove', onTouchMove);
-    };
-  }, [roughNeedsScroll]);
 
   const createdDate = useMemo(() => new Date(memory.created_at), [memory.created_at]);
   const dateStr = createdDate.toLocaleDateString();
@@ -664,6 +605,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 style={{
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
+                  WebkitOverflowScrolling: 'touch',
                   touchAction: roughNeedsScroll ? 'pan-y' : 'auto',
                 } as React.CSSProperties}
               >
