@@ -1455,7 +1455,7 @@ export default function AdminPanel() {
                 {displayedMemories.map((memory) => (
                   <div
                     key={memory.id}
-                    className={`bg-white/90 shadow rounded-lg p-6 border-l-4 break-words w-full ${
+                    className={`bg-white/90 shadow rounded-lg p-3 sm:p-6 border-l-4 break-words w-full overflow-hidden ${
                       selectedTab === "pending"
                         ? "border-yellow-400"
                         : selectedTab === "approved"
@@ -1480,7 +1480,7 @@ export default function AdminPanel() {
                             className="text-2xl font-semibold text-gray-800 border-b-2 border-blue-400 bg-transparent focus:outline-none w-full"
                           />
                         ) : (
-                          <h3 className="text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
+                          <h3 className="text-lg sm:text-2xl font-semibold text-gray-800 break-words">To: {memory.recipient}</h3>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
@@ -1498,7 +1498,7 @@ export default function AdminPanel() {
                         rows={4}
                       />
                     ) : (
-                      <p className="mt-3 text-gray-700 break-words whitespace-pre-wrap">
+                      <p className="mt-2 sm:mt-3 text-sm sm:text-base text-gray-700 break-words whitespace-pre-wrap">
                         {memory.message && memory.message.length > 200 ? (
                           <>
                             {expandedMessages.has(memory.id) ? memory.message : memory.message.slice(0, 200) + '...'}
@@ -1527,7 +1527,7 @@ export default function AdminPanel() {
                         />
                       </div>
                     ) : memory.sender ? (
-                      <p className="mt-3 italic text-lg text-gray-600 break-words">— {memory.sender}</p>
+                      <p className="mt-2 sm:mt-3 italic text-base sm:text-lg text-gray-600 break-words">— {memory.sender}</p>
                     ) : null}
                     {editingMemory === memory.id && (
                       <div className="mt-3 flex gap-2">
@@ -1573,7 +1573,7 @@ export default function AdminPanel() {
                         </span>
                       )}
                     </div>
-                    <div className="mt-3 text-sm text-gray-500 break-words space-y-0.5">
+                    <div className="mt-2 sm:mt-3 text-xs sm:text-sm text-gray-500 break-all space-y-0.5 overflow-hidden">
                       <p className="flex items-center gap-1 cursor-pointer" onClick={() => memory.ip && navigator.clipboard.writeText(memory.ip)} title="Click to copy IP">
                         IP: <span className="underline decoration-dotted">{memory.ip || '-'}</span>
                       </p>
@@ -1587,10 +1587,10 @@ export default function AdminPanel() {
                         return <p className="text-blue-600 font-semibold">{label}</p>;
                       })()}
                     </div>
-                    <small className="block mt-3 text-gray-500">
+                    <small className="block mt-2 sm:mt-3 text-gray-500 text-xs sm:text-sm">
                       {new Date(memory.created_at).toLocaleString()}
                     </small>
-                    <div className="mt-4 flex flex-wrap gap-4">
+                    <div className="mt-3 sm:mt-4 flex flex-wrap gap-2 sm:gap-4">
                       {selectedTab === "pending" && (
                         <>
                           <button
