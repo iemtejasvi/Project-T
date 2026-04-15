@@ -164,7 +164,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMessage: string, isDestructedNow: boolean, destructAtLabel: string | null) {
   if (isDestructedNow) {
     return (
-      <div className="text-[14px] sm:text-[16px] leading-snug break-words hyphens-none opacity-90 font-mono">
+      <div className="text-[16px] sm:text-[18px] leading-snug break-words hyphens-none opacity-90 font-mono">
         <p className="tracking-tight">
           This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You’re late to read it.
         </p>
@@ -176,8 +176,8 @@ function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMe
   const wordCount = countWords(messageToRender);
   const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
   const textClass = isShortOrExact
-    ? "text-4xl tracking-wide leading-snug break-words hyphens-none"
-    : "text-2xl tracking-wide leading-snug break-words hyphens-none";
+    ? "text-[2.5rem] tracking-wide leading-snug break-words hyphens-none"
+    : "text-[1.65rem] tracking-wide leading-snug break-words hyphens-none";
   switch (memory.animation) {
     case "cursive":
       return (
@@ -446,7 +446,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </span>
             )}
             <div className="pb-1 relative z-10">
-               <h3 className={`${large ? 'text-4xl' : 'text-2xl'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
+               <h3 className={`${large ? 'text-[2.5rem]' : 'text-3xl'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
                                 <span className="break-words overflow-hidden leading-tight">To:{" "}
                   {isLinkableName(memory.recipient) ? (
                     <Link
@@ -461,7 +461,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   )}
                 </span>
               </h3>
-              {memory.sender && <p className={`mt-1 ${large ? 'text-3xl' : 'text-2xl'} italic text-[var(--text)] break-words overflow-hidden`}>From:{" "}
+              {memory.sender && <p className={`mt-1 ${large ? 'text-[2rem]' : 'text-[1.65rem]'} italic text-[var(--text)] break-words overflow-hidden`}>From:{" "}
                 {isLinkableName(memory.sender) ? (
                   <Link
                     href={`/name/${encodeURIComponent(memory.sender.toLowerCase().trim())}`}
@@ -476,7 +476,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </p>}
               <div className="my-3 h-[1px] relative z-10" style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.35), transparent)' }} />
             </div>
-            <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
+            <div className="text-2xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
             {createdAgoLabel && !isDestructedNow && (
@@ -484,7 +484,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 {createdAgoLabel}
               </div>
             )}
-            <div className="text-xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5' }}>
+            <div className="text-2xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5' }}>
               {destructCountdown && !isDestructedNow ? (
                 <div className="text-sm text-center font-mono opacity-90 text-[var(--text)]">
                   <span className="opacity-80">self-destructs in</span>{" "}
@@ -519,7 +519,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 }}
               />
             )}
-            <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
+            <p className={`hidden lg:block text-[2rem] italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
             <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
             <div className="my-3 h-[1px] relative z-10" style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.35), transparent)' }} />
             {memory.animation === "rough" ? (
@@ -527,7 +527,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 ref={backMessageRef}
                 className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 no_scrollbar ${dragScroll.getCursorClassName()}`}
                 style={{
-                  fontSize: (isDestructedNow ? '' : filterProfanity(memory.message)).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2rem' : '1.25rem',
+                  fontSize: (isDestructedNow ? '' : filterProfanity(memory.message)).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2.5rem' : '1.65rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
@@ -539,7 +539,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 containerRefOverride={backMessageRef}
                 className={dragScroll.getCursorClassName()}
                 style={{
-                  fontSize: (isDestructedNow ? '' : filterProfanity(memory.message)).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2rem' : '1.25rem',
+                  fontSize: (isDestructedNow ? '' : filterProfanity(memory.message)).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2.5rem' : '1.65rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}

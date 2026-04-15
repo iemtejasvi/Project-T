@@ -30,7 +30,7 @@ export default function UnsentLetters() {
     <div className="min-h-screen flex flex-col bg-[var(--background)]">
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-3xl font-bold text-[var(--text)] desktop-heading">Unsent Letters</h1>
+          <h1 className="text-3xl lg:text-4xl font-bold text-[var(--text)] desktop-heading">Unsent Letters</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap items-center justify-center gap-4 sm:gap-6 desktop-nav-list">
