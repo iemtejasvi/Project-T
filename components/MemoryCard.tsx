@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import CursiveText from './CursiveText';
@@ -34,21 +34,33 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
     }
   }, [children]);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+  // Native touchmove listener with passive: false to allow preventDefault
+  useEffect(() => {
     const el = containerRef.current;
-    if (!el || !needsScroll) return;
-    const { scrollTop, scrollHeight, clientHeight } = el;
-    const atTop = scrollTop <= 0;
-    const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-    const dy = e.touches[0].clientY - touchStartY.current;
-    // Finger moving down (scroll up) and not at top, or finger moving up (scroll down) and not at bottom → capture scroll
-    if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) {
-      e.stopPropagation();
-    }
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY.current = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!needsScroll) return;
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const atTop = scrollTop <= 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+      const dy = e.touches[0].clientY - touchStartY.current;
+      // Within scrollable range → prevent page scroll
+      if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) {
+        e.preventDefault();
+      }
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+    };
   }, [needsScroll]);
 
   return (
@@ -58,8 +70,6 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
         needsScroll ? "cute_scroll" : ""
       }`}
       style={{ ...style, touchAction: needsScroll ? 'pan-y' : 'auto' }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
     >
       {children}
     </div>
@@ -119,20 +129,32 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     }
   }, [flipped, memory.message]);
 
-  const onRoughTouchStart = useCallback((e: React.TouchEvent) => {
-    roughTouchStartY.current = e.touches[0].clientY;
-  }, []);
-
-  const onRoughTouchMove = useCallback((e: React.TouchEvent) => {
+  // Native touch listeners for rough paper scroll (passive: false for preventDefault)
+  useEffect(() => {
     const el = roughScrollRef.current;
-    if (!el || !roughNeedsScroll) return;
-    const { scrollTop, scrollHeight, clientHeight } = el;
-    const atTop = scrollTop <= 0;
-    const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
-    const dy = e.touches[0].clientY - roughTouchStartY.current;
-    if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) {
-      e.stopPropagation();
-    }
+    if (!el) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      roughTouchStartY.current = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!roughNeedsScroll) return;
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const atTop = scrollTop <= 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+      const dy = e.touches[0].clientY - roughTouchStartY.current;
+      if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) {
+        e.preventDefault();
+      }
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+    };
   }, [roughNeedsScroll]);
 
   const createdDate = useMemo(() => new Date(memory.created_at), [memory.created_at]);
@@ -644,8 +666,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
                   touchAction: roughNeedsScroll ? 'pan-y' : 'auto',
                 } as React.CSSProperties}
-                onTouchStart={onRoughTouchStart}
-                onTouchMove={onRoughTouchMove}
               >
                 {renderMessage(memory)}
               </div>
