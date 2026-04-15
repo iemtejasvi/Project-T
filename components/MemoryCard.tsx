@@ -323,33 +323,21 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
-        {/* Rough paper defs and overlay for detail view */}
+        {/* Rough paper overlay for detail view */}
         {memory.animation === "rough" && (
-          <>
-            <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
-              <defs>
-                <filter id={`roughpaper-${memory.id}`}>
-                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-                  <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
-                    <feDistantLight azimuth="45" elevation="35" />
-                  </feDiffuseLighting>
-                </filter>
-              </defs>
-            </svg>
             <div
               aria-hidden
               className="absolute inset-0 rounded-[inherit]"
               style={{
-                filter: `url(#roughpaper-${memory.id})`,
-                background:
-                  effectiveColor && effectiveColor !== "default"
-                    ? `var(--color-${effectiveColor}-bg)`
-                    : "#e8e6df",
-                opacity: 0.55,
+                backgroundImage: 'url(/rough-paper.webp)',
+                backgroundSize: '140%',
+                backgroundPosition: 'center',
+                opacity: 0.5,
+                mixBlendMode: 'multiply',
                 zIndex: 0,
+                pointerEvents: "none",
               }}
             />
-          </>
         )}
 
 
