@@ -367,32 +367,19 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         style={{ ...bgStyle, ...borderStyle }}
       >
         {memory.animation === "rough" && (
-          <>
-            <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
-              <defs>
-                <filter id={`roughpaper-${memory.id}`}>
-                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-                  <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
-                    <feDistantLight azimuth="45" elevation="35" />
-                  </feDiffuseLighting>
-                </filter>
-              </defs>
-            </svg>
-            <div
-              aria-hidden
-              className="absolute inset-0 rounded-[inherit]"
-              style={{
-                filter: `url(#roughpaper-${memory.id})`,
-                background:
-                  effectiveColor && effectiveColor !== "default"
-                    ? `var(--color-${effectiveColor}-bg)`
-                    : "#e8e6df",
-                opacity: 0.75,
-                zIndex: 0,
-                pointerEvents: "none",
-              }}
-            />
-          </>
+          <div
+            aria-hidden
+            className="absolute inset-0 rounded-[inherit]"
+            style={{
+              backgroundImage: 'url(/rough-paper.webp)',
+              backgroundSize: '140%',
+              backgroundPosition: 'center',
+              opacity: 0.5,
+              mixBlendMode: 'multiply',
+              zIndex: 0,
+              pointerEvents: "none",
+            }}
+          />
         )}
         <motion.div
           className="flip-card-inner relative z-10 w-full h-full"
@@ -405,22 +392,19 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             style={{ ...bgStyle, ...borderStyle }}
           >
             {memory.animation === "rough" && (
-              <>
-                <div
-                  aria-hidden
-                  className="absolute inset-0 rounded-[inherit]"
-                  style={{
-                    filter: `url(#roughpaper-${memory.id})`,
-                    background:
-                      effectiveColor && effectiveColor !== "default"
-                        ? `var(--color-${effectiveColor}-bg)`
-                        : "#e8e6df",
-                    opacity: 0.75,
-                    zIndex: 0,
-                    pointerEvents: "none",
-                  }}
-                />
-              </>
+              <div
+                aria-hidden
+                className="absolute inset-0 rounded-[inherit]"
+                style={{
+                  backgroundImage: 'url(/rough-paper.webp)',
+                  backgroundSize: '140%',
+                  backgroundPosition: 'center',
+                  opacity: 0.5,
+                  mixBlendMode: 'multiply',
+                  zIndex: 0,
+                  pointerEvents: "none",
+                }}
+              />
             )}
             {memory.pinned && (
               <span
@@ -521,22 +505,19 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             style={{ ...bgStyle, ...borderStyle, ...dragScroll.getZoneStyle(), userSelect: "none", touchAction: "none" }}
           >
             {memory.animation === "rough" && (
-              <>
-                <div
-                  aria-hidden
-                  className="absolute inset-0 rounded-[inherit]"
-                  style={{
-                    filter: `url(#roughpaper-${memory.id})`,
-                    background:
-                      effectiveColor && effectiveColor !== "default"
-                        ? `var(--color-${effectiveColor}-bg)`
-                        : "#e8e6df",
-                    opacity: 0.75,
-                    zIndex: 0,
-                    pointerEvents: "none",
-                  }}
-                />
-              </>
+              <div
+                aria-hidden
+                className="absolute inset-0 rounded-[inherit]"
+                style={{
+                  backgroundImage: 'url(/rough-paper.webp)',
+                  backgroundSize: '140%',
+                  backgroundPosition: 'center',
+                  opacity: 0.5,
+                  mixBlendMode: 'multiply',
+                  zIndex: 0,
+                  pointerEvents: "none",
+                }}
+              />
             )}
             <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
             <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
