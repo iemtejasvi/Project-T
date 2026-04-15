@@ -59,7 +59,7 @@ export default function AdUnit({
 
   return (
     <aside
-      className={`ad-container ${className}`}
+      className={`ad-container overflow-hidden max-w-full ${className}`}
       style={{ minHeight, ...style }}
       aria-hidden="true"
     >
@@ -71,7 +71,7 @@ export default function AdUnit({
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: "block", ...(responsive ? {} : {}) }}
+        style={{ display: "block", overflow: "hidden", maxWidth: "100%" }}
         data-ad-client={ADSENSE_CLIENT}
         data-ad-slot={slot}
         data-ad-format={format}
