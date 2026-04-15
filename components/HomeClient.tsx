@@ -405,10 +405,14 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
         </section>
       )}
 
-      {/* Mobile typewriter section - reserve space for two lines and avoid layout shake */}
-      <section className="mt-8 mb-4 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
+      {/* Mobile typewriter/announcement - sits inside header area */}
+      <section className="mt-[-1rem] mb-4 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
         <div
-          className="bg-[var(--card-bg)] p-4 rounded-lg shadow-md text-center h-[88px] flex items-center justify-center"
+          className={`p-3 text-center h-[72px] flex items-center justify-center ${
+            announcement && !isAnnouncementDismissed && announcementCheckComplete
+              ? 'rounded-full shadow-sm'
+              : ''
+          }`}
           style={
             announcement && !isAnnouncementDismissed && announcementCheckComplete
               ? {
