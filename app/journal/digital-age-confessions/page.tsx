@@ -6,11 +6,11 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Confessions in the Digital Age – From PostSecret to Anonymous Apps",
   description: "How the internet transformed the ancient human need to confess. From PostSecret to anonymous platforms, explore the evolution of digital confession culture.",
-  alternates: { canonical: '/articles/digital-age-confessions' },
+  alternates: { canonical: '/journal/digital-age-confessions' },
   openGraph: {
     title: "Confessions in the Digital Age",
     description: "From PostSecret to anonymous apps — how the internet transformed the ancient human need to confess and be heard.",
-    url: 'https://www.ifonlyisentthis.com/articles/digital-age-confessions',
+    url: 'https://www.ifonlyisentthis.com/journal/digital-age-confessions',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -133,7 +133,7 @@ export default function DigitalAgeConfessions() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Confession
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

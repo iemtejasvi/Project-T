@@ -6,11 +6,11 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 export const metadata: Metadata = {
   title: "The Psychology Behind Unsent Letters – Why We Write What We Never Send",
   description: "Explore the cognitive and emotional mechanisms behind unsent letters. Learn what psychology reveals about why humans write words they never deliver.",
-  alternates: { canonical: '/articles/psychology-of-unsent-letters' },
+  alternates: { canonical: '/journal/psychology-of-unsent-letters' },
   openGraph: {
     title: "The Psychology Behind Unsent Letters",
     description: "Explore the cognitive and emotional mechanisms behind unsent letters and what psychology reveals about withholding words.",
-    url: 'https://www.ifonlyisentthis.com/articles/psychology-of-unsent-letters',
+    url: 'https://www.ifonlyisentthis.com/journal/psychology-of-unsent-letters',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -141,7 +141,7 @@ export default function PsychologyOfUnsentLetters() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

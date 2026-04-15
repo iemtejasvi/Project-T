@@ -6,11 +6,11 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 export const metadata: Metadata = {
   title: "The Closure Letter — Writing the Ending You Deserve – How to Find Closure When You Cannot Get It From Someone Else",
   description: "When you cannot get closure from another person, you can write it for yourself. A guide to closure letters, how they work, and why they bring peace.",
-  alternates: { canonical: '/articles/writing-closure-letters' },
+  alternates: { canonical: '/journal/writing-closure-letters' },
   openGraph: {
     title: "The Closure Letter — Writing the Ending You Deserve",
     description: "When you cannot get closure from another person, you can write it for yourself. A guide to closure letters.",
-    url: 'https://www.ifonlyisentthis.com/articles/writing-closure-letters',
+    url: 'https://www.ifonlyisentthis.com/journal/writing-closure-letters',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -129,7 +129,7 @@ export default function WritingClosureLetters() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Closure Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

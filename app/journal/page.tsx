@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   title: "Journal – Reflections on Unsent Letters, Emotions & Expression",
   description: "Explore thoughtful articles about unsent letters, emotional expression, expressive writing therapy, and the psychology behind the words we never say.",
   alternates: {
-    canonical: '/articles',
+    canonical: '/journal',
   },
   openGraph: {
     title: "Journal – If Only I Sent This",
     description: "Explore thoughtful articles about unsent letters, emotional expression, expressive writing therapy, and the psychology behind the words we never say.",
-    url: 'https://www.ifonlyisentthis.com/articles',
+    url: 'https://www.ifonlyisentthis.com/journal',
     siteName: 'If Only I Sent This',
     type: 'website',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
@@ -27,62 +27,62 @@ export const metadata: Metadata = {
 
 const articles = [
   {
-    href: "/articles/psychology-of-unsent-letters",
+    href: "/journal/psychology-of-unsent-letters",
     title: "The Psychology Behind Unsent Letters",
     description: "Why do we write letters we never send? Explore the cognitive and emotional mechanisms behind unsent letters and what psychology tells us about withholding words.",
   },
   {
-    href: "/articles/how-to-write-a-letter-you-will-never-send",
+    href: "/journal/how-to-write-a-letter-you-will-never-send",
     title: "How to Write a Letter You'll Never Send",
     description: "A practical, reflective guide to writing unsent letters — from choosing your recipient to releasing what you have been carrying.",
   },
   {
-    href: "/articles/emotional-release-through-writing",
+    href: "/journal/emotional-release-through-writing",
     title: "The Emotional Power of Writing It Down",
     description: "How putting feelings into words activates different parts of the brain and creates measurable emotional relief.",
   },
   {
-    href: "/articles/famous-unsent-letters-in-history",
+    href: "/journal/famous-unsent-letters-in-history",
     title: "Famous Unsent Letters That Shaped History",
     description: "From Beethoven's Immortal Beloved to Kafka's letters to Felice — the unsent letters that shaped literary and cultural history.",
   },
   {
-    href: "/articles/why-we-hold-back-words",
+    href: "/journal/why-we-hold-back-words",
     title: "Why We Hold Back the Words That Matter",
     description: "The social, psychological, and evolutionary reasons humans suppress emotional language — and the cost of silence.",
   },
   {
-    href: "/articles/grief-letters-writing-to-someone-you-lost",
+    href: "/journal/grief-letters-writing-to-someone-you-lost",
     title: "Letters to the Lost — Writing Through Grief",
     description: "How writing to the deceased or to a lost relationship can process grief, honour memory, and bring a measure of peace.",
   },
   {
-    href: "/articles/digital-age-confessions",
+    href: "/journal/digital-age-confessions",
     title: "Confessions in the Digital Age",
     description: "From PostSecret to anonymous apps — how the internet transformed the ancient human need to confess and be heard.",
   },
   {
-    href: "/articles/therapeutic-benefits-of-expressive-writing",
+    href: "/journal/therapeutic-benefits-of-expressive-writing",
     title: "The Science of Expressive Writing",
     description: "Decades of research show that expressive writing improves mental and physical health. Here is what the science says.",
   },
   {
-    href: "/articles/anonymous-expression-and-mental-health",
+    href: "/journal/anonymous-expression-and-mental-health",
     title: "Anonymous Expression and the Quiet Art of Healing",
     description: "Why anonymity can unlock emotional honesty, reduce shame, and create a safer space for vulnerable self-expression.",
   },
   {
-    href: "/articles/art-of-letting-go-through-words",
+    href: "/journal/art-of-letting-go-through-words",
     title: "Letting Go, One Word at a Time",
     description: "Writing as a release valve — how naming emotions on paper helps the brain process and eventually release them.",
   },
   {
-    href: "/articles/writing-closure-letters",
+    href: "/journal/writing-closure-letters",
     title: "The Closure Letter — Writing the Ending You Deserve",
     description: "When you cannot get closure from another person, you can write it for yourself. A guide to closure letters and how they help.",
   },
   {
-    href: "/articles/love-you-never-expressed",
+    href: "/journal/love-you-never-expressed",
     title: "The Love You Never Said Out Loud",
     description: "On the particular ache of unexpressed love — why it stays with us, what it means, and how writing about it can bring relief.",
   },

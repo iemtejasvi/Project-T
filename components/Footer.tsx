@@ -9,7 +9,7 @@ export default function Footer() {
           <Link href="/" className="hover:text-[var(--accent)] transition-colors">Home</Link>
           <Link href="/memories" className="hover:text-[var(--accent)] transition-colors">Archive</Link>
           <Link href="/how-it-works" className="hover:text-[var(--accent)] transition-colors whitespace-nowrap">How It Works</Link>
-          <Link href="/articles" className="hover:text-[var(--accent)] transition-colors">Journal</Link>
+          <Link href="/journal" className="hover:text-[var(--accent)] transition-colors">Journal</Link>
           <Link href="/about" className="hover:text-[var(--accent)] transition-colors">About</Link>
           <Link href="/contact" className="hover:text-[var(--accent)] transition-colors">Contact</Link>
         </nav>
@@ -33,7 +33,7 @@ export default function Footer() {
           <Link href="/" className="hover:opacity-100 transition-opacity">Home</Link>
           <Link href="/memories" className="hover:opacity-100 transition-opacity">Archive</Link>
           <Link href="/how-it-works" className="hover:opacity-100 transition-opacity whitespace-nowrap">How It Works</Link>
-          <Link href="/articles" className="hover:opacity-100 transition-opacity">Journal</Link>
+          <Link href="/journal" className="hover:opacity-100 transition-opacity">Journal</Link>
           <Link href="/about" className="hover:opacity-100 transition-opacity">About</Link>
           <Link href="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
         </nav>

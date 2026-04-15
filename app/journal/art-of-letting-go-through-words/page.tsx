@@ -6,11 +6,11 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 export const metadata: Metadata = {
   title: "Letting Go, One Word at a Time – Writing as Emotional Release",
   description: "Writing as a release valve — how naming emotions on paper helps the brain process, transform, and eventually release them. The art of letting go through language.",
-  alternates: { canonical: '/articles/art-of-letting-go-through-words' },
+  alternates: { canonical: '/journal/art-of-letting-go-through-words' },
   openGraph: {
     title: "Letting Go, One Word at a Time",
     description: "How naming emotions on paper helps the brain process and eventually release them.",
-    url: 'https://www.ifonlyisentthis.com/articles/art-of-letting-go-through-words',
+    url: 'https://www.ifonlyisentthis.com/journal/art-of-letting-go-through-words',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -133,7 +133,7 @@ export default function ArtOfLettingGo() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

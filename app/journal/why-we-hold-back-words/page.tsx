@@ -6,11 +6,11 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Why We Hold Back the Words That Matter – The Psychology of Emotional Suppression",
   description: "Explore the social, psychological, and evolutionary reasons humans suppress emotional language — and the hidden cost of silence on mental health.",
-  alternates: { canonical: '/articles/why-we-hold-back-words' },
+  alternates: { canonical: '/journal/why-we-hold-back-words' },
   openGraph: {
     title: "Why We Hold Back the Words That Matter",
     description: "The social, psychological, and evolutionary reasons humans suppress emotional language — and the cost of silence.",
-    url: 'https://www.ifonlyisentthis.com/articles/why-we-hold-back-words',
+    url: 'https://www.ifonlyisentthis.com/journal/why-we-hold-back-words',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -130,7 +130,7 @@ export default function WhyWeHoldBackWords() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

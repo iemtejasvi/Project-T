@@ -6,11 +6,11 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 export const metadata: Metadata = {
   title: "Anonymous Expression and the Quiet Art of Healing – Why Anonymity Unlocks Honesty",
   description: "Why anonymity can unlock emotional honesty, reduce shame, and create a safer space for vulnerable self-expression. Research on anonymous disclosure and wellbeing.",
-  alternates: { canonical: '/articles/anonymous-expression-and-mental-health' },
+  alternates: { canonical: '/journal/anonymous-expression-and-mental-health' },
   openGraph: {
     title: "Anonymous Expression and the Quiet Art of Healing",
     description: "Why anonymity can unlock emotional honesty, reduce shame, and create a safer space for vulnerable self-expression.",
-    url: 'https://www.ifonlyisentthis.com/articles/anonymous-expression-and-mental-health',
+    url: 'https://www.ifonlyisentthis.com/journal/anonymous-expression-and-mental-health',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -125,7 +125,7 @@ export default function AnonymousExpression() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Anonymously
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

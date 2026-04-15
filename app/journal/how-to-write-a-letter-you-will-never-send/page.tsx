@@ -6,11 +6,11 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 export const metadata: Metadata = {
   title: "How to Write a Letter You'll Never Send – A Reflective Guide",
   description: "A practical, thoughtful guide to writing unsent letters. Learn how to choose your recipient, find the right words, and release what you have been carrying.",
-  alternates: { canonical: '/articles/how-to-write-a-letter-you-will-never-send' },
+  alternates: { canonical: '/journal/how-to-write-a-letter-you-will-never-send' },
   openGraph: {
     title: "How to Write a Letter You'll Never Send",
     description: "A practical, thoughtful guide to writing unsent letters — from choosing your recipient to releasing what you have been carrying.",
-    url: 'https://www.ifonlyisentthis.com/articles/how-to-write-a-letter-you-will-never-send',
+    url: 'https://www.ifonlyisentthis.com/journal/how-to-write-a-letter-you-will-never-send',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -143,7 +143,7 @@ export default function HowToWriteALetter() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

@@ -6,11 +6,11 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 export const metadata: Metadata = {
   title: "The Emotional Power of Writing It Down – How Words Set Feelings Free",
   description: "Learn how putting feelings into words activates different parts of the brain and creates measurable emotional relief. The neuroscience of expressive writing.",
-  alternates: { canonical: '/articles/emotional-release-through-writing' },
+  alternates: { canonical: '/journal/emotional-release-through-writing' },
   openGraph: {
     title: "The Emotional Power of Writing It Down",
     description: "How putting feelings into words activates different parts of the brain and creates measurable emotional relief.",
-    url: 'https://www.ifonlyisentthis.com/articles/emotional-release-through-writing',
+    url: 'https://www.ifonlyisentthis.com/journal/emotional-release-through-writing',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -136,7 +136,7 @@ export default function EmotionalRelease() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

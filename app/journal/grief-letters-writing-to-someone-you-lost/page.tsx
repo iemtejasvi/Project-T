@@ -6,11 +6,11 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Letters to the Lost — Writing Through Grief",
   description: "How writing to someone who has died or a relationship that has ended can process grief, honour memory, and bring a measure of peace through unsent letters.",
-  alternates: { canonical: '/articles/grief-letters-writing-to-someone-you-lost' },
+  alternates: { canonical: '/journal/grief-letters-writing-to-someone-you-lost' },
   openGraph: {
     title: "Letters to the Lost — Writing Through Grief",
     description: "How writing to the deceased or to a lost relationship can process grief, honour memory, and bring peace.",
-    url: 'https://www.ifonlyisentthis.com/articles/grief-letters-writing-to-someone-you-lost',
+    url: 'https://www.ifonlyisentthis.com/journal/grief-letters-writing-to-someone-you-lost',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -128,7 +128,7 @@ export default function GriefLetters() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

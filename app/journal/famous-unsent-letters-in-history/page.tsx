@@ -6,11 +6,11 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 export const metadata: Metadata = {
   title: "Famous Unsent Letters That Shaped History – Beethoven, Kafka, Dickinson & More",
   description: "From Beethoven's Immortal Beloved to Kafka's agonized letters to Felice — explore the unsent letters that shaped literary, musical, and cultural history.",
-  alternates: { canonical: '/articles/famous-unsent-letters-in-history' },
+  alternates: { canonical: '/journal/famous-unsent-letters-in-history' },
   openGraph: {
     title: "Famous Unsent Letters That Shaped History",
     description: "From Beethoven's Immortal Beloved to Kafka's letters to Felice — the unsent letters that shaped history.",
-    url: 'https://www.ifonlyisentthis.com/articles/famous-unsent-letters-in-history',
+    url: 'https://www.ifonlyisentthis.com/journal/famous-unsent-letters-in-history',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -142,7 +142,7 @@ export default function FamousUnsentLetters() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

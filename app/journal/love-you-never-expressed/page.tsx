@@ -6,11 +6,11 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 export const metadata: Metadata = {
   title: "The Love You Never Said Out Loud – On Unexpressed Love and Why It Stays With Us",
   description: "On the particular ache of unexpressed love — why it stays with us, what it means, and how writing about it can bring understanding and relief.",
-  alternates: { canonical: '/articles/love-you-never-expressed' },
+  alternates: { canonical: '/journal/love-you-never-expressed' },
   openGraph: {
     title: "The Love You Never Said Out Loud",
     description: "On the particular ache of unexpressed love — why it stays with us and how writing about it can bring relief.",
-    url: 'https://www.ifonlyisentthis.com/articles/love-you-never-expressed',
+    url: 'https://www.ifonlyisentthis.com/journal/love-you-never-expressed',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -129,7 +129,7 @@ export default function LoveYouNeverExpressed() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Love Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>

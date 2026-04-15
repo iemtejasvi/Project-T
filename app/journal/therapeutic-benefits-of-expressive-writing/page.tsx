@@ -6,11 +6,11 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "The Science of Expressive Writing – Science-Backed Evidence",
   description: "Decades of research show that expressive writing improves mental and physical health. Explore the science, the studies, and how to apply it in your own life.",
-  alternates: { canonical: '/articles/therapeutic-benefits-of-expressive-writing' },
+  alternates: { canonical: '/journal/therapeutic-benefits-of-expressive-writing' },
   openGraph: {
     title: "The Science of Expressive Writing",
     description: "Decades of research show that expressive writing improves mental and physical health. Here is what the science says.",
-    url: 'https://www.ifonlyisentthis.com/articles/therapeutic-benefits-of-expressive-writing',
+    url: 'https://www.ifonlyisentthis.com/journal/therapeutic-benefits-of-expressive-writing',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
   },
@@ -121,7 +121,7 @@ export default function TherapeuticBenefits() {
               <Link href="/submit" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm hover:opacity-90 transition-opacity">
                 Write Your Letter
               </Link>
-              <Link href="/articles" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
+              <Link href="/journal" className="px-5 py-2.5 rounded-lg border border-[var(--border)] text-sm hover:border-[var(--accent)] transition-colors">
                 Browse the Journal
               </Link>
             </div>
