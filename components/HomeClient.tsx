@@ -364,37 +364,34 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
 
       {/* Desktop announcement - replaces typewriter space instead of taking extra room */}
       {announcement && !isAnnouncementDismissed && announcementCheckComplete && (
-        <section className={`hidden lg:flex items-center justify-center mt-[-2rem] mb-2 px-4 sm:px-6 max-w-2xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+        <section className={`hidden lg:flex items-center justify-center mt-[-3rem] mb-2 px-4 sm:px-6 max-w-2xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
           <div
-            className="relative px-5 py-3 rounded-full md:flex md:items-center md:justify-center md:gap-3 w-full"
+            className="relative h-[2.5rem] px-6 rounded-full flex items-center justify-center gap-3 w-full"
             style={{
               backgroundColor: announcement.background_color || '#ef4444',
               color: announcement.text_color || '#ffffff',
               opacity: 0.9,
             }}
           >
-            {/* Announcement Content */}
-            <div className="text-center flex items-center justify-center gap-2">
-              <span className="text-sm">{announcement.icon || '📢'}</span>
-              <span className="text-sm font-medium">{announcement.message}</span>
+            <div className="flex items-center justify-center gap-2 text-sm font-medium leading-none">
+              <span className="shrink-0">{announcement.icon || '📢'}</span>
+              <span className="truncate">{announcement.message}</span>
               {announcement.link_url && (
                 <a
                   href={announcement.link_url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="text-xs underline opacity-70 hover:opacity-100 transition-opacity ml-1"
+                  className="text-xs underline opacity-70 hover:opacity-100 transition-opacity shrink-0 ml-1"
                   onClick={trackAnnouncementClick}
                 >
                   Read more &rarr;
                 </a>
               )}
             </div>
-
-            {/* Dismiss Button */}
             {announcement.is_dismissible && (
               <button
                 onClick={handleDismissAnnouncement}
-                className="absolute top-1/2 -translate-y-1/2 right-2 w-6 h-6 flex items-center justify-center text-lg leading-none opacity-50 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
+                className="absolute top-1/2 -translate-y-1/2 right-3 w-5 h-5 flex items-center justify-center text-base leading-none opacity-50 hover:opacity-100 transition-opacity rounded-full hover:bg-black/10"
                 aria-label="Dismiss announcement"
               >
                 &times;

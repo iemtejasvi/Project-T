@@ -408,36 +408,17 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             )}
             {memory.pinned && (
               <span
-                className="absolute top-4 right-4 animate-pin-pop z-20"
+                className="absolute top-5 right-5 animate-pin-pop z-20"
                 style={{
                   display: 'inline-block',
-                  transform: 'rotate(-15deg)',
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.10))',
-                  verticalAlign: 'middle',
+                  filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.15))',
                 }}
                 title="Pinned"
               >
                 <span
-                  className="absolute inset-0 rounded-full border border-yellow-200 shadow-sm"
+                  className="relative z-10"
                   style={{
-                    background: effectiveColor !== 'default'
-                      ? `var(--color-${effectiveColor}-bg)`
-                      : 'radial-gradient(circle, #fffbe6 60%, #ffe066 100%)',
-                    zIndex: 0,
-                    width: '1.6em',
-                    height: '1.6em',
-                    left: '-0.32em',
-                    top: '-0.32em',
-                    opacity: 0.85,
-                    boxShadow: '0 2px 8px 0 rgba(0,0,0,0.08)',
-                  }}
-                  aria-hidden="true"
-                />
-                <span
-                  className="relative z-10 text-yellow-500"
-                  style={{
-                    fontSize: '1.28em',
-                    textShadow: '0 1px 3px #fffbe6, 0 1px 2px #ffe066',
+                    fontSize: '1.5rem',
                     lineHeight: 1,
                   }}
                 >
