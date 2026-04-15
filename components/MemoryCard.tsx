@@ -33,6 +33,25 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
     }
   }, [children]);
 
+  // Lock body scroll while touching a scrollable message container
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !needsScroll) return;
+
+    const lock = () => { document.body.style.overflow = 'hidden'; };
+    const unlock = () => { document.body.style.overflow = ''; };
+
+    el.addEventListener('touchstart', lock, { passive: true });
+    el.addEventListener('touchend', unlock, { passive: true });
+    el.addEventListener('touchcancel', unlock, { passive: true });
+    return () => {
+      el.removeEventListener('touchstart', lock);
+      el.removeEventListener('touchend', unlock);
+      el.removeEventListener('touchcancel', unlock);
+      unlock();
+    };
+  }, [needsScroll]);
+
   return (
     <div
       ref={containerRef}
@@ -95,6 +114,25 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       );
     }
   }, [flipped, memory.message]);
+
+  // Lock body scroll while touching a scrollable rough paper container
+  useEffect(() => {
+    const el = roughScrollRef.current;
+    if (!el || !roughNeedsScroll) return;
+
+    const lock = () => { document.body.style.overflow = 'hidden'; };
+    const unlock = () => { document.body.style.overflow = ''; };
+
+    el.addEventListener('touchstart', lock, { passive: true });
+    el.addEventListener('touchend', unlock, { passive: true });
+    el.addEventListener('touchcancel', unlock, { passive: true });
+    return () => {
+      el.removeEventListener('touchstart', lock);
+      el.removeEventListener('touchend', unlock);
+      el.removeEventListener('touchcancel', unlock);
+      unlock();
+    };
+  }, [roughNeedsScroll]);
 
   const createdDate = useMemo(() => new Date(memory.created_at), [memory.created_at]);
   const dateStr = createdDate.toLocaleDateString();
