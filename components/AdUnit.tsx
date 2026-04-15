@@ -42,15 +42,22 @@ export default function AdUnit({
   const [adFailed, setAdFailed] = useState(false);
 
   useEffect(() => {
-    if (!ENABLE_ADS || pushed.current) return;
+    if (!ENABLE_ADS || pushed.current || adFailed) return;
 
     try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-      pushed.current = true;
-    } catch {
+      // Ensure adsbygoogle exists and is an array before pushing
+      if (!window.adsbygoogle) {
+        window.adsbygoogle = [];
+      }
+      if (Array.isArray(window.adsbygoogle)) {
+        window.adsbygoogle.push({});
+        pushed.current = true;
+      }
+    } catch (error) {
+      console.warn('AdSense initialization failed:', error);
       setAdFailed(true);
     }
-  }, []);
+  }, [adFailed]);
 
   if (!ENABLE_ADS) return null;
 
