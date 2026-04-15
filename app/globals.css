@@ -411,7 +411,7 @@ input::placeholder, textarea::placeholder {
 
 /* Enhanced Dramatic Cursive Text Effect */
 .cursive-text {
-  font-size: 24px;
+  font-size: clamp(18px, 4vw, 24px);
   line-height: 1.5;
   letter-spacing: 0.025em;
   position: relative;
@@ -1052,6 +1052,11 @@ input::placeholder, textarea::placeholder {
 
 /* Name archive page: slightly taller cards on mobile only */
 @media (max-width: 640px) {
+  .name-archive-cards .flip-card {
+    height: 300px !important;
+  }
+}
+@media (min-width: 641px) and (max-width: 1023px) {
   .name-archive-cards .flip-card {
     height: 340px !important;
   }
