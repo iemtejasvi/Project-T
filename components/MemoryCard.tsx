@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import CursiveText from './CursiveText';
@@ -23,6 +23,7 @@ interface MemoryCardProps {
 
 const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef(0);
   const [needsScroll, setNeedsScroll] = useState(false);
 
   useEffect(() => {
@@ -33,13 +34,32 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
     }
   }, [children]);
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const el = containerRef.current;
+    if (!el || !needsScroll) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const atTop = scrollTop <= 0;
+    const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    // Finger moving down (scroll up) and not at top, or finger moving up (scroll down) and not at bottom → capture scroll
+    if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) {
+      e.stopPropagation();
+    }
+  }, [needsScroll]);
+
   return (
     <div
       ref={containerRef}
       className={`flex-1 overflow-y-auto overscroll-contain text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 ${
         needsScroll ? "cute_scroll" : ""
       }`}
-      style={style}
+      style={{ ...style, touchAction: needsScroll ? 'pan-y' : 'auto' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
     >
       {children}
     </div>
@@ -48,6 +68,9 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
 
 const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "default", compact = false }) => {
   const [flipped, setFlipped] = useState(false);
+  const roughScrollRef = useRef<HTMLDivElement>(null);
+  const roughTouchStartY = useRef(0);
+  const [roughNeedsScroll, setRoughNeedsScroll] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [isClient, setIsClient] = useState(false);  useEffect(() => {
     const mql = window.matchMedia("(min-width: 1024px)");
@@ -86,6 +109,31 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       : { color: `var(--color-${effectiveColor}-border)` },
     [effectiveColor]
   );
+
+  // Detect if rough scroll container needs scrolling
+  useEffect(() => {
+    if (roughScrollRef.current) {
+      setRoughNeedsScroll(
+        roughScrollRef.current.scrollHeight > roughScrollRef.current.clientHeight
+      );
+    }
+  }, [flipped, memory.message]);
+
+  const onRoughTouchStart = useCallback((e: React.TouchEvent) => {
+    roughTouchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const onRoughTouchMove = useCallback((e: React.TouchEvent) => {
+    const el = roughScrollRef.current;
+    if (!el || !roughNeedsScroll) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const atTop = scrollTop <= 0;
+    const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+    const dy = e.touches[0].clientY - roughTouchStartY.current;
+    if ((dy > 0 && !atTop) || (dy < 0 && !atBottom)) {
+      e.stopPropagation();
+    }
+  }, [roughNeedsScroll]);
 
   const createdDate = useMemo(() => new Date(memory.created_at), [memory.created_at]);
   const dateStr = createdDate.toLocaleDateString();
@@ -567,7 +615,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           {/* BACK */}
           <div
             className={`flip-card-back absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : ""} p-5 flex flex-col justify-start rotate-y-180`}
-            style={{ ...bgStyle, ...borderStyle, overscrollBehavior: 'contain', touchAction: 'pan-y' }}
+            style={{ ...bgStyle, ...borderStyle, overscrollBehavior: 'contain', touchAction: 'auto' }}
           >
             {/* Rough paper overlay for back */}
             {memory.animation === "rough" && (
@@ -588,12 +636,16 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             <h3 className="text-xl italic text-[var(--text)] text-center relative z-10">if only i sent this</h3>
             <hr className="my-2 border-[#999999] relative z-10" />
             {memory.animation === "rough" ? (
-              <div 
+              <div
+                ref={roughScrollRef}
                 className="flex-1 overflow-y-auto overscroll-contain text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 cute_scroll"
                 style={{
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
+                  touchAction: roughNeedsScroll ? 'pan-y' : 'auto',
                 } as React.CSSProperties}
+                onTouchStart={onRoughTouchStart}
+                onTouchMove={onRoughTouchMove}
               >
                 {renderMessage(memory)}
               </div>
