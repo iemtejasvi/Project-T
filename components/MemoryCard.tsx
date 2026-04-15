@@ -426,31 +426,19 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       >
         {/* Rough paper base for underside during flip */}
         {memory.animation === "rough" && (
-          <>
-            <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
-              <defs>
-                <filter id={`roughpaper-${memory.id}`}>
-                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" />
-                  <feDiffuseLighting lightingColor="white" diffuseConstant="1" surfaceScale="2" result="diffLight">
-                    <feDistantLight azimuth="45" elevation="35" />
-                  </feDiffuseLighting>
-                </filter>
-              </defs>
-            </svg>
             <div
               aria-hidden
               className="absolute inset-0 rounded-[inherit]"
               style={{
-                filter: `url(#roughpaper-${memory.id})`,
-                background:
-                  effectiveColor && effectiveColor !== "default"
-                    ? `var(--color-${effectiveColor}-bg)`
-                    : "#e8e6df",
-                opacity: 0.55,
+                backgroundImage: 'url(/rough-paper.webp)',
+                backgroundSize: '140%',
+                backgroundPosition: 'center',
+                opacity: 0.5,
+                mixBlendMode: 'multiply',
                 zIndex: 0,
+                pointerEvents: "none",
               }}
             />
-          </>
         )}
         <motion.div
           className="flip-card-inner relative z-10 w-full h-full"
@@ -464,22 +452,19 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           >
             {/* Rough paper overlay for front */}
             {memory.animation === "rough" && (
-              <>
-                <div
-                  aria-hidden
-                  className="absolute inset-0 rounded-[inherit]"
-                  style={{
-                    filter: `url(#roughpaper-${memory.id})`,
-                    background:
-                      effectiveColor && effectiveColor !== "default"
-                        ? `var(--color-${effectiveColor}-bg)`
-                        : "#e8e6df",
-                    opacity: 0.55,
-                    zIndex: 0,
-                    pointerEvents: "none",
-                  }}
-                />
-              </>
+              <div
+                aria-hidden
+                className="absolute inset-0 rounded-[inherit]"
+                style={{
+                  backgroundImage: 'url(/rough-paper.webp)',
+                  backgroundSize: '140%',
+                  backgroundPosition: 'center',
+                  opacity: 0.5,
+                  mixBlendMode: 'multiply',
+                  zIndex: 0,
+                  pointerEvents: "none",
+                }}
+              />
             )}
 
             <div className="pt-1 relative z-10">
@@ -586,21 +571,19 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           >
             {/* Rough paper overlay for back */}
             {memory.animation === "rough" && (
-              <>
-                <div
-                  aria-hidden
-                  className="absolute inset-0 rounded-[inherit]"
-                  style={{
-                    filter: `url(#roughpaper-${memory.id})`,
-                    background:
-                      effectiveColor && effectiveColor !== "default"
-                        ? `var(--color-${effectiveColor}-bg)`
-                        : "#e8e6df",
-                    opacity: 0.55,
-                    zIndex: 0,
-                  }}
-                />
-              </>
+              <div
+                aria-hidden
+                className="absolute inset-0 rounded-[inherit]"
+                style={{
+                  backgroundImage: 'url(/rough-paper.webp)',
+                  backgroundSize: '140%',
+                  backgroundPosition: 'center',
+                  opacity: 0.5,
+                  mixBlendMode: 'multiply',
+                  zIndex: 0,
+                  pointerEvents: "none",
+                }}
+              />
             )}
             <h3 className="text-lg italic text-[var(--text)] text-center relative z-10">if only i sent this</h3>
             <hr className="my-2 border-[#999999] relative z-10" />
