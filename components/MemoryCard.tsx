@@ -280,12 +280,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     const wordCount = countWords(messageToRender);
     const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
     const textClass = forceLarge
-      ? (isShortOrExact
-        ? "text-[22px] sm:text-[28px] tracking-wide leading-snug break-words hyphens-auto"
-        : "text-[18px] sm:text-[22px] tracking-wide leading-snug break-words hyphens-auto")
+      ? "text-[28px] tracking-wide leading-snug break-words hyphens-none"
       : isShortOrExact
-        ? "text-[20px] sm:text-[24px] tracking-wide leading-snug break-words hyphens-auto"
-        : "text-[18px] sm:text-[21px] tracking-wide leading-snug break-words hyphens-auto";
+        ? "text-[24px] tracking-wide leading-snug break-words hyphens-none"
+        : "text-[21px] tracking-wide leading-snug break-words hyphens-none";
     
     switch (memory.animation) {
       case "cursive":
@@ -314,7 +312,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     // Show loading state until client-side detection is complete
     if (!isClient) {
       return (
-        <div className="w-full max-w-md mx-auto my-6 p-6 rounded-xl bg-[var(--card-bg)] flex items-center justify-center min-h-[200px] sm:min-h-[300px]">
+        <div className="w-full max-w-md mx-auto my-6 p-6 rounded-xl bg-[var(--card-bg)] flex items-center justify-center min-h-[300px]">
           <div className="flex items-center gap-2 text-[var(--text)] opacity-60">
             <div className="w-2 h-2 rounded-full bg-current animate-pulse"></div>
             <div className="w-2 h-2 rounded-full bg-current animate-pulse" style={{ animationDelay: '0.2s' }}></div>
@@ -368,7 +366,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         className={
           isDesktop
             ? "w-full max-w-3xl mx-auto my-12 p-12 rounded-[2rem] shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden"
-            : "w-full max-w-[min(520px,100%)] mx-auto my-6 p-4 sm:p-6 rounded-[1.5rem] shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden min-h-[40vh] sm:min-h-[50vh]"
+            : "w-full max-w-[min(520px,100%)] mx-auto my-6 p-4 sm:p-6 rounded-[1.5rem] shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden min-h-[50vh]"
         }
         style={{ ...bgStyle, ...borderStyle }}
       >
@@ -429,7 +427,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
         {/* Message section */}
         <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
-          <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-auto px-3 sm:px-4`}>
+          <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
             {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
           </div>
         </div>
@@ -460,7 +458,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
   return (
     <div className={`relative group ${compact ? 'my-2 sm:my-3' : 'my-4 sm:my-6'}`}>
-      <div className="absolute right-1 sm:right-[-18px] top-1/2 transform -translate-y-1/2">
+      <div className="absolute right-[-18px] top-1/2 transform -translate-y-1/2">
         <Link href={`/memories/${memory.id}`}>
           <span
             className="block text-3xl font-light opacity-50 transition-opacity duration-200 active:opacity-70 select-none"
@@ -472,7 +470,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`flip-card relative ${variant === "home" ? "w-[74vw] h-[300px] sm:h-[340px] rounded-[1.75rem]" : "w-[74vw] h-[300px] sm:h-[340px] rounded-[2rem]"} max-w-md mx-auto perspective-1000 cursor-pointer hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
+        className={`flip-card relative ${variant === "home" ? "w-[74vw] h-[340px] rounded-[1.75rem]" : "w-[74vw] h-[340px] rounded-[2rem]"} max-w-md mx-auto perspective-1000 cursor-pointer hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle, WebkitPerspective: '1000px', perspective: '1000px' } as React.CSSProperties}
       >
