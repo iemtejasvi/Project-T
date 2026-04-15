@@ -491,17 +491,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               }}
             />
         )}
-        <motion.div
+        <div
           className="flip-card-inner relative w-full h-full"
-          initial={{ rotateY: 0 }}
-          animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ type: "spring", stiffness: 200, damping: 28, mass: 0.8 }}
-          style={{ WebkitTransformStyle: 'preserve-3d', transformStyle: 'preserve-3d' } as React.CSSProperties}
+          style={{
+            WebkitTransformStyle: 'preserve-3d',
+            transformStyle: 'preserve-3d',
+            WebkitTransform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), -webkit-transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+          } as React.CSSProperties}
         >
           {/* FRONT */}
           <div
             className={`flip-card-front absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : ""} p-5 flex flex-col justify-between ${flipped ? "pointer-events-none" : "pointer-events-auto"}`}
-            style={{ ...bgStyle, ...borderStyle, WebkitBackfaceVisibility: 'hidden', backfaceVisibility: 'hidden' } as React.CSSProperties}
+            style={{ ...bgStyle, ...borderStyle, WebkitBackfaceVisibility: 'hidden', backfaceVisibility: 'hidden', WebkitTransform: 'rotateY(0deg)', transform: 'rotateY(0deg)' } as React.CSSProperties}
           >
             {/* Rough paper overlay for front */}
             {memory.animation === "rough" && (
@@ -648,7 +651,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               </ScrollableMessage>
             )}
           </div>
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );
