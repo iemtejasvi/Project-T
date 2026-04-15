@@ -347,7 +347,7 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
         </div>
       </header>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8 relative">
+      <main className="flex-grow max-w-5xl mx-auto px-2 sm:px-6 py-8 relative">
         <SidebarAdUnit slot="4305235800" />
         <div className="mb-6">
           <input
