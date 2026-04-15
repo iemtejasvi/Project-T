@@ -359,9 +359,9 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   return (
     <div className={`relative group ${large ? 'my-2' : 'my-0'}`}>
       <motion.div
-        whileHover={{ y: -5, boxShadow: "0 28px 50px rgba(0,0,0,0.22), 0 10px 18px rgba(0,0,0,0.12)", transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] } }}
+        whileHover={{ y: -4, boxShadow: "0 30px 60px rgba(0,0,0,0.18), 0 12px 24px rgba(0,0,0,0.10)", transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } }}
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0, scale: 1, boxShadow: "0 16px 36px rgba(0,0,0,0.20), 0 8px 16px rgba(0,0,0,0.10)" }}
+        animate={{ opacity: 1, y: 0, scale: 1, boxShadow: "0 20px 44px rgba(0,0,0,0.16), 0 8px 18px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.05)" }}
         className={`flip-card relative overflow-hidden w-full h-[420px] perspective-1000 ${flipped ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle }}
@@ -401,7 +401,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         >
           {/* FRONT */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-between ${flipped ? "pointer-events-none" : "pointer-events-auto"}`}
+            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] border border-[var(--border)]/25 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-between ${flipped ? "pointer-events-none" : "pointer-events-auto"}`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             {memory.animation === "rough" && (
@@ -490,7 +490,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   <span>{memory.sender}</span>
                 )}
               </p>}
-              <hr className="my-2 border-[#999999]" />
+              <div className="my-3 h-[1px] relative z-10" style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.35), transparent)' }} />
             </div>
             <div className="text-xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
@@ -517,7 +517,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               backFaceRef.current = el;
               dragScroll.setZoneEl(el);
             }}
-            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.08),0_12px_24px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.1)] border border-[var(--border)]/15 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-start rotate-y-180 ${dragScroll.getCursorClassName()} ${flipped ? "pointer-events-auto" : "pointer-events-none"}`}
+            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] border border-[var(--border)]/25 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'p-12' : 'p-8'} flex flex-col justify-start rotate-y-180 ${dragScroll.getCursorClassName()} ${flipped ? "pointer-events-auto" : "pointer-events-none"}`}
             style={{ ...bgStyle, ...borderStyle, ...dragScroll.getZoneStyle(), userSelect: "none", touchAction: "none" }}
           >
             {memory.animation === "rough" && (
@@ -540,7 +540,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             )}
             <p className={`hidden lg:block text-4xl italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
             <p className={`block lg:hidden ${large ? 'text-3xl' : 'text-xl'} italic text-[var(--text)] text-center font-normal !font-normal relative z-10`}>if only i sent this</p>
-            <hr className="my-2 border-[#999999] relative z-10" />
+            <div className="my-3 h-[1px] relative z-10" style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.35), transparent)' }} />
             {memory.animation === "rough" ? (
               <div 
                 ref={backMessageRef}
