@@ -280,7 +280,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     const wordCount = countWords(messageToRender);
     const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
     const textClass = forceLarge
-      ? "text-[22px] sm:text-[28px] tracking-wide leading-snug break-words hyphens-auto"
+      ? (isShortOrExact
+        ? "text-[22px] sm:text-[28px] tracking-wide leading-snug break-words hyphens-auto"
+        : "text-[18px] sm:text-[22px] tracking-wide leading-snug break-words hyphens-auto")
       : isShortOrExact
         ? "text-[20px] sm:text-[24px] tracking-wide leading-snug break-words hyphens-auto"
         : "text-[18px] sm:text-[21px] tracking-wide leading-snug break-words hyphens-auto";
@@ -491,6 +493,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         )}
         <motion.div
           className="flip-card-inner relative w-full h-full"
+          initial={{ rotateY: 0 }}
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 200, damping: 28, mass: 0.8 }}
           style={{ WebkitTransformStyle: 'preserve-3d', transformStyle: 'preserve-3d' } as React.CSSProperties}
@@ -498,7 +501,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           {/* FRONT */}
           <div
             className={`flip-card-front absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : ""} p-5 flex flex-col justify-between ${flipped ? "pointer-events-none" : "pointer-events-auto"}`}
-            style={{ ...bgStyle, ...borderStyle }}
+            style={{ ...bgStyle, ...borderStyle, WebkitBackfaceVisibility: 'hidden', backfaceVisibility: 'hidden' } as React.CSSProperties}
           >
             {/* Rough paper overlay for front */}
             {memory.animation === "rough" && (
@@ -598,7 +601,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           {/* BACK */}
           <div
             className={`flip-card-back absolute w-full h-full backface-hidden ${variant === "home" ? "rounded-[1.75rem]" : "rounded-[2rem]"} shadow-[0_15px_30px_rgba(0,0,0,0.04),0_6px_12px_rgba(0,0,0,0.02),inset_0_1px_2px_rgba(255,255,255,0.12)] ${memory.animation === "rough" ? "overflow-hidden" : ""} p-5 flex flex-col justify-start rotate-y-180 ${flipped ? "pointer-events-auto" : "pointer-events-none"}`}
-            style={{ ...bgStyle, ...borderStyle }}
+            style={{ ...bgStyle, ...borderStyle, WebkitBackfaceVisibility: 'hidden', backfaceVisibility: 'hidden', WebkitTransform: 'rotateY(180deg)', transform: 'rotateY(180deg)' } as React.CSSProperties}
           >
             {/* Rough paper overlay for back */}
             {memory.animation === "rough" && (
