@@ -199,6 +199,16 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      {
+        source: '/articles',
+        destination: '/journal',
+        permanent: true,
+      },
+      {
+        source: '/articles/:slug*',
+        destination: '/journal/:slug*',
+        permanent: true,
+      },
     ];
   },
   images: {
