@@ -315,9 +315,11 @@ body {
 
 /* Disable text selection across the site, but allow in inputs/textareas */
 * {
+  -webkit-user-select: none;
   user-select: none;
 }
 input, textarea {
+  -webkit-user-select: text;
   user-select: text;
 }
 

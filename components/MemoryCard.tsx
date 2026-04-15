@@ -472,7 +472,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         animate={{ opacity: 1, y: 0 }}
         className={`flip-card relative ${variant === "home" ? "w-[74vw] h-[340px] rounded-[1.75rem]" : "w-[74vw] h-[340px] rounded-[2rem]"} max-w-md mx-auto perspective-1000 cursor-pointer hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
         onClick={handleCardClick}
-        style={{ ...bgStyle, ...borderStyle }}
+        style={{ ...bgStyle, ...borderStyle, WebkitPerspective: '1000px', perspective: '1000px' } as React.CSSProperties}
       >
         {/* Rough paper base for underside during flip */}
         {memory.animation === "rough" && (
@@ -485,13 +485,12 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                 backgroundPosition: 'center',
                 opacity: 0.5,
                 mixBlendMode: 'multiply',
-                zIndex: 0,
                 pointerEvents: "none",
               }}
             />
         )}
         <motion.div
-          className="flip-card-inner relative z-10 w-full h-full"
+          className="flip-card-inner relative w-full h-full"
           animate={{ rotateY: flipped ? 180 : 0 }}
           transition={{ type: "spring", stiffness: 200, damping: 28, mass: 0.8 }}
           style={{ WebkitTransformStyle: 'preserve-3d', transformStyle: 'preserve-3d' } as React.CSSProperties}
@@ -512,7 +511,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   backgroundPosition: 'center',
                   opacity: 0.5,
                   mixBlendMode: 'multiply',
-                  zIndex: 0,
                   pointerEvents: "none",
                 }}
               />
@@ -524,6 +522,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   className="absolute top-0 right-0 z-20"
                   style={{
                     display: 'inline-block',
+                    WebkitFilter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.15))',
                     filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.15))',
                   }}
                   title="Pinned"
@@ -612,7 +611,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
                   backgroundPosition: 'center',
                   opacity: 0.5,
                   mixBlendMode: 'multiply',
-                  zIndex: 0,
                   pointerEvents: "none",
                 }}
               />
