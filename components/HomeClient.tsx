@@ -363,10 +363,11 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
         </div>
       )}
 
+      {/* Desktop announcement - replaces typewriter space instead of taking extra room */}
       {announcement && !isAnnouncementDismissed && announcementCheckComplete && (
-        <section className={`hidden lg:block my-6 px-4 sm:px-6 max-w-2xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+        <section className={`hidden lg:flex items-center justify-center mt-[-2rem] mb-2 px-4 sm:px-6 max-w-2xl mx-auto transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
           <div
-            className="relative px-5 py-3 rounded-full md:flex md:items-center md:justify-center md:gap-3"
+            className="relative px-5 py-3 rounded-full md:flex md:items-center md:justify-center md:gap-3 w-full"
             style={{
               backgroundColor: announcement.background_color || '#ef4444',
               color: announcement.text_color || '#ffffff',
