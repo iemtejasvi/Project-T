@@ -294,7 +294,7 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
     <div
       suppressHydrationWarning
       className={
-        "min-h-[1.75rem] lg:min-h-[2.5rem] overflow-hidden text-center text-lg sm:text-xl md:text-4xl font-serif font-normal text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto" +
+        "min-h-[1.75rem] lg:min-h-[2.5rem] overflow-hidden text-center text-base sm:text-xl md:text-4xl font-serif font-normal text-[var(--text)] whitespace-pre-wrap break-normal hyphens-auto" +
         (className ? " " + className : "")
       }
     >
