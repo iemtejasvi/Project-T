@@ -372,7 +372,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             className="absolute inset-0 rounded-[inherit]"
             style={{
               backgroundImage: 'url(/rough-paper.webp)',
-              backgroundSize: '350%',
+              backgroundSize: '200%',
               backgroundPosition: 'center',
               opacity: 0.5,
               mixBlendMode: 'multiply',
@@ -397,7 +397,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 className="absolute inset-0 rounded-[inherit]"
                 style={{
                   backgroundImage: 'url(/rough-paper.webp)',
-                  backgroundSize: '140%',
+                  backgroundSize: '200%',
                   backgroundPosition: 'center',
                   opacity: 0.5,
                   mixBlendMode: 'multiply',
@@ -510,7 +510,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 className="absolute inset-0 rounded-[inherit]"
                 style={{
                   backgroundImage: 'url(/rough-paper.webp)',
-                  backgroundSize: '140%',
+                  backgroundSize: '200%',
                   backgroundPosition: 'center',
                   opacity: 0.5,
                   mixBlendMode: 'multiply',
