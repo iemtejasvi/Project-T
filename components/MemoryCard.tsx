@@ -461,7 +461,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       <div className="absolute right-[-18px] top-1/2 transform -translate-y-1/2">
         <Link href={`/memories/${memory.id}`}>
           <span
-            className="block text-2xl font-light opacity-50 transition-opacity duration-200 active:opacity-70 select-none"
+            className="block text-3xl font-light opacity-50 transition-opacity duration-200 active:opacity-70 select-none"
             style={{ color: arrowStyle.color }}
           >›</span>
         </Link>
