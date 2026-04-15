@@ -36,7 +36,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-4xl sm:text-4xl font-bold text-[var(--text)] home-desktop-heading lg:text-6xl lg:tracking-widest lg:leading-tight">If Only I Sent This</h1>
           {/* Typewriter effect */}
-          <div className="mt-2 h-[2.25rem] flex items-center justify-center overflow-hidden lg:mt-4 lg:h-auto">
+          <div className="mt-2 min-h-[1.75rem] flex items-center justify-center lg:mt-4">
             <div className="italic text-[var(--text)]/70">
               <TypingEffect className="lg:text-2xl" />
             </div>
