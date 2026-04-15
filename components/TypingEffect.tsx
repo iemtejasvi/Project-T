@@ -212,29 +212,42 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
     []
   );
 
+  const initialMessage = messages[0];
+
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  // Render a full message in server HTML so crawlers see content, then start deleting on client
-  const [displayText, setDisplayText] = useState(() => messages[0]);
+  // Keep first client render identical to server HTML, then start animation after hydration.
+  const [hasHydrated, setHasHydrated] = useState(false);
+  const [displayText, setDisplayText] = useState(() => initialMessage);
   const [isDeleting, setIsDeleting] = useState(true);
   const [isMistyped, setIsMistyped] = useState(false);
-  const [charIndex, setCharIndex] = useState(() => messages[0].length);
+  const [charIndex, setCharIndex] = useState(() => initialMessage.length);
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   // Randomize on mount (client only) to avoid hydration mismatch
   const hasRandomized = useRef(false);
   useEffect(() => {
-    if (!hasRandomized.current) {
-      hasRandomized.current = true;
-      const idx = Math.floor(Math.random() * messages.length);
-      setCurrentIndex(idx);
-      setDisplayText(messages[idx]);
-      setCharIndex(messages[idx].length);
+    if (!hasHydrated || hasRandomized.current) {
+      return;
     }
-  }, [messages]);
+
+    hasRandomized.current = true;
+    const idx = Math.floor(Math.random() * messages.length);
+    setCurrentIndex(idx);
+    setDisplayText(messages[idx]);
+    setCharIndex(messages[idx].length);
+  }, [hasHydrated, messages]);
 
   useEffect(() => {
+    if (!hasHydrated) {
+      return;
+    }
+
     const currentMessage = messagesRef.current[currentIndex];
     let delay = Math.random() * 100 + 100; // Typing delay between 100-200ms
     if (isDeleting) {
@@ -275,7 +288,7 @@ const TypingEffect: React.FC<TypingEffectProps> = ({ className }) => {
     }, delay);
 
     return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, isMistyped, currentIndex]);
+  }, [hasHydrated, charIndex, isDeleting, isMistyped, currentIndex]);
 
   return (
     <div
