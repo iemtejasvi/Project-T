@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import TypingEffect from "@/components/TypingEffect";
 import HomeClient from "@/components/HomeClient";
 import { fetchMemoriesPaginated, redactIfDestructed, redactIfUnrevealed, isNightOnlyVisibleNow } from '@/lib/memoryDB';
 import { unstable_cache } from 'next/cache';
@@ -35,12 +34,8 @@ export default async function Home() {
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-4xl sm:text-4xl font-bold text-[var(--text)] home-desktop-heading lg:text-6xl lg:tracking-widest lg:leading-tight">If Only I Sent This</h1>
-          {/* Typewriter effect */}
-          <div className="mt-2 h-[2.5rem] flex items-start justify-center lg:mt-4 lg:h-auto">
-            <div className="italic text-[var(--text)]/70">
-              <TypingEffect className="lg:text-2xl" />
-            </div>
-          </div>
+          {/* Typewriter / Announcement — rendered by HomeClient */}
+          <div id="typewriter-slot" className="mt-2 h-[2.5rem] flex items-start justify-center lg:mt-4 lg:h-auto" />
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
