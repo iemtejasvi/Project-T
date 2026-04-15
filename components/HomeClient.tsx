@@ -10,7 +10,6 @@ import MemoryCard from "@/components/MemoryCard";
 import Loader from "@/components/Loader";
 import { HomeDesktopMemoryGrid } from "@/components/GridMemoryList";
 import { SidebarAdUnit } from "@/components/AdUnit";
-import TypingEffect from "@/components/TypingEffect";
 import type { Memory } from '@/types/memory';
 
 interface HomeClientProps {
@@ -405,24 +404,16 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
         </section>
       )}
 
-      {/* Mobile typewriter/announcement - sits inside header area */}
-      <section className="mt-[-1rem] mb-4 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden">
-        <div
-          className={`p-3 text-center h-[72px] flex items-center justify-center ${
-            announcement && !isAnnouncementDismissed && announcementCheckComplete
-              ? 'rounded-full shadow-sm'
-              : ''
-          }`}
-          style={
-            announcement && !isAnnouncementDismissed && announcementCheckComplete
-              ? {
-                  backgroundColor: announcement.background_color || '#ef4444',
-                  color: announcement.text_color || '#ffffff',
-                }
-              : undefined
-          }
-        >
-          {announcement && !isAnnouncementDismissed && announcementCheckComplete ? (
+      {/* Mobile announcement - only shown when there's an active announcement */}
+      {announcement && !isAnnouncementDismissed && announcementCheckComplete && (
+        <section className={`mt-4 mb-2 px-4 sm:px-6 max-w-5xl mx-auto lg:hidden transition-all duration-300 ${announcementTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+          <div
+            className="p-3 rounded-full shadow-sm text-center flex items-center justify-center"
+            style={{
+              backgroundColor: announcement.background_color || '#ef4444',
+              color: announcement.text_color || '#ffffff',
+            }}
+          >
             <div className="relative w-full flex flex-col items-center justify-center gap-1 font-bold leading-tight">
               <div className="flex items-center gap-1.5">
                 <span>{announcement.icon || '📢'}</span>
@@ -449,13 +440,9 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
                 </button>
               )}
             </div>
-          ) : (
-            (!announcement || isAnnouncementDismissed) && !announcementTransitioning && announcementCheckComplete && (
-              <TypingEffect />
-            )
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       <main className="flex-grow max-w-5xl mx-auto px-2 sm:px-6 py-8 relative">
         <SidebarAdUnit slot="4305235800" />
