@@ -461,7 +461,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             {/* Message preview — faded teaser */}
             {!isDestructedNow && memory.message && (
               <div className="flex-1 flex items-center justify-center relative z-10 overflow-hidden px-2">
-                <p className="text-base font-serif text-[var(--text)] text-center leading-relaxed opacity-10 line-clamp-2">
+                <p className="text-base font-serif text-[var(--text)] text-center leading-relaxed line-clamp-2" style={{ opacity: 0.1 }}>
                   {filterProfanity(memory.message)}
                 </p>
               </div>
