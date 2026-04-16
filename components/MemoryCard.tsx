@@ -284,7 +284,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     const wordCount = countWords(messageToRender);
     const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
     const textClass = forceLarge
-      ? "text-[28px] tracking-wide leading-snug break-words hyphens-none"
+      ? (wordCount > 50
+          ? "text-[16px] tracking-wide leading-relaxed break-words hyphens-none"
+          : "text-[28px] tracking-wide leading-snug break-words hyphens-none")
       : isShortOrExact
         ? "text-[24px] tracking-wide leading-snug break-words hyphens-none"
         : "text-[21px] tracking-wide leading-snug break-words hyphens-none";
