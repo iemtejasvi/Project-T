@@ -580,7 +580,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               )}
             </div>
 
-            <div className="min-h-[2.5em] w-full relative z-10">
+            <div className="h-[3em] w-full relative z-10 overflow-hidden">
               {destructCountdown && !isDestructedNow ? (
                 <div className="text-[12px] text-center font-mono opacity-90 text-[var(--text)]">
                   <span className="opacity-80">self-destructs in</span>{" "}
