@@ -518,7 +518,14 @@ export default function SubmitPage() {
       "soul_yearning": "soul yearning",
       "yearning_for_past": "yearning for past",
       "unfulfilled_yearning": "unfulfilled yearning",
-      
+
+      // Forgotten
+      "you_forgot_me": "you forgot me",
+      "i_forgot_you": "i forgot you",
+      "cant_forget": "can't forget",
+      "wish_i_could_forget": "wish i could forget",
+      "slowly_forgetting": "slowly forgetting",
+
       // Other
       "other_feeling": "other feeling",
       "different_emotion": "different emotion",
@@ -740,7 +747,14 @@ export default function SubmitPage() {
       "soul yearning": "soul_yearning",
       "yearning for past": "yearning_for_past",
       "unfulfilled yearning": "unfulfilled_yearning",
-      
+
+      // Forgotten
+      "you forgot me": "you_forgot_me",
+      "i forgot you": "i_forgot_you",
+      "can't forget": "cant_forget",
+      "wish i could forget": "wish_i_could_forget",
+      "slowly forgetting": "slowly_forgetting",
+
       // Other
       "other feeling": "other_feeling",
       "different emotion": "different_emotion",
