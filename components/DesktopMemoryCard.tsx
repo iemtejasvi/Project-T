@@ -457,6 +457,16 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </p>}
               <div className="my-3 h-[1px] relative z-10" style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.35), transparent)' }} />
             </div>
+
+            {/* Message preview — faded teaser */}
+            {!isDestructedNow && memory.message && (
+              <div className="flex-1 flex items-center justify-center relative z-10 overflow-hidden px-2">
+                <p className="text-sm font-serif text-[var(--text)] text-center leading-relaxed opacity-30 line-clamp-2">
+                  {filterProfanity(memory.message)}
+                </p>
+              </div>
+            )}
+
             <div className="text-2xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
