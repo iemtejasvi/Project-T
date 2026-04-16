@@ -426,7 +426,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 </span>
               </span>
             )}
-            <div className="pb-1 relative z-10">
+            <div className="pb-1 relative z-10 min-h-[5.5rem]">
                <h3 className={`${large ? 'text-[2.5rem]' : 'text-3xl'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
                                 <span className="break-words overflow-hidden leading-tight">To:{" "}
                   {isLinkableName(memory.recipient) ? (
