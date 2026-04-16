@@ -457,16 +457,6 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </p>}
               <div className="my-3 h-[1px] relative z-10" style={{ background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.35), transparent)' }} />
             </div>
-
-            {/* Message preview — faded teaser */}
-            {!isDestructedNow && memory.message && (
-              <div className="flex-1 flex items-center justify-center relative z-10 overflow-hidden px-2">
-                <p className="text-base font-serif text-[var(--text)] text-center leading-relaxed line-clamp-2" style={{ opacity: 0.06 }}>
-                  {filterProfanity(memory.message)}
-                </p>
-              </div>
-            )}
-
             <div className="text-2xl text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
@@ -475,7 +465,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 {createdAgoLabel}
               </div>
             )}
-            <div className="text-2xl h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10 overflow-hidden" style={{ lineHeight: '1.5' }}>
+            <div className="text-2xl min-h-[3em] mt-2 px-2 font-serif text-center text-[var(--text)] relative z-10" style={{ lineHeight: '1.5' }}>
               {destructCountdown && !isDestructedNow ? (
                 <div className="text-sm text-center font-mono opacity-90 text-[var(--text)]">
                   <span className="opacity-80">self-destructs in</span>{" "}
