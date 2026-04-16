@@ -578,7 +578,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
               </div>
             )}
 
-            <div className="relative z-10 -mt-2">
+            <div className="relative z-10">
               <div className="text-sm text-[var(--text)] text-center font-normal">
                 {dateStr} | {dayStr}
               </div>
