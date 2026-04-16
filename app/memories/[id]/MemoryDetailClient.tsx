@@ -68,7 +68,7 @@ export default function MemoryDetailClient({ id }: { id: string }) {
   if (memory === false) return <p className="p-6 text-center text-[var(--text)] text-xl font-semibold">Memory not found.</p>;
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ backgroundColor: "var(--background)" }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--background)" }}>
       {memory && memory.animation === "rough" && (
         <>
           <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
