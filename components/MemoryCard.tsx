@@ -572,7 +572,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             {/* Message preview — faded teaser */}
             {!isDestructedNow && memory.message && (
               <div className="flex-1 flex items-center justify-center relative z-10 overflow-hidden px-1">
-                <p className="text-sm font-serif text-[var(--text)] text-center leading-relaxed opacity-30 line-clamp-3">
+                <p className="text-sm font-serif text-[var(--text)] text-center leading-relaxed opacity-30 line-clamp-2">
                   {filterProfanity(memory.message)}
                 </p>
               </div>
