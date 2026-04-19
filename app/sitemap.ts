@@ -249,10 +249,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Error generating name sitemap entries:', err);
   }
 
-  // Dynamic individual memory pages — temporarily excluded.
-  // Most memory pages are client-rendered with short content; including thousands
-  // of thin pages in the sitemap hurts AdSense approval. Re-enable once pages
-  // have server-rendered content and sufficient word count.
+  // Dynamic individual memory pages
+  try {
+    const supabase = getSupabase();
+    if (supabase) {
+      const nowIso = new Date().toISOString();
+      const MEM_PAGE_SIZE = 5000;
+      let page = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('memories')
+          .select('id, created_at')
+          .eq('status', 'approved')
+          .or(`reveal_at.is.null,reveal_at.lte.${nowIso}`)
+          .is('destruct_at', null)
+          .or('night_only.is.null,night_only.eq.false')
+          .order('created_at', { ascending: false })
+          .range(page * MEM_PAGE_SIZE, (page + 1) * MEM_PAGE_SIZE - 1);
+        if (error || !data || data.length === 0) { hasMore = false; break; }
+        for (const row of data) {
+          routes.push({
+            url: `${baseUrl}/memories/${row.id}`,
+            lastModified: new Date(row.created_at),
+            changeFrequency: 'monthly' as const,
+            priority: 0.5,
+          });
+        }
+        if (data.length < MEM_PAGE_SIZE) hasMore = false;
+        page++;
+      }
+    }
+  } catch (err) {
+    console.error('Error generating memory sitemap entries:', err);
+  }
 
   // Cache the result in-memory for the dedup guard
   _cachedRoutes = routes;
