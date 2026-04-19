@@ -92,6 +92,11 @@ const articles = [
     description: "The draft in your notes app. The text you deleted at 3am. Why almost-sent messages haunt us — and how to finally release them.",
   },
   {
+    href: "/journal/missing-your-ex-and-letting-go",
+    title: "You Don\u2019t Want Them Back. You Want the Feeling Back.",
+    description: "You googled how to get your ex back. You tried no contact and manifestation. But what you actually miss is who you were with them.",
+  },
+  {
     href: "/unsent-letters",
     title: "The Art of Unsent Letters",
     description: "From Kafka's letters to Felice to the text you deleted at 2am — unsent letters are humanity's most honest form of expression.",
