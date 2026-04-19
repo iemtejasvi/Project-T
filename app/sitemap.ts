@@ -192,6 +192,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/journal/messages-you-almost-sent`,
+      lastModified: new Date('2026-04-19'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
   ]
 
   // Dynamic name pages from DB

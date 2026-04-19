@@ -87,6 +87,11 @@ const articles = [
     description: "On the particular ache of unexpressed love — why it stays with us, what it means, and how writing about it can bring relief.",
   },
   {
+    href: "/journal/messages-you-almost-sent",
+    title: "The Messages You Almost Sent",
+    description: "The draft in your notes app. The text you deleted at 3am. Why almost-sent messages haunt us — and how to finally release them.",
+  },
+  {
     href: "/unsent-letters",
     title: "The Art of Unsent Letters",
     description: "From Kafka's letters to Felice to the text you deleted at 2am — unsent letters are humanity's most honest form of expression.",
