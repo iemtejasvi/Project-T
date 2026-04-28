@@ -12,8 +12,7 @@ const getArchiveMemories = unstable_cache(
     const memories = result.data
       .map((m: Memory) => redactIfDestructed(m))
       .map((m: Memory) => redactIfUnrevealed(m))
-      .filter((m: Memory) => isNightOnlyVisibleNow(m))
-      .slice(0, 18);
+      .filter((m: Memory) => isNightOnlyVisibleNow(m));
     return { memories, totalCount: result.totalCount || 0 };
   },
   ['archive-memories'],
