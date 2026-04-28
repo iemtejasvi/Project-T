@@ -427,7 +427,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </span>
             )}
             <div className="pb-1 relative z-10 min-h-[5.5rem]">
-               <h3 className={`${large ? 'text-[2.5rem] xl:text-[2.75rem]' : 'text-3xl xl:text-[2.1rem]'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
+               <h3 className={`${large ? 'text-[2.5rem] xl:text-[2.4rem]' : 'text-3xl xl:text-[1.95rem]'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
                                 <span className="break-words overflow-hidden leading-tight">To:{" "}
                   {isLinkableName(memory.recipient) ? (
                     <Link
@@ -442,7 +442,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   )}
                 </span>
               </h3>
-              {memory.sender && <p className={`mt-1 ${large ? 'text-[2rem] xl:text-[2.15rem]' : 'text-[1.65rem] xl:text-[1.8rem]'} italic text-[var(--text)] break-words overflow-hidden`}>From:{" "}
+              {memory.sender && <p className={`mt-1 ${large ? 'text-[2rem] xl:text-[2.0rem]' : 'text-[1.65rem] xl:text-[1.7rem]'} italic text-[var(--text)] break-words overflow-hidden`}>From:{" "}
                 {isLinkableName(memory.sender) ? (
                   <Link
                     href={`/name/${encodeURIComponent(memory.sender.toLowerCase().trim())}`}
