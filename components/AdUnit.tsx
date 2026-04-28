@@ -24,7 +24,7 @@ interface AdUnitProps {
   layoutKey?: string;
 }
 
-const ADSENSE_CLIENT = "ca-pub-8850424858354795";
+const ADSENSE_CLIENT = "ca-pub-4151123662328725";
 const ENABLE_ADS = process.env.NEXT_PUBLIC_ENABLE_ADS === "true";
 
 export default function AdUnit({
