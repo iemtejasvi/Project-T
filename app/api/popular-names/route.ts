@@ -6,7 +6,7 @@ import { isLinkableName } from '@/lib/nameUtils';
 import { unstable_cache } from 'next/cache';
 import { getClientIP } from '@/lib/getClientIP';
 
-// Cache for 1 hour — popular names don't change frequently
+// Cache for 5 hours — popular names don't change frequently
 const getPopularNames = unstable_cache(
   async () => {
     const { data, error } = await primaryDB.rpc('get_popular_names');
@@ -20,7 +20,7 @@ const getPopularNames = unstable_cache(
       }));
   },
   ['popular-names-api'],
-  { revalidate: 3600, tags: ['popular-names'] }
+  { revalidate: 18000, tags: ['popular-names'] }
 );
 
 export async function GET(request: NextRequest) {
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     return createSecureResponse(
       { data: names },
       200,
-      { origin, cacheControl: 'public, s-maxage=3600, stale-while-revalidate=7200' }
+      { origin, cacheControl: 'public, s-maxage=18000, stale-while-revalidate=36000' }
     );
   } catch (error) {
     console.error('Error fetching popular names:', error);

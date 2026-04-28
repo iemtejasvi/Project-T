@@ -13,7 +13,7 @@ interface MemoryLayoutProps {
 const FALLBACK_TITLE = "Unsent Memory";
 const FALLBACK_DESC = "Read this anonymous unsent message on If Only I Sent This — a sanctuary for words that were never sent.";
 
-// ISR cache: one DB hit per memory ID per 60s across all visitors.
+// ISR cache: one DB hit per memory ID per 5hr across all visitors.
 const getCachedMemoryMeta = unstable_cache(
   async (id: string) => {
     const { data, error } = await primaryDB
@@ -27,7 +27,7 @@ const getCachedMemoryMeta = unstable_cache(
     return data;
   },
   ['memory-meta'],
-  { revalidate: 60, tags: ['memories-feed'] }
+  { revalidate: 18000, tags: ['memories-feed'] }
 );
 
 export async function generateMetadata({ params }: MemoryLayoutProps): Promise<Metadata> {
