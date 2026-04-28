@@ -110,19 +110,21 @@ export function SidebarAdUnit({ slot }: { slot: string }) {
 /** In-feed ad that matches the archive grid rhythm */
 export function InFeedAdUnit({
   slot,
-  isDesktop,
+  cols = 3,
 }: {
   slot: string;
-  isDesktop: boolean;
+  /** Number of grid columns (2 = tablet, 3 = desktop) */
+  cols?: number;
 }) {
   if (!ENABLE_ADS) return null;
+  const isDesktopWide = cols === 3;
 
   return (
     <div
       className={`w-full mx-auto my-6 ${
-        isDesktop
-          ? "max-w-screen-xl px-8 col-span-3"
-          : "max-w-xs sm:max-w-sm"
+        isDesktopWide
+          ? 'max-w-[1260px] px-5'
+          : 'max-w-[690px] px-5'
       }`}
     >
       <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)]/10 overflow-hidden">
@@ -130,7 +132,7 @@ export function InFeedAdUnit({
           slot={slot}
           format="fluid"
           layoutKey="-gj-i+16-52+b7"
-          minHeight={isDesktop ? 90 : 250}
+          minHeight={isDesktopWide ? 90 : 150}
           className="px-4 py-3"
         />
       </div>

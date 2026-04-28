@@ -49,11 +49,11 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
           <DesktopMemoryCard memory={memory} />
         </div>
       );
-      // Insert ad row after every `adInterval` cards (fills full row)
+      // Insert ad row spanning full row width after every `adInterval` cards
       if (adSlot && adInterval > 0 && (i + 1) % adInterval === 0 && i < memories.length - 1) {
         elements.push(
-          <div key={`ad-${i}`} style={{ gridColumn: '1 / -1' }} className="empty:hidden">
-            <InFeedAdUnit slot={adSlot} isDesktop={true} />
+          <div key={`ad-${i}`} style={{ gridColumn: `1 / -1` }} className="empty:hidden w-full">
+            <InFeedAdUnit slot={adSlot} cols={cols} />
           </div>
         );
       }
@@ -81,7 +81,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
     );
     if (adSlot && adInterval > 0 && (i + 1) % adInterval === 0 && i < memories.length - 1) {
       mobileElements.push(
-        <InFeedAdUnit key={`ad-${i}`} slot={adSlot} isDesktop={false} />
+        <InFeedAdUnit key={`ad-${i}`} slot={adSlot} cols={1} />
       );
     }
   });
