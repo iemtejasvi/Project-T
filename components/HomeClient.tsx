@@ -37,8 +37,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
     is_dismissible?: boolean;
   } | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop' | null>(null);
   const [isAnnouncementDismissed, setIsAnnouncementDismissed] = useState(false);
   const [announcementCheckComplete, setAnnouncementCheckComplete] = useState(false);
 
@@ -334,12 +333,15 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
   }, [currentTime, hasActiveItems, recentMemories]);
 
   useEffect(() => {
-    const mql = window.matchMedia("(min-width: 1024px)");
-    setIsDesktop(mql.matches);
-    setIsClient(true);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
+    const check = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) setDeviceType('desktop');
+      else if (w >= 768) setDeviceType('tablet');
+      else setDeviceType('mobile');
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
 
   const handleWelcomeClose = () => {
@@ -436,7 +438,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
             <Loader text="" />
           </div>
         ) : recentMemories.length > 0 ? (
-          !isClient ? (
+          deviceType === null ? (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-[var(--text)] opacity-60 animate-pulse"></div>
@@ -450,7 +452,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
                 ></div>
               </div>
             </div>
-          ) : isDesktop ? (
+          ) : deviceType === 'desktop' || deviceType === 'tablet' ? (
             <HomeDesktopMemoryGrid memories={recentMemories} />
           ) : (
             <div>
