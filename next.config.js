@@ -100,7 +100,7 @@ const nextConfig = {
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
           { key: 'CDN-Cache-Control', value: 'no-store' },
-          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=10, stale-while-revalidate=30' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=1800, stale-while-revalidate=3600' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
       },
@@ -109,7 +109,7 @@ const nextConfig = {
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
           { key: 'CDN-Cache-Control', value: 'no-store' },
-          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=60' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=1800, stale-while-revalidate=3600' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
       },
@@ -118,7 +118,7 @@ const nextConfig = {
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
           { key: 'CDN-Cache-Control', value: 'no-store' },
-          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=60, stale-while-revalidate=120' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=3600, stale-while-revalidate=7200' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
       },

@@ -3,7 +3,7 @@ import { fetchMemoriesPaginated, redactIfDestructed, redactIfUnrevealed, isNight
 import MemoriesClient from './MemoriesClient';
 import type { Memory } from '@/types/memory';
 
-export const revalidate = 60;
+export const revalidate = 3600; // ISR: regenerate at most once per hour
 
 const getArchiveMemories = unstable_cache(
   async () => {
@@ -16,7 +16,7 @@ const getArchiveMemories = unstable_cache(
     return { memories, totalCount: result.totalCount || 0 };
   },
   ['archive-memories'],
-  { revalidate: 60, tags: ['memories-feed'] }
+  { revalidate: 3600, tags: ['memories-feed'] }
 );
 
 export default async function MemoriesPage() {

@@ -5,7 +5,7 @@ import { fetchMemoriesPaginated, redactIfDestructed, redactIfUnrevealed, isNight
 import { unstable_cache } from 'next/cache';
 import type { Memory } from '@/types/memory';
 
-export const revalidate = 60; // ISR: regenerate at most once per 60s
+export const revalidate = 3600; // ISR: regenerate at most once per hour (manual approval = users expect delay)
 
 const getRecentMemories = unstable_cache(
   async () => {
@@ -18,7 +18,7 @@ const getRecentMemories = unstable_cache(
       .filter((m: Memory) => isNightOnlyVisibleNow(m));
   },
   ['home-recent-memories'],
-  { revalidate: 60, tags: ['memories-feed'] }
+  { revalidate: 3600, tags: ['memories-feed'] }
 );
 
 export default async function Home() {

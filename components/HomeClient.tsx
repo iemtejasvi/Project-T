@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 
@@ -21,6 +21,7 @@ interface HomeClientProps {
 export default function HomeClient({ initialMemories }: HomeClientProps) {
   const [recentMemories, setRecentMemories] = useState<Memory[]>(initialMemories || []);
   const [memoriesLoading, setMemoriesLoading] = useState(!initialMemories || initialMemories.length === 0);
+  const isInitialMount = useRef(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const [typewriterSlot, setTypewriterSlot] = useState<HTMLElement | null>(null);
   const [announcementTransitioning, setAnnouncementTransitioning] = useState(false);
@@ -93,12 +94,16 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
 
     async function fetchData() {
       try {
-        if (isMounted) {
+        // Skip redundant memories fetch on initial mount when SSR provided data
+        const hasSSRMemories = isInitialMount.current && initialMemories && initialMemories.length > 0;
+        isInitialMount.current = false;
+
+        if (isMounted && !hasSSRMemories) {
           setMemoriesLoading(true);
         }
 
-        // Fetch announcement and recent memories in parallel so the main LCP content isn't delayed by announcement checks
-        // Wrap announcement fetch in a timeout so a slow Supabase call can never block the page
+        // Fetch announcement (no SSR equivalent) — always needed
+        // Wrap in a timeout so a slow Supabase call can never block the page
         const announcementPromise = Promise.race([
           fetch('/api/announcements').then(async (res) => {
             if (!res.ok) return { data: null, error: { message: `HTTP ${res.status}` } };
@@ -110,16 +115,21 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
           ),
         ]);
 
+        // Use SSR data on initial mount to avoid redundant Vercel function invocation
+        const memoriesPromise = hasSSRMemories
+          ? Promise.resolve({ data: initialMemories, totalCount: initialMemories.length, totalPages: 1, currentPage: 0, fromCache: true })
+          : fetchWithUltraCache(
+              0,
+              6,
+              { status: "approved" },
+              "",
+              { created_at: "desc" },
+              { maxAge: 1800000, staleWhileRevalidate: 7200000 } // 30min fresh, 2hr stale
+            );
+
         const [announcementResult, memoriesResult] = await Promise.all([
           announcementPromise,
-          fetchWithUltraCache(
-            0,
-            6,
-            { status: "approved" },
-            "",
-            { created_at: "desc" },
-            { maxAge: 60000, staleWhileRevalidate: 120000 } // 60s fresh (matches ISR), 2min stale
-          ),
+          memoriesPromise,
         ]);
 
         if (!isMounted) return;
@@ -257,7 +267,8 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
           6,
           { status: "approved" },
           '',
-          { created_at: "desc" }
+          { created_at: "desc" },
+          { maxAge: 1800000, staleWhileRevalidate: 7200000 }
         );
 
         if (memoriesResult.data) {

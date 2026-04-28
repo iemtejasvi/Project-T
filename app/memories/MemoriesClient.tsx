@@ -119,7 +119,7 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
         { status: "approved" },
         search.trim(),
         { created_at: "desc" },
-        { maxAge: 60000, staleWhileRevalidate: 120000, prefetchDepth: 5 } // 60s fresh (matches ISR), 2min stale
+        { maxAge: 1800000, staleWhileRevalidate: 7200000, prefetchDepth: 1 } // 30min fresh, 2hr stale — reduces Vercel invocations
       );
 
       // Only show loader for non-cached, slow loads

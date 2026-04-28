@@ -48,8 +48,8 @@ class UltraCache {
   private lastFetchTime: Map<string, number>;
   private lastInteractionTime: number = Date.now();
   private lastCheckTime: number = 0;
-  private readonly maxAge: number = 60000; // 60s cache — matches ISR revalidation window
-  private readonly staleWhileRevalidate: number = 120000; // 2 min stale-while-revalidate
+  private readonly maxAge: number = 1800000; // 30min cache — reduces Vercel invocations
+  private readonly staleWhileRevalidate: number = 7200000; // 2hr stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
   private readonly prefetchDepth: number = 1; // Prefetch adjacent page only
   private prefetchScheduled: boolean = false;
@@ -85,11 +85,11 @@ class UltraCache {
       // Save to localStorage periodically
       setInterval(() => this.persistToLocalStorage(), 30000); // Save every 30s
 
-      // Clean up old entries more frequently for fresher content
-      setInterval(() => this.cleanupOldEntries(), 300000); // Clean every 5 minutes
+      // Clean up old entries periodically
+      setInterval(() => this.cleanupOldEntries(), 900000); // Clean every 15 minutes
 
       // Check for fresh content periodically (skips if idle > 5 min)
-      setInterval(() => this.checkForFreshContent(), 300000); // Check every 5 min — ISR edge cache handles freshness
+      setInterval(() => this.checkForFreshContent(), 3600000); // Check every 1hr — ISR edge cache handles freshness
 
       // Save on page unload
       window.addEventListener('beforeunload', () => this.persistToLocalStorage());
@@ -104,7 +104,7 @@ class UltraCache {
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
           this.lastInteractionTime = Date.now();
-          if (Date.now() - this.lastCheckTime > 120000) {
+          if (Date.now() - this.lastCheckTime > 3600000) {
             setTimeout(() => this.checkForFreshContent(), 100);
           }
         }
