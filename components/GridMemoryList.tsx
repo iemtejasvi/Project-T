@@ -59,10 +59,19 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
       }
     });
 
+    // Desktop: fixed 350px columns centered; Tablet: flexible columns that fill available space
+    const gridStyle = device === 'desktop'
+      ? { gridTemplateColumns: 'repeat(3, 350px)' }
+      : { gridTemplateColumns: 'repeat(2, 1fr)' };
+
     return (
       <div
-        className="grid gap-x-10 gap-y-9 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
-        style={{ gridTemplateColumns: `repeat(${cols}, 350px)` }}
+        className={`grid w-full mx-auto items-start ${
+          device === 'desktop'
+            ? 'gap-x-10 gap-y-9 px-8 max-w-screen-xl justify-center'
+            : 'gap-x-5 gap-y-7 px-5 max-w-[750px] justify-center'
+        }`}
+        style={gridStyle}
       >
         {elements}
       </div>
@@ -92,13 +101,20 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
 // Desktop grid for home page (3 cols desktop, 2 cols tablet)
 export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
   const device = useDeviceType();
-  const cols = device === 'tablet' ? 2 : 3;
-  const colWidth = device === 'tablet' ? 340 : 370;
+  const isTablet = device === 'tablet';
+
+  const gridStyle = isTablet
+    ? { gridTemplateColumns: 'repeat(2, 1fr)' }
+    : { gridTemplateColumns: 'repeat(3, 370px)' };
 
   return (
     <div
-      className="grid gap-x-10 gap-y-8 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
-      style={{ gridTemplateColumns: `repeat(${cols}, ${colWidth}px)` }}
+      className={`grid w-full mx-auto items-start ${
+        isTablet
+          ? 'gap-x-5 gap-y-6 px-5 max-w-[750px] justify-center'
+          : 'gap-x-10 gap-y-8 px-8 max-w-screen-xl justify-center'
+      }`}
+      style={gridStyle}
     >
       {memories.slice(0, 6).map((memory) => (
         <div key={memory.id}>
