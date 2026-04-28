@@ -130,6 +130,7 @@ const nextConfig = {
           { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
+      },
       {
         source: '/api/memories/:id*',
         headers: [
