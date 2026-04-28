@@ -123,16 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 analytics_storage: 'denied',
                 wait_for_update: 500
               });
-              try {
-                if (localStorage.getItem('cookie_consent') === 'accepted') {
-                  gtag('consent', 'update', {
-                    ad_storage: 'granted',
-                    ad_user_data: 'granted',
-                    ad_personalization: 'granted',
-                    analytics_storage: 'granted'
-                  });
-                }
-              } catch(e) {}
+
             `.replace(/\s+/g, ' ')
           }}
         />
