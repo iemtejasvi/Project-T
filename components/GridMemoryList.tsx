@@ -13,28 +13,35 @@ interface GridMemoryListProps {
   adSlot?: string;
 }
 
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+type DeviceType = 'mobile' | 'tablet' | 'desktop' | null;
+
+function useDeviceType(): DeviceType {
+  const [device, setDevice] = useState<DeviceType>(null);
   useEffect(() => {
-    const mql = window.matchMedia("(min-width: 1024px)");
-    setIsDesktop(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
+    const check = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) setDevice('desktop');
+      else if (w >= 768) setDevice('tablet');
+      else setDevice('mobile');
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
-  return isDesktop;
+  return device;
 }
 
 const AD_INTERVAL = 6;
 
 const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = AD_INTERVAL, adSlot }) => {
-  const isDesktop = useIsDesktop();
+  const device = useDeviceType();
 
-  // Don't render until client-side desktop check completes to avoid mobile flash
-  if (isDesktop === null) return null;
+  // Don't render until client-side check completes to avoid layout flash
+  if (device === null) return null;
 
-  if (isDesktop) {
-    // Build elements with ad rows inserted after every `adInterval` cards
+  // Desktop (3 cols) or Tablet (2 cols) — both use DesktopMemoryCard
+  if (device === 'desktop' || device === 'tablet') {
+    const cols = device === 'desktop' ? 3 : 2;
     const elements: React.ReactNode[] = [];
     memories.forEach((memory, i) => {
       elements.push(
@@ -42,10 +49,10 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
           <DesktopMemoryCard memory={memory} />
         </div>
       );
-      // Insert ad row after every `adInterval` cards (fills full 3-col row)
+      // Insert ad row after every `adInterval` cards (fills full row)
       if (adSlot && adInterval > 0 && (i + 1) % adInterval === 0 && i < memories.length - 1) {
         elements.push(
-          <div key={`ad-${i}`} className="col-span-3 empty:hidden">
+          <div key={`ad-${i}`} style={{ gridColumn: '1 / -1' }} className="empty:hidden">
             <InFeedAdUnit slot={adSlot} isDesktop={true} />
           </div>
         );
@@ -53,14 +60,16 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
     });
 
     return (
-      <div className="grid grid-cols-3 gap-x-10 gap-y-9 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
-           style={{ gridTemplateColumns: 'repeat(3, 350px)' }}>
+      <div
+        className="grid gap-x-10 gap-y-9 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+        style={{ gridTemplateColumns: `repeat(${cols}, 350px)` }}
+      >
         {elements}
       </div>
     );
   }
 
-  // Mobile: insert ad after every `adInterval` cards
+  // Mobile: single column
   const mobileElements: React.ReactNode[] = [];
   memories.forEach((memory, i) => {
     mobileElements.push(
@@ -80,12 +89,16 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
   );
 };
 
-// Desktop grid for home page (3 cards, larger size/text)
+// Desktop grid for home page (3 cols desktop, 2 cols tablet)
 export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
+  const device = useDeviceType();
+  const cols = device === 'tablet' ? 2 : 3;
+  const colWidth = device === 'tablet' ? 340 : 370;
+
   return (
     <div
-      className="grid grid-cols-3 gap-x-10 gap-y-8 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
-      style={{ gridTemplateColumns: 'repeat(3, 370px)' }}
+      className="grid gap-x-10 gap-y-8 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+      style={{ gridTemplateColumns: `repeat(${cols}, ${colWidth}px)` }}
     >
       {memories.slice(0, 6).map((memory) => (
         <div key={memory.id}>
