@@ -53,8 +53,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
     });
 
     return (
-      <div className="grid gap-x-6 gap-y-7 w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto items-start"
-           style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))' }}>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-8 gap-y-7 w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto items-start">
         {elements}
       </div>
     );
@@ -80,12 +79,11 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
   );
 };
 
-// Desktop grid for home page (3 cards, larger size/text)
+// Desktop grid for home page (up to 6 cards)
 export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
   return (
     <div
-      className="grid gap-x-6 gap-y-7 w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto items-start"
-      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))' }}
+      className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-8 gap-y-7 w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto items-start"
     >
       {memories.slice(0, 6).map((memory) => (
         <div key={memory.id}>
