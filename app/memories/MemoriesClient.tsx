@@ -164,10 +164,17 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
   useEffect(() => {
     // On first render, use the URL-restored page; on subsequent (resize), reset to 0
     const startPage = isFirstRender.current ? initialPage : 0;
+    const isFirst = isFirstRender.current;
     isFirstRender.current = false;
     setPage(startPage);
-    setDisplayedMemories([]);
-    fetchPageData(startPage, searchTerm, true);
+
+    // Skip redundant fetch on initial mount when SSR provided data for page 0
+    if (isFirst && hasServerData && startPage === 0) {
+      // SSR data already in state — no fetch needed
+    } else {
+      setDisplayedMemories([]);
+      fetchPageData(startPage, searchTerm, true);
+    }
     
     // Listen for real-time updates
     const handleRefreshArchives = async () => {

@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { isLinkableName } from '@/lib/nameUtils'
 
-export const revalidate = 3600 // ISR: regenerate sitemap at most once per hour
+export const revalidate = 18000 // ISR: regenerate sitemap at most once per 5 hours
 
 // In-memory guard: prevent concurrent regeneration from hammering the DB.
 // Once the sitemap is built, the ISR cache serves it for `revalidate` seconds.

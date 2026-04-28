@@ -130,6 +130,14 @@ const nextConfig = {
           { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
+      {
+        source: '/api/memories/:id*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
+          { key: 'Vary', value: 'Accept-Encoding' },
+        ],
       },
 
       // Static images/icons — browser 1 day, CDN 7 days

@@ -5,7 +5,7 @@ import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLim
 import { unstable_cache } from 'next/cache';
 import { getClientIP } from '@/lib/getClientIP';
 
-// ISR: cache active announcement for 30s so thousands of visitors share one DB call.
+// ISR: cache active announcement for 5hr — announcements change rarely (manual admin action).
 const getCachedAnnouncement = unstable_cache(
   async () => {
     const { data, error } = await primaryDBRead
@@ -21,7 +21,7 @@ const getCachedAnnouncement = unstable_cache(
     return data;
   },
   ['active-announcement'],
-  { revalidate: 30, tags: ['announcements'] }
+  { revalidate: 18000, tags: ['announcements'] }
 );
 
 export async function GET(request: NextRequest) {

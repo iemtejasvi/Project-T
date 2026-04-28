@@ -6,11 +6,11 @@ import { createSecureResponse, createSecureErrorResponse } from '@/lib/securityH
 import { unstable_cache } from 'next/cache';
 import { getClientIP } from '@/lib/getClientIP';
 
-// ISR: Cache individual memory lookups for 60s, purged on content changes
+// ISR: Cache individual memory lookups for 5hr, purged on content changes
 const getCachedMemoryById = unstable_cache(
   async (id: string) => fetchMemoryById(id),
   ['memory-detail'],
-  { revalidate: 60, tags: ['memories-feed'] }
+  { revalidate: 18000, tags: ['memories-feed'] }
 );
 
 export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     return createSecureResponse({ ...result, data: liveData }, 200, {
       origin,
-      cacheControl: 'public, s-maxage=10, stale-while-revalidate=30'
+      cacheControl: 'public, s-maxage=18000, stale-while-revalidate=36000'
     });
   } catch (error) {
     console.error('Error in memory by id API:', error);

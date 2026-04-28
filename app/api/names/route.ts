@@ -58,7 +58,7 @@ const getCachedNameMemories = unstable_cache(
     return { data: data || [], totalCount, totalPages, error: null };
   },
   ['name-archive'],
-  { revalidate: 60, tags: ['name-data'] }
+  { revalidate: 18000, tags: ['name-data'] }
 );
 
 // Check if a name exists (has at least one approved memory)
@@ -78,7 +78,7 @@ const getCachedNameExists = unstable_cache(
     return (count || 0) > 0;
   },
   ['name-exists'],
-  { revalidate: 120, tags: ['name-data'] }
+  { revalidate: 18000, tags: ['name-data'] }
 );
 
 // Fetch related names: other recipients/senders that appear in the same memories
@@ -117,7 +117,7 @@ const getCachedRelatedNames = unstable_cache(
     return related;
   },
   ['related-names'],
-  { revalidate: 300, tags: ['name-data'] }
+  { revalidate: 18000, tags: ['name-data'] }
 );
 
 export async function GET(request: NextRequest) {
@@ -153,7 +153,7 @@ export async function GET(request: NextRequest) {
       return createSecureResponse(
         { data: [], totalCount: 0, totalPages: 0, exists: false, name, displayName: displayName(name) },
         200,
-        { origin, cacheControl: 'public, s-maxage=120, stale-while-revalidate=300' }
+        { origin, cacheControl: 'public, s-maxage=18000, stale-while-revalidate=36000' }
       );
     }
 
@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
         relatedNames: page === 0 ? relatedNames : undefined,
       },
       200,
-      { origin, cacheControl: 'public, s-maxage=10, stale-while-revalidate=30' }
+      { origin, cacheControl: 'public, s-maxage=18000, stale-while-revalidate=36000' }
     );
   } catch (error) {
     console.error('Error in names API:', error);
