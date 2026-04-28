@@ -362,7 +362,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         whileHover={{ y: -4, boxShadow: "0 30px 60px rgba(0,0,0,0.18), 0 12px 24px rgba(0,0,0,0.10)", transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0, scale: 1, boxShadow: "0 20px 44px rgba(0,0,0,0.16), 0 8px 18px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.05)" }}
-        className={`flip-card relative w-full h-[440px] perspective-1000 ${flipped ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} rounded-[2rem] hover:shadow-2xl mx-auto`}
+        className={`flip-card relative w-full h-[440px] xl:h-[500px] perspective-1000 ${flipped ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle, WebkitPerspective: '1000px', perspective: '1000px' } as React.CSSProperties}
       >
@@ -388,7 +388,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         >
           {/* FRONT */}
           <div
-            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] border border-[var(--border)]/25 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'pt-6 pb-8 px-10' : 'pt-5 pb-6 px-7'} flex flex-col justify-between ${flipped ? "pointer-events-none" : "pointer-events-auto"}`}
+            className={`flip-card-front absolute w-full h-full backface-hidden rounded-[2rem] shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] border border-[var(--border)]/25 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'pt-6 pb-8 px-10 xl:pt-8 xl:pb-10 xl:px-12' : 'pt-5 pb-6 px-7 xl:pt-7 xl:pb-8 xl:px-9'} flex flex-col justify-between ${flipped ? "pointer-events-none" : "pointer-events-auto"}`}
             style={{ ...bgStyle, ...borderStyle }}
           >
             {memory.animation === "rough" && (
@@ -427,7 +427,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               </span>
             )}
             <div className="pb-1 relative z-10 min-h-[5.5rem]">
-               <h3 className={`${large ? 'text-[2.5rem]' : 'text-3xl'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
+               <h3 className={`${large ? 'text-[2.5rem] xl:text-[2.75rem]' : 'text-3xl xl:text-[2.1rem]'} font-normal text-[var(--text)] flex items-center gap-2 leading-tight`}>
                                 <span className="break-words overflow-hidden leading-tight">To:{" "}
                   {isLinkableName(memory.recipient) ? (
                     <Link
@@ -442,7 +442,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                   )}
                 </span>
               </h3>
-              {memory.sender && <p className={`mt-1 ${large ? 'text-[2rem]' : 'text-[1.65rem]'} italic text-[var(--text)] break-words overflow-hidden`}>From:{" "}
+              {memory.sender && <p className={`mt-1 ${large ? 'text-[2rem] xl:text-[2.15rem]' : 'text-[1.65rem] xl:text-[1.8rem]'} italic text-[var(--text)] break-words overflow-hidden`}>From:{" "}
                 {isLinkableName(memory.sender) ? (
                   <Link
                     href={`/name/${encodeURIComponent(memory.sender.toLowerCase().trim())}`}
@@ -461,13 +461,13 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
             {/* Message preview — faded teaser */}
             {!isDestructedNow && memory.message && (
               <div className="flex-1 flex items-center justify-center relative z-10 overflow-hidden px-2">
-                <p className="text-sm font-serif text-[var(--text)] text-center leading-relaxed opacity-50 line-clamp-2">
+                <p className="text-sm xl:text-base font-serif text-[var(--text)] text-center leading-relaxed opacity-50 line-clamp-2">
                   {filterProfanity(memory.message)}
                 </p>
               </div>
             )}
 
-            <div className="text-2xl text-[var(--text)] text-center font-normal relative z-10">
+            <div className="text-2xl xl:text-[1.7rem] text-[var(--text)] text-center font-normal relative z-10">
               {dateStr} | {dayStr}
             </div>
             {createdAgoLabel && !isDestructedNow && (
@@ -492,7 +492,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               backFaceRef.current = el;
               dragScroll.setZoneEl(el);
             }}
-            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] border border-[var(--border)]/25 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'pt-6 pb-8 px-10' : 'pt-5 pb-6 px-7'} flex flex-col justify-start rotate-y-180 ${dragScroll.getCursorClassName()} ${flipped ? "pointer-events-auto" : "pointer-events-none"}`}
+            className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] border border-[var(--border)]/25 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'pt-6 pb-8 px-10 xl:pt-8 xl:pb-10 xl:px-12' : 'pt-5 pb-6 px-7 xl:pt-7 xl:pb-8 xl:px-9'} flex flex-col justify-start rotate-y-180 ${dragScroll.getCursorClassName()} ${flipped ? "pointer-events-auto" : "pointer-events-none"}`}
             style={{ ...bgStyle, ...borderStyle, ...dragScroll.getZoneStyle(), userSelect: "none", touchAction: "none" }}
           >
             {memory.animation === "rough" && (

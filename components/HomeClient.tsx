@@ -427,9 +427,9 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
         typewriterSlot
       )}
 
-      <main className="flex-grow max-w-5xl mx-auto px-2 sm:px-6 py-8 relative">
+      <main className="flex-grow max-w-5xl xl:max-w-7xl mx-auto px-2 sm:px-6 py-8 xl:py-12 relative">
         <SidebarAdUnit slot="4305235800" />
-        <h2 className="text-3xl sm:text-3xl lg:text-4xl font-semibold mb-6 text-[var(--text)] text-center lg:text-center lg:ml-0">
+        <h2 className="text-3xl sm:text-3xl lg:text-4xl xl:text-5xl font-semibold mb-6 xl:mb-10 text-[var(--text)] text-center lg:text-center lg:ml-0">
           Recent Memories
         </h2>
         <section className="min-h-[520px]">

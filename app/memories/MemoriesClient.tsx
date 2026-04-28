@@ -322,7 +322,7 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
 
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
-          <h1 className="text-4xl sm:text-4xl lg:text-5xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">Archive</h1>
+          <h1 className="text-4xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[var(--text)] memories-desktop-heading lg:tracking-tight lg:leading-tight">Archive</h1>
           <hr className="my-4 border-[var(--border)]" />
           <nav>
             <ul className="flex flex-nowrap justify-center gap-4 sm:gap-6 desktop-nav-list">
@@ -358,7 +358,7 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
         </div>
       </header>
 
-      <main className="flex-grow max-w-5xl mx-auto px-2 sm:px-6 py-8 relative">
+      <main className="flex-grow max-w-5xl xl:max-w-7xl mx-auto px-2 sm:px-6 py-8 xl:py-12 relative">
         <SidebarAdUnit slot="4305235800" />
         <div className="mb-6">
           <input

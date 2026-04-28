@@ -63,10 +63,10 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
       <div
         className={`grid w-full mx-auto items-start justify-center ${
           device === 'desktop'
-            ? 'gap-x-10 gap-y-9 px-8 max-w-screen-xl'
+            ? 'gap-x-8 gap-y-10 px-8 max-w-screen-xl'
             : 'gap-x-5 gap-y-7 px-5'
         }`}
-        style={{ gridTemplateColumns: device === 'desktop' ? 'repeat(3, 350px)' : 'repeat(2, 330px)' }}
+        style={{ gridTemplateColumns: device === 'desktop' ? 'repeat(3, 370px)' : 'repeat(2, 330px)' }}
       >
         {elements}
       </div>
@@ -103,9 +103,9 @@ export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memori
       className={`grid w-full mx-auto items-start justify-center ${
         isTablet
           ? 'gap-x-5 gap-y-6 px-5'
-          : 'gap-x-10 gap-y-8 px-8 max-w-screen-xl'
+          : 'gap-x-8 gap-y-10 px-8 max-w-screen-xl'
       }`}
-      style={{ gridTemplateColumns: isTablet ? 'repeat(2, 330px)' : 'repeat(3, 350px)' }}
+      style={{ gridTemplateColumns: isTablet ? 'repeat(2, 330px)' : 'repeat(3, 370px)' }}
     >
       {memories.slice(0, 6).map((memory) => (
         <div key={memory.id}>
