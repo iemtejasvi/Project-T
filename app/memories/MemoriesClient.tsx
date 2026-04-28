@@ -169,8 +169,12 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
     setPage(startPage);
 
     // Skip redundant fetch on initial mount when SSR provided data for page 0
-    if (isFirst && hasServerData && startPage === 0) {
-      // SSR data already in state — no fetch needed
+    // SSR fetches 18 items — only skip if client pageSize matches (desktop)
+    if (isFirst && hasServerData && startPage === 0 && pageSize <= 18) {
+      // SSR data already in state — just compute pagination info
+      const ssrTotal = initialTotalCount ?? initialMemories!.length;
+      setTotalCount(ssrTotal);
+      setTotalPages(Math.ceil(ssrTotal / pageSize));
     } else {
       setDisplayedMemories([]);
       fetchPageData(startPage, searchTerm, true);
