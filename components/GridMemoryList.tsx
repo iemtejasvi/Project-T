@@ -45,7 +45,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
       // Insert ad row after every `adInterval` cards (fills full 3-col row)
       if (adSlot && adInterval > 0 && (i + 1) % adInterval === 0 && i < memories.length - 1) {
         elements.push(
-          <div key={`ad-${i}`} style={{ gridColumn: '1 / -1' }} className="empty:hidden">
+          <div key={`ad-${i}`} className="col-span-3 empty:hidden">
             <InFeedAdUnit slot={adSlot} isDesktop={true} />
           </div>
         );
@@ -53,7 +53,8 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
     });
 
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-8 gap-y-7 w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto items-start">
+      <div className="grid grid-cols-3 gap-x-10 gap-y-9 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+           style={{ gridTemplateColumns: 'repeat(3, 350px)' }}>
         {elements}
       </div>
     );
@@ -73,17 +74,18 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
   });
 
   return (
-    <div className="flex flex-col items-center w-full px-3 sm:px-4">
+    <div className="flex flex-col">
       {mobileElements}
     </div>
   );
 };
 
-// Desktop grid for home page (up to 6 cards)
+// Desktop grid for home page (3 cards, larger size/text)
 export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
   return (
     <div
-      className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-8 gap-y-7 w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto items-start"
+      className="grid grid-cols-3 gap-x-10 gap-y-8 w-full px-8 max-w-screen-xl mx-auto items-start justify-center"
+      style={{ gridTemplateColumns: 'repeat(3, 370px)' }}
     >
       {memories.slice(0, 6).map((memory) => (
         <div key={memory.id}>
