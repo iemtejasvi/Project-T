@@ -335,7 +335,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
   useEffect(() => {
     const check = () => {
       const w = window.innerWidth;
-      if (w >= 1024) setDeviceType('desktop');
+      if (w >= 1280) setDeviceType('desktop');
       else if (w >= 768) setDeviceType('tablet');
       else setDeviceType('mobile');
     };
