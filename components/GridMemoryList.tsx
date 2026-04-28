@@ -42,10 +42,10 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
           <DesktopMemoryCard memory={memory} />
         </div>
       );
-      // Insert ad row after every `adInterval` cards (fills full row)
+      // Insert ad row after every `adInterval` cards (fills full 3-col row)
       if (adSlot && adInterval > 0 && (i + 1) % adInterval === 0 && i < memories.length - 1) {
         elements.push(
-          <div key={`ad-${i}`} className="col-span-full empty:hidden">
+          <div key={`ad-${i}`} style={{ gridColumn: '1 / -1' }} className="empty:hidden">
             <InFeedAdUnit slot={adSlot} isDesktop={true} />
           </div>
         );
@@ -60,7 +60,7 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
     );
   }
 
-  // Mobile / Tablet: insert ad after every `adInterval` cards
+  // Mobile: insert ad after every `adInterval` cards
   const mobileElements: React.ReactNode[] = [];
   memories.forEach((memory, i) => {
     mobileElements.push(
@@ -74,18 +74,18 @@ const GridMemoryList: React.FC<GridMemoryListProps> = ({ memories, adInterval = 
   });
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col items-center w-full px-3 sm:px-4">
       {mobileElements}
     </div>
   );
 };
 
-// Desktop grid for home page — fluid columns that scale from 1 to 3
+// Desktop grid for home page (3 cards, larger size/text)
 export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memories }) => {
   return (
     <div
       className="grid gap-x-6 gap-y-7 w-full px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto items-start"
-      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))' }}
+      style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))' }}
     >
       {memories.slice(0, 6).map((memory) => (
         <div key={memory.id}>
@@ -97,4 +97,3 @@ export const HomeDesktopMemoryGrid: React.FC<{ memories: Memory[] }> = ({ memori
 };
 
 export default GridMemoryList;
-
