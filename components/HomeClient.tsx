@@ -124,7 +124,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
               { status: "approved" },
               "",
               { created_at: "desc" },
-              { maxAge: 1800000, staleWhileRevalidate: 7200000 } // 30min fresh, 2hr stale
+              { maxAge: 18000000, staleWhileRevalidate: 36000000 } // 5hr fresh, 10hr stale
             );
 
         const [announcementResult, memoriesResult] = await Promise.all([
@@ -268,7 +268,7 @@ export default function HomeClient({ initialMemories }: HomeClientProps) {
           { status: "approved" },
           '',
           { created_at: "desc" },
-          { maxAge: 1800000, staleWhileRevalidate: 7200000 }
+          { maxAge: 18000000, staleWhileRevalidate: 36000000 }
         );
 
         if (memoriesResult.data) {

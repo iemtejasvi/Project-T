@@ -48,8 +48,8 @@ class UltraCache {
   private lastFetchTime: Map<string, number>;
   private lastInteractionTime: number = Date.now();
   private lastCheckTime: number = 0;
-  private readonly maxAge: number = 1800000; // 30min cache — reduces Vercel invocations
-  private readonly staleWhileRevalidate: number = 7200000; // 2hr stale-while-revalidate
+  private readonly maxAge: number = 18000000; // 5hr cache — matches Cloudflare edge TTL
+  private readonly staleWhileRevalidate: number = 36000000; // 10hr stale-while-revalidate
   private readonly maxSize: number = 1000; // Support thousands of pages
   private readonly prefetchDepth: number = 1; // Prefetch adjacent page only
   private prefetchScheduled: boolean = false;
@@ -89,7 +89,7 @@ class UltraCache {
       setInterval(() => this.cleanupOldEntries(), 900000); // Clean every 15 minutes
 
       // Check for fresh content periodically (skips if idle > 5 min)
-      setInterval(() => this.checkForFreshContent(), 3600000); // Check every 1hr — ISR edge cache handles freshness
+      setInterval(() => this.checkForFreshContent(), 18000000); // Check every 5hr — matches ISR + Cloudflare TTL
 
       // Save on page unload
       window.addEventListener('beforeunload', () => this.persistToLocalStorage());
@@ -104,7 +104,7 @@ class UltraCache {
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
           this.lastInteractionTime = Date.now();
-          if (Date.now() - this.lastCheckTime > 3600000) {
+          if (Date.now() - this.lastCheckTime > 18000000) {
             setTimeout(() => this.checkForFreshContent(), 100);
           }
         }

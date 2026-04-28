@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import MemoryDetailClient from './MemoryDetailClient';
 import { sanitizeUUID } from '@/lib/inputSanitizer';
 
-export const revalidate = 3600; // ISR: cache page shell for 1 hour
+export const revalidate = 18000; // ISR: cache page shell for 5 hours
 
 export default async function MemoryDetailPage(
   { params }: { params: Promise<{ id: string }> }

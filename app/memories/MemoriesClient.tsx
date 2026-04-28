@@ -119,7 +119,7 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
         { status: "approved" },
         search.trim(),
         { created_at: "desc" },
-        { maxAge: 1800000, staleWhileRevalidate: 7200000, prefetchDepth: 1 } // 30min fresh, 2hr stale — reduces Vercel invocations
+        { maxAge: 18000000, staleWhileRevalidate: 36000000, prefetchDepth: 1 } // 5hr fresh, 10hr stale — matches Cloudflare edge TTL
       );
 
       // Only show loader for non-cached, slow loads

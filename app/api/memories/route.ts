@@ -14,7 +14,7 @@ const getCachedMemories = unstable_cache(
     return fetchMemoriesPaginated(page, pageSize, filters, searchTerm, { created_at: 'desc' });
   },
   ['memories-feed'],
-  { revalidate: 1800, tags: ['memories-feed'] }
+  { revalidate: 18000, tags: ['memories-feed'] }
 );
 
 export async function GET(request: NextRequest) {
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     // Short CDN cache since redaction is time-sensitive
     return createSecureResponse({ ...result, data: liveData }, 200, {
       origin,
-      cacheControl: 'public, s-maxage=1800, stale-while-revalidate=3600'
+      cacheControl: 'public, s-maxage=18000, stale-while-revalidate=36000'
     });
   } catch (error) {
     console.error('Error in memories API:', error);

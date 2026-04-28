@@ -4,7 +4,7 @@ import { unstable_cache } from 'next/cache';
 import { normalizeNameSlug, sanitizeForPostgrestFilter } from '@/lib/nameUtils';
 import NameArchiveClient from "./NameArchiveClient";
 
-export const revalidate = 3600; // ISR: cache page shell for 1 hour
+export const revalidate = 18000; // ISR: cache page shell for 5 hours
 
 // Quick existence check — prevents garbage names from creating ISR cache entries
 const getCachedNameExists = unstable_cache(
@@ -19,7 +19,7 @@ const getCachedNameExists = unstable_cache(
     return (count || 0) > 0;
   },
   ['name-exists'],
-  { revalidate: 3600, tags: ['name-data'] }
+  { revalidate: 18000, tags: ['name-data'] }
 );
 
 interface NamePageProps {
