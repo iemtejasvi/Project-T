@@ -94,12 +94,13 @@ const nextConfig = {
         ],
       },
 
-      // Read-only API routes — Vercel CDN caches + revalidateTag works; Cloudflare passes through
+      // Read-only API routes — cached at both Vercel + Cloudflare for 5hr
+      // New approved memories may take up to 5hr to appear (user-accepted trade-off)
       {
         source: '/api/memories/:path*',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
+          { key: 'CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
@@ -107,8 +108,8 @@ const nextConfig = {
       {
         source: '/api/announcements',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
+          { key: 'CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
@@ -116,8 +117,8 @@ const nextConfig = {
       {
         source: '/api/names',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
+          { key: 'CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
@@ -125,8 +126,8 @@ const nextConfig = {
       {
         source: '/api/popular-names',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
-          { key: 'CDN-Cache-Control', value: 'no-store' },
+          { key: 'Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
+          { key: 'CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vercel-CDN-Cache-Control', value: 'public, s-maxage=18000, stale-while-revalidate=36000' },
           { key: 'Vary', value: 'Accept-Encoding' },
         ],
