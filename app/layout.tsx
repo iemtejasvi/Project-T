@@ -50,6 +50,13 @@ export const metadata = {
     'messages I never sent', 'if only I sent this', 'unsent project alternative',
     'confessions', 'heartfelt messages', 'emotional letters',
     'letters to the one that got away', 'write a letter you will never send',
+    'unsent message to first love', 'anonymous message archive',
+    'search unsent messages by name', 'letter I never sent',
+    'unspoken words', 'things left unsaid', 'letter to someone who passed away',
+    'goodbye letter never sent', 'apology letter never sent',
+    'r/unsentletters', 'PostSecret alternative', 'anonymous love letter',
+    'message to my ex I never sent', 'closure letter',
+    'write a confession anonymously', 'regret letters',
   ],
   other: {
     'apple-mobile-web-app-capable': 'yes',
