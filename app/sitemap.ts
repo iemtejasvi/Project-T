@@ -245,9 +245,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
       await Promise.all([fetchAllNames('recipient'), fetchAllNames('sender')]);
 
-      // Add name routes: only linkable names with >= 3 messages (avoid thin content)
+      // Add name routes: all linkable names with at least 1 message
       for (const [name, count] of nameCounts) {
-        if (count < 5) continue;
+        if (count < 1) continue;
         if (!isLinkableName(name)) continue;
         routes.push({
           url: `${baseUrl}/name/${encodeURIComponent(name)}`,

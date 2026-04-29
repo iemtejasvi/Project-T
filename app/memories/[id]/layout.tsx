@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
     return {
       title,
       description,
-      robots: { index: false, follow: true },
+      robots: { index: true, follow: true },
       alternates: {
         canonical: `/memories/${id}`,
       },

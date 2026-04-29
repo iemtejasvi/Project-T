@@ -38,16 +38,9 @@ export async function generateMetadata({ params }: NameLayoutProps): Promise<Met
   const ogTitle = `Messages to ${displayName} – If Only I Sent This`;
   const description = `Read unsent messages, anonymous letters, and confessions written to ${displayName}. Discover the words people never had the courage to send.`;
 
-  // Server-side noindex for thin content pages (fewer than 3 messages)
-  const count = await getCachedNameCount(slug);
-  const robotsDirective = count < 5
-    ? { index: false, follow: true }
-    : undefined;
-
   return {
     title,
     description,
-    ...(robotsDirective ? { robots: robotsDirective } : {}),
     openGraph: {
       title: ogTitle,
       description,
