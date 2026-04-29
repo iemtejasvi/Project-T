@@ -44,8 +44,10 @@ export const metadata = {
   description:
     "A sanctuary for unsent letters, love letters never sent, anonymous confessions, and the words you never said. Write what you held back — to a person, a pet, or a moment. Free, no account needed.",
   keywords: [
-    'unsent letters', 'anonymous confessions', 'love letters never sent',
-    'unsent messages', 'words I never said', 'emotional letters',
+    'unsent letters', 'read unsent letters by name', 'anonymous confessions',
+    'sites like unsent project', 'unsent project alternative',
+    'letters to my ex', 'write anonymous letter', 'venting websites anonymous',
+    'read anonymous messages', 'if only I sent this',
   ],
   other: {
     'apple-mobile-web-app-capable': 'yes',
