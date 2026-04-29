@@ -113,6 +113,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.4,
     },
+    {
+      url: `${baseUrl}/unsent-project-alternative`,
+      lastModified: new Date('2026-04-29'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
     // Articles hub + individual articles
     {
       url: `${baseUrl}/journal`,

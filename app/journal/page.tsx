@@ -106,6 +106,11 @@ const articles = [
     title: "Love Letters Never Sent",
     description: "From Neruda's unnamed beloved to the words you never said — love letters never sent are the most honest kind.",
   },
+  {
+    href: "/unsent-project-alternative",
+    title: "The Best Unsent Project Alternative",
+    description: "Looking for a modern alternative to The Unsent Project? Compare features and discover a faster, more customisable platform for your unsent letters.",
+  },
 ];
 
 export default function Articles() {
