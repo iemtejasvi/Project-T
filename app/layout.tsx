@@ -38,11 +38,19 @@ export const viewport = {
 export const metadata = {
   metadataBase: new URL('https://www.ifonlyisentthis.com'),
   title: {
-    default: "If Only I Sent This – Unsent Letters & Confessions",
+    default: "If Only I Sent This – Unsent Letters, Anonymous Confessions & Messages Never Sent",
     template: "%s – If Only I Sent This",
   },
   description:
-    "Write and share unsent letters, anonymous confessions, and heartfelt messages you never had the courage to send. Free, no account needed.",
+    "A sanctuary for unsent letters, love letters never sent, anonymous confessions, and the words you never said. Write what you held back — to a person, a pet, or a moment. Free, no account needed.",
+  keywords: [
+    'unsent letters', 'love letters never sent', 'anonymous confessions',
+    'words I never said', 'things I never told you', 'unsent messages',
+    'letters to my ex', 'write anonymous letter', 'anonymous letter to someone',
+    'messages I never sent', 'if only I sent this', 'unsent project alternative',
+    'confessions', 'heartfelt messages', 'emotional letters',
+    'letters to the one that got away', 'write a letter you will never send',
+  ],
   other: {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
@@ -71,9 +79,9 @@ export const metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: "If Only I Sent This – Unsent Letters & Confessions",
+    title: "If Only I Sent This – Unsent Letters & Anonymous Confessions",
     description:
-      "Write and share unsent letters, anonymous confessions, and heartfelt messages you never had the courage to send. Free, no account needed.",
+      "A sanctuary for unsent letters, love letters never sent, and the words you never said. Write your anonymous confession — free, no account needed.",
     url: 'https://www.ifonlyisentthis.com',
     siteName: 'If Only I Sent This',
     type: 'website',
@@ -82,15 +90,15 @@ export const metadata = {
         url: '/opengraph-image.png',
         width: 800,
         height: 533,
-        alt: 'If Only I Sent This',
+        alt: 'If Only I Sent This – Unsent Letters & Anonymous Confessions',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "If Only I Sent This – Unsent Letters & Confessions",
+    title: "If Only I Sent This – Unsent Letters & Anonymous Confessions",
     description:
-      "Write and share unsent letters, anonymous confessions, and heartfelt messages you never had the courage to send. Free, no account needed.",
+      "A sanctuary for unsent letters, love letters never sent, and the words you never said. Write your anonymous confession — free, no account needed.",
     images: ['/opengraph-image.png'],
   },
   alternates: {
