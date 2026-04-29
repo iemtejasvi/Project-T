@@ -10,7 +10,7 @@ let _lastGeneratedAt = 0;
 let _cachedRoutes: MetadataRoute.Sitemap | null = null;
 const MIN_REGEN_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
-// Module-level singleton — reused across requests in the same Lambda
+// Module-level singleton .  reused across requests in the same Lambda
 let _supabase: SupabaseClient | null | undefined;
 function getSupabase() {
   if (_supabase !== undefined) return _supabase;
@@ -24,7 +24,7 @@ function getSupabase() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // SECURITY: In-memory dedup — if we generated within the last 5 min, return cached result.
+  // SECURITY: In-memory dedup .  if we generated within the last 5 min, return cached result.
   // This prevents DoS via repeated cold-cache sitemap requests.
   const now = Date.now();
   if (_cachedRoutes && (now - _lastGeneratedAt) < MIN_REGEN_INTERVAL_MS) {
@@ -207,6 +207,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: `${baseUrl}/journal/missing-your-ex-and-letting-go`,
       lastModified: new Date('2026-04-19'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/journal/searching-for-your-name-in-unsent-letters`,
+      lastModified: new Date('2026-04-29'),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/journal/writing-a-letter-to-your-ex-you-will-never-send`,
+      lastModified: new Date('2026-04-29'),
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },

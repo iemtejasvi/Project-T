@@ -73,31 +73,31 @@ const specialEffects = [
 const MAX_MESSAGE_LENGTH = 5000;
 
 const limitMessages = [
-  "Keep it to 50 words — the best letters say more with less.",
+  "Keep it to 50 words .  the best letters say more with less.",
   "50 words max. Distill what matters most.",
   "Try to capture it in 50 words or fewer.",
   "The most powerful things are often the shortest. 50 words max.",
-  "50 words — just enough to say what you never could.",
+  "50 words .  just enough to say what you never could.",
   "A few words can carry a lifetime of feeling. Keep it under 50.",
   "Say it simply. 50 words is all you need.",
   "Brevity makes it hit harder. Trim it to 50.",
   "The shortest letters are often the ones we remember. 50 words max.",
-  "Less is more — pare it down to 50 words.",
+  "Less is more .  pare it down to 50 words.",
   "50 words. Choose the ones that matter most.",
   "Your feelings deserve to be distilled, not diluted. 50 words max.",
   "Some of the greatest love letters were only a sentence. Try 50 words.",
   "Pick the words you'd whisper, not the ones you'd shout. 50 max.",
-  "If you could only say one thing — what would it be? 50 words.",
+  "If you could only say one thing .  what would it be? 50 words.",
   "Let it breathe. 50 words is plenty.",
   "Every word should earn its place. Keep it under 50.",
   "Write the version they'd carry in their pocket. 50 words.",
-  "50 words — like a postcard from the heart.",
+  "50 words .  like a postcard from the heart.",
   "Strip it down to what really matters. 50 words max.",
   "The weight is in what you choose to keep. 50 words.",
   "Make every word count. You have 50.",
   "What would you say if you only had a moment? 50 words.",
   "Short and true hits deeper than long and perfect. 50 max.",
-  "50 words — enough to break a silence.",
+  "50 words .  enough to break a silence.",
 ];
 
 const twoMemoryLimitMessages = [
@@ -163,7 +163,7 @@ export default function SubmitPage() {
 
   useEffect(() => {
     async function fetchIP() {
-      // Try primary API, then fallback — silently ignore failures (ad-blockers, CORS, rate-limits)
+      // Try primary API, then fallback .  silently ignore failures (ad-blockers, CORS, rate-limits)
       try {
         const ipCtrl = new AbortController();
         const ipTimer = setTimeout(() => ipCtrl.abort(), 6000);
@@ -229,7 +229,7 @@ export default function SubmitPage() {
     return () => clearTimeout(timer);
   }, [wordCount, hasCrossed]);
 
-  // Random message when exceeding 50 words — auto-dismiss after 5 seconds
+  // Random message when exceeding 50 words .  auto-dismiss after 5 seconds
   const [limitMsgVisible, setLimitMsgVisible] = useState(false);
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -870,7 +870,7 @@ export default function SubmitPage() {
       uuid = localStorage.getItem('user_uuid') || getCookie('user_uuid');
     }
 
-    // Enhanced ban and limit checking via API route (with 10s timeout — server re-checks anyway)
+    // Enhanced ban and limit checking via API route (with 10s timeout .  server re-checks anyway)
     try {
       const statusCheck = await Promise.race([
         fetch('/api/check-user-status', {
@@ -903,7 +903,7 @@ export default function SubmitPage() {
       }
     } catch (err) {
       console.error("Unexpected error during validation:", err);
-      // Let server handle validation — don't block submission
+      // Let server handle validation .  don't block submission
     }
 
     const shortTag = enableTypewriter && tag && subTag ? getShortTag(subTag) : null;
@@ -1412,7 +1412,7 @@ export default function SubmitPage() {
                             }`}
                           />
                           <label htmlFor="nightOnly" className="text-[var(--text)] text-sm opacity-70">
-                            Night-only (visible 9PM–6AM)
+                            Night-only (visible 9PM. 6AM)
                           </label>
                           {(timeCapsuleDelayMinutes > 0 || destructDelayMinutes > 0) && <span className="text-[10px] italic opacity-40">Disabled</span>}
                         </div>

@@ -4,12 +4,12 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "How to Write a Letter You'll Never Send – A Reflective Guide",
+  title: "How to Write a Letter You'll Never Send .  A Reflective Guide",
   description: "A practical, thoughtful guide to writing unsent letters. Learn how to choose your recipient, find the right words, and release what you have been carrying.",
   alternates: { canonical: '/journal/how-to-write-a-letter-you-will-never-send' },
   openGraph: {
     title: "How to Write a Letter You'll Never Send",
-    description: "A practical, thoughtful guide to writing unsent letters — from choosing your recipient to releasing what you have been carrying.",
+    description: "A practical, thoughtful guide to writing unsent letters .  from choosing your recipient to releasing what you have been carrying.",
     url: 'https://www.ifonlyisentthis.com/journal/how-to-write-a-letter-you-will-never-send',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
@@ -41,7 +41,7 @@ export default function HowToWriteALetter() {
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">The Practice of Writing Without Sending</h2>
             <p className="text-base sm:text-lg">
               There is no wrong way to write a letter you will never send. There is no grade, no audience, and no consequence.
-              That is precisely what makes the practice so valuable — and so difficult. When we remove the social scaffolding
+              That is precisely what makes the practice so valuable .  and so difficult. When we remove the social scaffolding
               that normally shapes our communication (politeness, strategy, self-presentation), we are left alone with what
               we actually feel. For many people, that confrontation is the hardest part.
             </p>
@@ -54,16 +54,16 @@ export default function HowToWriteALetter() {
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Step One: Choose Your Recipient</h2>
             <p className="text-base sm:text-lg">
-              An unsent letter begins with a person — or a version of a person. This might be someone you loved and lost,
+              An unsent letter begins with a person .  or a version of a person. This might be someone you loved and lost,
               a parent whose approval you still seek, a friend who betrayed you, a younger version of yourself, or even
               someone who has died. The recipient does not need to be alive, reachable, or even specific. Some of the most
-              powerful unsent letters are addressed to &ldquo;the person who&rdquo; — the person who left, the person who
+              powerful unsent letters are addressed to &ldquo;the person who&rdquo; .  the person who left, the person who
               stayed, the person who never noticed.
             </p>
             <p className="text-base sm:text-lg">
               What matters is that writing to this person activates a genuine emotional charge in you. If the thought of
               addressing them makes your chest tighten, makes you hesitate, or makes you feel a sudden rush of something
-              you cannot easily name — that is the right recipient. The unsent letter works because it engages the emotions
+              you cannot easily name .  that is the right recipient. The unsent letter works because it engages the emotions
               that ordinary communication suppresses.
             </p>
 
@@ -77,13 +77,13 @@ export default function HowToWriteALetter() {
             <p className="text-base sm:text-lg">
               Start with whatever comes. &ldquo;I do not know how to start this.&rdquo; &ldquo;I have been thinking about
               you.&rdquo; &ldquo;I am angry and I do not know where to put it.&rdquo; The first line does not need to be
-              beautiful. It needs to be true. Once you have that first sentence, the rest tends to follow — not because
+              beautiful. It needs to be true. Once you have that first sentence, the rest tends to follow .  not because
               you have planned what to say, but because the emotional momentum of honesty is self-sustaining.
             </p>
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Step Three: Say the Thing You Have Been Avoiding</h2>
             <p className="text-base sm:text-lg">
-              In almost every unsent letter, there is a sentence that the writer has been circling around — the thing they
+              In almost every unsent letter, there is a sentence that the writer has been circling around .  the thing they
               most need to say, and the thing they most fear saying. It might be &ldquo;I still love you.&rdquo; It might
               be &ldquo;I hate what you did to me.&rdquo; It might be &ldquo;I am afraid I am becoming you.&rdquo;
             </p>
@@ -103,8 +103,8 @@ export default function HowToWriteALetter() {
             </p>
             <p className="text-base sm:text-lg">
               If your letter is messy, contradictory, grammatically imperfect, or swings between love and rage within
-              the same paragraph — good. That is what real emotion looks like before it has been polished for public
-              consumption. The psychologist Carl Rogers called this &ldquo;congruence&rdquo; — the alignment between
+              the same paragraph .  good. That is what real emotion looks like before it has been polished for public
+              consumption. The psychologist Carl Rogers called this &ldquo;congruence&rdquo; .  the alignment between
               what you feel and what you express. Unsent letters are among the few places where congruence is possible
               without social penalty.
             </p>
@@ -112,7 +112,7 @@ export default function HowToWriteALetter() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Step Five: Decide What Happens Next</h2>
             <p className="text-base sm:text-lg">
               Once the letter is written, you have choices. You can keep it in a private notebook. You can tear it up.
-              You can burn it — a ritualistic act that many therapists recommend for its symbolic power. You can read it
+              You can burn it .  a ritualistic act that many therapists recommend for its symbolic power. You can read it
               aloud to an empty room. Or you can submit it anonymously to an archive
               like <Link href="/submit" className="text-[var(--accent)] hover:underline">If Only I Sent This</Link>,
               where it will be read with care, held in a public space, and perhaps discovered by someone who needed
@@ -128,7 +128,7 @@ export default function HowToWriteALetter() {
             <p className="text-base sm:text-lg">
               The unsent letter has persisted across centuries because it serves a fundamental human need: the need
               to be heard, even if only by ourselves. When you write an unsent letter, you are simultaneously the
-              speaker and the listener, the confessor and the witness. That dual role is not a compromise — it is
+              speaker and the listener, the confessor and the witness. That dual role is not a compromise .  it is
               the entire point. You are telling yourself that what you feel is real, that it deserves language, and
               that it does not need anyone else&apos;s validation to exist.
             </p>

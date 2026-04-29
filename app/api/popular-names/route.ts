@@ -6,7 +6,7 @@ import { isLinkableName } from '@/lib/nameUtils';
 import { unstable_cache } from 'next/cache';
 import { getClientIP } from '@/lib/getClientIP';
 
-// Cache for 5 hours — popular names don't change frequently
+// Cache for 5 hours .  popular names don't change frequently
 const getPopularNames = unstable_cache(
   async () => {
     const { data, error } = await primaryDB.rpc('get_popular_names');

@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Page Not Found – If Only I Sent This",
+  title: "Page Not Found .  If Only I Sent This",
   description: "The page you are looking for does not exist. Browse our archive of unsent messages or write your own.",
   robots: { index: false, follow: true },
 };

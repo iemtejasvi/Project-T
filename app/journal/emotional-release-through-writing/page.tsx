@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "The Emotional Power of Writing It Down – How Words Set Feelings Free",
+  title: "The Emotional Power of Writing It Down .  How Words Set Feelings Free",
   description: "Learn how putting feelings into words activates different parts of the brain and creates measurable emotional relief. The neuroscience of expressive writing.",
   alternates: { canonical: '/journal/emotional-release-through-writing' },
   openGraph: {
@@ -40,14 +40,14 @@ export default function EmotionalRelease() {
 
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">The Neuroscience of Putting Feelings Into Words</h2>
             <p className="text-base sm:text-lg">
-              The idea that writing can release emotional pain is not just folklore — it is one of the most replicated findings
+              The idea that writing can release emotional pain is not just folklore .  it is one of the most replicated findings
               in psychology. Over three decades of controlled studies have demonstrated that expressive writing produces measurable
               changes in the brain, the immune system, and subjective wellbeing. The mechanism is deceptively simple: when you
               translate a feeling into language, you change how your brain processes that feeling.
             </p>
             <p className="text-base sm:text-lg">
               Functional MRI studies conducted by Dr. Matthew Lieberman at UCLA demonstrated that the act of labelling an emotion
-              — putting it into words — reduces activation in the amygdala, the brain region responsible for generating fear,
+              .  putting it into words .  reduces activation in the amygdala, the brain region responsible for generating fear,
               anxiety, and emotional arousal. Simultaneously, labelling increases activation in the right ventrolateral prefrontal
               cortex, a region associated with emotional regulation and cognitive control. In plain terms: naming the feeling
               takes power away from the feeling.
@@ -56,14 +56,14 @@ export default function EmotionalRelease() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Why Writing Works Better Than Thinking</h2>
             <p className="text-base sm:text-lg">
               Most people assume that thinking about a problem and writing about a problem produce similar benefits. They do not.
-              Rumination — the circular, repetitive replaying of painful experiences in your mind — is one of the strongest
+              Rumination .  the circular, repetitive replaying of painful experiences in your mind .  is one of the strongest
               predictors of depression and anxiety. When you think about an emotional experience without structuring it into
               language, the brain often enters a repetitive loop: replaying the same moments, the same interpretations, the
               same pain, without ever arriving at resolution.
             </p>
             <p className="text-base sm:text-lg">
-              Writing interrupts this loop. The physical and cognitive demands of writing — selecting words, constructing
-              sentences, maintaining a sequential narrative — force the brain into a fundamentally different processing mode.
+              Writing interrupts this loop. The physical and cognitive demands of writing .  selecting words, constructing
+              sentences, maintaining a sequential narrative .  force the brain into a fundamentally different processing mode.
               You cannot write in circles the way you can think in circles. Language demands progression: a subject, a verb,
               a direction. This linear structure is what allows writing to transform a stuck emotional state into a moving one.
             </p>
@@ -86,7 +86,7 @@ export default function EmotionalRelease() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">The Window of Vulnerability</h2>
             <p className="text-base sm:text-lg">
               An important finding from the expressive writing literature is that writers often feel worse immediately after
-              the writing session. This is not a sign that the process has failed — it is evidence that it is working.
+              the writing session. This is not a sign that the process has failed .  it is evidence that it is working.
               Accessing deep emotion requires opening a door that has been deliberately kept closed. The temporary increase
               in negative affect that follows a writing session is a natural consequence of confronting material that has
               been avoided.
@@ -95,7 +95,7 @@ export default function EmotionalRelease() {
               However, follow-up assessments consistently show that this initial discomfort resolves within hours to days,
               and the long-term trajectory is uniformly positive. The analogy often used in clinical settings is that of
               cleaning a wound: the moment of contact stings, but the infection cannot heal without it. Writing about
-              emotional pain is not pleasant in the moment — but neither is it harmful, and the downstream benefits are
+              emotional pain is not pleasant in the moment .  but neither is it harmful, and the downstream benefits are
               well-documented.
             </p>
 
@@ -104,21 +104,21 @@ export default function EmotionalRelease() {
               The research suggests that the topic itself matters less than the depth of emotional engagement. You can write
               about a recent breakup, the death of a loved one, a childhood memory that still carries weight, a conflict
               you have never resolved, or an aspect of yourself you have never told anyone about. The critical factor is
-              that the writing engages genuine emotion — not performed emotion, not intellectualised analysis, but the
+              that the writing engages genuine emotion .  not performed emotion, not intellectualised analysis, but the
               actual feeling as it lives in your body.
             </p>
             <p className="text-base sm:text-lg">
               Pennebaker found that the most effective writing sessions involved what he called &ldquo;cognitive-emotional
-              integration&rdquo; — the combination of emotional expression with causal thinking. Writers who used phrases
+              integration&rdquo; .  the combination of emotional expression with causal thinking. Writers who used phrases
               like &ldquo;I realise now that&rdquo; or &ldquo;this made me understand&rdquo; showed the greatest improvements.
-              The act of connecting feeling to meaning — of making sense of an experience, not just venting about it —
+              The act of connecting feeling to meaning .  of making sense of an experience, not just venting about it . 
               appears to be the key mechanism of healing.
             </p>
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Writing as a Daily Practice</h2>
             <p className="text-base sm:text-lg">
               You do not need to be in crisis to benefit from expressive writing. Many therapists recommend a regular
-              practice of writing down unprocessed emotions — even for five or ten minutes — as a form of psychological
+              practice of writing down unprocessed emotions .  even for five or ten minutes .  as a form of psychological
               maintenance. The format does not matter: a journal entry, a letter to someone, a letter to yourself, or
               an anonymous submission to an archive
               like <Link href="/submit" className="text-[var(--accent)] hover:underline">If Only I Sent This</Link>.

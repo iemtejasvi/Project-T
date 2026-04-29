@@ -4,12 +4,12 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "The Messages You Almost Sent — On Drafts, Deleted Texts, and 3 AM Confessions You Erased",
-  description: "Everyone has a message they typed and never sent. The draft sitting in your notes app. The text you deleted at 3am. Why almost-sent messages haunt us — and how to finally release them.",
+  title: "The Messages You Almost Sent .  On Drafts, Deleted Texts, and 3 AM Confessions You Erased",
+  description: "Everyone has a message they typed and never sent. The draft sitting in your notes app. The text you deleted at 3am. Why almost-sent messages haunt us .  and how to finally release them.",
   alternates: { canonical: '/journal/messages-you-almost-sent' },
   openGraph: {
     title: "The Messages You Almost Sent",
-    description: "Everyone has a message they typed and never sent. Why almost-sent messages haunt us — and how to finally release them.",
+    description: "Everyone has a message they typed and never sent. Why almost-sent messages haunt us .  and how to finally release them.",
     url: 'https://www.ifonlyisentthis.com/journal/messages-you-almost-sent',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
@@ -82,7 +82,7 @@ export default function MessagesYouAlmostSent() {
             </p>
             <p className="text-base sm:text-lg">
               These messages are not irrational. That is the thing no one says. They are not just the product
-              of exhaustion or loneliness or bad judgment. They are the product of honesty &mdash; the raw,
+              of exhaustion or loneliness or bad judgment. They are the product of honesty , the raw,
               unfiltered kind that only emerges when you are too tired to lie to yourself. The 3 AM message is
               often the truest thing you will ever write about how you feel. It is also the one you are most
               likely to destroy before morning.
@@ -111,7 +111,7 @@ export default function MessagesYouAlmostSent() {
               creates a before and after. Something happened. You know where you stand. But a message
               you delete exists in a permanent state of suspension. Nothing happened. You said nothing.
               And because you said nothing, the imagined version of what <em>could</em> have happened plays on
-              a loop in your head &mdash; the conversation that might have followed, the reconciliation that
+              a loop in your head , the conversation that might have followed, the reconciliation that
               might have started, the truth that might have finally been out in the open.
             </p>
             <p className="text-base sm:text-lg">
@@ -141,7 +141,7 @@ export default function MessagesYouAlmostSent() {
             <p className="text-base sm:text-lg">
               You do not need their permission to say what you feel. You never did. The backspace key
               told you otherwise, but it was wrong. The words were real. They mattered. And they still
-              do &mdash; even if the only person who ever reads them is a stranger at 3 AM who typed
+              do , even if the only person who ever reads them is a stranger at 3 AM who typed
               something similar and deleted it too.
             </p>
 

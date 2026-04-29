@@ -6,7 +6,7 @@ import NameArchiveClient from "./NameArchiveClient";
 
 export const revalidate = 18000; // ISR: cache page shell for 5 hours
 
-// Quick existence check — prevents garbage names from creating ISR cache entries
+// Quick existence check .  prevents garbage names from creating ISR cache entries
 const getCachedNameExists = unstable_cache(
   async (slug: string) => {
     const safeSlug = sanitizeForPostgrestFilter(slug);
@@ -39,7 +39,7 @@ export default async function NamePage({ params }: NamePageProps) {
   // Block name length to prevent cache key explosion (reasonable name max: 100 chars)
   if (lower.length > 100) notFound();
 
-  // Return 404 for names with zero messages — prevents ISR cache poisoning from garbage URLs
+  // Return 404 for names with zero messages .  prevents ISR cache poisoning from garbage URLs
   const exists = await getCachedNameExists(lower);
   if (!exists) notFound();
 

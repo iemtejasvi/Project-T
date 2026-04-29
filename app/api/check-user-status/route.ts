@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // No IP or UUID — just check settings
+    // No IP or UUID .  just check settings
     const { data: settingsData } = await settingsPromise;
     const overrideUntil = settingsData?.word_limit_disabled_until ? new Date(settingsData.word_limit_disabled_until) : null;
     const now = new Date();

@@ -5,7 +5,7 @@ import { checkRateLimit, RATE_LIMITS, generateRateLimitKey } from '@/lib/rateLim
 import { unstable_cache } from 'next/cache';
 import { getClientIP } from '@/lib/getClientIP';
 
-// ISR: cache active announcement for 5hr — announcements change rarely (manual admin action).
+// ISR: cache active announcement for 5hr .  announcements change rarely (manual admin action).
 const getCachedAnnouncement = unstable_cache(
   async () => {
     const { data, error } = await primaryDBRead

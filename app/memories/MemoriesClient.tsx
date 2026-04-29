@@ -119,7 +119,7 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
         { status: "approved" },
         search.trim(),
         { created_at: "desc" },
-        { maxAge: 18000000, staleWhileRevalidate: 36000000, prefetchDepth: 1 } // 5hr fresh, 10hr stale — matches Cloudflare edge TTL
+        { maxAge: 18000000, staleWhileRevalidate: 36000000, prefetchDepth: 1 } // 5hr fresh, 10hr stale .  matches Cloudflare edge TTL
       );
 
       // Only show loader for non-cached, slow loads
@@ -169,7 +169,7 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
     setPage(startPage);
 
     // Skip redundant fetch on initial mount when SSR provided data for page 0
-    // SSR fetches 18 items — slice to match client pageSize (10 mobile, 18 desktop)
+    // SSR fetches 18 items .  slice to match client pageSize (10 mobile, 18 desktop)
     if (isFirst && hasServerData && startPage === 0) {
       const ssrTotal = initialTotalCount ?? initialMemories!.length;
       setDisplayedMemories(initialMemories!.slice(0, pageSize));

@@ -83,7 +83,7 @@ function isValidPublicIP(ip: string): boolean {
   // IPv6: accept any non-localhost IPv6 address as valid public
   if (ip === '::1') return false;
   if (ip.includes('::') || (ip.match(/:/g) || []).length > 1) {
-    // It's an IPv6 address — treat as valid public IP
+    // It's an IPv6 address .  treat as valid public IP
     return true;
   }
 
@@ -139,7 +139,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; t
   // Check cache first
   const cached = countryCache.get(ip);
   if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
-    // Cache hit — skip geolocation services
+    // Cache hit .  skip geolocation services
     return { country: cached.country };
   }
 
@@ -250,7 +250,7 @@ async function getCountryFromIP(ip: string): Promise<{ country: string | null; t
         }
       }
     } catch {
-      // Service failed — try next one
+      // Service failed .  try next one
     }
   }
 
@@ -496,7 +496,7 @@ export async function POST(request: NextRequest) {
       : null;
 
     if (isOwner || isLocalhost) {
-      // Owner/localhost — skip all limits
+      // Owner/localhost .  skip all limits
       // Allow owner and localhost to submit without limits
     } else {
       // Enforce 50-word limit unless unlimited or global override

@@ -138,12 +138,12 @@ export default function MemoryDetailClient({ id }: { id: string }) {
       <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {memory && <MemoryCard memory={memory} detail />}
 
-        {/* Static context for crawlers — adds substance to every memory page */}
+        {/* Static context for crawlers .  adds substance to every memory page */}
         {memory && (
           <section className="mt-6 lg:mt-8 max-w-2xl mx-auto text-center text-[var(--text)] opacity-40 lg:opacity-60 text-[11px] lg:text-sm leading-relaxed px-6">
             <p>
               An unsent message on{" "}
-              <span className="hidden lg:inline">If Only I Sent This — a quiet archive of letters that were never delivered. </span>
+              <span className="hidden lg:inline">If Only I Sent This .  a quiet archive of letters that were never delivered. </span>
               <Link href="/memories" className="underline decoration-[var(--accent)]/30 hover:decoration-[var(--accent)] transition-colors">
                 Browse more
               </Link>

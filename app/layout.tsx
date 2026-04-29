@@ -38,11 +38,11 @@ export const viewport = {
 export const metadata = {
   metadataBase: new URL('https://www.ifonlyisentthis.com'),
   title: {
-    default: "If Only I Sent This – Unsent Letters, Anonymous Confessions & Messages Never Sent",
-    template: "%s – If Only I Sent This",
+    default: "If Only I Sent This .  Unsent Letters, Anonymous Confessions & Messages Never Sent",
+    template: "%s .  If Only I Sent This",
   },
   description:
-    "A sanctuary for unsent letters, love letters never sent, anonymous confessions, and the words you never said. Write what you held back — to a person, a pet, or a moment. Free, no account needed.",
+    "A sanctuary for unsent letters, love letters never sent, anonymous confessions, and the words you never said. Write what you held back .  to a person, a pet, or a moment. Free, no account needed.",
   keywords: [
     'unsent letters', 'read unsent letters by name', 'anonymous confessions',
     'sites like unsent project', 'unsent project alternative',
@@ -77,9 +77,9 @@ export const metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: "If Only I Sent This – Unsent Letters & Anonymous Confessions",
+    title: "If Only I Sent This .  Unsent Letters & Anonymous Confessions",
     description:
-      "A sanctuary for unsent letters, love letters never sent, and the words you never said. Write your anonymous confession — free, no account needed.",
+      "A sanctuary for unsent letters, love letters never sent, and the words you never said. Write your anonymous confession .  free, no account needed.",
     url: 'https://www.ifonlyisentthis.com',
     siteName: 'If Only I Sent This',
     type: 'website',
@@ -88,15 +88,15 @@ export const metadata = {
         url: '/opengraph-image.png',
         width: 800,
         height: 533,
-        alt: 'If Only I Sent This – Unsent Letters & Anonymous Confessions',
+        alt: 'If Only I Sent This .  Unsent Letters & Anonymous Confessions',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "If Only I Sent This – Unsent Letters & Anonymous Confessions",
+    title: "If Only I Sent This .  Unsent Letters & Anonymous Confessions",
     description:
-      "A sanctuary for unsent letters, love letters never sent, and the words you never said. Write your anonymous confession — free, no account needed.",
+      "A sanctuary for unsent letters, love letters never sent, and the words you never said. Write your anonymous confession .  free, no account needed.",
     images: ['/opengraph-image.png'],
   },
   alternates: {
@@ -116,7 +116,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {ENABLE_ANALYTICS && <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />}
         {ENABLE_ADS && <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />}
-        {/* Google Consent Mode v2 — must execute synchronously BEFORE any GA/AdSense scripts */}
+        {/* Google Consent Mode v2 .  must execute synchronously BEFORE any GA/AdSense scripts */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -205,7 +205,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               sessionStorage.setItem('ioist_cleanup_done', '1');
 
               try {
-                // Selective localStorage clear FIRST (synchronous) — before any async work
+                // Selective localStorage clear FIRST (synchronous) .  before any async work
                 var keysToKeep = ['user_uuid', 'app_version', 'ultraCache', 'browser_session_heartbeat', 'cookie_consent', 'iois_welcome_closed'];
                 var preserved = {};
                 keysToKeep.forEach(function(k) {

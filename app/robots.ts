@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
           '/maintenance/',
         ],
       },
-      // Block AI training crawlers — they burn invocations and provide no SEO value
+      // Block AI training crawlers .  they burn invocations and provide no SEO value
       {
         userAgent: ['GPTBot', 'ChatGPT-User', 'CCBot', 'anthropic-ai', 'ClaudeBot', 'Bytespider', 'cohere-ai'],
         disallow: ['/'],

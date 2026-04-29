@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "You Don\u2019t Want Them Back. You Want the Feeling Back. — On Missing Your Ex, Manifesting, and Letting Go",
+  title: "You Don\u2019t Want Them Back. You Want the Feeling Back. .  On Missing Your Ex, Manifesting, and Letting Go",
   description: "You googled how to get your ex back. You tried no contact, manifestation, and letting go. But what you actually miss is not the person \u2014 it\u2019s who you were with them. On breakup recovery, moving on, and writing what you cannot say.",
   alternates: { canonical: '/journal/missing-your-ex-and-letting-go' },
   openGraph: {
@@ -51,7 +51,7 @@ export default function MissingYourExAndLettingGo() {
               Here is what none of those articles will tell you: you probably do not want them back. Not really.
               Not the actual person who left. What you want is the version of your life that had them in it. You
               want the feeling of being chosen. You want Saturday mornings and inside jokes and someone who knew
-              your coffee order. You want the version of yourself that existed when someone loved you &mdash; the
+              your coffee order. You want the version of yourself that existed when someone loved you , the
               lighter one, the one that laughed more, the one that did not check their phone with this
               particular kind of dread.
             </p>
@@ -60,20 +60,20 @@ export default function MissingYourExAndLettingGo() {
             <p className="text-base sm:text-lg">
               Everyone going through a breakup encounters the no contact rule eventually. Do not text them for
               30 days. Do not check their social media. Do not ask their friends about them. The advice is
-              framed as a strategy to get your ex back &mdash; they will miss you, they will wonder about you,
+              framed as a strategy to get your ex back , they will miss you, they will wonder about you,
               the distance will make them realize what they lost. And sometimes that happens. But that is not
               why no contact works.
             </p>
             <p className="text-base sm:text-lg">
               No contact works because it forces you to sit with the withdrawal. Missing your ex is not just
-              emotional. It is chemical. Your brain built neural pathways around this person &mdash; their voice
+              emotional. It is chemical. Your brain built neural pathways around this person , their voice
               activated your reward system, their presence regulated your nervous system, their texts gave you
               a dopamine hit that you are now cut off from. When you stop contacting them, you are not playing
               a game. You are going through withdrawal from a person. And the only way through withdrawal is
               through it. Not around it. Not by manifesting them back into your bed. Through it.
             </p>
 
-            <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Manifesting an Ex &mdash; What You Are Really Doing</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Manifesting an Ex , What You Are Really Doing</h2>
             <p className="text-base sm:text-lg">
               Manifesting your ex back has become enormously popular. Write their name 33 times. Visualize them
               texting you. Script the reconciliation in your journal. Sleep with their photo under your pillow.
@@ -83,12 +83,12 @@ export default function MissingYourExAndLettingGo() {
               thing that made the relationship end did not dissolve because someone wrote in a journal.
             </p>
             <p className="text-base sm:text-lg">
-              What manifestation actually does &mdash; the real, psychological mechanism behind it &mdash; is give
+              What manifestation actually does , the real, psychological mechanism behind it , is give
               you a sense of control during a time when you feel completely powerless. Breakups strip away your
               agency. You did not choose this. You could not prevent it. You cannot fix it. Manifestation gives
               your brain something to do with all that frantic energy. And that is not worthless. The act of
               writing about what you want, of imagining a future, of sitting quietly with your feelings instead
-              of numbing them &mdash; that has real psychological value. But the value is in the process, not in
+              of numbing them , that has real psychological value. But the value is in the process, not in
               the outcome. The writing heals you. The person coming back would not.
             </p>
 
@@ -103,7 +103,7 @@ export default function MissingYourExAndLettingGo() {
             <p className="text-base sm:text-lg">
               This is why breakups without closure are the hardest to recover from. When someone leaves without
               explanation, when the relationship ends ambiguously, when you never got the conversation that would
-              have made the ending make sense &mdash; your brain cannot file it as &ldquo;complete.&rdquo; So
+              have made the ending make sense , your brain cannot file it as &ldquo;complete.&rdquo; So
               it keeps pulling the memory back up, running through it again and again, looking for the missing
               piece. You are not obsessing. You are processing. And the processing will not finish until you
               give it somewhere to go.
@@ -129,9 +129,9 @@ export default function MissingYourExAndLettingGo() {
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Write the Thing You Cannot Send Them</h2>
             <p className="text-base sm:text-lg">
-              If you are still carrying something you needed to say to your ex &mdash; the apology, the
+              If you are still carrying something you needed to say to your ex , the apology, the
               accusation, the question, the confession, the <em>I still love you</em> or the <em>I wish
-              I never met you</em> &mdash; you do not have to send it to them. You do not have to keep it
+              I never met you</em> , you do not have to send it to them. You do not have to keep it
               inside either. You can <Link href="/submit" className="text-[var(--accent)] hover:underline">write
               it here</Link>. Not as a letter to be delivered. As something to be released. An anonymous
               message, addressed to the person who will never read it, placed in an archive of unsent words

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     canonical: '/cookie-policy',
   },
   openGraph: {
-    title: "Cookie Policy – If Only I Sent This",
+    title: "Cookie Policy .  If Only I Sent This",
     description: "Learn about the cookies used on If Only I Sent This and how to manage them.",
     url: 'https://www.ifonlyisentthis.com/cookie-policy',
     siteName: 'If Only I Sent This',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Cookie Policy – If Only I Sent This",
+    title: "Cookie Policy .  If Only I Sent This",
     description: "Learn about the cookies used on If Only I Sent This and how to manage them.",
     images: ['/opengraph-image.png'],
   },

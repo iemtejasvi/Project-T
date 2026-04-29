@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     canonical: '/privacy-policy',
   },
   openGraph: {
-    title: "Privacy Policy – If Only I Sent This",
+    title: "Privacy Policy .  If Only I Sent This",
     description: "How we protect your privacy. Minimal data collection, no selling information, and your anonymous messages stay safe.",
     url: 'https://www.ifonlyisentthis.com/privacy-policy',
     siteName: 'If Only I Sent This',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Privacy Policy – If Only I Sent This",
+    title: "Privacy Policy .  If Only I Sent This",
     description: "How we protect your privacy. Minimal data collection, no selling information, and your anonymous messages stay safe.",
     images: ['/opengraph-image.png'],
   },

@@ -26,7 +26,7 @@ export default async function Home() {
   try {
     initialMemories = await getRecentMemories();
   } catch {
-    // Fallback to empty — HomeClient will fetch client-side
+    // Fallback to empty .  HomeClient will fetch client-side
   }
 
   return (
@@ -34,7 +34,7 @@ export default async function Home() {
       <header className="bg-[var(--card-bg)] shadow-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-center">
           <h1 className="text-4xl sm:text-4xl text-[var(--text)] home-desktop-heading lg:text-6xl xl:text-[4.5rem] font-medium lg:tracking-[0.15em] lg:leading-tight transition-all duration-300">If Only I Sent This</h1>
-          {/* Typewriter / Announcement — rendered by HomeClient */}
+          {/* Typewriter / Announcement .  rendered by HomeClient */}
           <div id="typewriter-slot" className="mt-2 h-[2.5rem] flex items-start justify-center lg:mt-4 lg:h-auto" />
           <hr className="my-4 border-[var(--border)]" />
           <nav>

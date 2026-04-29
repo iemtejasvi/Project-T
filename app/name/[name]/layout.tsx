@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: NameLayoutProps): Promise<Met
     .join(' ');
 
   const title = `Messages to ${displayName}`;
-  const ogTitle = `Messages to ${displayName} – If Only I Sent This`;
+  const ogTitle = `Messages to ${displayName} .  If Only I Sent This`;
   const description = `Read unsent messages, anonymous letters, and confessions written to ${displayName}. Discover the words people never had the courage to send.`;
 
   return {
@@ -73,7 +73,7 @@ export default async function NameLayout({ children, params }: NameLayoutProps) 
   const structuredData = count > 0 ? JSON.stringify({
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `Messages to ${displayName} – If Only I Sent This`,
+    name: `Messages to ${displayName} .  If Only I Sent This`,
     description: `Read ${count} unsent messages and letters to ${displayName}. Anonymous confessions, love letters, and words never spoken.`,
     url: `https://www.ifonlyisentthis.com/name/${encodeURIComponent(slug)}`,
     isPartOf: {

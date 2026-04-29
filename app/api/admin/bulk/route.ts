@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'delete') {
-      // Single batch delete — 1 query instead of N
+      // Single batch delete .  1 query instead of N
       const { deleted, error } = await deleteMemoriesBatch(uniqueIds);
       const ok = deleted;
       const failed = error ? uniqueIds.length : uniqueIds.length - deleted;

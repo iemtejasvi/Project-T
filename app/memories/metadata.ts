@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Unsent Messages Archive – Browse Anonymous Letters',
+  title: 'Unsent Messages Archive .  Browse Anonymous Letters',
   description: 'Browse thousands of anonymous unsent letters, love confessions, and heartfelt messages. Search by name to find words someone never sent.',
   alternates: {
     canonical: '/memories',
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   openGraph: {
-    title: 'Unsent Messages Archive – Browse Anonymous Letters',
+    title: 'Unsent Messages Archive .  Browse Anonymous Letters',
     description: 'Browse thousands of anonymous unsent letters, love confessions, and heartfelt messages. Search by name to find words someone never sent.',
     url: 'https://www.ifonlyisentthis.com/memories',
     siteName: 'If Only I Sent This',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Unsent Messages Archive – Browse Anonymous Letters',
+    title: 'Unsent Messages Archive .  Browse Anonymous Letters',
     description: 'Browse thousands of anonymous unsent letters, love confessions, and heartfelt messages. Search by name to find words someone never sent.',
     images: ['/opengraph-image.png'],
   },

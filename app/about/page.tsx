@@ -4,13 +4,13 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About – A Sanctuary for Unsent Letters",
-  description: "If Only I Sent This is a free, anonymous archive for unsent letters, love letters never sent, and words you never said. Write what you held back — to a person, a pet, or a moment.",
+  title: "About .  A Sanctuary for Unsent Letters",
+  description: "If Only I Sent This is a free, anonymous archive for unsent letters, love letters never sent, and words you never said. Write what you held back .  to a person, a pet, or a moment.",
   alternates: {
     canonical: '/about',
   },
   openGraph: {
-    title: "About – If Only I Sent This",
+    title: "About .  If Only I Sent This",
     description: "A free, anonymous archive for unsent letters, love letters never sent, and words you never said.",
     url: 'https://www.ifonlyisentthis.com/about',
     siteName: 'If Only I Sent This',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "About – If Only I Sent This",
+    title: "About .  If Only I Sent This",
     description: "A free, anonymous archive for unsent letters, love letters never sent, and words you never said.",
     images: ['/opengraph-image.png'],
   },
@@ -49,7 +49,7 @@ export default function About() {
 
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">A Place for the Words You Kept</h2>
             <p className="text-base sm:text-lg">
-              If Only I Sent This is an anonymous archive for unsent letters &mdash; the words you wrote
+              If Only I Sent This is an anonymous archive for unsent letters , the words you wrote
               but never delivered, the confessions you held back, the things you needed to say to someone
               who may never hear them. We built this space for letters to people, to pets, to moments that
               have passed but still live with you. Here, your unspoken words have a home: quiet, anonymous,
@@ -59,11 +59,11 @@ export default function About() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Why Unsent Letters Matter</h2>
             <p className="text-base sm:text-lg">
               The unsent letter is one of humanity&apos;s oldest forms of emotional expression. Kafka wrote
-              hundreds of pages to Felice Bauer that he agonized over and never fully sent &mdash; more
+              hundreds of pages to Felice Bauer that he agonized over and never fully sent , more
               honest than anything he published. Frida Kahlo poured raw love and contradiction into letters
               to Diego Rivera. Beethoven addressed his most vulnerable words to an &ldquo;Immortal
               Beloved&rdquo; whose identity remains unknown. These were not failures to communicate.
-              They were a different kind of truth &mdash; the kind that exists only when no one is
+              They were a different kind of truth , the kind that exists only when no one is
               expected to respond.
             </p>
             <p className="text-base sm:text-lg">
@@ -76,21 +76,21 @@ export default function About() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">What We Value</h2>
             <ul className="list-disc list-inside space-y-2.5 text-base sm:text-lg mb-2">
               <li>
-                <strong>Anonymity and safety</strong> &mdash; no accounts, no tracking, no identity.
+                <strong>Anonymity and safety</strong> , no accounts, no tracking, no identity.
                 Just your words.
               </li>
               <li>
-                <strong>Thoughtful curation</strong> &mdash; every message is{" "}
+                <strong>Thoughtful curation</strong> , every message is{" "}
                 <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">reviewed with care</Link>{" "}
                 before it enters the archive.
               </li>
               <li>
-                <strong>Minimalism</strong> &mdash;{" "}
+                <strong>Minimalism</strong> ,{" "}
                 <Link href="/submit" className="text-[var(--accent)] hover:underline">distraction-free writing</Link>{" "}
                 that puts your words first.
               </li>
               <li>
-                <strong>Permanence and impermanence</strong> &mdash; choose self-destructing messages
+                <strong>Permanence and impermanence</strong> , choose self-destructing messages
                 or let your words remain in the{" "}
                 <Link href="/memories" className="text-[var(--accent)] hover:underline">archive</Link>{" "}
                 indefinitely.

@@ -139,7 +139,7 @@ export default function AdminPanel() {
     setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  // Fetch tab counts (lightweight — just counts, no data)
+  // Fetch tab counts (lightweight .  just counts, no data)
   const loadTabCounts = useCallback(async () => {
     try {
       const res = await timedFetch('/api/admin/dbhealth', {
@@ -945,7 +945,7 @@ export default function AdminPanel() {
       }
     };
 
-    const interval = setInterval(checkExpiredItems, 30000); // Check every 30s — no need for sub-second precision
+    const interval = setInterval(checkExpiredItems, 30000); // Check every 30s .  no need for sub-second precision
     return () => clearInterval(interval);
   }, [currentTime, hasActiveItems, selectedTab, refreshMemories, currentAnnouncement]);
 
@@ -1186,7 +1186,7 @@ export default function AdminPanel() {
 
                 {/* Link */}
                 <div>
-                  <label className="block text-xs font-medium text-[var(--text)] mb-1">Link URL <span className="text-gray-400">(optional — shows as &quot;Read more&quot; below the message)</span></label>
+                  <label className="block text-xs font-medium text-[var(--text)] mb-1">Link URL <span className="text-gray-400">(optional .  shows as &quot;Read more&quot; below the message)</span></label>
                   <input type="url" value={announcementLink} onChange={(e) => setAnnouncementLink(e.target.value)} className="w-full p-2.5 border border-[var(--border)] rounded-lg bg-[var(--bg)] text-[var(--text)] text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="https://reddit.com/r/..." />
                 </div>
 
@@ -1308,7 +1308,7 @@ export default function AdminPanel() {
                   <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
                     <h3 className="font-semibold mb-2">Total Memories</h3>
                     <div className="text-sm">
-                      <span className="font-mono text-lg">{dbCounts?.count ?? '—'}</span>
+                      <span className="font-mono text-lg">{dbCounts?.count ?? '. '}</span>
                     </div>
                   </div>
                 </div>
@@ -1316,22 +1316,22 @@ export default function AdminPanel() {
                   <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
                     <h3 className="font-semibold mb-2">Status Counts</h3>
                     <div className="text-sm space-y-1">
-                      <div>Pending: <span className="font-mono">{statusCounts?.pending ?? '—'}</span></div>
-                      <div>Approved: <span className="font-mono">{statusCounts?.approved ?? '—'}</span></div>
-                      <div>Banned: <span className="font-mono">{statusCounts?.banned ?? '—'}</span></div>
+                      <div>Pending: <span className="font-mono">{statusCounts?.pending ?? '. '}</span></div>
+                      <div>Approved: <span className="font-mono">{statusCounts?.approved ?? '. '}</span></div>
+                      <div>Banned: <span className="font-mono">{statusCounts?.banned ?? '. '}</span></div>
                     </div>
                   </div>
                   <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
                     <h3 className="font-semibold mb-2">Latency (ms)</h3>
                     <div className="text-sm">
-                      <span className="font-mono">{typeof latency === 'number' ? latency.toFixed(0) : '—'}</span>
+                      <span className="font-mono">{typeof latency === 'number' ? latency.toFixed(0) : '. '}</span>
                     </div>
                   </div>
                 </div>
                 <div className="p-4 rounded border border-[var(--border)] bg-[var(--bg)]">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold">Expired Pins</h3>
-                    <span className="text-sm text-gray-600">(total: {expiredPinned?.total ?? '—'})</span>
+                    <span className="text-sm text-gray-600">(total: {expiredPinned?.total ?? '. '})</span>
                     <button
                       onClick={async () => { if (confirm('Unpin all expired memories now?')) { await timedFetch('/api/unpin-expired', { method: 'POST', credentials: 'include' }); addToast('Expired pins cleared', 'success'); await loadDbHealth(); } }}
                       className="ml-auto px-3 py-1.5 rounded bg-amber-500 text-white text-sm hover:bg-amber-600"
@@ -1518,7 +1518,7 @@ export default function AdminPanel() {
                     )}
                     {editingMemory === memory.id ? (
                       <div className="mt-2 flex items-center gap-2">
-                        <span className="text-gray-500 italic">—</span>
+                        <span className="text-gray-500 italic">. </span>
                         <input
                           value={editFields.sender}
                           onChange={e => setEditFields(p => ({ ...p, sender: e.target.value }))}
@@ -1527,7 +1527,7 @@ export default function AdminPanel() {
                         />
                       </div>
                     ) : memory.sender ? (
-                      <p className="mt-2 sm:mt-3 italic text-base sm:text-lg text-gray-600 break-words">— {memory.sender}</p>
+                      <p className="mt-2 sm:mt-3 italic text-base sm:text-lg text-gray-600 break-words">.  {memory.sender}</p>
                     ) : null}
                     {editingMemory === memory.id && (
                       <div className="mt-3 flex gap-2">

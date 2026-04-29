@@ -4,22 +4,22 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "The Best Unsent Project Alternative — Free, Fast & Anonymous",
-  description: "Looking for an Unsent Project alternative? If Only I Sent This is a modern, free archive for unsent letters, anonymous confessions, and messages you never sent. No glitches, no waiting — write and share instantly.",
+  title: "The Best Unsent Project Alternative .  Free, Fast & Anonymous",
+  description: "Looking for an Unsent Project alternative? If Only I Sent This is a modern, free archive for unsent letters, anonymous confessions, and messages you never sent. No glitches, no waiting .  write and share instantly.",
   alternates: {
     canonical: '/unsent-project-alternative',
   },
   openGraph: {
-    title: "The Best Unsent Project Alternative — If Only I Sent This",
+    title: "The Best Unsent Project Alternative .  If Only I Sent This",
     description: "A modern, free archive for unsent letters and anonymous confessions. Faster, cleaner, and always online. The best alternative to The Unsent Project.",
     url: 'https://www.ifonlyisentthis.com/unsent-project-alternative',
     siteName: 'If Only I Sent This',
     type: 'article',
-    images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This — Unsent Project Alternative' }],
+    images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This .  Unsent Project Alternative' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Best Unsent Project Alternative — If Only I Sent This",
+    title: "The Best Unsent Project Alternative .  If Only I Sent This",
     description: "A modern, free archive for unsent letters and anonymous confessions. Faster, cleaner, and always online.",
     images: ['/opengraph-image.png'],
   },
@@ -58,7 +58,7 @@ export default function UnsentProjectAlternative() {
               Millions of people used it to say the things they couldn&apos;t say in person. But if you&apos;ve
               tried submitting recently, you may have noticed long wait times, site outages, or limitations
               in what you can write. Many users search for &ldquo;sites like The Unsent Project&rdquo; or
-              &ldquo;Unsent Project alternative&rdquo; because they want the same emotional release &mdash;
+              &ldquo;Unsent Project alternative&rdquo; because they want the same emotional release ,
               but with a smoother, more reliable experience.
             </p>
             <p className="text-base sm:text-lg mt-4">
@@ -80,7 +80,7 @@ export default function UnsentProjectAlternative() {
                 <h3 className="font-semibold text-lg mb-2">⚡ Instant &amp; Reliable</h3>
                 <p className="text-sm opacity-80">
                   No waiting weeks for your message to appear. Every submission is reviewed
-                  within hours and goes live the same day. The site is always online &mdash;
+                  within hours and goes live the same day. The site is always online ,
                   no downtime, no glitches.
                 </p>
               </div>
@@ -88,7 +88,7 @@ export default function UnsentProjectAlternative() {
                 <h3 className="font-semibold text-lg mb-2">🎨 Full Customisation</h3>
                 <p className="text-sm opacity-80">
                   Choose your card colour, add animations, enable typewriter mode, or use
-                  a handwritten font. Make your letter feel the way you feel &mdash; not
+                  a handwritten font. Make your letter feel the way you feel , not
                   just a block of text on a coloured background.
                 </p>
               </div>
@@ -104,7 +104,7 @@ export default function UnsentProjectAlternative() {
                 <h3 className="font-semibold text-lg mb-2">🔍 Search by Name</h3>
                 <p className="text-sm opacity-80">
                   Browse the archive by recipient name. Search for someone and see every
-                  anonymous letter ever written to them &mdash; a living, searchable record
+                  anonymous letter ever written to them , a living, searchable record
                   of unspoken words.
                 </p>
               </div>
@@ -152,7 +152,7 @@ export default function UnsentProjectAlternative() {
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-10 mb-4">More Than a Message Board</h2>
             <p className="text-base sm:text-lg">
-              If Only I Sent This isn&apos;t just an alternative &mdash; it&apos;s a different philosophy.
+              If Only I Sent This isn&apos;t just an alternative , it&apos;s a different philosophy.
               We believe unsent letters aren&apos;t just for first loves. They&apos;re for the apology you
               never gave, the goodbye you never got to say, the grief you&apos;re still carrying, the
               friendship that ended without closure, and the words you whisper to someone who&apos;s
@@ -165,7 +165,7 @@ export default function UnsentProjectAlternative() {
               <Link href="/memories" className="text-[var(--accent)] hover:underline">archive</Link>{" "}
               holds thousands of real, anonymous letters. And our{" "}
               <Link href="/submit" className="text-[var(--accent)] hover:underline">submission form</Link>{" "}
-              lets you write yours in under a minute &mdash; no sign-up, no friction, no judgement.
+              lets you write yours in under a minute , no sign-up, no friction, no judgement.
             </p>
 
             <div className="mt-10 flex flex-wrap justify-center gap-3">

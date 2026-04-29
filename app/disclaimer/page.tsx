@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     canonical: '/disclaimer',
   },
   openGraph: {
-    title: "Disclaimer – If Only I Sent This",
+    title: "Disclaimer .  If Only I Sent This",
     description: "Disclaimer for If Only I Sent This. Information about user content, third-party advertisements, and limitation of liability.",
     url: 'https://www.ifonlyisentthis.com/disclaimer',
     siteName: 'If Only I Sent This',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Disclaimer – If Only I Sent This",
+    title: "Disclaimer .  If Only I Sent This",
     description: "Disclaimer for If Only I Sent This. Information about user content, third-party advertisements, and limitation of liability.",
     images: ['/opengraph-image.png'],
   },

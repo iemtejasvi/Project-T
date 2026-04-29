@@ -4,13 +4,13 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Journal – Reflections on Unsent Letters, Emotions & Expression",
+  title: "Journal .  Reflections on Unsent Letters, Emotions & Expression",
   description: "Explore thoughtful articles about unsent letters, emotional expression, expressive writing therapy, and the psychology behind the words we never say.",
   alternates: {
     canonical: '/journal',
   },
   openGraph: {
-    title: "Journal – If Only I Sent This",
+    title: "Journal .  If Only I Sent This",
     description: "Explore thoughtful articles about unsent letters, emotional expression, expressive writing therapy, and the psychology behind the words we never say.",
     url: 'https://www.ifonlyisentthis.com/journal',
     siteName: 'If Only I Sent This',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Journal – If Only I Sent This",
+    title: "Journal .  If Only I Sent This",
     description: "Explore thoughtful articles about unsent letters, emotional expression, and the psychology behind the words we never say.",
     images: ['/opengraph-image.png'],
   },
@@ -34,7 +34,7 @@ const articles = [
   {
     href: "/journal/how-to-write-a-letter-you-will-never-send",
     title: "How to Write a Letter You'll Never Send",
-    description: "A practical, reflective guide to writing unsent letters — from choosing your recipient to releasing what you have been carrying.",
+    description: "A practical, reflective guide to writing unsent letters, from choosing your recipient to releasing what you have been carrying.",
   },
   {
     href: "/journal/emotional-release-through-writing",
@@ -44,22 +44,22 @@ const articles = [
   {
     href: "/journal/famous-unsent-letters-in-history",
     title: "Famous Unsent Letters That Shaped History",
-    description: "From Beethoven's Immortal Beloved to Kafka's letters to Felice — the unsent letters that shaped literary and cultural history.",
+    description: "From Beethoven's Immortal Beloved to Kafka's letters to Felice, the unsent letters that shaped literary and cultural history.",
   },
   {
     href: "/journal/why-we-hold-back-words",
     title: "Why We Hold Back the Words That Matter",
-    description: "The social, psychological, and evolutionary reasons humans suppress emotional language — and the cost of silence.",
+    description: "The social, psychological, and evolutionary reasons humans suppress emotional language, and the cost of silence.",
   },
   {
     href: "/journal/grief-letters-writing-to-someone-you-lost",
-    title: "Letters to the Lost — Writing Through Grief",
+    title: "Letters to the Lost, Writing Through Grief",
     description: "How writing to the deceased or to a lost relationship can process grief, honour memory, and bring a measure of peace.",
   },
   {
     href: "/journal/digital-age-confessions",
     title: "Confessions in the Digital Age",
-    description: "From PostSecret to anonymous apps — how the internet transformed the ancient human need to confess and be heard.",
+    description: "From PostSecret to anonymous apps, how the internet transformed the ancient human need to confess and be heard.",
   },
   {
     href: "/journal/therapeutic-benefits-of-expressive-writing",
@@ -74,22 +74,22 @@ const articles = [
   {
     href: "/journal/art-of-letting-go-through-words",
     title: "Letting Go, One Word at a Time",
-    description: "Writing as a release valve — how naming emotions on paper helps the brain process and eventually release them.",
+    description: "Writing as a release valve, how naming emotions on paper helps the brain process and eventually release them.",
   },
   {
     href: "/journal/writing-closure-letters",
-    title: "The Closure Letter — Writing the Ending You Deserve",
+    title: "The Closure Letter, Writing the Ending You Deserve",
     description: "When you cannot get closure from another person, you can write it for yourself. A guide to closure letters and how they help.",
   },
   {
     href: "/journal/love-you-never-expressed",
     title: "The Love You Never Said Out Loud",
-    description: "On the particular ache of unexpressed love — why it stays with us, what it means, and how writing about it can bring relief.",
+    description: "On the particular ache of unexpressed love, why it stays with us, what it means, and how writing about it can bring relief.",
   },
   {
     href: "/journal/messages-you-almost-sent",
     title: "The Messages You Almost Sent",
-    description: "The draft in your notes app. The text you deleted at 3am. Why almost-sent messages haunt us — and how to finally release them.",
+    description: "The draft in your notes app. The text you deleted at 3am. Why almost-sent messages haunt us, and how to finally release them.",
   },
   {
     href: "/journal/missing-your-ex-and-letting-go",
@@ -99,17 +99,27 @@ const articles = [
   {
     href: "/unsent-letters",
     title: "The Art of Unsent Letters",
-    description: "From Kafka's letters to Felice to the text you deleted at 2am — unsent letters are humanity's most honest form of expression.",
+    description: "From Kafka's letters to Felice to the text you deleted at 2am, unsent letters are humanity's most honest form of expression.",
   },
   {
     href: "/love-letters-never-sent",
     title: "Love Letters Never Sent",
-    description: "From Neruda's unnamed beloved to the words you never said — love letters never sent are the most honest kind.",
+    description: "From Neruda's unnamed beloved to the words you never said, love letters never sent are the most honest kind.",
   },
   {
     href: "/unsent-project-alternative",
     title: "The Best Unsent Project Alternative",
     description: "Looking for a modern alternative to The Unsent Project? Compare features and discover a faster, more customisable platform for your unsent letters.",
+  },
+  {
+    href: "/journal/searching-for-your-name-in-unsent-letters",
+    title: "Searching for Your Name in Unsent Letters",
+    description: "Why millions of people search for their own name in anonymous letter archives, what it reveals about human nature, and where to find your name today.",
+  },
+  {
+    href: "/journal/writing-a-letter-to-your-ex-you-will-never-send",
+    title: "Writing a Letter to Your Ex You Will Never Send",
+    description: "A deep look at why writing to an ex after a breakup is one of the most effective emotional exercises, how to do it well, and what to do with the letter when you are done.",
   },
 ];
 

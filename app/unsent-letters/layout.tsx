@@ -8,7 +8,7 @@ export default function UnsentLettersLayout({ children }: { children: React.Reac
             "@context": "https://schema.org",
             "@type": "Article",
             "headline": "The Art of Unsent Letters",
-            "description": "From Kafka's letters to Felice to the text you deleted at 2am — unsent letters are humanity's most honest form of expression.",
+            "description": "From Kafka's letters to Felice to the text you deleted at 2am .  unsent letters are humanity's most honest form of expression.",
             "url": "https://www.ifonlyisentthis.com/unsent-letters",
             "datePublished": "2026-04-14",
             "author": {

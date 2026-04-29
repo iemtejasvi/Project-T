@@ -27,7 +27,7 @@ export default async function MemoriesPage() {
     initialMemories = result.memories;
     initialTotalCount = result.totalCount;
   } catch {
-    // Fallback to empty — MemoriesClient will fetch client-side
+    // Fallback to empty .  MemoriesClient will fetch client-side
   }
 
   return <MemoriesClient initialMemories={initialMemories} initialTotalCount={initialTotalCount} />;

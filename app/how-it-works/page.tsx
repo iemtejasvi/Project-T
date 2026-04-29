@@ -26,19 +26,19 @@ export default function HowItWorks() {
 
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Write Your Unsent Letter</h2>
             <p className="text-base sm:text-lg">
-              You arrive. You write. You choose a color, an effect, a mood. Then you send it &mdash; not
+              You arrive. You write. You choose a color, an effect, a mood. Then you send it , not
               to the person, but into the archive. No account required, no email, no identity. Just the
               words you never said, given a place to exist. Your anonymous confession or unsent letter
               joins thousands of others in a quiet, curated collection.
             </p>
             <p className="text-base sm:text-lg">
-              <Link href="/submit" className="text-[var(--accent)] hover:underline">Start writing</Link> &mdash;
+              <Link href="/submit" className="text-[var(--accent)] hover:underline">Start writing</Link> ,
               it takes less than a minute.
             </p>
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">What Happens Next</h2>
             <p className="text-base sm:text-lg">
-              Every message is reviewed with care &mdash; not by an algorithm, but by a person. We read
+              Every message is reviewed with care , not by an algorithm, but by a person. We read
               each submission to keep the archive safe, meaningful, and respectful. Approved messages
               enter the{" "}
               <Link href="/memories" className="text-[var(--accent)] hover:underline">archive</Link>,
@@ -49,23 +49,23 @@ export default function HowItWorks() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Features</h2>
             <ul className="list-disc list-inside space-y-2.5 text-base sm:text-lg">
               <li>
-                <strong>Self-destructing messages</strong> &mdash; set your words to disappear
+                <strong>Self-destructing messages</strong> , set your words to disappear
                 after a week, three months, six months, or a year.
               </li>
               <li>
-                <strong>Time capsules</strong> &mdash; schedule your letter to appear in the future.
+                <strong>Time capsules</strong> , schedule your letter to appear in the future.
                 Write to your future self, or to someone on a date that matters.
               </li>
               <li>
-                <strong>40+ color themes</strong> &mdash; choose the emotional tone of your card,
+                <strong>40+ color themes</strong> , choose the emotional tone of your card,
                 from quiet neutrals to deep blues to warm ambers.
               </li>
               <li>
-                <strong>Text effects</strong> &mdash; handwritten, rough paper, or cursive styling
+                <strong>Text effects</strong> , handwritten, rough paper, or cursive styling
                 to give your words a physical texture.
               </li>
               <li>
-                <strong>Name search</strong> &mdash; every name has its own page of unsent messages.
+                <strong>Name search</strong> , every name has its own page of unsent messages.
                 Search for yours, or for someone else&apos;s.
               </li>
             </ul>
@@ -87,7 +87,7 @@ export default function HowItWorks() {
               <div>
                 <p className="font-semibold">Can I search for messages about me?</p>
                 <p className="opacity-80">
-                  Yes &mdash; visit{" "}
+                  Yes , visit{" "}
                   <Link href="/memories" className="text-[var(--accent)] hover:underline">/memories</Link>{" "}
                   and search by name, or go directly to /name/yourname.
                 </p>

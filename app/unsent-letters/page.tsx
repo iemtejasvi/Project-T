@@ -4,14 +4,14 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "The Art of Unsent Letters – Words We Never Said",
-  description: "From Kafka's letters to Felice to the text you deleted at 2am — unsent letters are humanity's most honest form of expression. Write yours anonymously.",
+  title: "The Art of Unsent Letters .  Words We Never Said",
+  description: "From Kafka's letters to Felice to the text you deleted at 2am .  unsent letters are humanity's most honest form of expression. Write yours anonymously.",
   alternates: {
     canonical: '/unsent-letters',
   },
   openGraph: {
-    title: "The Art of Unsent Letters – Words We Never Said",
-    description: "From Kafka's letters to Felice to the text you deleted at 2am — unsent letters are humanity's most honest form of expression. Write yours anonymously.",
+    title: "The Art of Unsent Letters .  Words We Never Said",
+    description: "From Kafka's letters to Felice to the text you deleted at 2am .  unsent letters are humanity's most honest form of expression. Write yours anonymously.",
     url: 'https://www.ifonlyisentthis.com/unsent-letters',
     siteName: 'If Only I Sent This',
     type: 'article',
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Art of Unsent Letters – Words We Never Said",
-    description: "From Kafka's letters to Felice to the text you deleted at 2am — unsent letters are humanity's most honest form of expression. Write yours anonymously.",
+    title: "The Art of Unsent Letters .  Words We Never Said",
+    description: "From Kafka's letters to Felice to the text you deleted at 2am .  unsent letters are humanity's most honest form of expression. Write yours anonymously.",
     images: ['/opengraph-image.png'],
   },
 };
@@ -49,13 +49,13 @@ export default function UnsentLetters() {
 
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">The Art of Unsent Letters</h2>
             <p className="text-base sm:text-lg">
-              Unsent letters are one of humanity&apos;s oldest forms of emotional expression &mdash; language
+              Unsent letters are one of humanity&apos;s oldest forms of emotional expression , language
               composed not for delivery, but for release. Franz Kafka wrote hundreds of agonized pages to
               Felice Bauer, letters more honest and unguarded than anything in his published fiction. He
-              revised them, withheld them, sent some and retracted others &mdash; the act of writing was
+              revised them, withheld them, sent some and retracted others , the act of writing was
               itself the point. Emily Dickinson assembled her fascicles in private, stitching poems into
               booklets addressed to no audience, intended for no reader. Beethoven&apos;s letter to the
-              &ldquo;Immortal Beloved&rdquo; &mdash; perhaps the most famous unsent letter in history &mdash;
+              &ldquo;Immortal Beloved&rdquo; , perhaps the most famous unsent letter in history ,
               was addressed to someone whose identity remains a mystery two centuries later. These were not
               failures to communicate. They were acts of courage: the courage to feel something fully, even
               when there was no one to receive it.
@@ -64,15 +64,15 @@ export default function UnsentLetters() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Words We Never Said</h2>
             <blockquote className="border-l-4 border-[var(--accent)] pl-4 my-6 italic text-base sm:text-lg opacity-85">
               &ldquo;Words are a pretext. It is the inner bond that draws one person to another, not words.&rdquo;
-              <span className="block mt-1 text-sm not-italic opacity-70">&mdash; Rumi</span>
+              <span className="block mt-1 text-sm not-italic opacity-70">, Rumi</span>
             </blockquote>
             <p className="text-base sm:text-lg">
-              The unsent letter did not disappear with the postal age &mdash; it migrated. It lives now in
+              The unsent letter did not disappear with the postal age , it migrated. It lives now in
               the text you typed and deleted at 2am, in the voicemail you recorded and erased before it
               could be heard, in the letter still folded inside a desk drawer, yellowing at the creases.
-              Pablo Neruda wrote love poems to unnamed recipients &mdash; publicly private, intimate yet
+              Pablo Neruda wrote love poems to unnamed recipients , publicly private, intimate yet
               universal. The unsent letter is a paradox: deeply personal, yet understood by everyone who
-              has ever held words back. Everyone carries language they never released &mdash; words meant
+              has ever held words back. Everyone carries language they never released , words meant
               for a parent, a friend, a lover, a version of themselves that no longer exists. The weight
               of the unsaid is one of the few experiences that requires no translation.
             </p>
@@ -80,7 +80,7 @@ export default function UnsentLetters() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">A Modern Archive</h2>
             <p className="text-base sm:text-lg">
               If Only I Sent This is the digital extension of this ancient tradition. It is not social
-              media. It is not a diary app. It is an archive &mdash; quiet, anonymous, and permanent (or
+              media. It is not a diary app. It is an archive , quiet, anonymous, and permanent (or
               impermanent, if you choose{" "}
               <Link href="/how-it-works" className="text-[var(--accent)] hover:underline">self-destructing messages</Link>).
               Your unsent letter joins thousands of others, forming a collective record of everything we

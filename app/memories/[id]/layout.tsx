@@ -11,7 +11,7 @@ interface MemoryLayoutProps {
 }
 
 const FALLBACK_TITLE = "Unsent Memory";
-const FALLBACK_DESC = "Read this anonymous unsent message on If Only I Sent This — a sanctuary for words that were never sent.";
+const FALLBACK_DESC = "Read this anonymous unsent message on If Only I Sent This .  a sanctuary for words that were never sent.";
 
 // ISR cache: one DB hit per memory ID per 5hr across all visitors.
 const getCachedMemoryMeta = unstable_cache(
@@ -64,10 +64,10 @@ export async function generateMetadata({ params }: MemoryLayoutProps): Promise<M
     const shortTitle = `To ${displayRecipient}`;
     const title = longTitle.length > 60 ? shortTitle : longTitle;
 
-    const ogTitle = `Unsent Message to ${displayRecipient} – If Only I Sent This`;
+    const ogTitle = `Unsent Message to ${displayRecipient} .  If Only I Sent This`;
 
     const description = preview
-      ? `"${preview}" — An anonymous unsent letter on If Only I Sent This.`
+      ? `"${preview}" .  An anonymous unsent letter on If Only I Sent This.`
       : FALLBACK_DESC;
 
     return {

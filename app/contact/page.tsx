@@ -5,13 +5,13 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Questions, feedback, or content removal requests — reach the If Only I Sent This team. We typically respond within 24 hours.",
+  description: "Questions, feedback, or content removal requests .  reach the If Only I Sent This team. We typically respond within 24 hours.",
   alternates: {
     canonical: '/contact',
   },
   openGraph: {
-    title: "Contact Us – If Only I Sent This",
-    description: "Questions, feedback, or content removal requests — reach the If Only I Sent This team. We typically respond within 24 hours.",
+    title: "Contact Us .  If Only I Sent This",
+    description: "Questions, feedback, or content removal requests .  reach the If Only I Sent This team. We typically respond within 24 hours.",
     url: 'https://www.ifonlyisentthis.com/contact',
     siteName: 'If Only I Sent This',
     type: 'website',
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Contact Us – If Only I Sent This",
-    description: "Questions, feedback, or content removal requests — reach the If Only I Sent This team.",
+    title: "Contact Us .  If Only I Sent This",
+    description: "Questions, feedback, or content removal requests .  reach the If Only I Sent This team.",
     images: ['/opengraph-image.png'],
   },
 };

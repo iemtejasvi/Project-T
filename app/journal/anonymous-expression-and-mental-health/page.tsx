@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "Anonymous Expression and the Quiet Art of Healing – Why Anonymity Unlocks Honesty",
+  title: "Anonymous Expression and the Quiet Art of Healing .  Why Anonymity Unlocks Honesty",
   description: "Why anonymity can unlock emotional honesty, reduce shame, and create a safer space for vulnerable self-expression. Research on anonymous disclosure and wellbeing.",
   alternates: { canonical: '/journal/anonymous-expression-and-mental-health' },
   openGraph: {
@@ -42,13 +42,13 @@ export default function AnonymousExpression() {
             <p className="text-base sm:text-lg">
               Anonymity has a complicated reputation. In public discourse, it is frequently associated with trolling, harassment,
               and the worst impulses of online behaviour. But in the clinical and research literature, anonymity tells a very
-              different story — one of liberation, honesty, and therapeutic benefit. When identity is removed from the equation,
+              different story .  one of liberation, honesty, and therapeutic benefit. When identity is removed from the equation,
               people consistently disclose more, disclose more honestly, and experience greater emotional relief from the act
               of disclosure.
             </p>
             <p className="text-base sm:text-lg">
               This is not a paradox. It is a predictable consequence of how shame operates in the human psyche. Shame is
-              fundamentally a social emotion — it exists only in relation to the perceived judgment of others. Remove the
+              fundamentally a social emotion .  it exists only in relation to the perceived judgment of others. Remove the
               audience, and shame loses much of its inhibitory power. The words that shame suppressed can finally surface,
               and the emotional processing that shame prevented can finally begin.
             </p>
@@ -63,7 +63,7 @@ export default function AnonymousExpression() {
             </p>
             <p className="text-base sm:text-lg">
               A meta-analysis by Lapidot-Lefler and Barak (2012) found that anonymity produced the strongest effects on
-              self-disclosure when combined with reduced visual cues — that is, when people could neither be seen nor
+              self-disclosure when combined with reduced visual cues .  that is, when people could neither be seen nor
               identified. Text-based anonymous platforms, such as online confession archives, create exactly this
               combination: the writer is invisible, unnamed, and unaccountable. Under these conditions, the barriers to
               emotional honesty are at their lowest.
@@ -71,8 +71,8 @@ export default function AnonymousExpression() {
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Shame, Stigma, and the Safety of Anonymity</h2>
             <p className="text-base sm:text-lg">
-              For individuals carrying stigmatised experiences — mental illness, addiction, abuse, non-normative relationships,
-              grief over losses that others minimise — the prospect of identified disclosure can feel genuinely dangerous.
+              For individuals carrying stigmatised experiences .  mental illness, addiction, abuse, non-normative relationships,
+              grief over losses that others minimise .  the prospect of identified disclosure can feel genuinely dangerous.
               The social risks are real: judgment, rejection, gossip, and the permanent alteration of how others perceive you.
               These risks are not imagined; they are repeatedly confirmed by social experience.
             </p>
@@ -85,7 +85,7 @@ export default function AnonymousExpression() {
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">The Witness Effect</h2>
             <p className="text-base sm:text-lg">
-              One of the most interesting findings in the anonymous disclosure literature is the &ldquo;witness effect&rdquo; —
+              One of the most interesting findings in the anonymous disclosure literature is the &ldquo;witness effect&rdquo; . 
               the observation that writing for an anonymous audience produces greater emotional benefit than writing for
               no audience at all. Private journaling is helpful, but knowing that someone, somewhere, will read your words
               adds a layer of psychological significance that amplifies the therapeutic effect.
@@ -93,21 +93,21 @@ export default function AnonymousExpression() {
             <p className="text-base sm:text-lg">
               This is why platforms that curate and publish anonymous submissions often generate more powerful emotional
               experiences for writers than private journaling apps. The knowledge that a human reader will encounter
-              your words — without knowing who you are — creates a sense of being witnessed without being judged. This
+              your words .  without knowing who you are .  creates a sense of being witnessed without being judged. This
               combination is psychologically potent: it satisfies the fundamental human need to be seen and heard, while
               bypassing the equally fundamental human fear of being rejected for what we reveal.
             </p>
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Anonymity as a Bridge to Open Expression</h2>
             <p className="text-base sm:text-lg">
-              For many people, anonymous expression serves as a developmental bridge — a stepping stone between complete
+              For many people, anonymous expression serves as a developmental bridge .  a stepping stone between complete
               silence and eventual open communication. Writing about an experience anonymously can be the first time a
               person gives language to something they have never articulated. That initial act of expression, even without
               identification, often begins a process that eventually leads to disclosed conversation with therapists,
               trusted friends, or family members.
             </p>
             <p className="text-base sm:text-lg">
-              The anonymous letter is not the end of the emotional journey — it is frequently the beginning. By lowering
+              The anonymous letter is not the end of the emotional journey .  it is frequently the beginning. By lowering
               the stakes of expression to their absolute minimum, anonymity allows people to practice honesty in a safe
               environment before extending that honesty into their identified lives.
             </p>
@@ -115,7 +115,7 @@ export default function AnonymousExpression() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">A Safe Place to Begin</h2>
             <p className="text-base sm:text-lg">
               <Link href="/" className="text-[var(--accent)] hover:underline">If Only I Sent This</Link> was built on the
-              principle that anonymity and safety are not opposing values — they are complementary ones. Every submission is
+              principle that anonymity and safety are not opposing values .  they are complementary ones. Every submission is
               anonymous, every submission is read by a human, and every approved letter enters an archive where it can be
               encountered by others who recognise their own experience in a stranger&apos;s words. No account, no identity,
               no social risk. Just the words you have been carrying, finally given a place to exist.
