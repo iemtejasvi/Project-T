@@ -41,10 +41,16 @@ export async function GET(request: NextRequest) {
 
     // Check expiry at request time (cache returns raw data)
     if (data?.expires_at && new Date(data.expires_at).getTime() <= Date.now()) {
-      return createSecureResponse({ data: null }, 200, { origin });
+      return createSecureResponse({ data: null }, 200, {
+        origin,
+        cacheControl: 'public, s-maxage=18000, stale-while-revalidate=36000'
+      });
     }
 
-    return createSecureResponse({ data }, 200, { origin });
+    return createSecureResponse({ data }, 200, {
+      origin,
+      cacheControl: 'public, s-maxage=18000, stale-while-revalidate=36000'
+    });
   } catch (error) {
     console.error('Announcement API error:', error);
     return createSecureErrorResponse('Server error', 500, { origin });
