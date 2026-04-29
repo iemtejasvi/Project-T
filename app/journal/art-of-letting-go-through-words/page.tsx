@@ -4,8 +4,8 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "Letting Go, One Word at a Time .  Writing as Emotional Release",
-  description: "Writing as a release valve .  how naming emotions on paper helps the brain process, transform, and eventually release them. The art of letting go through language.",
+  title: "Letting Go, One Word at a Time,  Writing as Emotional Release",
+  description: "Writing as a release valve,  how naming emotions on paper helps the brain process, transform, and eventually release them. The art of letting go through language.",
   alternates: { canonical: '/journal/art-of-letting-go-through-words' },
   openGraph: {
     title: "Letting Go, One Word at a Time",
@@ -43,12 +43,12 @@ export default function ArtOfLettingGo() {
               Letting go is one of the most frequently prescribed and least well-understood pieces of emotional advice. Friends
               tell us to let go of grudges. Therapists encourage us to let go of the past. Self-help books promise that letting
               go will bring peace. But what does the phrase actually mean, and how does a person do it? The instruction to
-              &ldquo;let go&rdquo; assumes that emotions are objects we are holding .  and that we can simply choose to put them
+              &ldquo;let go&rdquo; assumes that emotions are objects we are holding,  and that we can simply choose to put them
               down. Anyone who has tried to release a persistent anger, a lingering love, or a chronic grief knows that it is
               not that simple.
             </p>
             <p className="text-base sm:text-lg">
-              The psychological reality is more nuanced. Letting go is not a single decision. It is a process .  a gradual
+              The psychological reality is more nuanced. Letting go is not a single decision. It is a process,  a gradual
               transformation in the relationship between a person and their emotional pain. Writing is one of the most
               effective tools for facilitating this process, not because it erases the emotion, but because it changes
               the way the brain stores, processes, and relates to the experience that produced it.
@@ -57,8 +57,8 @@ export default function ArtOfLettingGo() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">The Neuroscience of Emotional Persistence</h2>
             <p className="text-base sm:text-lg">
               Emotions persist when they remain unprocessed. Neuroscience research has shown that traumatic or emotionally
-              charged memories are stored differently from ordinary memories. They are encoded primarily by the amygdala . 
-              the brain&apos;s alarm system .  rather than by the hippocampus, which normally handles contextual memory
+              charged memories are stored differently from ordinary memories. They are encoded primarily by the amygdala, 
+              the brain&apos;s alarm system,  rather than by the hippocampus, which normally handles contextual memory
               consolidation. This means that unprocessed emotional memories lack the temporal and contextual markers that
               would allow the brain to file them as past events. Instead, they remain in a perpetual present tense,
               triggering the same emotional response each time they are accessed.
@@ -68,13 +68,13 @@ export default function ArtOfLettingGo() {
               the original event. The brain has not learned that the event is over, because the memory has never been
               fully processed. Writing about the experience engages the hippocampus and the prefrontal cortex, adding
               the temporal and contextual information that the amygdala omitted. The memory is gradually transformed
-              from &ldquo;this is happening now&rdquo; to &ldquo;this happened then&rdquo; .  and with that shift, the
+              from &ldquo;this is happening now&rdquo; to &ldquo;this happened then&rdquo;,  and with that shift, the
               emotional charge begins to diminish.
             </p>
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Writing as Externalisation</h2>
             <p className="text-base sm:text-lg">
-              One of the key mechanisms through which writing facilitates letting go is externalisation .  the transfer of
+              One of the key mechanisms through which writing facilitates letting go is externalisation,  the transfer of
               internal experience onto an external medium. When a feeling exists only inside your head, it is merged with
               your identity. You do not have anger; you <em>are</em> angry. You do not carry grief; you <em>are</em> grief.
               The emotion and the self become indistinguishable.
@@ -82,7 +82,7 @@ export default function ArtOfLettingGo() {
             <p className="text-base sm:text-lg">
               When you write the emotion down, you create distance between yourself and the experience. The words exist on
               the page, separate from you. You can read them back. You can see them as an observer, not just as a participant.
-              This distance .  small as it may seem .  is the beginning of the process that therapists call cognitive
+              This distance,  small as it may seem,  is the beginning of the process that therapists call cognitive
               defusion: the ability to observe your thoughts and feelings without being consumed by them. Writing does not
               deny the reality of the emotion. It re-positions you in relation to it, from inside to alongside.
             </p>
@@ -93,7 +93,7 @@ export default function ArtOfLettingGo() {
               worshippers write prayers and regrets on small wooden tablets called ema, which are hung at shrines to be read
               by the gods and dissolved by weather. In Latin American folk practice, people write their fears or resentments
               on paper and burn them during New Year&apos;s Eve celebrations. In therapeutic settings, clients are often
-              invited to write letters to people who hurt them and then ceremonially destroy the letters .  tearing, burning,
+              invited to write letters to people who hurt them and then ceremonially destroy the letters,  tearing, burning,
               or burying them.
             </p>
             <p className="text-base sm:text-lg">
@@ -105,7 +105,7 @@ export default function ArtOfLettingGo() {
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Letting Go Without Forgetting</h2>
             <p className="text-base sm:text-lg">
-              A common fear about letting go is that it requires forgetting .  that releasing the emotional charge of an
+              A common fear about letting go is that it requires forgetting,  that releasing the emotional charge of an
               experience means erasing the experience itself. This is a misconception. Letting go does not mean the memory
               disappears. It means the memory no longer controls you. You can remember a loss, an injustice, or a love
               without being destabilised by the remembering. The event remains part of your history. What changes is your
@@ -115,7 +115,7 @@ export default function ArtOfLettingGo() {
               Writing facilitates this transformation. When you write about an experience and allow yourself to feel it
               fully on the page, you are not forgetting. You are completing. You are giving the memory the narrative
               structure it needs to be stored as history rather than experienced as present threat. The letting go happens
-              not through avoidance but through engagement .  through the courage of sitting with what hurts and giving
+              not through avoidance but through engagement,  through the courage of sitting with what hurts and giving
               it honest language.
             </p>
 

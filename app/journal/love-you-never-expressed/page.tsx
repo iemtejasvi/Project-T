@@ -4,12 +4,12 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "The Love You Never Said Out Loud .  On Unexpressed Love and Why It Stays With Us",
-  description: "On the particular ache of unexpressed love .  why it stays with us, what it means, and how writing about it can bring understanding and relief.",
+  title: "The Love You Never Said Out Loud,  On Unexpressed Love and Why It Stays With Us",
+  description: "On the particular ache of unexpressed love,  why it stays with us, what it means, and how writing about it can bring understanding and relief.",
   alternates: { canonical: '/journal/love-you-never-expressed' },
   openGraph: {
     title: "The Love You Never Said Out Loud",
-    description: "On the particular ache of unexpressed love .  why it stays with us and how writing about it can bring relief.",
+    description: "On the particular ache of unexpressed love,  why it stays with us and how writing about it can bring relief.",
     url: 'https://www.ifonlyisentthis.com/journal/love-you-never-expressed',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
@@ -43,8 +43,8 @@ export default function LoveYouNeverExpressed() {
               There is a particular kind of ache that belongs exclusively to love that was felt but never spoken. It is different
               from heartbreak, which at least implies that the love was known to both parties. It is different from rejection,
               which at least implies that the words were said. Unexpressed love carries a unique psychological signature: the
-              combination of fullness and absence, of wanting and withholding, of knowing what you feel and choosing .  for
-              reasons that may or may not be rational .  not to say it.
+              combination of fullness and absence, of wanting and withholding, of knowing what you feel and choosing,  for
+              reasons that may or may not be rational,  not to say it.
             </p>
             <p className="text-base sm:text-lg">
               Almost everyone has experienced this. The friend you loved in a way that exceeded friendship but could never
@@ -56,7 +56,7 @@ export default function LoveYouNeverExpressed() {
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Why We Do Not Say It</h2>
             <p className="text-base sm:text-lg">
-              The reasons for withholding love are as varied as love itself. Fear of rejection is the most obvious .  the
+              The reasons for withholding love are as varied as love itself. Fear of rejection is the most obvious,  the
               paralysing calculation that saying &ldquo;I love you&rdquo; could cost you the person entirely. But there
               are subtler forces at work. Timing: you recognised the feeling only after the moment had passed. Power
               dynamics: expressing love would shift the balance of a relationship in a direction you could not control.
@@ -67,7 +67,7 @@ export default function LoveYouNeverExpressed() {
             <p className="text-base sm:text-lg">
               Sometimes the reason is simpler and more painful: you did not have the language. Many people grow up in
               environments where love is demonstrated through action but never articulated in words. They learn to cook
-              for the people they love, to fix things, to show up .  but they never learn to say &ldquo;I love you&rdquo;
+              for the people they love, to fix things, to show up,  but they never learn to say &ldquo;I love you&rdquo;
               in a way that feels natural. The words exist in their chest but never make it to their mouth. By the time
               they realise they needed to say it, the person is gone.
             </p>
@@ -76,14 +76,14 @@ export default function LoveYouNeverExpressed() {
             <p className="text-base sm:text-lg">
               Research on regret consistently finds that people regret inaction more than action over the long term. In a
               foundational study by Gilovich and Medvec, participants asked to describe their single greatest regret in
-              life overwhelmingly cited things they <em>did not</em> do .  with unexpressed romantic feelings ranking among
+              life overwhelmingly cited things they <em>did not</em> do,  with unexpressed romantic feelings ranking among
               the most commonly reported. The pain of rejection fades. The pain of never knowing does not.
             </p>
             <p className="text-base sm:text-lg">
               Psychologists attribute this asymmetry to the brain&apos;s capacity for cognitive rationalisation. When you
               take an action and it fails, your brain constructs narratives that soften the blow: &ldquo;It was not meant
               to be,&rdquo; &ldquo;I learned from it,&rdquo; &ldquo;At least I tried.&rdquo; But when you fail to act,
-              the brain has less material to work with. There is no outcome to reinterpret, no lesson to extract .  only
+              the brain has less material to work with. There is no outcome to reinterpret, no lesson to extract,  only
               the persistent question of what might have happened if you had spoken. That question becomes a low-grade
               hum that can persist for years, even decades.
             </p>
@@ -94,23 +94,23 @@ export default function LoveYouNeverExpressed() {
               of Cholera</em> follows Florentino Ariza across fifty-one years of silent devotion. Kazuo Ishiguro&apos;s
               <em> The Remains of the Day</em> depicts a butler whose entire life is shaped by a love he could never
               articulate. Emily Bronte&apos;s <em>Wuthering Heights</em>, Edith Wharton&apos;s <em>The Age of Innocence</em>,
-              Carson McCullers&apos; <em>The Heart Is a Lonely Hunter</em> .  the canon of Western literature returns
+              Carson McCullers&apos; <em>The Heart Is a Lonely Hunter</em>,  the canon of Western literature returns
               obsessively to the same theme: the devastating gravity of love that remains locked inside.
             </p>
             <p className="text-base sm:text-lg">
               These stories endure because they articulate something that nearly every reader has lived. The unexpressed
-              love story is not tragic because the love was unrequited .  it is tragic because the love was never given
+              love story is not tragic because the love was unrequited,  it is tragic because the love was never given
               the chance to be requited. The silence was the tragedy, not the feeling.
             </p>
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Writing the Love You Could Not Speak</h2>
             <p className="text-base sm:text-lg">
               Writing about unexpressed love does not undo the silence. It does not retroactively deliver the words to
-              the person who needed to hear them. What it does .  and the research on expressive writing supports this
-              consistently .  is transform the relationship between the writer and the feeling. When you write &ldquo;I
+              the person who needed to hear them. What it does,  and the research on expressive writing supports this
+              consistently,  is transform the relationship between the writer and the feeling. When you write &ldquo;I
               loved you and I never told you&rdquo; to a person who will never read it, something shifts. The feeling
               is no longer trapped inside you. It exists in language, outside of your body, in a form that can be read,
-              witnessed, and .  eventually .  released.
+              witnessed, and,  eventually,  released.
             </p>
             <p className="text-base sm:text-lg">
               The unsent love letter is not a substitute for the conversation you never had. It is its own act, with its

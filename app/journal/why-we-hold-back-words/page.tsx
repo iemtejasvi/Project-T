@@ -4,12 +4,12 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Why We Hold Back the Words That Matter .  The Psychology of Emotional Suppression",
-  description: "Explore the social, psychological, and evolutionary reasons humans suppress emotional language .  and the hidden cost of silence on mental health.",
+  title: "Why We Hold Back the Words That Matter,  The Psychology of Emotional Suppression",
+  description: "Explore the social, psychological, and evolutionary reasons humans suppress emotional language,  and the hidden cost of silence on mental health.",
   alternates: { canonical: '/journal/why-we-hold-back-words' },
   openGraph: {
     title: "Why We Hold Back the Words That Matter",
-    description: "The social, psychological, and evolutionary reasons humans suppress emotional language .  and the cost of silence.",
+    description: "The social, psychological, and evolutionary reasons humans suppress emotional language,  and the cost of silence.",
     url: 'https://www.ifonlyisentthis.com/journal/why-we-hold-back-words',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],
@@ -42,7 +42,7 @@ export default function WhyWeHoldBackWords() {
             <p className="text-base sm:text-lg">
               Everyone carries words they have never said. An apology that arrived too late in your mind to deliver in person.
               A confession of love you rehearsed a hundred times and never spoke. A question to a parent that now seems too
-              heavy to ask. The experience of holding back language is so universal that it scarcely registers as unusual . 
+              heavy to ask. The experience of holding back language is so universal that it scarcely registers as unusual, 
               yet the psychological mechanisms behind it are complex, deeply rooted in evolution, and profoundly consequential
               for mental health.
             </p>
@@ -51,14 +51,14 @@ export default function WhyWeHoldBackWords() {
             <p className="text-base sm:text-lg">
               From an evolutionary perspective, emotional restraint is adaptive. Early humans lived in small, interdependent
               social groups where expulsion from the group was functionally a death sentence. The ability to suppress impulses,
-              moderate emotional displays, and carefully manage social impressions was not merely polite .  it was survival
+              moderate emotional displays, and carefully manage social impressions was not merely polite,  it was survival
               critical. Those who could regulate their emotional expression in ways that maintained group cohesion had a
               measurable reproductive advantage.
             </p>
             <p className="text-base sm:text-lg">
               This evolutionary inheritance persists in modern humans as a deeply wired tendency toward social self-monitoring.
               We constantly scan our environment for cues about what is acceptable to express and what must be held back.
-              The prefrontal cortex .  the part of the brain responsible for executive control .  is disproportionately large
+              The prefrontal cortex,  the part of the brain responsible for executive control,  is disproportionately large
               in humans compared to other primates, and a significant portion of its activity is devoted to inhibiting
               emotional impulses that might threaten social bonds.
             </p>
@@ -72,7 +72,7 @@ export default function WhyWeHoldBackWords() {
               should be subordinated to the comfort of others.
             </p>
             <p className="text-base sm:text-lg">
-              These rules do not eliminate the emotions they suppress .  they simply drive them underground. A man who was
+              These rules do not eliminate the emotions they suppress,  they simply drive them underground. A man who was
               taught never to cry does not stop feeling grief; he experiences it as chest tightness, irritability, emotional
               numbness, or withdrawal. A woman who was taught never to express anger does not stop feeling it; she experiences
               it as anxiety, self-blame, psychosomatic symptoms, or passive resentment. The words we hold back do not
@@ -83,23 +83,23 @@ export default function WhyWeHoldBackWords() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">The Fear of Being Truly Seen</h2>
             <p className="text-base sm:text-lg">
               At the deepest level, the words we hold back are often the words that would reveal who we really are. The
-              psychologist James Masterson identified what he called the &ldquo;false self&rdquo; .  a socially constructed
+              psychologist James Masterson identified what he called the &ldquo;false self&rdquo;,  a socially constructed
               persona developed in childhood to secure attachment and approval. The false self learns early which aspects
               of the true self are acceptable and which must be hidden. Over time, the gap between the presented self and
-              the authentic self becomes so familiar that it feels natural .  until a moment of emotional crisis forces
+              the authentic self becomes so familiar that it feels natural,  until a moment of emotional crisis forces
               the truth to surface.
             </p>
             <p className="text-base sm:text-lg">
               This is the moment when people reach for unsent letters. The unsent letter provides a space where the true
               self can speak without the false self intervening. There is no audience to manage, no relationship to protect,
               no identity to perform. The words that emerge in an unsent letter are often startlingly different from what
-              the writer would say in conversation .  rawer, more contradictory, more honest, and frequently more kind.
+              the writer would say in conversation,  rawer, more contradictory, more honest, and frequently more kind.
             </p>
 
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">The Physiological Cost of Suppression</h2>
             <p className="text-base sm:text-lg">
-              Research by Dr. James Gross at Stanford University has demonstrated that chronic emotional suppression .  the
-              habitual inhibition of emotional expression .  is associated with increased sympathetic nervous system activation,
+              Research by Dr. James Gross at Stanford University has demonstrated that chronic emotional suppression,  the
+              habitual inhibition of emotional expression,  is associated with increased sympathetic nervous system activation,
               elevated cortisol levels, higher rates of cardiovascular disease, weakened immune function, and significantly
               increased risk of depression and anxiety. Suppression is not a neutral act. It requires continuous physiological
               effort, and that effort has a measurable cost.
@@ -107,7 +107,7 @@ export default function WhyWeHoldBackWords() {
             <p className="text-base sm:text-lg">
               Gross distinguishes between two strategies of emotion regulation: reappraisal (changing how you think about
               a situation) and suppression (inhibiting the outward expression of emotion). Reappraisal is reliably associated
-              with better mental health outcomes. Suppression is reliably associated with worse outcomes .  including reduced
+              with better mental health outcomes. Suppression is reliably associated with worse outcomes,  including reduced
               memory for emotional events, decreased social connection, and increased feelings of inauthenticity.
             </p>
 
@@ -115,15 +115,15 @@ export default function WhyWeHoldBackWords() {
             <p className="text-base sm:text-lg">
               The unsent letter is one of the most accessible bridges between silence and expression. It does not require
               you to confront another person, risk rejection, or navigate the social complexity of a difficult conversation.
-              It requires only that you sit with what you feel and give it language. That act .  quiet, private, and
-              entirely within your control .  is enough to interrupt the cycle of suppression and begin the process of
+              It requires only that you sit with what you feel and give it language. That act,  quiet, private, and
+              entirely within your control,  is enough to interrupt the cycle of suppression and begin the process of
               emotional integration.
             </p>
             <p className="text-base sm:text-lg">
               Platforms like <Link href="/" className="text-[var(--accent)] hover:underline">If Only I Sent This</Link> exist
               for exactly this purpose: to provide a place where the words you have been holding back can finally exist
               outside of you. Not as a message to someone else, but as an acknowledgment to yourself that what you feel
-              is real, that it matters, and that it deserves to be spoken .  even if only to the page.
+              is real, that it matters, and that it deserves to be spoken,  even if only to the page.
             </p>
 
             <div className="mt-10 flex flex-wrap justify-center gap-3">

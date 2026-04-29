@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "You Don\u2019t Want Them Back. You Want the Feeling Back. .  On Missing Your Ex, Manifesting, and Letting Go",
+  title: "You Don\u2019t Want Them Back. You Want the Feeling Back.,  On Missing Your Ex, Manifesting, and Letting Go",
   description: "You googled how to get your ex back. You tried no contact, manifestation, and letting go. But what you actually miss is not the person \u2014 it\u2019s who you were with them. On breakup recovery, moving on, and writing what you cannot say.",
   alternates: { canonical: '/journal/missing-your-ex-and-letting-go' },
   openGraph: {

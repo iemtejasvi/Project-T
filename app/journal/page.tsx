@@ -4,13 +4,13 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Journal .  Reflections on Unsent Letters, Emotions & Expression",
+  title: "Journal,  Reflections on Unsent Letters, Emotions & Expression",
   description: "Explore thoughtful articles about unsent letters, emotional expression, expressive writing therapy, and the psychology behind the words we never say.",
   alternates: {
     canonical: '/journal',
   },
   openGraph: {
-    title: "Journal .  If Only I Sent This",
+    title: "Journal,  If Only I Sent This",
     description: "Explore thoughtful articles about unsent letters, emotional expression, expressive writing therapy, and the psychology behind the words we never say.",
     url: 'https://www.ifonlyisentthis.com/journal',
     siteName: 'If Only I Sent This',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Journal .  If Only I Sent This",
+    title: "Journal,  If Only I Sent This",
     description: "Explore thoughtful articles about unsent letters, emotional expression, and the psychology behind the words we never say.",
     images: ['/opengraph-image.png'],
   },

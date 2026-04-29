@@ -4,12 +4,12 @@ import { Metadata } from "next";
 import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 
 export const metadata: Metadata = {
-  title: "The Messages You Almost Sent .  On Drafts, Deleted Texts, and 3 AM Confessions You Erased",
-  description: "Everyone has a message they typed and never sent. The draft sitting in your notes app. The text you deleted at 3am. Why almost-sent messages haunt us .  and how to finally release them.",
+  title: "The Messages You Almost Sent,  On Drafts, Deleted Texts, and 3 AM Confessions You Erased",
+  description: "Everyone has a message they typed and never sent. The draft sitting in your notes app. The text you deleted at 3am. Why almost-sent messages haunt us,  and how to finally release them.",
   alternates: { canonical: '/journal/messages-you-almost-sent' },
   openGraph: {
     title: "The Messages You Almost Sent",
-    description: "Everyone has a message they typed and never sent. Why almost-sent messages haunt us .  and how to finally release them.",
+    description: "Everyone has a message they typed and never sent. Why almost-sent messages haunt us,  and how to finally release them.",
     url: 'https://www.ifonlyisentthis.com/journal/messages-you-almost-sent',
     siteName: 'If Only I Sent This', type: 'article',
     images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This' }],

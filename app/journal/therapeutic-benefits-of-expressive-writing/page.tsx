@@ -4,7 +4,7 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "The Science of Expressive Writing .  Science-Backed Evidence",
+  title: "The Science of Expressive Writing,  Science-Backed Evidence",
   description: "Decades of research show that expressive writing improves mental and physical health. Explore the science, the studies, and how to apply it in your own life.",
   alternates: { canonical: '/journal/therapeutic-benefits-of-expressive-writing' },
   openGraph: {
@@ -41,8 +41,8 @@ export default function TherapeuticBenefits() {
             <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Writing as Medicine</h2>
             <p className="text-base sm:text-lg">
               The idea that writing can heal is not a metaphor. Over the past four decades, a robust body of clinical research
-              has demonstrated that structured expressive writing .  the deliberate, focused act of putting emotional experiences
-              into words .  produces measurable improvements in both psychological and physical health. The effect has been
+              has demonstrated that structured expressive writing,  the deliberate, focused act of putting emotional experiences
+              into words,  produces measurable improvements in both psychological and physical health. The effect has been
               replicated across cultures, age groups, and clinical populations, establishing expressive writing as one of the
               most accessible and evidence-based therapeutic interventions available.
             </p>
@@ -77,15 +77,15 @@ export default function TherapeuticBenefits() {
             </p>
             <p className="text-base sm:text-lg">
               <strong>Cognitive processing.</strong> Unprocessed emotional experiences exist in memory as fragmented, disorganised
-              sensory and emotional impressions. Writing forces the brain to impose narrative structure .  temporal sequence,
-              causal logic, and linguistic coherence .  on these fragments. This reorganisation transforms a chaotic emotional
+              sensory and emotional impressions. Writing forces the brain to impose narrative structure,  temporal sequence,
+              causal logic, and linguistic coherence,  on these fragments. This reorganisation transforms a chaotic emotional
               memory into a structured narrative, which can be stored more efficiently and accessed with less emotional
               disruption. The result is reduced intrusive thinking and rumination.
             </p>
             <p className="text-base sm:text-lg">
               <strong>Meaning-making.</strong> The most therapeutically effective writing involves not just emotional expression
-              but the construction of meaning. Writers who develop insight into their experiences .  who move from describing
-              what happened to understanding why it matters .  show the largest and most durable improvements. This process
+              but the construction of meaning. Writers who develop insight into their experiences,  who move from describing
+              what happened to understanding why it matters,  show the largest and most durable improvements. This process
               of meaning-making transforms the experience from something that happened <em>to</em> the writer into something
               the writer has integrated <em>into</em> their life story.
             </p>
@@ -93,8 +93,8 @@ export default function TherapeuticBenefits() {
             <h2 className="text-xl sm:text-2xl font-semibold mt-8 mb-4">Who Benefits Most</h2>
             <p className="text-base sm:text-lg">
               Meta-analyses of the expressive writing literature suggest that the intervention is most effective for individuals
-              who have experienced a specific, identifiable emotional upheaval .  such as a bereavement, a relationship ending,
-              a health diagnosis, or a traumatic event .  and who have not had the opportunity to process the experience through
+              who have experienced a specific, identifiable emotional upheaval,  such as a bereavement, a relationship ending,
+              a health diagnosis, or a traumatic event,  and who have not had the opportunity to process the experience through
               other means (therapy, social support, or conversation). Individuals who are naturally more reluctant to discuss
               their emotions verbally tend to show the largest benefits, suggesting that writing provides an alternative
               channel for emotional processing that bypasses the social barriers to disclosure.
@@ -104,16 +104,16 @@ export default function TherapeuticBenefits() {
             <p className="text-base sm:text-lg">
               The clinical protocol is straightforward and can be practiced by anyone. Set aside fifteen to twenty minutes
               in a quiet space. Write continuously about an emotional experience that has been weighing on you. Do not worry
-              about grammar, spelling, or literary quality. The goal is not to produce a polished text .  it is to allow your
+              about grammar, spelling, or literary quality. The goal is not to produce a polished text,  it is to allow your
               internal experience to take external form. Write for at least three consecutive days, about the same or
               different topics.
             </p>
             <p className="text-base sm:text-lg">
-              You may feel temporarily worse after writing .  this is normal and well-documented. The discomfort typically
+              You may feel temporarily worse after writing,  this is normal and well-documented. The discomfort typically
               resolves within hours. The long-term trajectory is consistently positive. You can write in a private journal,
               on loose paper you later discard, or anonymously through a platform
               like <Link href="/submit" className="text-[var(--accent)] hover:underline">If Only I Sent This</Link>.
-              The format matters far less than the emotional depth of the engagement. What heals is not the medium .  it is
+              The format matters far less than the emotional depth of the engagement. What heals is not the medium,  it is
               the honesty.
             </p>
 
