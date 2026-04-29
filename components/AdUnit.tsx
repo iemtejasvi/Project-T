@@ -113,26 +113,25 @@ export function InFeedAdUnit({
   cols = 3,
 }: {
   slot: string;
-  /** Number of grid columns (2 = tablet, 3 = desktop) */
+  /** Number of grid columns (1 = mobile, 2 = tablet, 3 = desktop) */
   cols?: number;
 }) {
   if (!ENABLE_ADS) return null;
-  const isDesktopWide = cols === 3;
+
+  const widthClass = cols === 3
+    ? 'max-w-[1260px] px-5'
+    : cols === 2
+      ? 'max-w-[690px] px-5'
+      : 'max-w-xs sm:max-w-sm';
 
   return (
-    <div
-      className={`w-full mx-auto my-6 ${
-        isDesktopWide
-          ? 'max-w-[1260px] px-5'
-          : 'max-w-[690px] px-5'
-      }`}
-    >
+    <div className={`w-full mx-auto my-6 ${widthClass}`}>
       <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)]/10 overflow-hidden">
         <AdUnit
           slot={slot}
           format="fluid"
           layoutKey="-gj-i+16-52+b7"
-          minHeight={isDesktopWide ? 90 : 150}
+          minHeight={cols === 1 ? 250 : cols === 2 ? 150 : 90}
           className="px-4 py-3"
         />
       </div>
