@@ -85,7 +85,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
   const arrowStyle = useMemo(() =>
     effectiveColor === "default"
-      ? { color: "#D9D9D9" }
+      ? { color: "#5F554C" }
       : { color: `var(--color-${effectiveColor}-border)` },
     [effectiveColor]
   );
@@ -195,6 +195,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     return DESTRUCTED_MESSAGES[idx];
   }, []);
 
+  const isShortMessage = useMemo(() => {
+    return filterProfanity(memory.message).trim().split(/\s+/).filter(Boolean).length <= 30;
+  }, [memory.message]);
+
   // Live destruct countdown
   const [destructCountdown, setDestructCountdown] = useState<string | null>(null);
   useEffect(() => {
@@ -230,10 +234,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     }
   };
 
-  const renderMessage = (memory: Memory, forceLarge?: boolean) => {
+  const renderMessage = (memory: Memory, forceLarge?: boolean, readingMode?: boolean) => {
     if (isDestructedNow) {
       return (
-        <div className={`${forceLarge ? 'text-[16px]' : 'text-[14px]'} leading-snug break-words hyphens-none opacity-90 font-mono`}>
+        <div className={`${readingMode ? 'text-[15px]' : forceLarge ? 'text-[16px]' : 'text-[14px]'} leading-snug break-words hyphens-none opacity-90 font-mono`}>
           <p className="tracking-tight">
             This message was destructed{destructAtLabel ? ` at ${destructAtLabel}` : ''}. You're late to read it.
           </p>
@@ -242,7 +246,10 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       );
     }
     const messageToRender = filterProfanity(memory.message);
-    const textClass = forceLarge
+    const useLargeText = !readingMode && (forceLarge || isShortMessage);
+    const textClass = readingMode
+      ? "text-[18px] leading-[1.75] tracking-normal break-words hyphens-none"
+      : useLargeText
       ? "text-[28px] tracking-wide leading-snug break-words hyphens-none"
       : "text-[21px] tracking-wide leading-snug break-words hyphens-none";
     
@@ -262,7 +269,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         return <p className={`${textClass} ${laBelleAuroreClass} pl-3 pr-[0.05rem] sm:pl-3 sm:pr-[0.05rem] antialiased whitespace-pre-wrap`}>{messageToRender}</p>;
       default:
         return (
-          <div className="space-y-2">
+          <div className={readingMode ? "w-full max-w-[34rem] space-y-3 text-left" : "space-y-2"}>
             <p className={`${textClass} whitespace-pre-wrap`}>{messageToRender}</p>
           </div>
         );
@@ -372,8 +379,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
         {/* Message section */}
         <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
-          <div className={`${isDesktop ? "text-5xl" : "text-base"} font-serif text-center text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
-            {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, true)}
+          <div className={`${isDesktop ? "text-5xl text-center" : "w-full max-w-[34rem] text-base text-left"} font-serif text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
+            {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, false, true)}
           </div>
         </div>
 

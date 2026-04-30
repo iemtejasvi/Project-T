@@ -177,7 +177,10 @@ function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMe
     );
   }
   const messageToRender = filterProfanity(memory.message);
-  const textClass = "text-[1.65rem] tracking-wide leading-snug break-words hyphens-none";
+  const isShortMessage = messageToRender.trim().split(/\s+/).filter(Boolean).length <= 30;
+  const textClass = isShortMessage
+    ? "text-[2rem] xl:text-[1.65rem] tracking-wide leading-snug break-words hyphens-none"
+    : "text-[1.65rem] tracking-wide leading-snug break-words hyphens-none";
   switch (memory.animation) {
     case "cursive":
       return (
@@ -310,7 +313,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   );
   const arrowStyle = useMemo(() =>
     effectiveColor === "default"
-      ? { color: "#D9D9D9" }
+      ? { color: "#5F554C" }
       : { color: `var(--color-${effectiveColor}-border)` },
     [effectiveColor]
   );
