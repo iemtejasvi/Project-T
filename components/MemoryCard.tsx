@@ -402,14 +402,27 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   }
 
   return (
-    <div className={`relative group ${compact ? 'my-2 sm:my-3 pb-10' : 'my-4 sm:my-6 pb-10'}`}>
-      <div className="pointer-events-none absolute bottom-0 left-1/2 z-20 w-[74vw] max-w-md -translate-x-1/2">
+    <div className={`relative group ${compact ? 'my-2 sm:my-3 pb-8' : 'my-4 sm:my-6 pb-8'}`}>
+      <div className="pointer-events-none absolute bottom-1 left-1/2 z-20 w-[74vw] max-w-md -translate-x-1/2">
         <Link
           href={`/memories/${memory.id}`}
           aria-label="Open full memory"
-          className="pointer-events-auto ml-auto flex h-11 w-11 items-center justify-center transition-opacity duration-200 active:opacity-75"
+          className="pointer-events-auto ml-auto -mr-1 flex h-11 w-[68px] items-center justify-end gap-1.5 transition-opacity duration-200 active:opacity-75"
           style={{ color: arrowStyle.color }}
         >
+          <svg
+            aria-hidden="true"
+            className="h-3 w-8 opacity-35"
+            viewBox="0 0 36 12"
+            fill="none"
+          >
+            <path
+              d="M1.5 7.1C8 5.9 14.5 7.8 20.8 6.7C25.3 5.9 29.8 5.8 34.5 6.5"
+              stroke="currentColor"
+              strokeWidth="1.15"
+              strokeLinecap="round"
+            />
+          </svg>
           <span
             aria-hidden="true"
             className="block select-none text-3xl font-light leading-none opacity-50"
