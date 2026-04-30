@@ -308,6 +308,12 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
       : {},
     [effectiveColor, memory.full_bg]
   );
+  const arrowStyle = useMemo(() =>
+    effectiveColor === "default"
+      ? { color: "#D9D9D9" }
+      : { color: `var(--color-${effectiveColor}-border)` },
+    [effectiveColor]
+  );
 
   const createdDate = useMemo(() => new Date(memory.created_at), [memory.created_at]);
   const dateStr = createdDate.toLocaleDateString();
@@ -357,12 +363,12 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
   };
 
   return (
-    <div className={`relative group ${large ? 'my-2' : 'my-0'}`}>
+    <div className={`relative group ${large ? 'my-2' : 'my-0'} md:pb-8 xl:pb-0`}>
       <motion.div
         whileHover={{ y: -4, boxShadow: "0 30px 60px rgba(0,0,0,0.18), 0 12px 24px rgba(0,0,0,0.10)", transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0, scale: 1, boxShadow: "0 20px 44px rgba(0,0,0,0.16), 0 8px 18px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.05)" }}
-        className={`flip-card relative w-full h-[440px] xl:h-[480px] perspective-1000 ${flipped ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} rounded-[2rem] hover:shadow-2xl mx-auto`}
+        className={`flip-card relative w-full ${large ? "h-[480px]" : "h-[460px] xl:h-[480px]"} perspective-1000 ${flipped ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle, WebkitPerspective: '1000px', perspective: '1000px' } as React.CSSProperties}
       >
@@ -545,18 +551,39 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         </motion.div>
       </motion.div>
 
-      {/* Tablet: always-visible minimal open arrow (no hover on touch devices) */}
-      <div className="hidden md:flex lg:hidden absolute -bottom-3 left-1/2 -translate-x-1/2 z-20">
-        <Link href={`/memories/${memory.id}`} className="open-card-btn">
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--card-bg)]/90 backdrop-blur-sm border border-[var(--border)]/40 text-[var(--text)]/60 shadow-sm transition-transform active:scale-90">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+      {/* Tablet: visible touch affordance, matching mobile without changing desktop */}
+      <div className="pointer-events-none absolute bottom-1 left-1/2 z-20 hidden w-full -translate-x-1/2 justify-end md:flex xl:hidden">
+        <Link
+          href={`/memories/${memory.id}`}
+          aria-label="Open full memory"
+          className="open-card-btn pointer-events-auto -mr-1 flex h-11 w-[68px] items-center justify-end gap-1.5 transition-opacity duration-200 active:opacity-75"
+          style={{ color: arrowStyle.color }}
+        >
+          <svg
+            aria-hidden="true"
+            className="h-3 w-8 opacity-35"
+            viewBox="0 0 36 12"
+            fill="none"
+          >
+            <path
+              d="M1.5 7.1C8 5.9 14.5 7.8 20.8 6.7C25.3 5.9 29.8 5.8 34.5 6.5"
+              stroke="currentColor"
+              strokeWidth="1.15"
+              strokeLinecap="round"
+            />
+          </svg>
+          <span
+            aria-hidden="true"
+            className="block select-none text-3xl font-light leading-none opacity-50"
+          >
+            ›
           </span>
         </Link>
       </div>
 
       {/* Desktop: hover-reveal open button */}
       {flipped ? (
-        <div className="hidden lg:flex absolute top-full mt-2 left-1/2 -translate-x-1/2 z-20 pointer-events-none cursor-default">
+        <div className="absolute top-full left-1/2 z-20 mt-2 hidden -translate-x-1/2 cursor-default pointer-events-none xl:flex">
           <Link href={`/memories/${memory.id}`} className="open-card-btn pointer-events-auto">
             <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[17px] leading-none px-0 py-0 w-0 h-0 opacity-0 group-hover:px-5 group-hover:py-[8px] group-hover:w-auto group-hover:h-auto group-hover:opacity-100 group-hover:border-[var(--border)]/60">
               <span className="overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">open</span>
@@ -565,7 +592,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
           </Link>
         </div>
       ) : (
-        <div className="hidden lg:flex absolute -bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none cursor-default">
+        <div className="absolute -bottom-3 left-1/2 z-20 hidden -translate-x-1/2 cursor-default pointer-events-none xl:flex">
           <Link href={`/memories/${memory.id}`} className="open-card-btn pointer-events-auto">
             <span className="inline-flex items-center rounded-full transition-all duration-300 bg-[var(--card-bg)]/80 text-[var(--text)]/70 backdrop-blur-sm border border-transparent text-[17px] leading-none px-0 py-0 w-0 h-0 opacity-0 group-hover:px-5 group-hover:py-[8px] group-hover:w-auto group-hover:h-auto group-hover:opacity-100 group-hover:border-[var(--border)]/60">
               <span className="overflow-hidden whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">open</span>

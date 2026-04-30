@@ -402,7 +402,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   }
 
   return (
-    <div className={`relative group ${compact ? 'my-2 sm:my-3 pb-8' : 'my-4 sm:my-6 pb-8'}`}>
+    <div className={`relative group ${compact ? 'my-1.5 sm:my-2.5 pb-7' : 'my-3.5 sm:my-5 pb-7'}`}>
       <div className="pointer-events-none absolute bottom-1 left-1/2 z-20 w-[84vw] max-w-[460px] -translate-x-1/2">
         <Link
           href={`/memories/${memory.id}`}
