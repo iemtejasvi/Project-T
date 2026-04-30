@@ -5,6 +5,7 @@ import { validateMemoryInput, sanitizeString, sanitizeUUID, isValidIP } from '@/
 import { createSecureResponse, createSecureErrorResponse, validateRequest, detectSuspiciousRequest } from '@/lib/securityHeaders';
 import { MEMORY_LIMIT, WORD_LIMIT, countWords } from '@/lib/constants';
 import { getProfanityDensity } from '@/lib/profanityFilter';
+import { detectRiskySubmissionContent, RISKY_CONTENT_ERROR } from '@/lib/riskyContent';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { getClientIP } from '@/lib/getClientIP';
 
@@ -425,6 +426,19 @@ export async function POST(request: NextRequest) {
       ) {
         sanitizedSender = undefined; // Will be stored as null (anonymous)
       }
+    }
+
+    const riskyContent = detectRiskySubmissionContent([
+      { field: 'recipient', value: sanitizedRecipient },
+      { field: 'message', value: sanitizedMessage },
+      { field: 'sender', value: sanitizedSender },
+    ]);
+    if (riskyContent.blocked) {
+      console.warn('Restricted submission blocked:', {
+        category: riskyContent.category,
+        field: riskyContent.field,
+      });
+      return createSecureErrorResponse(RISKY_CONTENT_ERROR, 400, { origin });
     }
 
     // 6. CONTENT QUALITY: Profanity density gate (AdSense compliance)

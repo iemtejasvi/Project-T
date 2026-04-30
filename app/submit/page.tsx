@@ -958,24 +958,20 @@ export default function SubmitPage() {
       }
     }
 
-    // All client-side validation passed - show success immediately for smooth UX
-    setSubmitted(true);
-    setError("");
-    setIsSubmitting(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Process submission in background (non-blocking, 15s timeout)
+    // Submit only after server-side safety checks accept the content.
     const submitCtrl = new AbortController();
     const submitTimer = setTimeout(() => submitCtrl.abort(), 15000);
-    fetch('/api/submit-memory', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(submission),
-      signal: submitCtrl.signal,
-    }).then(async (response) => {
+    try {
+      const response = await fetch('/api/submit-memory', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submission),
+        signal: submitCtrl.signal,
+      });
       clearTimeout(submitTimer);
+
       let result: Record<string, unknown> = {};
       try {
         result = await response.json();
@@ -999,13 +995,22 @@ export default function SubmitPage() {
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
         console.error('Submission failed:', response.status, errorMsg);
+        setIsSubmitting(false);
+        return;
       }
-    }).catch(err => {
+
+      setSubmitted(true);
+      setError("");
+      setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      clearTimeout(submitTimer);
       console.error('Submission error:', err);
       setSubmitted(false);
       setError('Network error. Please check your connection and try again.');
+      setIsSubmitting(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    }
   };
 
 
