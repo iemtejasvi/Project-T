@@ -403,7 +403,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
 
   return (
     <div className={`relative group ${compact ? 'my-2 sm:my-3 pb-8' : 'my-4 sm:my-6 pb-8'}`}>
-      <div className="pointer-events-none absolute bottom-1 left-1/2 z-20 w-[74vw] max-w-md -translate-x-1/2">
+      <div className="pointer-events-none absolute bottom-1 left-1/2 z-20 w-[84vw] max-w-[460px] -translate-x-1/2">
         <Link
           href={`/memories/${memory.id}`}
           aria-label="Open full memory"
@@ -435,7 +435,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         whileHover={{ scale: 1.03, boxShadow: "0 10px 20px rgba(0,0,0,0.2)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`flip-card relative ${variant === "home" ? "w-[74vw] h-[340px] rounded-[1.75rem]" : "w-[74vw] h-[340px] rounded-[2rem]"} max-w-md mx-auto perspective-1000 cursor-pointer hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
+        className={`flip-card relative ${variant === "home" ? "w-[84vw] h-[400px] rounded-[1.75rem]" : "w-[84vw] h-[390px] rounded-[2rem]"} max-w-[460px] mx-auto perspective-1000 cursor-pointer hover:shadow-[0_25px_50px_rgba(0,0,0,0.08)] transition-shadow duration-300`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle, WebkitPerspective: '1000px', perspective: '1000px' } as React.CSSProperties}
       >
