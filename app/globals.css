@@ -645,14 +645,22 @@ input::placeholder, textarea::placeholder {
   /* Main page titles - large and prominent desktop */
   .home-desktop-heading,
   .memories-desktop-heading {
-    font-size: 4.5rem !important; /* 72px - large and prominent */
     font-weight: 500;
     letter-spacing: -0.02em;
-    line-height: 1.2;
     color: var(--text);
     opacity: 0.9;
     position: relative;
     padding-bottom: 0.5rem;
+  }
+
+  .home-desktop-heading {
+    font-size: 5.25rem !important; /* 84px - stronger desktop brand presence */
+    line-height: 1.08;
+  }
+
+  .memories-desktop-heading {
+    font-size: 4.5rem !important; /* 72px - archive heading stays balanced */
+    line-height: 1.2;
   }
   
   .home-desktop-heading::after {
@@ -661,7 +669,7 @@ input::placeholder, textarea::placeholder {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 100px;
+    width: 124px;
     height: 2px;
     background: var(--accent);
     opacity: 0.3;
