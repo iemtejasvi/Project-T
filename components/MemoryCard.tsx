@@ -402,27 +402,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   }
 
   return (
-    <div className={`relative group ${compact ? 'my-2 sm:my-3' : 'my-4 sm:my-6'}`}>
-      <div className="absolute -bottom-3 right-4 z-20">
+    <div className={`relative group ${compact ? 'my-2 sm:my-3 pb-10' : 'my-4 sm:my-6 pb-10'}`}>
+      <div className="pointer-events-none absolute bottom-0 left-1/2 z-20 w-[74vw] max-w-md -translate-x-1/2">
         <Link
           href={`/memories/${memory.id}`}
           aria-label="Open full memory"
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border)]/35 bg-[var(--card-bg)]/90 text-[var(--text)]/65 shadow-[0_10px_28px_rgba(0,0,0,0.12)] backdrop-blur-md transition-all duration-200 active:scale-95 active:text-[var(--text)]"
+          className="pointer-events-auto ml-auto flex h-11 w-11 items-center justify-center transition-opacity duration-200 active:opacity-75"
           style={{ color: arrowStyle.color }}
         >
-          <svg
+          <span
             aria-hidden="true"
-            className="h-[17px] w-[17px]"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.25"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            className="block select-none text-3xl font-light leading-none opacity-50"
           >
-            <path d="M7 17L17 7" />
-            <path d="M9 7h8v8" />
-          </svg>
+            ›
+          </span>
         </Link>
       </div>
       <motion.div
