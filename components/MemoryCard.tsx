@@ -32,25 +32,6 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
     }
   }, [children, active]);
 
-  // Lock body scroll while touching a scrollable message container
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el || !needsScroll || !active) return;
-
-    const lock = () => { document.body.style.overflow = 'hidden'; };
-    const unlock = () => { document.body.style.overflow = ''; };
-
-    el.addEventListener('touchstart', lock, { passive: true });
-    el.addEventListener('touchend', unlock, { passive: true });
-    el.addEventListener('touchcancel', unlock, { passive: true });
-    return () => {
-      el.removeEventListener('touchstart', lock);
-      el.removeEventListener('touchend', unlock);
-      el.removeEventListener('touchcancel', unlock);
-      unlock();
-    };
-  }, [needsScroll, active]);
-
   // When not active (card not flipped), force overflow hidden to prevent
   // iOS Safari from breaking backface-visibility in preserve-3d context
   const canScroll = needsScroll && active;
@@ -58,7 +39,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   return (
     <div
       ref={containerRef}
-      className={`flex-1 ${canScroll ? 'overflow-y-auto overscroll-contain cute_scroll' : 'overflow-y-hidden'} text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2`}
+      className={`flex-1 ${canScroll ? 'overflow-y-auto cute_scroll' : 'overflow-y-hidden'} text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2`}
       style={canScroll ? { ...style, WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' } : style}
     >
       {children}
@@ -117,25 +98,6 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       );
     }
   }, [flipped, memory.message]);
-
-  // Lock body scroll while touching a scrollable rough paper container
-  useEffect(() => {
-    const el = roughScrollRef.current;
-    if (!el || !roughNeedsScroll) return;
-
-    const lock = () => { document.body.style.overflow = 'hidden'; };
-    const unlock = () => { document.body.style.overflow = ''; };
-
-    el.addEventListener('touchstart', lock, { passive: true });
-    el.addEventListener('touchend', unlock, { passive: true });
-    el.addEventListener('touchcancel', unlock, { passive: true });
-    return () => {
-      el.removeEventListener('touchstart', lock);
-      el.removeEventListener('touchend', unlock);
-      el.removeEventListener('touchcancel', unlock);
-      unlock();
-    };
-  }, [roughNeedsScroll]);
 
   const createdDate = useMemo(() => new Date(memory.created_at), [memory.created_at]);
   const dateStr = createdDate.toLocaleDateString();
@@ -616,7 +578,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
             {memory.animation === "rough" ? (
               <div
                 ref={roughScrollRef}
-                className={`flex-1 ${roughNeedsScroll && flipped ? 'overflow-y-auto overscroll-contain cute_scroll' : 'overflow-y-hidden'} text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10`}
+                className={`flex-1 ${roughNeedsScroll && flipped ? 'overflow-y-auto cute_scroll' : 'overflow-y-hidden'} text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10`}
                 style={roughNeedsScroll && flipped ? {
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
