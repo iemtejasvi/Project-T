@@ -52,15 +52,18 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   const roughScrollRef = useRef<HTMLDivElement>(null);
   const [roughNeedsScroll, setRoughNeedsScroll] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [isClient, setIsClient] = useState(false);  useEffect(() => {
-    const mql = window.matchMedia("(min-width: 1024px)");
-    setIsDesktop(mql.matches);
-    setIsClient(true);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mql.addEventListener("change", handler);
-    return () => {
-      mql.removeEventListener("change", handler);
+  const [isTablet, setIsTablet] = useState(false);
+
+  useEffect(() => {
+    const checkViewport = () => {
+      const width = window.innerWidth;
+      setIsDesktop(width >= 1280);
+      setIsTablet(width >= 768 && width < 1280);
     };
+
+    checkViewport();
+    window.addEventListener("resize", checkViewport);
+    return () => window.removeEventListener("resize", checkViewport);
   }, []);
 
   let effectiveColor = memory.color;
@@ -248,7 +251,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
     const messageToRender = filterProfanity(memory.message);
     const useLargeText = !readingMode && (forceLarge || isShortMessage);
     const textClass = readingMode
-      ? "text-[18px] leading-[1.75] tracking-normal break-words hyphens-none"
+      ? `${isTablet ? "text-[21px]" : "text-[18px]"} leading-[1.75] tracking-normal break-words hyphens-none`
       : useLargeText
       ? "text-[28px] tracking-wide leading-snug break-words hyphens-none"
       : "text-[21px] tracking-wide leading-snug break-words hyphens-none";
@@ -313,13 +316,15 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           );
       }
     }
+    const detailCardClass = isDesktop
+      ? "w-full max-w-3xl mx-auto my-12 p-12 rounded-[2rem] shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden"
+      : isTablet
+      ? "w-full max-w-[680px] mx-auto my-8 p-10 rounded-[1.75rem] shadow-[0_12px_32px_rgba(0,0,0,0.13)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden min-h-[56vh]"
+      : "w-full max-w-[520px] mx-auto my-6 p-6 rounded-[1.5rem] shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden min-h-[50vh]";
+
     return (
       <div
-        className={
-          isDesktop
-            ? "w-full max-w-3xl mx-auto my-12 p-12 rounded-[2rem] shadow-[0_12px_40px_rgba(0,0,0,0.15)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden"
-            : "w-full max-w-[520px] mx-auto my-6 p-6 rounded-[1.5rem] shadow-[0_10px_24px_rgba(0,0,0,0.12)] border border-[var(--border)]/40 bg-[var(--card-bg)] flex flex-col items-center justify-center relative overflow-hidden min-h-[50vh]"
-        }
+        className={detailCardClass}
         style={{ ...bgStyle, ...borderStyle }}
       >
         {/* Rough paper overlay for detail view */}
@@ -343,7 +348,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         {/* Header section */}
         <div className="w-full flex flex-col items-center relative z-10">
           <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                        <h3 className={`${isDesktop ? "text-xl opacity-75 font-medium tracking-wide" : "text-2xl font-bold"} text-[var(--text)] text-center leading-tight drop-shadow-sm`}>
+                        <h3 className={`${isDesktop ? "text-xl opacity-75 font-medium tracking-wide" : isTablet ? "text-[1.35rem] opacity-80 font-medium tracking-wide" : "text-2xl font-bold"} text-[var(--text)] text-center leading-tight drop-shadow-sm`}>
               To:{" "}
               {isLinkableName(memory.recipient) ? (
                 <Link
@@ -359,7 +364,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           </div>
           
           {memory.sender && (
-            <p className={`${isDesktop ? "text-xl opacity-75 font-medium tracking-wide" : "text-base italic font-light"} text-[var(--text)] mb-3 sm:mb-4 text-center`}>
+            <p className={`${isDesktop ? "text-xl opacity-75 font-medium tracking-wide" : isTablet ? "text-lg opacity-75 italic font-light" : "text-base italic font-light"} text-[var(--text)] mb-3 sm:mb-4 text-center`}>
               From:{" "}
               {isLinkableName(memory.sender) ? (
                 <Link
@@ -378,8 +383,8 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         </div>
 
         {/* Message section */}
-        <div className="w-full flex-1 flex flex-col justify-center items-center my-4 sm:my-8 relative z-10">
-          <div className={`${isDesktop ? "text-5xl text-center" : "w-full max-w-[34rem] text-base text-left"} font-serif text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
+        <div className={`w-full flex-1 flex flex-col justify-center items-center ${isTablet ? "my-6" : "my-4 sm:my-8"} relative z-10`}>
+          <div className={`${isDesktop ? "text-5xl text-center" : isTablet ? "w-full max-w-[38rem] text-left" : "w-full max-w-[34rem] text-base text-left"} font-serif text-[var(--text)] leading-relaxed break-words hyphens-none px-3 sm:px-4`}>
             {isDesktop ? renderMessageLargeDetail(memory) : renderMessage(memory, false, true)}
           </div>
         </div>
@@ -389,14 +394,14 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
           <hr className="my-2 border-[#999999] w-full" />
           
           <div className="flex flex-col items-center gap-1 sm:gap-2">
-            <span className={`${isDesktop ? "text-xl" : "text-xs"} text-[var(--text)] opacity-75 font-medium text-center tracking-wide`}>
+            <span className={`${isDesktop ? "text-xl" : isTablet ? "text-sm" : "text-xs"} text-[var(--text)] opacity-75 font-medium text-center tracking-wide`}>
               {dateStr} • {dayStr} • {timeStr}
             </span>
-            <span className={`${isDesktop ? "text-base" : "text-xs"} text-[var(--text)] opacity-60 font-light text-center capitalize`}>
+            <span className={`${isDesktop ? "text-base" : isTablet ? "text-sm" : "text-xs"} text-[var(--text)] opacity-60 font-light text-center capitalize`}>
               {effectiveColor}
             </span>
             {destructCountdown && !isDestructedNow && (
-              <span className={`${isDesktop ? "text-sm" : "text-[11px]"} font-mono opacity-90 text-[var(--text)]`}>
+              <span className={`${isDesktop ? "text-sm" : isTablet ? "text-xs" : "text-[11px]"} font-mono opacity-90 text-[var(--text)]`}>
                 self-destructs in <span className="font-bold">{destructCountdown}</span>
               </span>
             )}
@@ -409,7 +414,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
   }
 
   return (
-    <div className={`relative group ${compact ? 'my-1.5 sm:my-2.5 pb-7' : 'my-3.5 sm:my-5 pb-7'}`}>
+    <div className={`relative group ${compact ? 'my-1 sm:my-2 pb-7' : 'my-3 sm:my-4 pb-7'}`}>
       <div className="pointer-events-none absolute bottom-1 left-1/2 z-20 w-[84vw] max-w-[460px] -translate-x-1/2">
         <Link
           href={`/memories/${memory.id}`}
