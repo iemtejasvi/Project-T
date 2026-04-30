@@ -488,7 +488,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
               dragScroll.setZoneEl(el);
             }}
             className={`flip-card-back absolute w-full h-full backface-hidden rounded-[2rem] shadow-[inset_0_-1px_0_rgba(0,0,0,0.04)] border border-[var(--border)]/25 ${memory.animation === "rough" ? "overflow-hidden" : ""} ${large ? 'pt-6 pb-8 px-10 xl:pt-8 xl:pb-10 xl:px-12' : 'pt-5 pb-6 px-7 xl:pt-7 xl:pb-8 xl:px-9'} flex flex-col justify-start rotate-y-180 ${dragScroll.getCursorClassName()} ${flipped ? "pointer-events-auto" : "pointer-events-none"}`}
-            style={{ ...bgStyle, ...borderStyle, ...dragScroll.getZoneStyle(), userSelect: "none", touchAction: "none" }}
+            style={{ ...bgStyle, ...borderStyle, ...dragScroll.getZoneStyle(), userSelect: "none", touchAction: "pan-y" }}
           >
             {memory.animation === "rough" && (
               <div
