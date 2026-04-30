@@ -138,6 +138,11 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
   const containerRef = useRef<HTMLDivElement>(null);
   const [needsScroll, setNeedsScroll] = useState(false);
   const effectiveRef = containerRefOverride ?? containerRef;
+  const scrollStyle = {
+    ...(style ?? {}),
+    WebkitOverflowScrolling: "touch",
+    touchAction: "pan-y",
+  } as React.CSSProperties;
 
   useEffect(() => {
     if (effectiveRef.current) {
@@ -153,7 +158,7 @@ const ScrollableMessage: React.FC<{ children: React.ReactNode; style?: React.CSS
       className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 ${
         needsScroll ? "no_scrollbar" : ""
       } ${className ?? ""}`}
-      style={style}
+      style={scrollStyle}
     >
       {children}
     </div>
@@ -514,7 +519,9 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 style={{
                   fontSize: '1.65rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
-                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
+                  "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`,
+                  WebkitOverflowScrolling: "touch",
+                  touchAction: "pan-y",
                 } as React.CSSProperties}
               >
                 {renderMessageLarge(memory, effectiveColor, destructedMessage, isDestructedNow, destructAtLabel)}
