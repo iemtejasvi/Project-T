@@ -267,10 +267,7 @@ export default function SubmitPage() {
         });
         clearTimeout(timer);
 
-        if (!response.ok) {
-          console.error("Error checking user status:", response.status);
-          return;
-        }
+        if (!response.ok) return;
 
         const result = await response.json();
         
@@ -296,8 +293,8 @@ export default function SubmitPage() {
           setIsFormDisabled(false);
           setError("");
         }
-      } catch (err) {
-        console.error("Network error checking user status:", err);
+      } catch {
+        // Non-blocking status checks should not make the form noisy.
       }
     }
 

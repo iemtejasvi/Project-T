@@ -162,7 +162,7 @@ export default function NameArchiveClient() {
         </div>
       </header>
 
-      <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-grow max-w-5xl xl:max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {!nameExists ? (
           <div className="text-center py-16">
             <p className="text-[var(--text)] text-lg mb-6">

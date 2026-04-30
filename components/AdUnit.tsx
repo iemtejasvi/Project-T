@@ -22,9 +22,11 @@ interface AdUnitProps {
   label?: boolean;
   /** Layout key for in-feed fluid ads */
   layoutKey?: string;
+  /** Called when the ad is blocked, fails, or reports no fill */
+  onCollapse?: () => void;
 }
 
-const ADSENSE_CLIENT = "ca-pub-4151123662328725";
+const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_ID || "";
 const ENABLE_ADS = process.env.NEXT_PUBLIC_ENABLE_ADS === "true";
 
 export default function AdUnit({
@@ -36,13 +38,20 @@ export default function AdUnit({
   minHeight = 90,
   label = true,
   layoutKey,
+  onCollapse,
 }: AdUnitProps) {
   const adRef = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
   const [adFailed, setAdFailed] = useState(false);
+  const collapseAd = () => {
+    setAdFailed(true);
+    onCollapse?.();
+  };
 
   useEffect(() => {
-    if (!ENABLE_ADS || pushed.current) return;
+    if (!ENABLE_ADS || !ADSENSE_CLIENT || pushed.current) return;
+    let fallbackTimer: number | null = null;
+    let observer: MutationObserver | null = null;
 
     try {
       if (!window.adsbygoogle) {
@@ -53,11 +62,41 @@ export default function AdUnit({
         pushed.current = true;
       }
     } catch {
-      setAdFailed(true);
+      collapseAd();
     }
+
+    const collapseIfBlockedOrUnfilled = () => {
+      const adEl = adRef.current;
+      const adStatus = adEl?.getAttribute("data-ad-status");
+      const adsGlobal = window.adsbygoogle as unknown as { loaded?: boolean } | undefined;
+
+      if (adStatus === "unfilled") {
+        collapseAd();
+        return;
+      }
+
+      if (!adsGlobal?.loaded && !adStatus) {
+        collapseAd();
+      }
+    };
+
+    if (adRef.current) {
+      observer = new MutationObserver(collapseIfBlockedOrUnfilled);
+      observer.observe(adRef.current, {
+        attributes: true,
+        attributeFilter: ["data-ad-status"],
+      });
+    }
+
+    fallbackTimer = window.setTimeout(collapseIfBlockedOrUnfilled, 7000);
+
+    return () => {
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
+      observer?.disconnect();
+    };
   }, []);
 
-  if (!ENABLE_ADS) return null;
+  if (!ENABLE_ADS || !ADSENSE_CLIENT) return null;
 
   // Collapse container if ad blocked / failed
   if (adFailed) return null;
@@ -87,12 +126,14 @@ export default function AdUnit({
   );
 }
 
-/** Desktop-only sidebar rail ad — sticky, shown only on 1440px+ viewports */
+/** Desktop-only sidebar rail ad - sticky, shown only on wide viewports */
 export function SidebarAdUnit({ slot }: { slot: string }) {
-  if (!ENABLE_ADS) return null;
+  const [collapsed, setCollapsed] = useState(false);
+  if (!ENABLE_ADS || !ADSENSE_CLIENT) return null;
+  if (collapsed) return null;
 
   return (
-    <div className="hidden 2xl:block absolute top-20 -left-[180px] w-[160px]">
+    <div className="hidden min-[1720px]:block absolute top-20 -left-[180px] w-[160px]">
       <div className="sticky top-20 opacity-50 hover:opacity-70 transition-opacity duration-300">
         <AdUnit
           slot={slot}
@@ -101,6 +142,7 @@ export function SidebarAdUnit({ slot }: { slot: string }) {
           minHeight={600}
           style={{ width: 160, height: 600 }}
           className="rounded-xl overflow-hidden"
+          onCollapse={() => setCollapsed(true)}
         />
       </div>
     </div>
@@ -116,16 +158,23 @@ export function InFeedAdUnit({
   /** Number of grid columns (1 = mobile, 2 = tablet, 3 = desktop) */
   cols?: number;
 }) {
-  if (!ENABLE_ADS) return null;
+  const [collapsed, setCollapsed] = useState(false);
+  if (!ENABLE_ADS || !ADSENSE_CLIENT) return null;
+  if (collapsed) return null;
 
   const widthClass = cols === 3
-    ? 'max-w-[1260px] px-5'
+    ? 'max-w-full'
     : cols === 2
-      ? 'max-w-[690px] px-5'
-      : 'max-w-xs sm:max-w-sm';
+      ? 'max-w-full'
+      : 'w-[84vw] max-w-[460px]';
+  const spacingClass = cols === 3
+    ? 'my-4'
+    : cols === 2
+      ? 'my-3'
+      : 'my-4';
 
   return (
-    <div className={`w-full mx-auto my-6 ${widthClass}`}>
+    <div className={`w-full mx-auto ${spacingClass} ${widthClass}`}>
       <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)]/10 overflow-hidden">
         <AdUnit
           slot={slot}
@@ -133,6 +182,7 @@ export function InFeedAdUnit({
           layoutKey="-gj-i+16-52+b7"
           minHeight={cols === 1 ? 250 : cols === 2 ? 150 : 90}
           className="px-4 py-3"
+          onCollapse={() => setCollapsed(true)}
         />
       </div>
     </div>
@@ -147,7 +197,9 @@ export function BelowContentAdUnit({
   slot: string;
   className?: string;
 }) {
-  if (!ENABLE_ADS) return null;
+  const [collapsed, setCollapsed] = useState(false);
+  if (!ENABLE_ADS || !ADSENSE_CLIENT) return null;
+  if (collapsed) return null;
 
   return (
     <div
@@ -159,6 +211,7 @@ export function BelowContentAdUnit({
           format="horizontal"
           minHeight={90}
           className="px-4 py-3"
+          onCollapse={() => setCollapsed(true)}
         />
       </div>
     </div>
