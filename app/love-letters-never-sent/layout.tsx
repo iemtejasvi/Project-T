@@ -8,7 +8,7 @@ export default function LoveLettersLayout({ children }: { children: React.ReactN
             "@context": "https://schema.org",
             "@type": "Article",
             "headline": "Love Letters Never Sent",
-            "description": "From Neruda's unnamed beloved to the words you never said .  love letters never sent are the most honest kind.",
+            "description": "From Neruda's unnamed beloved to the words you never said, love letters never sent are the most honest kind.",
             "url": "https://www.ifonlyisentthis.com/love-letters-never-sent",
             "datePublished": "2026-04-14",
             "author": {

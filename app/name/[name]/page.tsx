@@ -1,4 +1,5 @@
 import { redirect, notFound } from "next/navigation";
+import type { Metadata } from 'next';
 import { primaryDB } from '@/lib/memoryDB';
 import { unstable_cache } from 'next/cache';
 import { normalizeNameSlug, sanitizeForPostgrestFilter } from '@/lib/nameUtils';
@@ -24,6 +25,40 @@ const getCachedNameExists = unstable_cache(
 
 interface NamePageProps {
   params: Promise<{ name: string }>;
+}
+
+export async function generateMetadata({ params }: NamePageProps): Promise<Metadata> {
+  const { name: rawSlug } = await params;
+  const slug = normalizeNameSlug(rawSlug);
+  const displayName = slug
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+  const title = `Unsent Letters to ${displayName}`;
+  const description = `Read unsent letters and anonymous confessions written for ${displayName}. Share the messages you never spoke on If Only I Sent This.`;
+  const path = `/name/${encodeURIComponent(slug)}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: path,
+    },
+    openGraph: {
+      title: `${title} | If Only I Sent This`,
+      description,
+      url: `https://www.ifonlyisentthis.com${path}`,
+      siteName: 'If Only I Sent This',
+      type: 'website',
+      images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | If Only I Sent This`,
+      description,
+      images: ['/opengraph-image.png'],
+    },
+  };
 }
 
 export default async function NamePage({ params }: NamePageProps) {

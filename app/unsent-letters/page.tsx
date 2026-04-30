@@ -4,14 +4,14 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "The Art of Unsent Letters .  Words We Never Said",
-  description: "From Kafka's letters to Felice to the text you deleted at 2am .  unsent letters are humanity's most honest form of expression. Write yours anonymously.",
+  title: "The Art of Unsent Letters | Words We Never Said",
+  description: "From Kafka's letters to Felice to the text you deleted at 2am, unsent letters are humanity's most honest form of expression. Write yours anonymously.",
   alternates: {
     canonical: '/unsent-letters',
   },
   openGraph: {
-    title: "The Art of Unsent Letters .  Words We Never Said",
-    description: "From Kafka's letters to Felice to the text you deleted at 2am .  unsent letters are humanity's most honest form of expression. Write yours anonymously.",
+    title: "The Art of Unsent Letters | Words We Never Said",
+    description: "From Kafka's letters to Felice to the text you deleted at 2am, unsent letters are humanity's most honest form of expression. Write yours anonymously.",
     url: 'https://www.ifonlyisentthis.com/unsent-letters',
     siteName: 'If Only I Sent This',
     type: 'article',
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Art of Unsent Letters .  Words We Never Said",
-    description: "From Kafka's letters to Felice to the text you deleted at 2am .  unsent letters are humanity's most honest form of expression. Write yours anonymously.",
+    title: "The Art of Unsent Letters | Words We Never Said",
+    description: "From Kafka's letters to Felice to the text you deleted at 2am, unsent letters are humanity's most honest form of expression. Write yours anonymously.",
     images: ['/opengraph-image.png'],
   },
 };

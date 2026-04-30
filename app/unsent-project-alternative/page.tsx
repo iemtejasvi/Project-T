@@ -4,22 +4,22 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "The Best Unsent Project Alternative .  Free, Fast & Anonymous",
-  description: "Looking for an Unsent Project alternative? If Only I Sent This is a modern, free archive for unsent letters, anonymous confessions, and messages you never sent. No glitches, no waiting .  write and share instantly.",
+  title: "Best Unsent Project Alternative | Free & Anonymous",
+  description: "Looking for an Unsent Project alternative? If Only I Sent This is a modern, free archive for unsent letters, anonymous confessions, and messages you never sent. No glitches, no waiting; write and share instantly.",
   alternates: {
     canonical: '/unsent-project-alternative',
   },
   openGraph: {
-    title: "The Best Unsent Project Alternative .  If Only I Sent This",
+    title: "Best Unsent Project Alternative | If Only I Sent This",
     description: "A modern, free archive for unsent letters and anonymous confessions. Faster, cleaner, and always online. The best alternative to The Unsent Project.",
     url: 'https://www.ifonlyisentthis.com/unsent-project-alternative',
     siteName: 'If Only I Sent This',
     type: 'article',
-    images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This .  Unsent Project Alternative' }],
+    images: [{ url: '/opengraph-image.png', width: 800, height: 533, alt: 'If Only I Sent This | Unsent Project Alternative' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Best Unsent Project Alternative .  If Only I Sent This",
+    title: "Best Unsent Project Alternative | If Only I Sent This",
     description: "A modern, free archive for unsent letters and anonymous confessions. Faster, cleaner, and always online.",
     images: ['/opengraph-image.png'],
   },

@@ -4,14 +4,14 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Love Letters Never Sent .  Anonymous Confessions of the Heart",
-  description: "From Neruda's unnamed beloved to the words you never said .  love letters never sent are the most honest kind. Write yours anonymously, or read what others held back.",
+  title: "Love Letters Never Sent | Anonymous Confessions",
+  description: "From Neruda's unnamed beloved to the words you never said, love letters never sent are the most honest kind. Write yours anonymously, or read what others held back.",
   alternates: {
     canonical: '/love-letters-never-sent',
   },
   openGraph: {
-    title: "Love Letters Never Sent .  Anonymous Confessions of the Heart",
-    description: "From Neruda's unnamed beloved to the words you never said .  love letters never sent are the most honest kind. Write yours anonymously, or read what others held back.",
+    title: "Love Letters Never Sent | Anonymous Confessions",
+    description: "From Neruda's unnamed beloved to the words you never said, love letters never sent are the most honest kind. Write yours anonymously, or read what others held back.",
     url: 'https://www.ifonlyisentthis.com/love-letters-never-sent',
     siteName: 'If Only I Sent This',
     type: 'website',
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Love Letters Never Sent .  Anonymous Confessions of the Heart",
-    description: "From Neruda's unnamed beloved to the words you never said .  love letters never sent are the most honest kind. Write yours anonymously, or read what others held back.",
+    title: "Love Letters Never Sent | Anonymous Confessions",
+    description: "From Neruda's unnamed beloved to the words you never said, love letters never sent are the most honest kind. Write yours anonymously, or read what others held back.",
     images: ['/opengraph-image.png'],
   },
 };

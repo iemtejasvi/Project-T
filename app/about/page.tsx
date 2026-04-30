@@ -4,13 +4,13 @@ import MoreOptionsDropdown from "@/components/MoreOptionsDropdown";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About .  A Sanctuary for Unsent Letters",
-  description: "If Only I Sent This is a free, anonymous archive for unsent letters, love letters never sent, and words you never said. Write what you held back .  to a person, a pet, or a moment.",
+  title: "About | A Sanctuary for Unsent Letters",
+  description: "If Only I Sent This is a free, anonymous archive for unsent letters, love letters never sent, and words you never said. Write what you held back to a person, a pet, or a moment.",
   alternates: {
     canonical: '/about',
   },
   openGraph: {
-    title: "About .  If Only I Sent This",
+    title: "About | If Only I Sent This",
     description: "A free, anonymous archive for unsent letters, love letters never sent, and words you never said.",
     url: 'https://www.ifonlyisentthis.com/about',
     siteName: 'If Only I Sent This',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "About .  If Only I Sent This",
+    title: "About | If Only I Sent This",
     description: "A free, anonymous archive for unsent letters, love letters never sent, and words you never said.",
     images: ['/opengraph-image.png'],
   },

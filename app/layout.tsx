@@ -38,17 +38,11 @@ export const viewport = {
 export const metadata = {
   metadataBase: new URL('https://www.ifonlyisentthis.com'),
   title: {
-    default: "If Only I Sent This .  Unsent Letters, Anonymous Confessions & Messages Never Sent",
-    template: "%s .  If Only I Sent This",
+    default: "If Only I Sent This: Unsent Letters & Anonymous Confessions",
+    template: "%s",
   },
   description:
-    "A sanctuary for unsent letters, love letters never sent, anonymous confessions, and the words you never said. Write what you held back .  to a person, a pet, or a moment. Free, no account needed.",
-  keywords: [
-    'unsent letters', 'read unsent letters by name', 'anonymous confessions',
-    'sites like unsent project', 'unsent project alternative',
-    'letters to my ex', 'write anonymous letter', 'venting websites anonymous',
-    'read anonymous messages', 'if only I sent this',
-  ],
+    "Share your unsent letters, anonymous confessions, and messages never spoken on If Only I Sent This. A free, no-account platform to express what you held back to people, pets, or moments.",
   other: {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
@@ -77,10 +71,10 @@ export const metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: "If Only I Sent This .  Unsent Letters & Anonymous Confessions",
+    title: "If Only I Sent This: Unsent Letters & Anonymous Confessions",
     description:
-      "A sanctuary for unsent letters, love letters never sent, and the words you never said. Write your anonymous confession .  free, no account needed.",
-    url: 'https://www.ifonlyisentthis.com',
+      "Share your unsent letters, anonymous confessions, and messages never spoken on If Only I Sent This. A free, no-account platform to express what you held back to people, pets, or moments.",
+    url: 'https://www.ifonlyisentthis.com/',
     siteName: 'If Only I Sent This',
     type: 'website',
     images: [
@@ -88,15 +82,15 @@ export const metadata = {
         url: '/opengraph-image.png',
         width: 800,
         height: 533,
-        alt: 'If Only I Sent This .  Unsent Letters & Anonymous Confessions',
+        alt: 'If Only I Sent This: Unsent Letters & Anonymous Confessions',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "If Only I Sent This .  Unsent Letters & Anonymous Confessions",
+    title: "If Only I Sent This: Unsent Letters & Anonymous Confessions",
     description:
-      "A sanctuary for unsent letters, love letters never sent, and the words you never said. Write your anonymous confession .  free, no account needed.",
+      "Share your unsent letters, anonymous confessions, and messages never spoken on If Only I Sent This. A free, no-account platform to express what you held back to people, pets, or moments.",
     images: ['/opengraph-image.png'],
   },
   alternates: {
