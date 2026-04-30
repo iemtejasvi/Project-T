@@ -6,7 +6,6 @@ import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
 import { laBelleAuroreClass } from '@/lib/fonts';
 import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
-import { SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
 import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
 import { filterProfanity } from '@/lib/profanityFilter';
@@ -173,11 +172,7 @@ function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMe
     );
   }
   const messageToRender = filterProfanity(memory.message);
-  const wordCount = countWords(messageToRender);
-  const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
-  const textClass = isShortOrExact
-    ? "text-[2.5rem] tracking-wide leading-snug break-words hyphens-none"
-    : "text-[1.65rem] tracking-wide leading-snug break-words hyphens-none";
+  const textClass = "text-[1.65rem] tracking-wide leading-snug break-words hyphens-none";
   switch (memory.animation) {
     case "cursive":
       return (
@@ -517,7 +512,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 ref={backMessageRef}
                 className={`flex-1 overflow-y-auto text-[var(--text)] whitespace-pre-wrap break-words hyphens-none pt-2 relative z-10 no_scrollbar ${dragScroll.getCursorClassName()}`}
                 style={{
-                  fontSize: (isDestructedNow ? '' : filterProfanity(memory.message)).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2.5rem' : '1.65rem',
+                  fontSize: '1.65rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}
@@ -529,7 +524,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
                 containerRefOverride={backMessageRef}
                 className={dragScroll.getCursorClassName()}
                 style={{
-                  fontSize: (isDestructedNow ? '' : filterProfanity(memory.message)).split(/[\s.]+/).filter(word => word.length > 0).length <= SPECIAL_EFFECT_WORD_LIMIT ? '2.5rem' : '1.65rem',
+                  fontSize: '1.65rem',
                   "--scroll-track": effectiveColor === "default" ? "#f8bbd0" : `var(--color-${effectiveColor}-bg)`,
                   "--scroll-thumb": effectiveColor === "default" ? "#e91e63" : `var(--color-${effectiveColor}-border)`
                 } as React.CSSProperties}

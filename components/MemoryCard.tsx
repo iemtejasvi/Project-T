@@ -7,7 +7,6 @@ import HandwrittenText from './HandwrittenText';
 import { laBelleAuroreClass } from '@/lib/fonts';
 import "../app/globals.css";
 import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
-import { SPECIAL_EFFECT_WORD_LIMIT, countWords } from '@/lib/constants';
 import TypewriterPrompt from './TypewriterPrompt';
 import { isLinkableName } from '@/lib/nameUtils';
 import { filterProfanity } from '@/lib/profanityFilter';
@@ -281,15 +280,9 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       );
     }
     const messageToRender = filterProfanity(memory.message);
-    const wordCount = countWords(messageToRender);
-    const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
     const textClass = forceLarge
-      ? (wordCount > 50
-          ? "text-[16px] tracking-wide leading-relaxed break-words hyphens-none"
-          : "text-[28px] tracking-wide leading-snug break-words hyphens-none")
-      : isShortOrExact
-        ? "text-[24px] tracking-wide leading-snug break-words hyphens-none"
-        : "text-[21px] tracking-wide leading-snug break-words hyphens-none";
+      ? "text-[28px] tracking-wide leading-snug break-words hyphens-none"
+      : "text-[21px] tracking-wide leading-snug break-words hyphens-none";
     
     switch (memory.animation) {
       case "cursive":
@@ -328,11 +321,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         );
       }
       const filteredMessage = filterProfanity(memory.message);
-      const wordCount = countWords(filteredMessage);
-      const isShortOrExact = wordCount <= SPECIAL_EFFECT_WORD_LIMIT;
-      const textClass = isShortOrExact
-        ? "text-5xl tracking-wide leading-snug break-words hyphens-none"
-        : "text-4xl tracking-wide leading-snug break-words hyphens-none";
+      const textClass = "text-4xl tracking-wide leading-snug break-words hyphens-none";
       switch (memory.animation) {
         case "cursive":
           return (
