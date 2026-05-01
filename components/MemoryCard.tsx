@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import CursiveText from './CursiveText';
 import HandwrittenText from './HandwrittenText';
-import { cormorantGaramondClass, laBelleAuroreClass } from '@/lib/fonts';
+import { laBelleAuroreClass, loraClass } from '@/lib/fonts';
 import "../app/globals.css";
 import { DESTRUCTED_MESSAGES, allowedColors, colorMapping, colorBgMap } from './cardConstants';
 import TypewriterPrompt from './TypewriterPrompt';
@@ -255,7 +255,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
       : useLargeText
       ? "text-[28px] tracking-wide leading-snug break-words hyphens-none"
       : "text-[21px] tracking-wide leading-snug break-words hyphens-none";
-    const readingFontClass = readingMode ? cormorantGaramondClass : "";
+    const readingFontClass = readingMode ? loraClass : "";
     
     switch (memory.animation) {
       case "cursive":
@@ -312,7 +312,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({ memory, detail, variant = "defa
         default:
           return (
             <div className="space-y-2">
-              <p className={`${textClass} ${cormorantGaramondClass} whitespace-pre-wrap`}>{filteredMessage}</p>
+              <p className={`${textClass} ${loraClass} whitespace-pre-wrap`}>{filteredMessage}</p>
             </div>
           );
       }

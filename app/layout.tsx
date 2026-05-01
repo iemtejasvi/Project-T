@@ -5,7 +5,7 @@ import UuidInitializer from "@/components/UuidInitializer";
 import Script from "next/script";
 import RoutePrefetcher from "@/components/RoutePrefetcher";
 
-import { Cormorant_Garamond, La_Belle_Aurore, Pacifico } from 'next/font/google';
+import { La_Belle_Aurore, Lora, Pacifico } from 'next/font/google';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 const laBelleAurore = La_Belle_Aurore({
@@ -22,11 +22,11 @@ const pacifico = Pacifico({
   variable: '--font-pacifico',
 });
 
-const cormorantGaramond = Cormorant_Garamond({
+const lora = Lora({
   weight: ['400', '500'],
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-cormorant-garamond',
+  variable: '--font-lora',
 });
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || '';
@@ -187,7 +187,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
       </head>
-      <body className={`min-h-screen bg-[var(--background)] text-[var(--text)] ${laBelleAurore.variable} ${pacifico.variable} ${cormorantGaramond.variable}`}>
+      <body className={`min-h-screen bg-[var(--background)] text-[var(--text)] ${laBelleAurore.variable} ${pacifico.variable} ${lora.variable}`}>
         <ThemeSwitcher />
         <UuidInitializer />
         <RoutePrefetcher />
