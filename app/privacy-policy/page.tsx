@@ -70,7 +70,7 @@ export default function PrivacyPolicy() {
                   <li>To operate, maintain, and improve the archive experience.</li>
                   <li>To moderate and publish approved memories.</li>
                   <li>To keep the service secure and prevent abuse.</li>
-                  <li>To display advertisements through Google AdSense.</li>
+                  <li>To display advertisements through Google AdSense, if and when enabled (for example, once our account is approved).</li>
                   <li>To analyze site usage and performance via Google Analytics.</li>
                 </ul>
               </div>
@@ -78,7 +78,7 @@ export default function PrivacyPolicy() {
               <div className="md:col-span-2">
                 <h3 className="text-xl font-semibold mb-3 text-[var(--text)]">Advertising & Third-Party Partners</h3>
                 <ul className="list-disc list-inside space-y-2 text-[var(--text)] text-base sm:text-lg">
-                  <li>We use Google AdSense to display advertisements on our site. Google and its ad technology partners may use cookies to serve ads based on your prior visits to this site and other websites.</li>
+                  <li>We may use Google AdSense to display advertisements on our site in the future (for example, once our account is approved). If/when enabled, Google and its ad technology partners may use cookies to serve ads based on your prior visits to this site and other websites.</li>
                   <li>Google&apos;s use of advertising cookies enables it and its partners to serve ads based on your browsing activity. This may include the use of the DoubleClick cookie.</li>
                   <li>Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website and/or other websites.</li>
                   <li>You may opt out of personalized advertising by visiting{" "}
@@ -95,7 +95,7 @@ export default function PrivacyPolicy() {
                 <ul className="list-disc list-inside space-y-2 text-[var(--text)] text-base sm:text-lg">
                   <li><strong>Essential cookies:</strong> We use a unique anonymous identifier (user_uuid) stored in a cookie and local storage for spam prevention and rate limiting.</li>
                   <li><strong>Analytics cookies:</strong> Google Analytics uses cookies (_ga, _gid) to help us understand how visitors use the site.</li>
-                  <li><strong>Advertising cookies:</strong> Google AdSense and its partners use cookies to serve relevant ads and measure ad performance.</li>
+                  <li><strong>Advertising cookies:</strong> If/when ads are enabled, Google AdSense and its partners may use cookies to serve relevant ads and measure ad performance.</li>
                   <li>You can manage or delete cookies through your browser settings. Disabling cookies may affect some site features.</li>
                   <li>For complete details, see our <Link href="/cookie-policy" className="text-[var(--accent)] hover:underline">Cookie Policy</Link>.</li>
                 </ul>

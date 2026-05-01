@@ -116,7 +116,7 @@ export default function CookiePolicyPage() {
               <div>
                 <h3 className="text-xl font-semibold mb-3 text-[var(--text)]">Advertising Cookies</h3>
                 <p className="text-[var(--text)] text-base sm:text-lg mb-3">
-                  We use Google AdSense to display advertisements. Google and its advertising partners may set cookies to serve personalized ads and measure ad performance.
+                  We may use Google AdSense to display advertisements in the future (for example, once our account is approved). If/when enabled, Google and its advertising partners may set cookies to serve personalized ads and measure ad performance.
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[var(--text)] text-sm sm:text-base border-collapse">

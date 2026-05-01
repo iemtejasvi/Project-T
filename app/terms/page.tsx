@@ -81,7 +81,7 @@ export default function TermsPage() {
               <div>
                 <h2 className="text-2xl font-semibold text-[var(--text)] mb-4">Advertising</h2>
                 <ul className="list-disc list-inside space-y-2 text-[var(--text)] text-base sm:text-lg">
-                  <li>The Service displays third-party advertisements provided by Google AdSense.</li>
+                  <li>The Service may display third-party advertisements provided by Google AdSense (once our account is enabled).</li>
                   <li>We are not responsible for the content of any advertisements displayed on the Service.</li>
                   <li>Your interactions with advertisers are solely between you and the advertiser, subject to the advertiser&apos;s own terms and privacy policies.</li>
                   <li>For more information about ad personalization, see our <Link href="/privacy-policy" className="text-[var(--accent)] hover:underline">Privacy Policy</Link>.</li>

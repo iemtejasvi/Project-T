@@ -67,7 +67,7 @@ export default function DisclaimerPage() {
               <div>
                 <h2 className="text-2xl font-semibold text-[var(--text)] mb-4">Third-Party Advertisements</h2>
                 <ul className="list-disc list-inside space-y-2 text-[var(--text)] text-base sm:text-lg">
-                  <li>This site displays advertisements served by Google AdSense and its advertising partners.</li>
+                  <li>This site may display advertisements served by Google AdSense and its advertising partners (once our account is enabled).</li>
                   <li>The appearance of ads on our site does not constitute an endorsement of the advertised products, services, or companies.</li>
                   <li>We have no control over the content of ads and are not responsible for any claims, losses, or damages arising from your interaction with advertisements.</li>
                   <li>Ad targeting is managed by Google. See our <Link href="/privacy-policy" className="text-[var(--accent)] hover:underline">Privacy Policy</Link> for details on ad personalization and opt-out options.</li>
