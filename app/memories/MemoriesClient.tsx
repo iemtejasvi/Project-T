@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo, useRef, Suspense } from "react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { fetchWithUltraCache, invalidateCache } from "@/lib/enhancedCache";
@@ -315,7 +316,24 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
     }
   }, [page, searchTerm, fetchPageData]);
 
-  
+  // Desktop-only: Flip All cards toggle
+  const [allFlipped, setAllFlipped] = useState(false);
+  const handleFlipAll = useCallback(() => {
+    const next = !allFlipped;
+    setAllFlipped(next);
+    window.dispatchEvent(new CustomEvent('flip-all-cards', { detail: { flipped: next } }));
+  }, [allFlipped]);
+
+  // Re-broadcast flip state when new cards mount (page/data change)
+  useEffect(() => {
+    if (allFlipped) {
+      // Small delay to let new cards mount and attach their event listeners
+      const t = setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('flip-all-cards', { detail: { flipped: true } }));
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [displayedMemories, allFlipped]);
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
@@ -360,14 +378,38 @@ function MemoriesContent({ initialMemories, initialTotalCount }: MemoriesClientP
 
       <main className="flex-grow max-w-5xl xl:max-w-7xl mx-auto px-2 sm:px-6 py-8 xl:py-12 relative">
         <SidebarAdUnit slot="4305235800" />
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-center gap-2.5">
           <input
             type="text"
             placeholder="Search by recipient name..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="max-w-xs sm:w-[400px] mx-auto block p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
+            className="max-w-xs sm:w-[400px] w-full p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--accent)]"
           />
+          {/* Desktop-only: Reveal toggle */}
+          {displayedMemories.length > 0 && (
+            <button
+              onClick={handleFlipAll}
+              className="hidden xl:block relative w-[48px] h-[26px] rounded-full transition-colors duration-300 flex-shrink-0"
+              style={{
+                backgroundColor: allFlipped ? '#4ade80' : '#b0a89e',
+                boxShadow: allFlipped
+                  ? 'inset 0 2px 4px rgba(0,0,0,0.15), 0 1px 2px rgba(74,222,128,0.3)'
+                  : 'inset 0 2px 4px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.08)',
+              }}
+              aria-label={allFlipped ? 'Hide all cards' : 'Reveal all cards'}
+            >
+              <motion.span
+                className="absolute top-[3px] w-[20px] h-[20px] rounded-full"
+                style={{
+                  background: 'linear-gradient(145deg, #ffffff, #e8e8e8)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.9)',
+                }}
+                animate={{ left: allFlipped ? 'calc(100% - 23px)' : '3px' }}
+                transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+              />
+            </button>
+          )}
         </div>
         {initialLoading && displayedMemories.length === 0 ? (
           <div className="flex items-center justify-center py-16">

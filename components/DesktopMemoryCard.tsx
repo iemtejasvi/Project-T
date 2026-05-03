@@ -207,6 +207,17 @@ function renderMessageLarge(memory: Memory, effectiveColor: string, destructedMe
 
 const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) => {
   const [flipped, setFlipped] = useState(false);
+  // Listen for global flip-all-cards event (desktop archive feature)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (typeof detail?.flipped === 'boolean') {
+        setFlipped(detail.flipped);
+      }
+    };
+    window.addEventListener('flip-all-cards', handler);
+    return () => window.removeEventListener('flip-all-cards', handler);
+  }, []);
   const backFaceRef = useRef<HTMLDivElement>(null);
   const backMessageRef = useRef<HTMLDivElement>(null);
   const dragScroll = useDragToScroll({ scrollRef: backMessageRef });
@@ -371,7 +382,7 @@ const DesktopMemoryCard: React.FC<DesktopMemoryCardProps> = ({ memory, large }) 
         whileHover={{ y: -4, boxShadow: "0 30px 60px rgba(0,0,0,0.18), 0 12px 24px rgba(0,0,0,0.10)", transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0, scale: 1, boxShadow: "0 20px 44px rgba(0,0,0,0.16), 0 8px 18px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.05)" }}
-        className={`flip-card relative w-full ${large ? "h-[480px] xl:h-[490px]" : "h-[460px] xl:h-[490px]"} perspective-1000 ${flipped ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} rounded-[2rem] hover:shadow-2xl mx-auto`}
+        className={`flip-card relative w-full ${large ? "h-[480px] xl:h-[520px]" : "h-[460px] xl:h-[520px]"} perspective-1000 ${flipped ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"} rounded-[2rem] hover:shadow-2xl mx-auto`}
         onClick={handleCardClick}
         style={{ ...bgStyle, ...borderStyle, WebkitPerspective: '1000px', perspective: '1000px' } as React.CSSProperties}
       >
